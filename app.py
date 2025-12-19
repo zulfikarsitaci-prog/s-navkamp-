@@ -2,6 +2,7 @@ import streamlit as st
 import random
 import os
 import time
+import json
 import fitz  # PyMuPDF
 
 # --- SAYFA AYARLARI ---
@@ -10,6 +11,8 @@ st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="�
 # --- TASARIM VE GİZLİLİK ---
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
+    
     .stApp { background-color: #F0F4C3 !important; }
     h1, h2, h3, h4, .stMarkdown, p { color: #212121 !important; }
     
@@ -29,15 +32,33 @@ st.markdown("""
         margin-bottom: 20px;
     }
     
-    /* İmza Alanı */
+    /* Zülfikar Sıtacı İmzası (El Yazısı Fontu) */
     .imza {
-        margin-top: 50px;
+        margin-top: 40px;
+        font-family: 'Dancing Script', cursive; /* El yazısı fontu */
+        color: #D84315;
+        font-size: 28px; /* Yazı boyutu büyütüldü */
+        text-align: right;
+        padding-right: 20px;
+        transform: rotate(-2deg); /* Hafif eğiklik */
+    }
+    .imza-not {
         font-family: 'Courier New', monospace;
+        font-size: 12px;
         color: #555;
+        text-align: right;
+        margin-top: -10px;
+        padding-right: 20px;
+    }
+    
+    /* Kullanım Kılavuzu */
+    .kilavuz {
+        background-color: #FFF3E0;
+        border-left: 5px solid #FF9800;
+        padding: 15px;
+        margin-top: 20px;
+        text-align: left;
         font-size: 14px;
-        text-align: center;
-        border-top: 1px solid #aaa;
-        padding-top: 10px;
     }
     
     /* Butonlar */
@@ -144,42 +165,8 @@ PDF_HARITASI = {
 PDF_DOSYA_ADI = "tytson8.pdf"
 
 # ==============================================================================
-# 2. VERİ HAVUZU: MESLEK LİSESİ SORULARI (YILLIK PLAN - SABİT)
+# FONKSİYONLAR
 # ==============================================================================
-# Not: Buraya yıllık plana uygun daha fazla soru ekleyebilirsiniz.
-
-MESLEK_SORULARI = {
-    "9. Sınıf Meslek": [
-        {"soru": "İşletmenin sahip olduğu varlıkların kaynaklarını gösteren tabloya ne denir?", "secenekler": ["Bilanço", "Gelir Tablosu", "Mizan", "Yevmiye Defteri"], "cevap": "Bilanço"},
-        {"soru": "Aşağıdakilerden hangisi bir 'Varlık' hesabıdır?", "secenekler": ["Kasa", "Satıcılar", "Borç Senetleri", "Sermaye"], "cevap": "Kasa"},
-        {"soru": "Excel programında 'Toplama' işlemi için kullanılan fonksiyon hangisidir?", "secenekler": ["=TOPLA()", "=EĞER()", "=MAK()", "=MİN()"], "cevap": "=TOPLA()"},
-        {"soru": "Klavye kullanırken 'Enter' tuşunun temel görevi nedir?", "secenekler": ["Onaylamak / Alt satıra geçmek", "Silmek", "Boşluk bırakmak", "Büyük harf yapmak"], "cevap": "Onaylamak / Alt satıra geçmek"},
-        {"soru": "Tek düzen hesap planında '100 Kasa Hesabı' hangi grup içinde yer alır?", "secenekler": ["Dönen Varlıklar", "Duran Varlıklar", "Kısa Vadeli Yabancı Kaynaklar", "Öz Kaynaklar"], "cevap": "Dönen Varlıklar"}
-    ],
-    "10. Sınıf Meslek": [
-        {"soru": "Hukukun temel kaynaklarından biri olan 'Anayasa' hiyerarşide nerede bulunur?", "secenekler": ["En üstte", "Kanunların altında", "Yönetmeliklerin altında", "Genelgelerle eşit"], "cevap": "En üstte"},
-        {"soru": "Tacir kime denir?", "secenekler": ["Bir ticari işletmeyi kısmen dahi olsa kendi adına işleten kimseye", "Devlet memuruna", "Sadece şirketi olanlara", "Çiftçilere"], "cevap": "Bir ticari işletmeyi kısmen dahi olsa kendi adına işleten kimseye"},
-        {"soru": "F klavyede temel sıra harfleri aşağıdakilerden hangisidir?", "secenekler": ["U, İ, E, A, K, T, M, L, Y, Ş", "A, S, D, F, G, H, J, K, L, Ş", "Q, W, E, R, T, Y, U, I, O, P", "Z, X, C, V, B, N, M, Ö, Ç"], "cevap": "U, İ, E, A, K, T, M, L, Y, Ş"},
-        {"soru": "Genel muhasebede açılış kaydı hangi deftere yapılır?", "secenekler": ["Yevmiye Defteri", "Büyük Defter", "Envanter Defteri", "Karar Defteri"], "cevap": "Yevmiye Defteri"},
-        {"soru": "Satıcıya olan senetsiz borçlar hangi hesapta izlenir?", "secenekler": ["320 Satıcılar", "120 Alıcılar", "100 Kasa", "600 Yurtiçi Satışlar"], "cevap": "320 Satıcılar"}
-    ],
-    "11. Sınıf Meslek": [
-        {"soru": "Şirketler muhasebesine göre, en az sermaye ile kurulabilen sermaye şirketi hangisidir?", "secenekler": ["Limited Şirket", "Anonim Şirket", "Kollektif Şirket", "Komandit Şirket"], "cevap": "Limited Şirket"},
-        {"soru": "Maliyet muhasebesinin temel amacı nedir?", "secenekler": ["Üretilen mamulün birim maliyetini saptamak", "Vergi hesaplamak", "Personel maaşı ödemek", "Reklam yapmak"], "cevap": "Üretilen mamulün birim maliyetini saptamak"},
-        {"soru": "Anonim şirketlerde genel kurul toplantısı ne zaman yapılır?", "secenekler": ["Her hesap dönemi sonundan itibaren 3 ay içinde", "Her ay", "6 ayda bir", "İki yılda bir"], "cevap": "Her hesap dönemi sonundan itibaren 3 ay içinde"},
-        {"soru": "Vergi hukukunda vergiyi doğuran olayın gerçekleşmesi ile ne başlar?", "secenekler": ["Vergi Ödevi", "Vergi Cezası", "Vergi İndirimi", "Vergi Affı"], "cevap": "Vergi Ödevi"},
-        {"soru": "Aşağıdakilerden hangisi doğrudan gider çeşididir?", "secenekler": ["Direkt İlk Madde ve Malzeme", "Genel Yönetim Gideri", "Pazarlama Gideri", "Finansman Gideri"], "cevap": "Direkt İlk Madde ve Malzeme"}
-    ],
-    "12. Sınıf Meslek": [
-        {"soru": "Girişimcinin bir iş fikrini hayata geçirmeden önce hazırladığı plana ne denir?", "secenekler": ["İş Planı", "Ders Planı", "Tatil Planı", "Bütçe Planı"], "cevap": "İş Planı"},
-        {"soru": "SWOT analizinde 'W' harfi neyi temsil eder?", "secenekler": ["Zayıf Yönler (Weaknesses)", "Güçlü Yönler", "Fırsatlar", "Tehditler"], "cevap": "Zayıf Yönler (Weaknesses)"},
-        {"soru": "Finansal okuryazarlıkta 'Gelir - Gider' farkı pozitif ise buna ne denir?", "secenekler": ["Tasarruf / Kar", "Zarar", "Borç", "Kredi"], "cevap": "Tasarruf / Kar"},
-        {"soru": "İşletmenin kısa vadeli borç ödeme gücünü gösteren oran hangisidir?", "secenekler": ["Likidite Oranları", "Karlılık Oranları", "Faaliyet Oranları", "Mali Yapı Oranları"], "cevap": "Likidite Oranları"},
-        {"soru": "KOSGEB'in temel amacı nedir?", "secenekler": ["KOBİ'leri desteklemek ve geliştirmek", "Büyük şirketlere kredi vermek", "Vergi toplamak", "İthalatı artırmak"], "cevap": "KOBİ'leri desteklemek ve geliştirmek"}
-    ]
-}
-
-# --- FONKSİYON: PDF GÖSTERİCİ ---
 def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
     if not os.path.exists(dosya_yolu):
         st.error(f"⚠️ PDF Dosyası ({dosya_yolu}) bulunamadı!")
@@ -191,6 +178,18 @@ def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
         st.image(pix.tobytes(), caption=f"Sayfa {sayfa_numarasi}", use_container_width=True)
     except Exception as e:
         st.error(f"Hata: {e}")
+
+# DOSYADAN SORU ÇEKME FONKSİYONU
+def dosya_sorularini_yukle():
+    if not os.path.exists("sorular.json"):
+        st.warning("⚠️ 'sorular.json' dosyası bulunamadı! Lütfen GitHub'a yükleyiniz.")
+        return {}
+    try:
+        with open("sorular.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        st.error(f"Soru dosyası okuma hatası: {e}")
+        return {}
 
 # ==============================================================================
 # EKRAN AKIŞI KONTROLÜ
@@ -221,6 +220,15 @@ if st.session_state.ekran == 'giris':
         # Ad Soyad Girişi
         ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Ali Yılmaz")
         
+        # Kullanım Kılavuzu (Yeni Eklenen)
+        with st.expander("ℹ️ KULLANIM KILAVUZU (Okumak İçin Tıkla)"):
+            st.markdown("""
+            **1. TYT Kampı:** Gerçek çıkmış sorularla PDF üzerinden deneme sınavı olursunuz.
+            **2. Meslek Sınavları:** Kendi alanınızla ilgili (Muhasebe vb.) çoktan seçmeli test çözersiniz.
+            **3. Puanlama:** Her soru anında kontrol edilir, sınav sonunda toplam puanınız görünür.
+            **4. Önemli:** Sınav bitmeden sayfayı yenilemeyiniz.
+            """)
+
         if st.button("SİSTEME GİRİŞ YAP 🚀"):
             if ad_soyad_input.strip():
                 st.session_state.ad_soyad = ad_soyad_input
@@ -229,12 +237,10 @@ if st.session_state.ekran == 'giris':
             else:
                 st.error("Lütfen adınızı ve soyadınızı giriniz!")
         
-        # İMZA ALANI (En Altta)
+        # İMZA ALANI (El Yazısı)
         st.markdown("""
-        <div class='imza'>
-            Okulumuz muhasebe alanının okulumuza hediyesidir.<br>
-            <b>Zülfikar Sıtacı</b>
-        </div>
+        <div class='imza-not'>Okulumuz muhasebe alanının okulumuza hediyesidir.</div>
+        <div class='imza'>Zülfikar Sıtacı</div>
         """, unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
@@ -277,22 +283,25 @@ elif st.session_state.ekran == 'sinav':
                     else:
                         st.error("Bu ders için soru bulunamadı.")
             
-            else: # Meslek Lisesi Modu
-                # Sabit sorulardan seç
-                ders = st.selectbox("Sınıf Seviyesi / Alan:", list(MESLEK_SORULARI.keys()))
-                if st.button("Meslek Sınavını Başlat"):
-                    sorular = MESLEK_SORULARI.get(ders, [])
-                    if sorular:
-                        # SORULARI KARIŞTIR (SHUFFLE)
-                        random.shuffle(sorular)
-                        st.session_state.secilen_liste = sorular
-                        st.session_state.mod = "MESLEK"
-                        st.session_state.oturum = True
-                        st.session_state.aktif_index = 0
-                        st.session_state.toplam_puan = 0
-                        st.rerun()
-                    else:
-                        st.error("Bu alan için henüz soru girişi yapılmamış.")
+            else: # Meslek Lisesi Modu (JSON'dan Okuma)
+                soru_havuzu = dosya_sorularini_yukle()
+                if soru_havuzu:
+                    # Sınıf Seviyelerini Listele
+                    ders = st.selectbox("Sınıf Seviyesi / Alan:", list(soru_havuzu.keys()))
+                    if st.button("Meslek Sınavını Başlat"):
+                        sorular = soru_havuzu.get(ders, [])
+                        if sorular:
+                            random.shuffle(sorular) # Soruları Karıştır
+                            st.session_state.secilen_liste = sorular
+                            st.session_state.mod = "MESLEK"
+                            st.session_state.oturum = True
+                            st.session_state.aktif_index = 0
+                            st.session_state.toplam_puan = 0
+                            st.rerun()
+                        else:
+                            st.error("Bu kategori boş görünüyor.")
+                else:
+                    st.error("Lütfen 'sorular.json' dosyasını yükleyiniz.")
 
     # --- Ana İçerik ---
     if st.session_state.oturum:
@@ -343,7 +352,7 @@ elif st.session_state.ekran == 'sinav':
                             st.session_state.aktif_index += 1
                             st.rerun()
 
-            # 2. MOD: MESLEK LİSESİ (Sabit Sorular)
+            # 2. MOD: MESLEK LİSESİ (JSON Dosyasından)
             else:
                 soru = st.session_state.secilen_liste[st.session_state.aktif_index]
                 st.subheader(f"❓ Soru {st.session_state.aktif_index + 1}")
@@ -358,7 +367,7 @@ elif st.session_state.ekran == 'sinav':
                 
                 # Seçenekleri Karıştırarak Göster
                 secenekler = soru["secenekler"].copy()
-                # random.shuffle(secenekler) # İsteğe bağlı seçenekleri de karıştırır
+                random.shuffle(secenekler) # Şıkları Karıştır
                 
                 cols = st.columns(2)
                 for idx, sec in enumerate(secenekler):
