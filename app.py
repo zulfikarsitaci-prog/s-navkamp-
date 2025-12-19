@@ -2,25 +2,45 @@ import streamlit as st
 import random
 import os
 import time
-import json
 import fitz  # PyMuPDF
-import google.generativeai as genai
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="🎓", layout="wide")
 
-# --- GİZLİLİK VE TASARIM AYARLARI (Manage App Gizleme) ---
+# --- TASARIM VE GİZLİLİK ---
 st.markdown("""
     <style>
     .stApp { background-color: #F0F4C3 !important; }
     h1, h2, h3, h4, .stMarkdown, p { color: #212121 !important; }
     
-    /* Manage App ve Menüleri Gizle */
+    /* Gereksiz Menüleri Gizle */
     .stDeployButton {display:none;}
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
     
-    /* Özel Buton Tasarımı */
+    /* Giriş Kartı Tasarımı */
+    .giris-kart {
+        background-color: white;
+        padding: 30px;
+        border-radius: 20px;
+        border: 3px solid #FF7043;
+        text-align: center;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    /* İmza Alanı */
+    .imza {
+        margin-top: 50px;
+        font-family: 'Courier New', monospace;
+        color: #555;
+        font-size: 14px;
+        text-align: center;
+        border-top: 1px solid #aaa;
+        padding-top: 10px;
+    }
+    
+    /* Butonlar */
     .stButton>button {
         background-color: #FF7043 !important;
         color: white !important;
@@ -28,39 +48,17 @@ st.markdown("""
         font-weight: bold;
         width: 100%;
         border: 2px solid #D84315 !important;
-        min-height: 50px;
-        font-size: 18px !important;
+        min-height: 45px;
     }
     .stButton>button:hover {
         background-color: #E64A19 !important;
-        border-color: #BF360C !important;
-    }
-    
-    /* Giriş Ekranı Kartı */
-    .giris-kart {
-        background-color: white;
-        padding: 40px;
-        border-radius: 20px;
-        border: 4px solid #FF7043;
-        text-align: center;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- API KEY KURULUMU (Secrets'tan Çeker) ---
-if "GOOGLE_API_KEY" in st.secrets:
-    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-
-# --- MESLEK LİSESİ KONULARI ---
-MESLEK_KONULARI = {
-    "9. Sınıf Meslek": "Temel Muhasebe, Mesleki Matematik, Ofis Programları",
-    "10. Sınıf Meslek": "Genel Muhasebe, Klavye Teknikleri, Hukuk",
-    "11. Sınıf Meslek": "Şirketler Muhasebesi, Maliyet, Vergi",
-    "12. Sınıf Meslek": "Girişimcilik, Finansal Okuryazarlık"
-}
-
-# --- TAM PDF CEVAP HARİTASI ---
+# ==============================================================================
+# 1. VERİ HAVUZU: PDF HARİTASI (TYT)
+# ==============================================================================
 PDF_HARITASI = {
     # TÜRKÇE
     13: {"ders": "Türkçe", "cevaplar": "ECE"}, 14: {"ders": "Türkçe", "cevaplar": "BAC"},
@@ -145,7 +143,43 @@ PDF_HARITASI = {
 }
 PDF_DOSYA_ADI = "tytson8.pdf"
 
-# --- FONKSİYONLAR ---
+# ==============================================================================
+# 2. VERİ HAVUZU: MESLEK LİSESİ SORULARI (YILLIK PLAN - SABİT)
+# ==============================================================================
+# Not: Buraya yıllık plana uygun daha fazla soru ekleyebilirsiniz.
+
+MESLEK_SORULARI = {
+    "9. Sınıf Meslek": [
+        {"soru": "İşletmenin sahip olduğu varlıkların kaynaklarını gösteren tabloya ne denir?", "secenekler": ["Bilanço", "Gelir Tablosu", "Mizan", "Yevmiye Defteri"], "cevap": "Bilanço"},
+        {"soru": "Aşağıdakilerden hangisi bir 'Varlık' hesabıdır?", "secenekler": ["Kasa", "Satıcılar", "Borç Senetleri", "Sermaye"], "cevap": "Kasa"},
+        {"soru": "Excel programında 'Toplama' işlemi için kullanılan fonksiyon hangisidir?", "secenekler": ["=TOPLA()", "=EĞER()", "=MAK()", "=MİN()"], "cevap": "=TOPLA()"},
+        {"soru": "Klavye kullanırken 'Enter' tuşunun temel görevi nedir?", "secenekler": ["Onaylamak / Alt satıra geçmek", "Silmek", "Boşluk bırakmak", "Büyük harf yapmak"], "cevap": "Onaylamak / Alt satıra geçmek"},
+        {"soru": "Tek düzen hesap planında '100 Kasa Hesabı' hangi grup içinde yer alır?", "secenekler": ["Dönen Varlıklar", "Duran Varlıklar", "Kısa Vadeli Yabancı Kaynaklar", "Öz Kaynaklar"], "cevap": "Dönen Varlıklar"}
+    ],
+    "10. Sınıf Meslek": [
+        {"soru": "Hukukun temel kaynaklarından biri olan 'Anayasa' hiyerarşide nerede bulunur?", "secenekler": ["En üstte", "Kanunların altında", "Yönetmeliklerin altında", "Genelgelerle eşit"], "cevap": "En üstte"},
+        {"soru": "Tacir kime denir?", "secenekler": ["Bir ticari işletmeyi kısmen dahi olsa kendi adına işleten kimseye", "Devlet memuruna", "Sadece şirketi olanlara", "Çiftçilere"], "cevap": "Bir ticari işletmeyi kısmen dahi olsa kendi adına işleten kimseye"},
+        {"soru": "F klavyede temel sıra harfleri aşağıdakilerden hangisidir?", "secenekler": ["U, İ, E, A, K, T, M, L, Y, Ş", "A, S, D, F, G, H, J, K, L, Ş", "Q, W, E, R, T, Y, U, I, O, P", "Z, X, C, V, B, N, M, Ö, Ç"], "cevap": "U, İ, E, A, K, T, M, L, Y, Ş"},
+        {"soru": "Genel muhasebede açılış kaydı hangi deftere yapılır?", "secenekler": ["Yevmiye Defteri", "Büyük Defter", "Envanter Defteri", "Karar Defteri"], "cevap": "Yevmiye Defteri"},
+        {"soru": "Satıcıya olan senetsiz borçlar hangi hesapta izlenir?", "secenekler": ["320 Satıcılar", "120 Alıcılar", "100 Kasa", "600 Yurtiçi Satışlar"], "cevap": "320 Satıcılar"}
+    ],
+    "11. Sınıf Meslek": [
+        {"soru": "Şirketler muhasebesine göre, en az sermaye ile kurulabilen sermaye şirketi hangisidir?", "secenekler": ["Limited Şirket", "Anonim Şirket", "Kollektif Şirket", "Komandit Şirket"], "cevap": "Limited Şirket"},
+        {"soru": "Maliyet muhasebesinin temel amacı nedir?", "secenekler": ["Üretilen mamulün birim maliyetini saptamak", "Vergi hesaplamak", "Personel maaşı ödemek", "Reklam yapmak"], "cevap": "Üretilen mamulün birim maliyetini saptamak"},
+        {"soru": "Anonim şirketlerde genel kurul toplantısı ne zaman yapılır?", "secenekler": ["Her hesap dönemi sonundan itibaren 3 ay içinde", "Her ay", "6 ayda bir", "İki yılda bir"], "cevap": "Her hesap dönemi sonundan itibaren 3 ay içinde"},
+        {"soru": "Vergi hukukunda vergiyi doğuran olayın gerçekleşmesi ile ne başlar?", "secenekler": ["Vergi Ödevi", "Vergi Cezası", "Vergi İndirimi", "Vergi Affı"], "cevap": "Vergi Ödevi"},
+        {"soru": "Aşağıdakilerden hangisi doğrudan gider çeşididir?", "secenekler": ["Direkt İlk Madde ve Malzeme", "Genel Yönetim Gideri", "Pazarlama Gideri", "Finansman Gideri"], "cevap": "Direkt İlk Madde ve Malzeme"}
+    ],
+    "12. Sınıf Meslek": [
+        {"soru": "Girişimcinin bir iş fikrini hayata geçirmeden önce hazırladığı plana ne denir?", "secenekler": ["İş Planı", "Ders Planı", "Tatil Planı", "Bütçe Planı"], "cevap": "İş Planı"},
+        {"soru": "SWOT analizinde 'W' harfi neyi temsil eder?", "secenekler": ["Zayıf Yönler (Weaknesses)", "Güçlü Yönler", "Fırsatlar", "Tehditler"], "cevap": "Zayıf Yönler (Weaknesses)"},
+        {"soru": "Finansal okuryazarlıkta 'Gelir - Gider' farkı pozitif ise buna ne denir?", "secenekler": ["Tasarruf / Kar", "Zarar", "Borç", "Kredi"], "cevap": "Tasarruf / Kar"},
+        {"soru": "İşletmenin kısa vadeli borç ödeme gücünü gösteren oran hangisidir?", "secenekler": ["Likidite Oranları", "Karlılık Oranları", "Faaliyet Oranları", "Mali Yapı Oranları"], "cevap": "Likidite Oranları"},
+        {"soru": "KOSGEB'in temel amacı nedir?", "secenekler": ["KOBİ'leri desteklemek ve geliştirmek", "Büyük şirketlere kredi vermek", "Vergi toplamak", "İthalatı artırmak"], "cevap": "KOBİ'leri desteklemek ve geliştirmek"}
+    ]
+}
+
+# --- FONKSİYON: PDF GÖSTERİCİ ---
 def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
     if not os.path.exists(dosya_yolu):
         st.error(f"⚠️ PDF Dosyası ({dosya_yolu}) bulunamadı!")
@@ -158,29 +192,20 @@ def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
     except Exception as e:
         st.error(f"Hata: {e}")
 
-def ai_soru_uret(ders_adi):
-    if "GOOGLE_API_KEY" not in st.secrets:
-        return [{"soru": "⚠️ API Anahtarı Bulunamadı! Lütfen ayarlardan ekleyiniz.", "secenekler": ["A"], "cevap": "A"}]
-    try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        prompt = f"""Rol: Öğretmen. Ders: {ders_adi}. 5 adet çoktan seçmeli soru hazırla. JSON formatında: [ {{"soru": "...", "secenekler": ["A", "B"], "cevap": "Doğru Cevabın Kendisi"}} ]"""
-        resp = model.generate_content(prompt)
-        text = resp.text.strip().replace("```json", "").replace("```", "")
-        return json.loads(text)
-    except:
-        return []
-
-# --- EKRAN KONTROLÜ (Session State) ---
-if 'ekran' not in st.session_state: st.session_state.ekran = 'giris' # giris veya sinav
+# ==============================================================================
+# EKRAN AKIŞI KONTROLÜ
+# ==============================================================================
+if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
 if 'oturum' not in st.session_state: st.session_state.oturum = False
+if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
 if 'mod' not in st.session_state: st.session_state.mod = ""
 if 'secilen_liste' not in st.session_state: st.session_state.secilen_liste = []
 if 'aktif_index' not in st.session_state: st.session_state.aktif_index = 0
 if 'toplam_puan' not in st.session_state: st.session_state.toplam_puan = 0
 
-# ==============================================================================
-# 1. EKRAN: KARŞILAMA VE KILAVUZ
-# ==============================================================================
+# ------------------------------------------------------------------------------
+# 1. GİRİŞ EKRANI (AD SOYAD ZORUNLU)
+# ------------------------------------------------------------------------------
 if st.session_state.ekran == 'giris':
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
@@ -189,34 +214,41 @@ if st.session_state.ekran == 'giris':
             <h1>🎓 Bağarası ÇPAL</h1>
             <h2>Dijital Sınav Merkezi</h2>
             <hr>
-            <h3>Kullanım Kılavuzu</h3>
-            <p align="left">
-            1. <b>TYT Kampı (PDF):</b> Gerçek çıkmış soruları, orijinal PDF görüntüleri üzerinden çözersiniz.<br>
-            2. <b>Meslek Lisesi Modu:</b> Yapay Zeka size özel mesleki sorular üretir.<br>
-            3. Soruları çözerken <b>yan sekmeyi</b> kullanarak cevap anahtarını işaretleyiniz.<br>
-            4. Her sayfa sonunda puanınız hesaplanır ve kaydedilir.
-            </p>
-            <br>
-            <h4>İyi Dersler!</h4>
-            <p><i>- Okul Yönetimi -</i></p>
+            <p>Lütfen sınava başlamak için kimlik bilgilerinizi giriniz.</p>
         </div>
         """, unsafe_allow_html=True)
         
-        st.write("")
+        # Ad Soyad Girişi
+        ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Ali Yılmaz")
+        
         if st.button("SİSTEME GİRİŞ YAP 🚀"):
-            st.session_state.ekran = 'sinav'
-            st.rerun()
+            if ad_soyad_input.strip():
+                st.session_state.ad_soyad = ad_soyad_input
+                st.session_state.ekran = 'sinav'
+                st.rerun()
+            else:
+                st.error("Lütfen adınızı ve soyadınızı giriniz!")
+        
+        # İMZA ALANI (En Altta)
+        st.markdown("""
+        <div class='imza'>
+            Okulumuz muhasebe alanının okulumuza hediyesidir.<br>
+            <b>Zülfikar Sıtacı</b>
+        </div>
+        """, unsafe_allow_html=True)
 
-# ==============================================================================
-# 2. EKRAN: SINAV ARAYÜZÜ (SOL MENÜ + İÇERİK)
-# ==============================================================================
+# ------------------------------------------------------------------------------
+# 2. SINAV ARAYÜZÜ
+# ------------------------------------------------------------------------------
 elif st.session_state.ekran == 'sinav':
     
-    # --- Sidebar ---
+    # --- Sidebar (Sol Menü) ---
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=100)
-        st.title("Sınav Paneli")
-        if st.button("🏠 Ana Ekrana Dön"):
+        st.write(f"👤 **Öğrenci:** {st.session_state.ad_soyad}")
+        st.divider()
+        
+        if st.button("🏠 Çıkış Yap"):
             st.session_state.ekran = 'giris'
             st.session_state.oturum = False
             st.rerun()
@@ -224,13 +256,15 @@ elif st.session_state.ekran == 'sinav':
         st.divider()
         
         if not st.session_state.oturum:
-            mod_secimi = st.radio("Mod Seçimi:", ["TYT Kampı (PDF)", "Meslek Lisesi"])
+            st.header("Sınav Ayarları")
+            mod_secimi = st.radio("Sınav Türü:", ["TYT Kampı (PDF)", "Meslek Lisesi Sınavları"])
             
             if mod_secimi == "TYT Kampı (PDF)":
                 mevcut = sorted(list(set(v["ders"] for v in PDF_HARITASI.values())))
                 ders = st.selectbox("Ders:", ["Karışık Deneme"] + mevcut)
                 adet = st.slider("Sayfa Sayısı:", 1, 10, 3)
-                if st.button("Sınavı Başlat"):
+                
+                if st.button("TYT Başlat"):
                     uygun = [s for s, d in PDF_HARITASI.items() if ders == "Karışık Deneme" or d["ders"] == ders]
                     if uygun:
                         random.shuffle(uygun)
@@ -241,54 +275,61 @@ elif st.session_state.ekran == 'sinav':
                         st.session_state.toplam_puan = 0
                         st.rerun()
                     else:
-                        st.error("Bu derste soru bulunamadı.")
-            else:
-                ders = st.selectbox("Alan:", list(MESLEK_KONULARI.keys()))
-                if st.button("AI Sınavı Başlat"):
-                    with st.spinner("Yapay Zeka Soruları Hazırlıyor..."):
-                        sorular = ai_soru_uret(MESLEK_KONULARI[ders])
-                        if sorular:
-                            st.session_state.secilen_liste = sorular
-                            st.session_state.mod = "AI"
-                            st.session_state.oturum = True
-                            st.session_state.aktif_index = 0
-                            st.session_state.toplam_puan = 0
-                            st.rerun()
+                        st.error("Bu ders için soru bulunamadı.")
+            
+            else: # Meslek Lisesi Modu
+                # Sabit sorulardan seç
+                ders = st.selectbox("Sınıf Seviyesi / Alan:", list(MESLEK_SORULARI.keys()))
+                if st.button("Meslek Sınavını Başlat"):
+                    sorular = MESLEK_SORULARI.get(ders, [])
+                    if sorular:
+                        # SORULARI KARIŞTIR (SHUFFLE)
+                        random.shuffle(sorular)
+                        st.session_state.secilen_liste = sorular
+                        st.session_state.mod = "MESLEK"
+                        st.session_state.oturum = True
+                        st.session_state.aktif_index = 0
+                        st.session_state.toplam_puan = 0
+                        st.rerun()
+                    else:
+                        st.error("Bu alan için henüz soru girişi yapılmamış.")
 
     # --- Ana İçerik ---
     if st.session_state.oturum:
-        # Sınav Bitti mi?
+        
+        # Bitiş Kontrolü
         if st.session_state.aktif_index >= len(st.session_state.secilen_liste):
             st.balloons()
-            st.success(f"🎉 Sınav Tamamlandı! Toplam Puan: {st.session_state.toplam_puan}")
+            st.success(f"🎉 Tebrikler {st.session_state.ad_soyad}!")
+            st.info(f"Sınav Tamamlandı. Toplam Puanınız: {st.session_state.toplam_puan}")
             if st.button("Yeni Sınav Başlat"):
                 st.session_state.oturum = False
                 st.rerun()
         
         else:
-            # 1. MOD: PDF
+            # 1. MOD: PDF (TYT)
             if st.session_state.mod == "PDF":
                 sayfa_no = st.session_state.secilen_liste[st.session_state.aktif_index]
                 veri = PDF_HARITASI[sayfa_no]
                 
                 st.subheader(f"📄 {veri['ders']} - Sayfa {sayfa_no}")
                 
-                tab1, tab2 = st.tabs(["📄 SORU KİTAPÇIĞI", "📝 CEVAP FORMU"])
+                tab1, tab2 = st.tabs(["📄 KİTAPÇIK", "📝 CEVAP KAĞIDI"])
                 
                 with tab1:
                     pdf_sayfa_getir(PDF_DOSYA_ADI, sayfa_no)
                     
                 with tab2:
-                    st.info("Cevaplarınızı aşağıdan işaretleyip kontrol ediniz.")
+                    st.info("Cevaplarınızı işaretleyiniz.")
                     dogru_sayisi = 0
                     cevaplar = veri["cevaplar"]
                     with st.form(f"form_{sayfa_no}"):
                         for i in range(len(cevaplar)):
                             st.write(f"**Soru {i+1}**")
-                            st.radio(f"Soru {i+1}", ["A","B","C","D","E"], key=f"c_{sayfa_no}_{i}", horizontal=True, index=None)
+                            st.radio(f"S_{i}", ["A","B","C","D","E"], key=f"c_{sayfa_no}_{i}", horizontal=True, index=None)
                             st.divider()
-                            
-                        if st.form_submit_button("KONTROL ET VE GEÇ ➡️"):
+                        
+                        if st.form_submit_button("KONTROL ET VE İLERLE ➡️"):
                             for i in range(len(cevaplar)):
                                 val = st.session_state.get(f"c_{sayfa_no}_{i}")
                                 if val == cevaplar[i]:
@@ -298,28 +339,41 @@ elif st.session_state.ekran == 'sinav':
                                     st.toast(f"Soru {i+1}: Yanlış! ❌")
                             
                             st.session_state.toplam_puan += (dogru_sayisi * 5)
-                            time.sleep(2)
-                            st.session_state.aktif_index += 1
-                            st.rerun()
-
-            # 2. MOD: AI (Meslek)
-            else:
-                soru = st.session_state.secilen_liste[st.session_state.aktif_index]
-                st.subheader(f"🤖 Soru {st.session_state.aktif_index + 1}")
-                st.info(soru["soru"])
-                
-                cols = st.columns(2)
-                for idx, sec in enumerate(soru["secenekler"]):
-                    with cols[idx % 2]:
-                        if st.button(sec, key=f"btn_{st.session_state.aktif_index}_{idx}", use_container_width=True):
-                            if sec == soru["cevap"]:
-                                st.toast("Doğru! ✅")
-                                st.session_state.toplam_puan += 10
-                            else:
-                                st.toast(f"Yanlış! Doğru cevap: {soru['cevap']}")
                             time.sleep(1.5)
                             st.session_state.aktif_index += 1
                             st.rerun()
 
+            # 2. MOD: MESLEK LİSESİ (Sabit Sorular)
+            else:
+                soru = st.session_state.secilen_liste[st.session_state.aktif_index]
+                st.subheader(f"❓ Soru {st.session_state.aktif_index + 1}")
+                
+                # Soru Kartı
+                st.markdown(f"""
+                <div style="background-color:white; padding:20px; border-radius:10px; border-left:5px solid #FF7043; font-size:18px;">
+                    {soru['soru']}
+                </div>
+                """, unsafe_allow_html=True)
+                st.write("")
+                
+                # Seçenekleri Karıştırarak Göster
+                secenekler = soru["secenekler"].copy()
+                # random.shuffle(secenekler) # İsteğe bağlı seçenekleri de karıştırır
+                
+                cols = st.columns(2)
+                for idx, sec in enumerate(secenekler):
+                    with cols[idx % 2]:
+                        if st.button(sec, key=f"btn_{st.session_state.aktif_index}_{idx}", use_container_width=True):
+                            if sec == soru["cevap"]:
+                                st.balloons()
+                                st.success("DOĞRU! ✅")
+                                st.session_state.toplam_puan += 20
+                            else:
+                                st.error(f"YANLIŞ! ❌ (Doğru Cevap: {soru['cevap']})")
+                            
+                            time.sleep(2)
+                            st.session_state.aktif_index += 1
+                            st.rerun()
+
     else:
-        st.info("👈 Sınava başlamak için sol menüden seçim yapınız.")
+        st.info("👈 Sol menüden seçim yapınız.")
