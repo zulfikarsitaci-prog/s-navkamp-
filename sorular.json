@@ -1,0 +1,158 @@
+{
+  "10. Sınıf Muhasebe": [
+    {
+      "soru": "İşletmenin nakit paralarının takip edildiği hesap aşağıdakilerden hangisidir?",
+      "secenekler": ["100 Kasa Hesabı", "101 Alınan Çekler", "102 Bankalar", "103 Verilen Çekler"],
+      "cevap": "100 Kasa Hesabı"
+    },
+    {
+      "soru": "İşletmenin bankadaki parasının hareketlerini izlediği hesap hangisidir?",
+      "secenekler": ["100 Kasa", "102 Bankalar", "120 Alıcılar", "320 Satıcılar"],
+      "cevap": "102 Bankalar"
+    },
+    {
+      "soru": "Müşteriden alınan senetler hangi hesapta izlenir?",
+      "secenekler": ["121 Alacak Senetleri", "321 Borç Senetleri", "101 Alınan Çekler", "120 Alıcılar"],
+      "cevap": "121 Alacak Senetleri"
+    },
+    {
+      "soru": "Aşağıdakilerden hangisi bir 'Varlık' hesabıdır?",
+      "secenekler": ["320 Satıcılar", "400 Banka Kredileri", "500 Sermaye", "255 Demirbaşlar"],
+      "cevap": "255 Demirbaşlar"
+    },
+    {
+      "soru": "Veresiye (kredili) mal satışında alacaklanan hesap hangisidir?",
+      "secenekler": ["600 Yurt İçi Satışlar", "100 Kasa", "320 Satıcılar", "153 Ticari Mallar"],
+      "cevap": "600 Yurt İçi Satışlar"
+    },
+    {
+      "soru": "İşletmenin kullanmak amacıyla aldığı bilgisayar, masa, sandalye gibi varlıklar hangi hesapta izlenir?",
+      "secenekler": ["153 Ticari Mallar", "255 Demirbaşlar", "254 Taşıtlar", "252 Binalar"],
+      "cevap": "255 Demirbaşlar"
+    },
+    {
+      "soru": "Satıcıya olan senetsiz borçlar hangi hesapta takip edilir?",
+      "secenekler": ["120 Alıcılar", "320 Satıcılar", "321 Borç Senetleri", "100 Kasa"],
+      "cevap": "320 Satıcılar"
+    },
+    {
+      "soru": "Aşağıdakilerden hangisi Tek Düzen Hesap Planında 'Dönen Varlıklar' grubunda yer almaz?",
+      "secenekler": ["100 Kasa", "102 Bankalar", "252 Binalar", "153 Ticari Mallar"],
+      "cevap": "252 Binalar"
+    },
+    {
+      "soru": "Yevmiye defterinde borç ve alacak tarafın toplamının birbirine eşit olması kuralına ne denir?",
+      "secenekler": ["Kayıt Nizamı", "Mizan Dengesi", "Envanter", "Bilanço Eşitliği"],
+      "cevap": "Mizan Dengesi"
+    },
+    {
+      "soru": "İşletmenin ana faaliyet konusu olan malın alım satımı hangi hesapta izlenir?",
+      "secenekler": ["153 Ticari Mallar", "150 İlk Madde ve Malzeme", "151 Yarı Mamuller", "152 Mamuller"],
+      "cevap": "153 Ticari Mallar"
+    },
+     {
+      "soru": "KDV hesaplamalarında mal alımında ödenen vergi hangi hesapta izlenir?",
+      "secenekler": ["391 Hesaplanan KDV", "191 İndirilecek KDV", "360 Ödenecek Vergi ve Fonlar", "190 Devreden KDV"],
+      "cevap": "191 İndirilecek KDV"
+    },
+    {
+      "soru": "Çekle mal alındığında hangi hesap borçlu çalışır?",
+      "secenekler": ["103 Verilen Çekler ve Ödeme Emirleri", "101 Alınan Çekler", "100 Kasa", "102 Bankalar"],
+      "cevap": "153 Ticari Mallar"
+    }
+  ],
+  "11. Sınıf Muhasebe": [
+    {
+      "soru": "Kasada bulunan yabancı paraların değerlemesi sonucu ortaya çıkan olumlu farklar (kur geliri) hangi hesaba kaydedilir?",
+      "secenekler": ["646 Kambiyo Karları", "656 Kambiyo Zararları", "600 Yurt İçi Satışlar", "642 Faiz Gelirleri"],
+      "cevap": "646 Kambiyo Karları"
+    },
+    {
+      "soru": "Senetsiz alacakların şüpheli hale gelmesi durumunda yapılması gereken ilk kayıt hangisidir?",
+      "secenekler": ["128 Şüpheli Ticari Alacaklar (B) / 120 Alıcılar (A)", "654 Karşılık Giderleri (B) / 129 Şüpheli Ticari Alacaklar Karşılığı (A)", "120 Alıcılar (B) / 128 Şüpheli Ticari Alacaklar (A)", "Doğrudan Gider Yazılır"],
+      "cevap": "128 Şüpheli Ticari Alacaklar (B) / 120 Alıcılar (A)"
+    },
+    {
+      "soru": "Duran varlıkların kullanılması sonucu ortaya çıkan değer kaybına ne denir?",
+      "secenekler": ["Amortisman", "Reeskont", "Değerleme", "Enflasyon"],
+      "cevap": "Amortisman"
+    },
+    {
+      "soru": "Aşağıdaki hesaplardan hangisi Bilanço'nun Pasif tarafında yer alır?",
+      "secenekler": ["100 Kasa", "121 Alacak Senetleri", "500 Sermaye", "254 Taşıtlar"],
+      "cevap": "500 Sermaye"
+    },
+    {
+      "soru": "Dönem sonunda 600 ve 602 gibi gelir hesapları hangi hesaba devredilerek kapatılır?",
+      "secenekler": ["690 Dönem Karı veya Zararı", "590 Dönem Net Karı", "692 Dönem Net Karı veya Zararı", "691 Dönem Karı Vergi Yükümlülüğü"],
+      "cevap": "690 Dönem Karı veya Zararı"
+    },
+    {
+      "soru": "İşletmenin bankadan çektiği kredi borcu hangi hesapta izlenir?",
+      "secenekler": ["300 Banka Kredileri", "102 Bankalar", "320 Satıcılar", "400 Banka Kredileri"],
+      "cevap": "300 Banka Kredileri"
+    },
+    {
+      "soru": "Hisse senedi ihraç primleri hangi grupta yer alır?",
+      "secenekler": ["Gelir Tablosu", "Dönen Varlıklar", "Öz Kaynaklar", "Kısa Vadeli Yabancı Kaynaklar"],
+      "cevap": "Öz Kaynaklar"
+    },
+    {
+      "soru": "Maliyet muhasebesinde '710 Direkt İlk Madde ve Malzeme Giderleri' hesabı yansıtma yoluyla hangi hesaba aktarılır?",
+      "secenekler": ["151 Yarı Mamuller Üretim", "150 İlk Madde ve Malzeme", "720 Direkt İşçilik", "620 Satılan Mamul Maliyeti"],
+      "cevap": "151 Yarı Mamuller Üretim"
+    },
+    {
+      "soru": "FIFO (İlk Giren İlk Çıkar) yöntemine göre stok değerlemesi yapıldığında enflasyonist ortamda dönem sonu stok değeri nasıl olur?",
+      "secenekler": ["Daha yüksek çıkar", "Daha düşük çıkar", "Değişmez", "Ortalama değere eşit olur"],
+      "cevap": "Daha yüksek çıkar"
+    },
+    {
+      "soru": "Reeskont işlemi aşağıdaki kıymetlerden hangisi için uygulanabilir?",
+      "secenekler": ["Senetli Alacak ve Borçlar", "Kasa Hesabı", "Bankalar Hesabı", "Ticari Mallar"],
+      "cevap": "Senetli Alacak ve Borçlar"
+    }
+  ],
+  "12. Sınıf Muhasebe (SMMM Hazırlık)": [
+    {
+      "soru": "VUK'a göre, alacak senetlerini reeskonta tabi tutan işletme, borç senetleri için ne yapmalıdır?",
+      "secenekler": ["Borç senetlerini de reeskonta tabi tutmak zorundadır", "İsteğe bağlıdır", "Tutamaz", "Sadece vadesi gelmemiş olanları tutar"],
+      "cevap": "Borç senetlerini de reeskonta tabi tutmak zorundadır"
+    },
+    {
+      "soru": "Sermaye şirketlerinde kar dağıtımı yapılırken ayrılması zorunlu olan yedek akçelere ne denir?",
+      "secenekler": ["Yasal Yedekler", "Olağanüstü Yedekler", "Statü Yedekleri", "Özel Fonlar"],
+      "cevap": "Yasal Yedekler"
+    },
+    {
+      "soru": "Özkaynaklar değişim tablosu hangi finansal tablo türüne girer?",
+      "secenekler": ["Ek Finansal Tablolar", "Temel Finansal Tablolar", "Dipnotlar", "Faaliyet Raporu"],
+      "cevap": "Ek Finansal Tablolar"
+    },
+    {
+      "soru": "Aşağıdakilerden hangisi Nazım Hesapların kullanım amaçlarından biridir?",
+      "secenekler": ["İşletme varlıkları arasında yer almayan ancak izlenmesi gereken değerleri takip etmek", "Gelir ve giderleri karşılaştırmak", "Vergi hesaplamak", "Amortisman ayırmak"],
+      "cevap": "İşletme varlıkları arasında yer almayan ancak izlenmesi gereken değerleri takip etmek"
+    },
+    {
+      "soru": "Tahvil ihraç edildiğinde, tahvilin nominal değeri ile ihraç fiyatı arasındaki olumsuz fark hangi hesapta izlenir?",
+      "secenekler": ["Menkul Kıymet İhraç Farkları", "Finansman Giderleri", "Komisyon Giderleri", "Kambiyo Zararları"],
+      "cevap": "Menkul Kıymet İhraç Farkları"
+    },
+    {
+      "soru": "Finansal kiralama (Leasing) yoluyla edinilen varlıklar hangi hesap grubunda izlenir?",
+      "secenekler": ["Maddi Duran Varlıklar", "Maddi Olmayan Duran Varlıklar", "Özel Tükenmeye Tabi Varlıklar", "Haklar"],
+      "cevap": "Maddi Duran Varlıklar"
+    },
+    {
+      "soru": "Dönem sonu envanter işlemlerinde 'Tahakkuk Esası' gereği yapılan kayıtlar aşağıdakilerden hangisi ile ilgilidir?",
+      "secenekler": ["Gelir ve Gider Tahakkukları", "Kasa Sayımı", "Stok Sayımı", "Demirbaş Amortismanı"],
+      "cevap": "Gelir ve Gider Tahakkukları"
+    },
+    {
+      "soru": "7/A seçeneğinde maliyet hesapları fonksiyon esasına göre, 7/B seçeneğinde ise neye göre sınıflandırılır?",
+      "secenekler": ["Gider Çeşitlerine göre", "Üretim Yerlerine göre", "Dağıtım Anahtarına göre", "Birim Maliyete göre"],
+      "cevap": "Gider Çeşitlerine göre"
+    }
+  ]
+}
