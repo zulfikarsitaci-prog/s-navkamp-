@@ -37,7 +37,7 @@ st.markdown("""
         margin-top: 40px;
         font-family: 'Dancing Script', cursive; /* El yazısı fontu */
         color: #D84315;
-        font-size: 28px; /* Yazı boyutu büyütüldü */
+        font-size: 20px; /* Yazı boyutu büyütüldü */
         text-align: right;
         padding-right: 20px;
         transform: rotate(-2deg); /* Hafif eğiklik */
