@@ -1,0 +1,3029 @@
+{
+    "13": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            1,
+            2,
+            3
+        ],
+        "cevaplar": "ECE"
+    },
+    "14": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            4,
+            5,
+            6
+        ],
+        "cevaplar": "BAC"
+    },
+    "15": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            7,
+            8,
+            9
+        ],
+        "cevaplar": "BEA"
+    },
+    "16": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            10,
+            11,
+            12,
+            13
+        ],
+        "cevaplar": "CBCD"
+    },
+    "17": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            14,
+            15,
+            16,
+            17
+        ],
+        "cevaplar": "AABA"
+    },
+    "18": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            18,
+            19,
+            20
+        ],
+        "cevaplar": "CEA"
+    },
+    "19": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            21,
+            22,
+            23
+        ],
+        "cevaplar": "EBA"
+    },
+    "20": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            24,
+            25,
+            26
+        ],
+        "cevaplar": "ADB"
+    },
+    "21": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            27,
+            28,
+            29,
+            30
+        ],
+        "cevaplar": "CBBE"
+    },
+    "22": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            31,
+            32
+        ],
+        "cevaplar": "BB"
+    },
+    "23": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            33,
+            34,
+            35
+        ],
+        "cevaplar": "BEA"
+    },
+    "24": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            36,
+            37,
+            38
+        ],
+        "cevaplar": "ADE"
+    },
+    "25": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            39,
+            40,
+            41
+        ],
+        "cevaplar": "EAB"
+    },
+    "26": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            42,
+            43
+        ],
+        "cevaplar": "CD"
+    },
+    "27": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            44,
+            45,
+            46
+        ],
+        "cevaplar": "CDA"
+    },
+    "28": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            47,
+            48
+        ],
+        "cevaplar": "DD"
+    },
+    "29": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            49,
+            50
+        ],
+        "cevaplar": "BD"
+    },
+    "30": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            51,
+            52,
+            53
+        ],
+        "cevaplar": "BDA"
+    },
+    "31": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            54,
+            55,
+            56
+        ],
+        "cevaplar": "EAD"
+    },
+    "32": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            57,
+            58
+        ],
+        "cevaplar": "AB"
+    },
+    "33": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            59,
+            60,
+            61
+        ],
+        "cevaplar": "BAA"
+    },
+    "34": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            62,
+            63,
+            64
+        ],
+        "cevaplar": "DCB"
+    },
+    "35": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            65,
+            66,
+            67
+        ],
+        "cevaplar": "CAD"
+    },
+    "36": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            68,
+            69,
+            70
+        ],
+        "cevaplar": "DDB"
+    },
+    "37": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            71,
+            72,
+            73
+        ],
+        "cevaplar": "CBD"
+    },
+    "38": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            74,
+            75
+        ],
+        "cevaplar": "AA"
+    },
+    "39": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            76,
+            77,
+            78
+        ],
+        "cevaplar": "EBE"
+    },
+    "40": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            79,
+            80,
+            81
+        ],
+        "cevaplar": "BDE"
+    },
+    "41": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            82,
+            83,
+            84
+        ],
+        "cevaplar": "ADA"
+    },
+    "42": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            85,
+            86,
+            87
+        ],
+        "cevaplar": "CDB"
+    },
+    "43": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            88,
+            89
+        ],
+        "cevaplar": "AC"
+    },
+    "44": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            90,
+            91,
+            92
+        ],
+        "cevaplar": "DEA"
+    },
+    "45": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            93,
+            94
+        ],
+        "cevaplar": "CA"
+    },
+    "46": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            95,
+            96
+        ],
+        "cevaplar": "EE"
+    },
+    "47": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            97,
+            98
+        ],
+        "cevaplar": "ED"
+    },
+    "48": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            99,
+            100
+        ],
+        "cevaplar": "AE"
+    },
+    "49": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            101,
+            102
+        ],
+        "cevaplar": "AC"
+    },
+    "50": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            103,
+            104,
+            105,
+            106
+        ],
+        "cevaplar": "DBBD"
+    },
+    "51": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            107,
+            108,
+            109
+        ],
+        "cevaplar": "CDE"
+    },
+    "52": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            110,
+            111
+        ],
+        "cevaplar": "DC"
+    },
+    "53": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            112,
+            113
+        ],
+        "cevaplar": "CE"
+    },
+    "54": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            114,
+            115
+        ],
+        "cevaplar": "AC"
+    },
+    "55": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            116,
+            117
+        ],
+        "cevaplar": "DE"
+    },
+    "56": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            118,
+            119
+        ],
+        "cevaplar": "DE"
+    },
+    "57": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            120,
+            121,
+            122
+        ],
+        "cevaplar": "CCE"
+    },
+    "58": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            123,
+            124,
+            125
+        ],
+        "cevaplar": "ADD"
+    },
+    "59": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            126,
+            127,
+            128
+        ],
+        "cevaplar": "ABB"
+    },
+    "60": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            129,
+            130,
+            131
+        ],
+        "cevaplar": "EDB"
+    },
+    "61": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            132,
+            133
+        ],
+        "cevaplar": "ED"
+    },
+    "62": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            134,
+            135
+        ],
+        "cevaplar": "CA"
+    },
+    "63": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            136,
+            137
+        ],
+        "cevaplar": "CA"
+    },
+    "64": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            138,
+            139
+        ],
+        "cevaplar": "BC"
+    },
+    "65": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            140,
+            141
+        ],
+        "cevaplar": "DB"
+    },
+    "66": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            142,
+            143,
+            144
+        ],
+        "cevaplar": "CDE"
+    },
+    "67": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            145,
+            146
+        ],
+        "cevaplar": "BC"
+    },
+    "68": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            147,
+            148,
+            149
+        ],
+        "cevaplar": "DCD"
+    },
+    "69": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            150,
+            151
+        ],
+        "cevaplar": "BE"
+    },
+    "70": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            152,
+            153,
+            154
+        ],
+        "cevaplar": "DEE"
+    },
+    "71": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            155,
+            156,
+            157
+        ],
+        "cevaplar": "AEB"
+    },
+    "72": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            158,
+            159
+        ],
+        "cevaplar": "CB"
+    },
+    "73": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            160,
+            161
+        ],
+        "cevaplar": "BA"
+    },
+    "74": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            162,
+            163
+        ],
+        "cevaplar": "BC"
+    },
+    "75": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            164,
+            164,
+            165
+        ],
+        "cevaplar": "DDA"
+    },
+    "76": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            166,
+            166,
+            167
+        ],
+        "cevaplar": "DDA"
+    },
+    "77": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            168,
+            168,
+            169
+        ],
+        "cevaplar": "BBC"
+    },
+    "78": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            170,
+            171
+        ],
+        "cevaplar": "EA"
+    },
+    "79": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            172,
+            173
+        ],
+        "cevaplar": "AD"
+    },
+    "80": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            174,
+            175
+        ],
+        "cevaplar": "EB"
+    },
+    "81": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            176,
+            177
+        ],
+        "cevaplar": "DA"
+    },
+    "82": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            178,
+            179
+        ],
+        "cevaplar": "BC"
+    },
+    "83": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            180,
+            181
+        ],
+        "cevaplar": "BA"
+    },
+    "84": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            182,
+            183
+        ],
+        "cevaplar": "BE"
+    },
+    "85": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            184,
+            184,
+            185
+        ],
+        "cevaplar": "CCD"
+    },
+    "86": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            186,
+            186,
+            187
+        ],
+        "cevaplar": "EEA"
+    },
+    "87": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            188,
+            188,
+            189,
+            190
+        ],
+        "cevaplar": "CCBA"
+    },
+    "88": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            191,
+            192
+        ],
+        "cevaplar": "CD"
+    },
+    "89": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            193,
+            194
+        ],
+        "cevaplar": "EE"
+    },
+    "90": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            195,
+            196
+        ],
+        "cevaplar": "AB"
+    },
+    "91": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            197,
+            198
+        ],
+        "cevaplar": "DC"
+    },
+    "92": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            199,
+            200,
+            201
+        ],
+        "cevaplar": "BAA"
+    },
+    "93": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            202,
+            203
+        ],
+        "cevaplar": "CB"
+    },
+    "94": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            204,
+            205,
+            205,
+            206
+        ],
+        "cevaplar": "BDDB"
+    },
+    "95": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            207,
+            207,
+            208
+        ],
+        "cevaplar": "EED"
+    },
+    "96": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            209,
+            209,
+            210,
+            211
+        ],
+        "cevaplar": "EEBD"
+    },
+    "97": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            212,
+            213
+        ],
+        "cevaplar": "DC"
+    },
+    "98": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            214,
+            215
+        ],
+        "cevaplar": "EB"
+    },
+    "99": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            216,
+            217
+        ],
+        "cevaplar": "EA"
+    },
+    "100": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            218,
+            219
+        ],
+        "cevaplar": "BB"
+    },
+    "101": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            220,
+            221
+        ],
+        "cevaplar": "ED"
+    },
+    "102": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            222,
+            223,
+            224
+        ],
+        "cevaplar": "CEC"
+    },
+    "103": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            225,
+            226
+        ],
+        "cevaplar": "AA"
+    },
+    "104": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            227,
+            7,
+            1,
+            228,
+            228,
+            229
+        ],
+        "cevaplar": "DBEEEA"
+    },
+    "105": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            230,
+            230,
+            231
+        ],
+        "cevaplar": "DDE"
+    },
+    "106": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            232,
+            232,
+            233,
+            234
+        ],
+        "cevaplar": "BBAD"
+    },
+    "107": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            235,
+            236
+        ],
+        "cevaplar": "BC"
+    },
+    "108": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            237,
+            238
+        ],
+        "cevaplar": "AC"
+    },
+    "109": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            239,
+            240,
+            241
+        ],
+        "cevaplar": "EDD"
+    },
+    "110": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            242,
+            243
+        ],
+        "cevaplar": "BC"
+    },
+    "111": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            244,
+            245
+        ],
+        "cevaplar": "EC"
+    },
+    "112": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            246,
+            247
+        ],
+        "cevaplar": "DA"
+    },
+    "113": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            248,
+            249
+        ],
+        "cevaplar": "CA"
+    },
+    "114": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            250,
+            251
+        ],
+        "cevaplar": "DB"
+    },
+    "115": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            252,
+            253,
+            254,
+            255
+        ],
+        "cevaplar": "DCBD"
+    },
+    "116": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            256,
+            257,
+            258,
+            259
+        ],
+        "cevaplar": "EBAE"
+    },
+    "117": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            260,
+            261,
+            262
+        ],
+        "cevaplar": "CEE"
+    },
+    "118": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            263,
+            264,
+            265,
+            266
+        ],
+        "cevaplar": "CCDD"
+    },
+    "119": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            267,
+            268,
+            269,
+            270
+        ],
+        "cevaplar": "BCBE"
+    },
+    "120": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            271,
+            272,
+            273,
+            274
+        ],
+        "cevaplar": "EADC"
+    },
+    "121": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            275,
+            276,
+            277,
+            278
+        ],
+        "cevaplar": "DCED"
+    },
+    "122": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            279,
+            280,
+            281,
+            282
+        ],
+        "cevaplar": "DEDB"
+    },
+    "123": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            283,
+            284,
+            285
+        ],
+        "cevaplar": "ABA"
+    },
+    "124": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            286,
+            287,
+            288,
+            289
+        ],
+        "cevaplar": "EEDA"
+    },
+    "125": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            290,
+            291,
+            292
+        ],
+        "cevaplar": "DAC"
+    },
+    "126": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            293,
+            294,
+            295,
+            296
+        ],
+        "cevaplar": "CBAE"
+    },
+    "127": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            297,
+            298,
+            299
+        ],
+        "cevaplar": "DEB"
+    },
+    "128": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            300,
+            301,
+            302,
+            303
+        ],
+        "cevaplar": "BDDB"
+    },
+    "129": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            304,
+            305,
+            306,
+            307
+        ],
+        "cevaplar": "CBCE"
+    },
+    "130": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            308,
+            309,
+            310,
+            311
+        ],
+        "cevaplar": "CCCC"
+    },
+    "131": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            312,
+            313,
+            314,
+            315
+        ],
+        "cevaplar": "DEDD"
+    },
+    "132": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            316,
+            317,
+            318,
+            319
+        ],
+        "cevaplar": "BCCC"
+    },
+    "133": {
+        "ders": "TÜRKÇE",
+        "sorular": [
+            320
+        ],
+        "cevaplar": "C"
+    },
+    "138": {
+        "ders": "TARİH",
+        "sorular": [
+            1,
+            2,
+            3,
+            4
+        ],
+        "cevaplar": "BDEE"
+    },
+    "139": {
+        "ders": "TARİH",
+        "sorular": [
+            5,
+            6,
+            7,
+            8
+        ],
+        "cevaplar": "CEDA"
+    },
+    "140": {
+        "ders": "TARİH",
+        "sorular": [
+            9,
+            10,
+            11,
+            12
+        ],
+        "cevaplar": "CADC"
+    },
+    "141": {
+        "ders": "TARİH",
+        "sorular": [
+            13,
+            14,
+            15,
+            16
+        ],
+        "cevaplar": "CEEE"
+    },
+    "142": {
+        "ders": "TARİH",
+        "sorular": [
+            17,
+            18,
+            19
+        ],
+        "cevaplar": "DED"
+    },
+    "143": {
+        "ders": "TARİH",
+        "sorular": [
+            20,
+            21
+        ],
+        "cevaplar": "AE"
+    },
+    "144": {
+        "ders": "TARİH",
+        "sorular": [
+            22,
+            23,
+            24,
+            25
+        ],
+        "cevaplar": "BABC"
+    },
+    "145": {
+        "ders": "TARİH",
+        "sorular": [
+            26,
+            27,
+            28,
+            29
+        ],
+        "cevaplar": "ADCE"
+    },
+    "146": {
+        "ders": "TARİH",
+        "sorular": [
+            30,
+            31,
+            32,
+            33
+        ],
+        "cevaplar": "BCBD"
+    },
+    "147": {
+        "ders": "TARİH",
+        "sorular": [
+            34,
+            35,
+            36,
+            37
+        ],
+        "cevaplar": "CBCE"
+    },
+    "148": {
+        "ders": "TARİH",
+        "sorular": [
+            38,
+            39,
+            40
+        ],
+        "cevaplar": "ACE"
+    },
+    "151": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            1,
+            2,
+            3,
+            4
+        ],
+        "cevaplar": "CACE"
+    },
+    "152": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            5,
+            6,
+            7
+        ],
+        "cevaplar": "AAB"
+    },
+    "153": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            8,
+            9,
+            10
+        ],
+        "cevaplar": "BBB"
+    },
+    "154": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            11,
+            12,
+            13,
+            14
+        ],
+        "cevaplar": "BBAA"
+    },
+    "155": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            15,
+            16,
+            17
+        ],
+        "cevaplar": "CBC"
+    },
+    "156": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            18,
+            19,
+            20
+        ],
+        "cevaplar": "ECA"
+    },
+    "157": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            21,
+            22
+        ],
+        "cevaplar": "CD"
+    },
+    "158": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            23,
+            24
+        ],
+        "cevaplar": "EC"
+    },
+    "159": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            25,
+            26
+        ],
+        "cevaplar": "AC"
+    },
+    "160": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            27,
+            28,
+            29,
+            30
+        ],
+        "cevaplar": "EEDE"
+    },
+    "161": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            31,
+            32,
+            33,
+            34
+        ],
+        "cevaplar": "DCBD"
+    },
+    "162": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            35,
+            36,
+            37,
+            38
+        ],
+        "cevaplar": "CDDD"
+    },
+    "163": {
+        "ders": "COĞRAFYA",
+        "sorular": [
+            39,
+            40
+        ],
+        "cevaplar": "CD"
+    },
+    "168": {
+        "ders": "FELSEFE",
+        "sorular": [
+            1,
+            2
+        ],
+        "cevaplar": "CD"
+    },
+    "169": {
+        "ders": "FELSEFE",
+        "sorular": [
+            3,
+            4
+        ],
+        "cevaplar": "BD"
+    },
+    "170": {
+        "ders": "FELSEFE",
+        "sorular": [
+            5,
+            6
+        ],
+        "cevaplar": "EB"
+    },
+    "171": {
+        "ders": "FELSEFE",
+        "sorular": [
+            7,
+            8
+        ],
+        "cevaplar": "BE"
+    },
+    "172": {
+        "ders": "FELSEFE",
+        "sorular": [
+            9,
+            10
+        ],
+        "cevaplar": "BB"
+    },
+    "173": {
+        "ders": "FELSEFE",
+        "sorular": [
+            11,
+            12,
+            13
+        ],
+        "cevaplar": "BAA"
+    },
+    "174": {
+        "ders": "FELSEFE",
+        "sorular": [
+            14,
+            15,
+            16
+        ],
+        "cevaplar": "BDD"
+    },
+    "175": {
+        "ders": "FELSEFE",
+        "sorular": [
+            17,
+            18,
+            19
+        ],
+        "cevaplar": "AAB"
+    },
+    "176": {
+        "ders": "FELSEFE",
+        "sorular": [
+            20,
+            21
+        ],
+        "cevaplar": "DA"
+    },
+    "177": {
+        "ders": "FELSEFE",
+        "sorular": [
+            22,
+            23
+        ],
+        "cevaplar": "CB"
+    },
+    "178": {
+        "ders": "FELSEFE",
+        "sorular": [
+            24,
+            25
+        ],
+        "cevaplar": "BB"
+    },
+    "179": {
+        "ders": "FELSEFE",
+        "sorular": [
+            26,
+            27
+        ],
+        "cevaplar": "AA"
+    },
+    "180": {
+        "ders": "FELSEFE",
+        "sorular": [
+            28,
+            29
+        ],
+        "cevaplar": "DE"
+    },
+    "181": {
+        "ders": "FELSEFE",
+        "sorular": [
+            30,
+            31
+        ],
+        "cevaplar": "CC"
+    },
+    "182": {
+        "ders": "FELSEFE",
+        "sorular": [
+            32,
+            33
+        ],
+        "cevaplar": "DB"
+    },
+    "183": {
+        "ders": "FELSEFE",
+        "sorular": [
+            34,
+            35
+        ],
+        "cevaplar": "ED"
+    },
+    "184": {
+        "ders": "FELSEFE",
+        "sorular": [
+            36,
+            37
+        ],
+        "cevaplar": "CC"
+    },
+    "185": {
+        "ders": "FELSEFE",
+        "sorular": [
+            38,
+            39
+        ],
+        "cevaplar": "BB"
+    },
+    "186": {
+        "ders": "FELSEFE",
+        "sorular": [
+            40,
+            41,
+            42
+        ],
+        "cevaplar": "BEB"
+    },
+    "187": {
+        "ders": "FELSEFE",
+        "sorular": [
+            43,
+            44
+        ],
+        "cevaplar": "AD"
+    },
+    "188": {
+        "ders": "FELSEFE",
+        "sorular": [
+            45,
+            46
+        ],
+        "cevaplar": "EB"
+    },
+    "189": {
+        "ders": "FELSEFE",
+        "sorular": [
+            47,
+            48
+        ],
+        "cevaplar": "EE"
+    },
+    "190": {
+        "ders": "FELSEFE",
+        "sorular": [
+            49,
+            50,
+            51
+        ],
+        "cevaplar": "ADC"
+    },
+    "191": {
+        "ders": "FELSEFE",
+        "sorular": [
+            52,
+            53
+        ],
+        "cevaplar": "DC"
+    },
+    "192": {
+        "ders": "FELSEFE",
+        "sorular": [
+            54,
+            55
+        ],
+        "cevaplar": "AC"
+    },
+    "193": {
+        "ders": "FELSEFE",
+        "sorular": [
+            56,
+            57
+        ],
+        "cevaplar": "EE"
+    },
+    "194": {
+        "ders": "FELSEFE",
+        "sorular": [
+            58,
+            59,
+            60
+        ],
+        "cevaplar": "CCE"
+    },
+    "195": {
+        "ders": "FELSEFE",
+        "sorular": [
+            61,
+            62,
+            63
+        ],
+        "cevaplar": "DBA"
+    },
+    "196": {
+        "ders": "FELSEFE",
+        "sorular": [
+            64,
+            65
+        ],
+        "cevaplar": "CB"
+    },
+    "197": {
+        "ders": "FELSEFE",
+        "sorular": [
+            66,
+            67
+        ],
+        "cevaplar": "CB"
+    },
+    "198": {
+        "ders": "FELSEFE",
+        "sorular": [
+            68,
+            69,
+            70
+        ],
+        "cevaplar": "EEC"
+    },
+    "199": {
+        "ders": "FELSEFE",
+        "sorular": [
+            71,
+            72
+        ],
+        "cevaplar": "BE"
+    },
+    "200": {
+        "ders": "FELSEFE",
+        "sorular": [
+            73,
+            74
+        ],
+        "cevaplar": "BD"
+    },
+    "201": {
+        "ders": "FELSEFE",
+        "sorular": [
+            75,
+            76,
+            77,
+            78
+        ],
+        "cevaplar": "ADCA"
+    },
+    "202": {
+        "ders": "FELSEFE",
+        "sorular": [
+            79,
+            80
+        ],
+        "cevaplar": "DD"
+    },
+    "205": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            1,
+            2,
+            3
+        ],
+        "cevaplar": "DCD"
+    },
+    "206": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            4,
+            5,
+            6,
+            7
+        ],
+        "cevaplar": "BBEE"
+    },
+    "207": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            8,
+            9,
+            10,
+            11
+        ],
+        "cevaplar": "ABCA"
+    },
+    "208": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            12,
+            13,
+            14,
+            15
+        ],
+        "cevaplar": "CDEA"
+    },
+    "209": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            16,
+            17,
+            18,
+            19
+        ],
+        "cevaplar": "EACB"
+    },
+    "210": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            20,
+            21
+        ],
+        "cevaplar": "EA"
+    },
+    "211": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            22,
+            23,
+            24,
+            25
+        ],
+        "cevaplar": "BEDE"
+    },
+    "212": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            26,
+            27,
+            28
+        ],
+        "cevaplar": "BDD"
+    },
+    "213": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            29,
+            30,
+            31
+        ],
+        "cevaplar": "AEB"
+    },
+    "214": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            32,
+            33,
+            34
+        ],
+        "cevaplar": "ECA"
+    },
+    "215": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            35,
+            36,
+            37,
+            38,
+            2
+        ],
+        "cevaplar": "CDCEC"
+    },
+    "216": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            39,
+            40,
+            41,
+            42
+        ],
+        "cevaplar": "DDCD"
+    },
+    "217": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            43,
+            44,
+            45
+        ],
+        "cevaplar": "AEC"
+    },
+    "218": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            46,
+            47,
+            48
+        ],
+        "cevaplar": "CAA"
+    },
+    "219": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            49,
+            50,
+            51,
+            2,
+            1,
+            52
+        ],
+        "cevaplar": "BEACDB"
+    },
+    "220": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            53,
+            54,
+            55
+        ],
+        "cevaplar": "BAC"
+    },
+    "221": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            56,
+            57,
+            58,
+            59
+        ],
+        "cevaplar": "DEAA"
+    },
+    "222": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            60,
+            61,
+            62
+        ],
+        "cevaplar": "BBC"
+    },
+    "223": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            63,
+            64,
+            65,
+            66
+        ],
+        "cevaplar": "ECDD"
+    },
+    "224": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            67,
+            68,
+            69
+        ],
+        "cevaplar": "DAA"
+    },
+    "225": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            70,
+            71,
+            72
+        ],
+        "cevaplar": "EDD"
+    },
+    "226": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            73,
+            74,
+            75,
+            76
+        ],
+        "cevaplar": "ABAE"
+    },
+    "227": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            77,
+            78,
+            79
+        ],
+        "cevaplar": "CBB"
+    },
+    "228": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            80,
+            81,
+            82
+        ],
+        "cevaplar": "EBB"
+    },
+    "229": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            83,
+            84,
+            85,
+            86
+        ],
+        "cevaplar": "CCAD"
+    },
+    "230": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            87,
+            88,
+            89,
+            90
+        ],
+        "cevaplar": "BCCD"
+    },
+    "231": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            91,
+            92,
+            93,
+            94
+        ],
+        "cevaplar": "DADB"
+    },
+    "232": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            95,
+            1,
+            2,
+            3,
+            4,
+            96
+        ],
+        "cevaplar": "EDCDBE"
+    },
+    "233": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            97,
+            98,
+            99,
+            100
+        ],
+        "cevaplar": "DAEA"
+    },
+    "234": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            101,
+            102,
+            103
+        ],
+        "cevaplar": "DAA"
+    },
+    "235": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            104,
+            105
+        ],
+        "cevaplar": "DE"
+    },
+    "236": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            106,
+            107,
+            1,
+            2,
+            1,
+            2,
+            108,
+            109
+        ],
+        "cevaplar": "DDDCDCAD"
+    },
+    "237": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            110,
+            111,
+            112,
+            113
+        ],
+        "cevaplar": "ECDC"
+    },
+    "238": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            114,
+            115,
+            116,
+            117
+        ],
+        "cevaplar": "BCBB"
+    },
+    "239": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            118,
+            119,
+            120
+        ],
+        "cevaplar": "ECA"
+    },
+    "240": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            121,
+            122,
+            123,
+            124
+        ],
+        "cevaplar": "DCDC"
+    },
+    "241": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            125,
+            126,
+            127,
+            128
+        ],
+        "cevaplar": "CEEE"
+    },
+    "242": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            129,
+            130,
+            131,
+            132
+        ],
+        "cevaplar": "DDCC"
+    },
+    "243": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            133,
+            134,
+            135
+        ],
+        "cevaplar": "AEE"
+    },
+    "244": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            136,
+            137
+        ],
+        "cevaplar": "CD"
+    },
+    "245": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            138,
+            139,
+            140,
+            141
+        ],
+        "cevaplar": "CBAD"
+    },
+    "246": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            142,
+            143,
+            144
+        ],
+        "cevaplar": "CCB"
+    },
+    "247": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            145,
+            146,
+            147,
+            148
+        ],
+        "cevaplar": "EACE"
+    },
+    "248": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            149,
+            150,
+            151
+        ],
+        "cevaplar": "DBA"
+    },
+    "249": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            152,
+            153,
+            154,
+            155
+        ],
+        "cevaplar": "DAAC"
+    },
+    "250": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            156,
+            157
+        ],
+        "cevaplar": "BE"
+    },
+    "251": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            158,
+            159,
+            160,
+            161
+        ],
+        "cevaplar": "DCDC"
+    },
+    "252": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            162,
+            163,
+            164
+        ],
+        "cevaplar": "EBE"
+    },
+    "253": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            165,
+            166,
+            167,
+            168
+        ],
+        "cevaplar": "CCBD"
+    },
+    "254": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            169,
+            170
+        ],
+        "cevaplar": "EC"
+    },
+    "255": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            171,
+            172,
+            173
+        ],
+        "cevaplar": "ACB"
+    },
+    "256": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            174,
+            175,
+            176
+        ],
+        "cevaplar": "EBC"
+    },
+    "257": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            177,
+            178,
+            179
+        ],
+        "cevaplar": "BEA"
+    },
+    "258": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            180,
+            181
+        ],
+        "cevaplar": "DD"
+    },
+    "259": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            182,
+            183
+        ],
+        "cevaplar": "BB"
+    },
+    "260": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            184,
+            185
+        ],
+        "cevaplar": "AA"
+    },
+    "261": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            186,
+            187
+        ],
+        "cevaplar": "DC"
+    },
+    "262": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            188,
+            189
+        ],
+        "cevaplar": "EA"
+    },
+    "263": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            190,
+            191
+        ],
+        "cevaplar": "CD"
+    },
+    "264": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            192,
+            193,
+            194,
+            195
+        ],
+        "cevaplar": "BDCE"
+    },
+    "265": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            196,
+            197,
+            198
+        ],
+        "cevaplar": "BEC"
+    },
+    "266": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            199,
+            200,
+            201,
+            202
+        ],
+        "cevaplar": "DBBA"
+    },
+    "267": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            203,
+            204,
+            205
+        ],
+        "cevaplar": "CEC"
+    },
+    "268": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            206,
+            207,
+            208
+        ],
+        "cevaplar": "DCB"
+    },
+    "269": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            209,
+            210,
+            211
+        ],
+        "cevaplar": "EBB"
+    },
+    "270": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            212,
+            213,
+            214
+        ],
+        "cevaplar": "BBA"
+    },
+    "271": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            215,
+            216,
+            217
+        ],
+        "cevaplar": "AAB"
+    },
+    "272": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            218,
+            219,
+            220,
+            221
+        ],
+        "cevaplar": "ADBB"
+    },
+    "273": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            222,
+            223
+        ],
+        "cevaplar": "AC"
+    },
+    "274": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            224,
+            225
+        ],
+        "cevaplar": "BB"
+    },
+    "275": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            226,
+            227
+        ],
+        "cevaplar": "AA"
+    },
+    "276": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            228,
+            229
+        ],
+        "cevaplar": "EC"
+    },
+    "277": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            230,
+            231,
+            232
+        ],
+        "cevaplar": "EBB"
+    },
+    "278": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            233,
+            234,
+            235
+        ],
+        "cevaplar": "BEE"
+    },
+    "279": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            236,
+            237,
+            238
+        ],
+        "cevaplar": "BEA"
+    },
+    "280": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            239,
+            240,
+            241
+        ],
+        "cevaplar": "BED"
+    },
+    "281": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            242,
+            243,
+            244
+        ],
+        "cevaplar": "DDD"
+    },
+    "282": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            245,
+            246,
+            247,
+            248
+        ],
+        "cevaplar": "DBBD"
+    },
+    "283": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            249,
+            250,
+            251
+        ],
+        "cevaplar": "CEB"
+    },
+    "284": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            252,
+            253,
+            254,
+            255
+        ],
+        "cevaplar": "DDED"
+    },
+    "285": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            256,
+            257,
+            258
+        ],
+        "cevaplar": "DEC"
+    },
+    "286": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            259,
+            260,
+            261
+        ],
+        "cevaplar": "CEB"
+    },
+    "287": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            262,
+            263
+        ],
+        "cevaplar": "CD"
+    },
+    "288": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            264,
+            265
+        ],
+        "cevaplar": "AC"
+    },
+    "289": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            266,
+            267
+        ],
+        "cevaplar": "BA"
+    },
+    "290": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            268,
+            269,
+            270,
+            271
+        ],
+        "cevaplar": "AECA"
+    },
+    "291": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            272,
+            273
+        ],
+        "cevaplar": "BC"
+    },
+    "292": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            274,
+            275,
+            276,
+            277
+        ],
+        "cevaplar": "CDBA"
+    },
+    "293": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            278,
+            279,
+            280
+        ],
+        "cevaplar": "BDB"
+    },
+    "294": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            281,
+            282
+        ],
+        "cevaplar": "CB"
+    },
+    "295": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            283,
+            284,
+            285
+        ],
+        "cevaplar": "BEC"
+    },
+    "296": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            286,
+            287
+        ],
+        "cevaplar": "CD"
+    },
+    "297": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            288,
+            289,
+            290
+        ],
+        "cevaplar": "EAD"
+    },
+    "298": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            291,
+            292,
+            293
+        ],
+        "cevaplar": "ECC"
+    },
+    "299": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            294,
+            295
+        ],
+        "cevaplar": "BB"
+    },
+    "300": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            296,
+            297,
+            298
+        ],
+        "cevaplar": "CEA"
+    },
+    "301": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            299,
+            300
+        ],
+        "cevaplar": "CD"
+    },
+    "302": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            301,
+            302,
+            303
+        ],
+        "cevaplar": "EEB"
+    },
+    "303": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            304,
+            305
+        ],
+        "cevaplar": "CB"
+    },
+    "304": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            306,
+            307,
+            308,
+            309
+        ],
+        "cevaplar": "BCAE"
+    },
+    "305": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            310,
+            311,
+            312
+        ],
+        "cevaplar": "ABC"
+    },
+    "306": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            313,
+            314,
+            315
+        ],
+        "cevaplar": "EDD"
+    },
+    "307": {
+        "ders": "MATEMATİK",
+        "sorular": [
+            316,
+            317,
+            318,
+            319
+        ],
+        "cevaplar": "BCDB"
+    },
+    "312": {
+        "ders": "FİZİK",
+        "sorular": [
+            1,
+            2,
+            3
+        ],
+        "cevaplar": "EBC"
+    },
+    "313": {
+        "ders": "FİZİK",
+        "sorular": [
+            4,
+            5
+        ],
+        "cevaplar": "BA"
+    },
+    "314": {
+        "ders": "FİZİK",
+        "sorular": [
+            6,
+            7,
+            8
+        ],
+        "cevaplar": "EDE"
+    },
+    "315": {
+        "ders": "FİZİK",
+        "sorular": [
+            9,
+            10
+        ],
+        "cevaplar": "CB"
+    },
+    "316": {
+        "ders": "FİZİK",
+        "sorular": [
+            11,
+            12,
+            13
+        ],
+        "cevaplar": "DAE"
+    },
+    "317": {
+        "ders": "FİZİK",
+        "sorular": [
+            14,
+            15,
+            16,
+            17
+        ],
+        "cevaplar": "BDEA"
+    },
+    "318": {
+        "ders": "FİZİK",
+        "sorular": [
+            18,
+            19,
+            20
+        ],
+        "cevaplar": "DDD"
+    },
+    "319": {
+        "ders": "FİZİK",
+        "sorular": [
+            21,
+            22
+        ],
+        "cevaplar": "BC"
+    },
+    "320": {
+        "ders": "FİZİK",
+        "sorular": [
+            23,
+            24,
+            25
+        ],
+        "cevaplar": "ABE"
+    },
+    "321": {
+        "ders": "FİZİK",
+        "sorular": [
+            26,
+            27,
+            28
+        ],
+        "cevaplar": "ADA"
+    },
+    "322": {
+        "ders": "FİZİK",
+        "sorular": [
+            29,
+            30
+        ],
+        "cevaplar": "EB"
+    },
+    "323": {
+        "ders": "FİZİK",
+        "sorular": [
+            31,
+            32,
+            33
+        ],
+        "cevaplar": "EDB"
+    },
+    "324": {
+        "ders": "FİZİK",
+        "sorular": [
+            34,
+            35
+        ],
+        "cevaplar": "AE"
+    },
+    "325": {
+        "ders": "FİZİK",
+        "sorular": [
+            36,
+            37
+        ],
+        "cevaplar": "DE"
+    },
+    "326": {
+        "ders": "FİZİK",
+        "sorular": [
+            38,
+            39
+        ],
+        "cevaplar": "AA"
+    },
+    "327": {
+        "ders": "FİZİK",
+        "sorular": [
+            40,
+            41
+        ],
+        "cevaplar": "DD"
+    },
+    "328": {
+        "ders": "FİZİK",
+        "sorular": [
+            42,
+            43
+        ],
+        "cevaplar": "AA"
+    },
+    "329": {
+        "ders": "FİZİK",
+        "sorular": [
+            44,
+            45
+        ],
+        "cevaplar": "AD"
+    },
+    "330": {
+        "ders": "FİZİK",
+        "sorular": [
+            46,
+            47
+        ],
+        "cevaplar": "BD"
+    },
+    "331": {
+        "ders": "FİZİK",
+        "sorular": [
+            48,
+            49
+        ],
+        "cevaplar": "CC"
+    },
+    "332": {
+        "ders": "FİZİK",
+        "sorular": [
+            50,
+            51
+        ],
+        "cevaplar": "AC"
+    },
+    "333": {
+        "ders": "FİZİK",
+        "sorular": [
+            52,
+            53
+        ],
+        "cevaplar": "EE"
+    },
+    "334": {
+        "ders": "FİZİK",
+        "sorular": [
+            54,
+            55
+        ],
+        "cevaplar": "DD"
+    },
+    "335": {
+        "ders": "FİZİK",
+        "sorular": [
+            56
+        ],
+        "cevaplar": "A"
+    },
+    "339": {
+        "ders": "KİMYA",
+        "sorular": [
+            1,
+            2,
+            3,
+            4
+        ],
+        "cevaplar": "ACAE"
+    },
+    "340": {
+        "ders": "KİMYA",
+        "sorular": [
+            5,
+            6
+        ],
+        "cevaplar": "BC"
+    },
+    "341": {
+        "ders": "KİMYA",
+        "sorular": [
+            7,
+            8,
+            9,
+            10
+        ],
+        "cevaplar": "BDEB"
+    },
+    "342": {
+        "ders": "KİMYA",
+        "sorular": [
+            11,
+            12,
+            13
+        ],
+        "cevaplar": "CBE"
+    },
+    "343": {
+        "ders": "KİMYA",
+        "sorular": [
+            14,
+            15
+        ],
+        "cevaplar": "CC"
+    },
+    "344": {
+        "ders": "KİMYA",
+        "sorular": [
+            16,
+            17,
+            18,
+            19
+        ],
+        "cevaplar": "DAAD"
+    },
+    "345": {
+        "ders": "KİMYA",
+        "sorular": [
+            20,
+            21,
+            22
+        ],
+        "cevaplar": "ADC"
+    },
+    "346": {
+        "ders": "KİMYA",
+        "sorular": [
+            23,
+            24,
+            25
+        ],
+        "cevaplar": "CCD"
+    },
+    "347": {
+        "ders": "KİMYA",
+        "sorular": [
+            26,
+            27
+        ],
+        "cevaplar": "CB"
+    },
+    "348": {
+        "ders": "KİMYA",
+        "sorular": [
+            28,
+            29,
+            30
+        ],
+        "cevaplar": "CAC"
+    },
+    "349": {
+        "ders": "KİMYA",
+        "sorular": [
+            31,
+            32,
+            33
+        ],
+        "cevaplar": "AEC"
+    },
+    "350": {
+        "ders": "KİMYA",
+        "sorular": [
+            34,
+            35,
+            36
+        ],
+        "cevaplar": "EDC"
+    },
+    "351": {
+        "ders": "KİMYA",
+        "sorular": [
+            37,
+            38,
+            39
+        ],
+        "cevaplar": "AAB"
+    },
+    "352": {
+        "ders": "KİMYA",
+        "sorular": [
+            40,
+            41
+        ],
+        "cevaplar": "BE"
+    },
+    "353": {
+        "ders": "KİMYA",
+        "sorular": [
+            42,
+            43,
+            44
+        ],
+        "cevaplar": "BBB"
+    },
+    "354": {
+        "ders": "KİMYA",
+        "sorular": [
+            45,
+            46,
+            47,
+            48
+        ],
+        "cevaplar": "ADDD"
+    },
+    "355": {
+        "ders": "KİMYA",
+        "sorular": [
+            49,
+            50,
+            51,
+            52
+        ],
+        "cevaplar": "CAEE"
+    },
+    "356": {
+        "ders": "KİMYA",
+        "sorular": [
+            53,
+            54
+        ],
+        "cevaplar": "CA"
+    },
+    "359": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            1,
+            2,
+            3,
+            4
+        ],
+        "cevaplar": "CBEE"
+    },
+    "360": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            5,
+            6,
+            7,
+            8
+        ],
+        "cevaplar": "DADC"
+    },
+    "361": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            9,
+            10,
+            11
+        ],
+        "cevaplar": "BBD"
+    },
+    "362": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            12,
+            13,
+            14,
+            15
+        ],
+        "cevaplar": "AEDB"
+    },
+    "363": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            16,
+            17,
+            18
+        ],
+        "cevaplar": "ECB"
+    },
+    "364": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            19,
+            20,
+            21,
+            22,
+            23
+        ],
+        "cevaplar": "AEEDE"
+    },
+    "365": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            24,
+            25,
+            26
+        ],
+        "cevaplar": "AEC"
+    },
+    "366": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            27,
+            28,
+            29
+        ],
+        "cevaplar": "BED"
+    },
+    "367": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            30,
+            31,
+            32
+        ],
+        "cevaplar": "ECB"
+    },
+    "368": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            33,
+            34
+        ],
+        "cevaplar": "CD"
+    },
+    "369": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            35,
+            36
+        ],
+        "cevaplar": "CD"
+    },
+    "370": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            37,
+            38
+        ],
+        "cevaplar": "CE"
+    },
+    "371": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            39,
+            40
+        ],
+        "cevaplar": "CC"
+    },
+    "372": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            41,
+            42
+        ],
+        "cevaplar": "ED"
+    },
+    "373": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            43,
+            44
+        ],
+        "cevaplar": "DE"
+    },
+    "374": {
+        "ders": "BiYOLOJİ",
+        "sorular": [
+            45,
+            46,
+            47
+        ],
+        "cevaplar": "EEE"
+    }
+}
