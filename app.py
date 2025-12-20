@@ -240,7 +240,8 @@ if st.session_state.ekran == 'giris':
         # İMZA ALANI (El Yazısı)
         st.markdown("""
         <div class='imza-not'>Okulumuz muhasebe alanının okulumuza hediyesidir.</div>
-        <div class='imza'>Zülfikar SITACI Mustafa BAĞCIK </div>
+        <div class='imza'>Zülfikar SITACI
+        Mustafa BAĞCIK </div>
         """, unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
