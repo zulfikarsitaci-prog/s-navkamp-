@@ -237,12 +237,7 @@ if st.session_state.ekran == 'giris':
             else:
                 st.error("Lütfen adınızı ve soyadınızı giriniz!")
         
-        # İMZA ALANI (El Yazısı)
-        st.markdown("""
-        <div class='imza-not'>Okulumuz Muh. ve Fin. alanının hediyesidir.</div>
-        <div class='imza'>Zülfikar SITACI </div>
-        <div class='imza'> Mustafa BAĞCIK </div>
-        """, unsafe_allow_html=True)
+      
 
 # ------------------------------------------------------------------------------
 # 2. SINAV ARAYÜZÜ
