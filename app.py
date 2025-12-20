@@ -32,7 +32,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
     
-    /* Zülfikar SITACI Mustafa BAĞCIK İmzası (El Yazısı Fontu) */
+    /* Zülfikar SITACI İmzası (El Yazısı Fontu) */
     .imza {
         margin-top: 40px;
         font-family: 'Dancing Script', cursive; /* El yazısı fontu */
@@ -240,7 +240,7 @@ if st.session_state.ekran == 'giris':
         # İMZA ALANI (El Yazısı)
         st.markdown("""
         <div class='imza-not'>Okulumuz muhasebe alanının okulumuza hediyesidir.</div>
-        <div class='imza'>Zülfikar Sıtacı</div>
+        <div class='imza'>Zülfikar SITACI Mustafa BAĞCIK </div>
         """, unsafe_allow_html=True)
 
 # ------------------------------------------------------------------------------
