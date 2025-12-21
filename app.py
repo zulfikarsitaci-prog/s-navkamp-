@@ -196,7 +196,7 @@ if st.session_state.ekran == 'giris':
         </div>
         """, unsafe_allow_html=True)
         
-        ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Ali Yılmaz")
+        ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Zülfikar Sıtacı")
         
         st.write("")
         if st.button("Sınav Türünü Seçmek İçin Giriş Yapınız ➡️"):
@@ -217,8 +217,8 @@ if st.session_state.ekran == 'giris':
         st.markdown("""
         <div class='imza-container'>
             <div class='imza-baslik'>Muhasebe ve Finansman Öğretmenleri</div>
-            <div class='imza-satir'>Zülfikar SITACI</div>
-            <div class='imza-satir'>Mustafa BAĞCIK</div>
+            <div class='imza-satir'></div>
+            <div class='imza-satir'></div>
         </div>
         """, unsafe_allow_html=True)
 
