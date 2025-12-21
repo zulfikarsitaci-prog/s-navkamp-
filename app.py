@@ -72,10 +72,11 @@ st.markdown("""
         font-weight: bold;
         margin-bottom: 5px;
     }
-    .imza {
+    .imza-satir {
         font-family: 'Dancing Script', cursive;
         color: #D84315;
         font-size: 22px; 
+        line-height: 1.5;
     }
     
     /* BUTONLAR */
@@ -212,11 +213,12 @@ if st.session_state.ekran == 'giris':
             else:
                 st.error("Lütfen adınızı giriniz!")
         
-        # GÜNCELLENEN İMZA ALANI
+        # GÜNCELLENEN İMZA ALANI (ZÜLFİKAR ÜSTTE, MUSTAFA ALTTA)
         st.markdown("""
         <div class='imza-container'>
             <div class='imza-baslik'>Muhasebe ve Finansman Öğretmenleri</div>
-            <div class='imza'>Zülfikar Sıtacı & Mustafa Bağcık</div>
+            <div class='imza-satir'>Zülfikar SITACI</div>
+            <div class='imza-satir'>Mustafa BAĞCIK</div>
         </div>
         """, unsafe_allow_html=True)
 
