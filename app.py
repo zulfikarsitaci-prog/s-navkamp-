@@ -216,7 +216,7 @@ if st.session_state.ekran == 'giris':
         </div>
         """, unsafe_allow_html=True)
         
-        ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Ali Yılmaz")
+        ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Zülfikar Sıtacı")
         
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
