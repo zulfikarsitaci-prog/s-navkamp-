@@ -2,56 +2,50 @@
   "10. Sınıf": {
     "Genel Muhasebe": [
       {
-        "baslik": "1. Muhasebe Mantığı (Borç/Alacak)",
-        "icerik": "<b>AKTİF HESAPLAR (Varlıklar):</b> Artışlar BORÇ, Azalışlar ALACAK tarafına yazılır. (Örn: 100, 101, 102, 153)<br><b>PASİF HESAPLAR (Kaynaklar):</b> Artışlar ALACAK, Azalışlar BORÇ tarafına yazılır. (Örn: 300, 320, 500)<br><b>İSTİSNA (Düzenleyici Hesaplar):</b> Yanında (-) olan hesaplar (Örn: 103, 257) ters çalışır. Aktifte olsa bile Pasif gibi işlem görür."
+        "baslik": "1. Muhasebe Mantığı ve Yevmiye Kuralları",
+        "icerik": "<b>AKTİF HESAPLAR (1 ve 2 ile Başlayanlar):</b><br>- İlk Kayıt: BORÇ<br>- Artışlar: BORÇ<br>- Azalışlar: ALACAK<br><br><b>PASİF HESAPLAR (3, 4 ve 5 ile Başlayanlar):</b><br>- İlk Kayıt: ALACAK<br>- Artışlar: ALACAK<br>- Azalışlar: BORÇ<br><br>⚠️ <b>DÜZENLEYİCİ HESAPLAR (İstisna):</b> Yanında (-) işareti olan hesaplar (Örn: 103, 122, 257) bulunduğu grubun tersine çalışır. Aktifteyse Pasif gibi, Pasifteyse Aktif gibi işlem görür."
       },
       {
-        "baslik": "2. Önemli Yevmiye Kayıtları",
-        "icerik": "<b>Mal Alışı:</b> 153 (B) / 191 (B) -> 320 veya 100 (A)<br><b>Mal Satışı:</b> 120 veya 100 (B) -> 600 (A) / 391 (A)<br><b>KDV Mahsubu:</b> 391 (B) -> 191 (A) (Aradaki fark 360 veya 190 olur).<br><b>Kasa Noksanı:</b> 197 (B) / 100 (A)"
+        "baslik": "2. KDV Hesaplamaları",
+        "icerik": "<b>KDV Hariç Tutar Bulma:</b> KDV Dahil Tutar / (1 + KDV Oranı)<br>Örnek (%20): 120 TL / 1.20 = 100 TL<br><br><b>KDV Tutarı Bulma:</b> Matrah x 0.20<br><br><b>Kayıt:</b><br>- Mal Alışında: 191 İndirilecek KDV (Borç)<br>- Mal Satışında: 391 Hesaplanan KDV (Alacak)"
       },
       {
-        "baslik": "3. Amortisman ve Değerleme",
-        "icerik": "<b>Normal Amortisman:</b> Tutar x Oran (Her yıl eşit).<br><b>Azalan Bakiyeler:</b> Kalan Değer x (Oran x 2).<br><b>Reeskont:</b> Senetli alacak/borçların vade farkının ayrıştırılmasıdır (Dönemsellik gereği)."
-      }
-    ],
-    "Ekonomi": [
-      {
-        "baslik": "1. Piyasa Kanunları",
-        "icerik": "<b>Talep Kanunu:</b> Fiyat artarsa talep azalır.<br><b>Arz Kanunu:</b> Fiyat artarsa arz artar.<br><b>Denge Fiyatı:</b> Arz ve talebin eşitlendiği noktadır."
+        "baslik": "3. Amortisman Yöntemleri",
+        "icerik": "<b>Normal Amortisman:</b> Tutar x Oran (Her yıl eşit gider yazılır).<br><b>Azalan Bakiyeler:</b> Kalan Değer x (Oran x 2). (İlk yıllar çok, son yıllar az gider yazılır).<br><b>Kıst Amortisman:</b> Binek otolarda alındığı aydan itibaren hesaplanır."
       }
     ]
   },
   "11. Sınıf": {
-    "Maliyet Muhasebesi": [
-      {
-        "baslik": "1. Maliyet Akışı ve Hesaplar",
-        "icerik": "<b>710 DİMM:</b> Hammadde (Üretime giren).<br><b>720 DİG:</b> İşçilik.<br><b>730 GÜG:</b> Elektrik, Kira, Amortisman.<br><b>Yansıtma:</b> 711, 721, 731 ile 151 Yarı Mamule aktarılır.<br><b>Mamul:</b> 151'den 152 Mamuller hesabına geçer."
-      },
-      {
-        "baslik": "2. Birim Maliyet Formülü",
-        "icerik": "Toplam Üretim Maliyeti / Üretim Miktarı = Birim Maliyet.<br><b>Önemli:</b> Sabit giderler üretim artsa da toplamda değişmez ama birim başına düşen payı azalır."
-      }
-    ],
     "Şirketler Muhasebesi": [
       {
-        "baslik": "1. A.Ş. Kuruluş Kaydı",
-        "icerik": "Taahhüt: 501 (B) / 500 (A)<br>Ödeme: 102 (B) / 501 (A)<br><b>501 Hesabı:</b> Ödenmemiş sermayeyi gösterir, Pasifi düzenleyen aktiftir."
+        "baslik": "1. Kar Dağıtım Tablosu Mantığı",
+        "icerik": "1. Dönem Karı<br>2. (-) Ödenecek Vergi ve Yasal Yükümlülükler<br><b>= NET DÖNEM KARI</b><br>3. (-) I. Tertip Yasal Yedek Akçe (%5)<br>4. (-) I. Temettü (Ortaklara)<br>5. (-) II. Tertip Yasal Yedek Akçe (Dağıtılanın %10'u)<br>6. (-) II. Temettü"
       },
       {
-        "baslik": "2. Kar Dağıtımı Sırası",
-        "icerik": "1. Kurumlar Vergisi<br>2. I. Tertip Yasal Yedek (%5)<br>3. I. Temettü (Ortaklara)<br>4. II. Tertip Yasal Yedek<br>5. II. Temettü"
+        "baslik": "2. Sermaye Hesapları",
+        "icerik": "<b>500 Sermaye:</b> Esas sermayeyi gösterir (Pasif).<br><b>501 Ödenmemiş Sermaye (-):</b> Ortakların henüz ödemediği kısımdır (Aktif Karakterli).<br><b>520 Hisse Senedi İhraç Primleri:</b> Hissenin nominal değerinin üzerinde satılmasıyla oluşan kardır (Vergi dışıdır)."
+      }
+    ],
+    "Maliyet Muhasebesi": [
+      {
+        "baslik": "1. Gider Dağıtım Yöntemleri",
+        "icerik": "<b>Basit Dağıtım:</b> Yardımcı gider yerleri sadece esas üretime dağıtılır.<br><b>Kademeli (II.) Dağıtım:</b> En çok hizmet veren yardımcı yerden başlanarak sırayla dağıtılır, geriye dönülmez.<br><b>Matematiksel Dağıtım:</b> Karşılıklı hizmet ilişkisi denklemle çözülür (En hassas yöntem)."
+      },
+      {
+        "baslik": "2. Stok Değerleme (FIFO)",
+        "icerik": "<b>FIFO (First In First Out):</b> İlk giren ilk çıkar. Üretime sevk edilen veya satılan mallar, depoya giren en eski parti fiyatından düşülür. Enflasyonist ortamda karı yüksek gösterir."
       }
     ]
   },
   "12. Sınıf": {
     "Bankacılık": [
       {
-        "baslik": "1. Banka Bilançosu Mantığı",
-        "icerik": "<b>Mevduat:</b> Banka için BORÇTUR (Pasif). Çünkü müşteriye geri ödeyecektir.<br><b>Kredi:</b> Banka için ALACAKTIR (Aktif). Çünkü müşteriden tahsil edecektir.<br><b>Kasa:</b> Bankanın nakit parasıdır (Aktif)."
+        "baslik": "1. Banka Bilançosu (Ters Mantık)",
+        "icerik": "İşletmeler için 'Banka' hesabı Varlıktır (Aktif).<br>ANCAK Banka için 'Müşteri Mevduatı' BORÇTUR (Pasif). Çünkü banka o parayı müşteriye geri ödemekle yükümlüdür.<br>Bankanın verdiği 'Kredi' ise banka için ALACAKTIR (Aktif)."
       },
       {
         "baslik": "2. Kredi Türleri",
-        "icerik": "<b>Nakdi Kredi:</b> Para olarak verilen (İhtiyaç, Konut).<br><b>Gayrinakdi Kredi:</b> Para değil, garanti verilen (Teminat Mektubu, Akreditif). Nazım hesaplarda izlenir."
+        "icerik": "<b>Nakdi Kredi:</b> Para olarak verilir (İhtiyaç, Konut, Taşıt, Ticari). Faiz geliri getirir.<br><b>Gayrinakdi Kredi:</b> Para değil, garanti verilir (Teminat Mektubu, Akreditif). Komisyon geliri getirir. Nazım hesaplarda izlenir."
       }
     ]
   }
