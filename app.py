@@ -9,50 +9,42 @@ import fitz  # PyMuPDF
 st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="🎓", layout="wide")
 
 # --- DOSYA İSİMLERİ ---
-TYT_PDF_ADI = "tytson8.pdf"  # GÜNCELLENDİ
+TYT_PDF_ADI = "tytson8.pdf"  # İsim Güncellendi
 TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 
-# --- TASARIM ---
+# --- TASARIM VE CSS ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
     
+    /* Arka Planı Zorla Açık Renk Yap */
     .stApp { background-color: #F0F4C3 !important; }
-    h1, h2, h3, h4, .stMarkdown, p { color: #212121 !important; }
     
-    /* Gereksiz Streamlit öğelerini gizle */
-    .stDeployButton {display:none;}
-    footer {visibility: hidden;}
-    #MainMenu {visibility: hidden;}
+    /* Tüm Yazıları Koyu Renk Yap (Gece Modunda Görünmesi İçin) */
+    h1, h2, h3, h4, .stMarkdown, p, label { color: #212121 !important; }
     
-    /* GECE MODU DÜZELTMESİ: Açılır Menüleri Zorla Beyaz Yap */
-    div[data-baseweb="select"] > div {
+    /* MENU VE DROPDOWN DÜZELTMESİ (Ders İsimleri Görünsün Diye) */
+    .stSelectbox div[data-baseweb="select"] > div {
         background-color: #FFFFFF !important;
         color: #000000 !important;
-        border: 1px solid #FF7043 !important;
+        border: 2px solid #FF7043;
     }
-    div[data-baseweb="select"] span {
+    .stSelectbox div[data-baseweb="select"] span {
         color: #000000 !important;
     }
+    /* Açılan Listenin Rengi */
     ul[data-baseweb="menu"] {
         background-color: #FFFFFF !important;
     }
-    li[data-baseweb="option"] {
+    ul[data-baseweb="menu"] li span {
         color: #000000 !important;
     }
-    
-    /* İstatistik Kartları */
-    .stat-card {
-        background-color: white;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        text-align: center;
-        border: 2px solid #FF7043;
-    }
-    .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
-    .stat-label { font-size: 16px; color: #555; }
+
+    /* Gereksiz Şeyleri Gizle */
+    .stDeployButton {display:none;}
+    footer {visibility: hidden;}
+    #MainMenu {visibility: hidden;}
     
     /* Giriş Kartı */
     .giris-kart {
@@ -65,25 +57,24 @@ st.markdown("""
         margin-bottom: 20px;
     }
     
-    /* Yeni Küçük İmza Tasarımı */
-    .footer-container {
+    /* Zarif Alt İmza */
+    .imza-container {
         margin-top: 50px;
         text-align: right;
-        opacity: 0.8;
+        padding-right: 20px;
+        opacity: 0.7; /* Hafif silik */
     }
-    .okul-mesaj {
-        font-family: 'Helvetica', sans-serif;
-        font-size: 11px;
-        color: #555;
-        font-style: italic;
-        margin-bottom: 2px;
-    }
-    .imza-isim {
+    .imza {
         font-family: 'Dancing Script', cursive;
         color: #D84315;
-        font-size: 16px; /* Küçültüldü */
+        font-size: 18px; /* Daha küçük */
     }
-
+    .imza-unvan {
+        font-family: sans-serif;
+        font-size: 10px;
+        color: #555;
+    }
+    
     /* Butonlar */
     .stButton>button {
         background-color: #FF7043 !important;
@@ -93,7 +84,7 @@ st.markdown("""
         width: 100%;
         border: 2px solid #D84315 !important;
         min-height: 50px;
-        font-size: 18px !important;
+        font-size: 16px !important;
     }
     .stButton>button:hover {
         background-color: #E64A19 !important;
@@ -107,8 +98,30 @@ st.markdown("""
         border-left: 5px solid #FF7043; 
         font-size: 18px;
         margin-bottom: 20px;
+        color: #000 !important;
+    }
+    
+    /* Hata Kartı */
+    .hata-karti {
+        background-color: #FFEBEE;
+        border-left: 5px solid #D32F2F;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
         color: #000;
     }
+    
+    /* İstatistik Kartları */
+    .stat-card {
+        background-color: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        text-align: center;
+        border: 2px solid #FF7043;
+    }
+    .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
+    .stat-label { font-size: 16px; color: #555; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -155,7 +168,7 @@ if 'secilen_liste' not in st.session_state: st.session_state.secilen_liste = []
 if 'aktif_index' not in st.session_state: st.session_state.aktif_index = 0
 if 'toplam_puan' not in st.session_state: st.session_state.toplam_puan = 0
 
-# Karne Değişkenleri
+# KARNE DEĞİŞKENLERİ
 if 'karne' not in st.session_state: st.session_state.karne = []
 if 'dogru_sayisi_toplam' not in st.session_state: st.session_state.dogru_sayisi_toplam = 0
 if 'yanlis_sayisi_toplam' not in st.session_state: st.session_state.yanlis_sayisi_toplam = 0
@@ -173,15 +186,19 @@ if st.session_state.ekran == 'giris':
             <h1>🎓 Bağarası ÇPAL</h1>
             <h2>Dijital Sınav Merkezi</h2>
             <hr>
-            <p style="font-size:18px;">Lütfen sınava başlamak için kimlik bilgilerinizi giriniz.</p>
+            <p style="font-size:18px; font-weight:bold; color:#D84315;">
+                Okulumuz Muhasebe ve Finansman Alanının öğrencilerimize hediyesidir.
+            </p>
+            <br>
+            <p>Lütfen sınava başlamak için kimlik bilgilerinizi giriniz.</p>
         </div>
         """, unsafe_allow_html=True)
         
         ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Ali Yılmaz")
         
-        st.write("") # Boşluk
-        
-        if st.button("SİSTEME GİRİŞ YAP VE MENÜYÜ AÇ ➡️"):
+        st.write("")
+        # İSTENİLEN BUTON METNİ GÜNCELLENDİ
+        if st.button("Sınav Türünü Seçmek İçin Giriş Yapınız ➡️"):
             if ad_soyad_input.strip():
                 st.session_state.ad_soyad = ad_soyad_input
                 st.session_state.ekran = 'sinav'
@@ -193,23 +210,21 @@ if st.session_state.ekran == 'giris':
             else:
                 st.error("Lütfen adınızı giriniz!")
         
-        # GÜNCELLENMİŞ İMZA ALANI (KÜÇÜK VE KİBAR)
+        # GÜNCELLENMİŞ İMZA ALANI (SAĞ ALT KÖŞE)
         st.markdown("""
-        <div class='footer-container'>
-            <div class='okul-mesaj'>Okulumuz Muhasebe ve Finansman Alanının öğrencilerimize hediyesidir.</div>
-            <div class='imza-isim'>Zülfikar Sıtacı</div>
+        <div class='imza-container'>
+            <div class='imza'>Zülfikar Sıtacı</div>
         </div>
         """, unsafe_allow_html=True)
 
 # --- 2. SINAV EKRANI ---
 elif st.session_state.ekran == 'sinav':
     
+    # --- SOL MENÜ ---
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=100)
         st.write(f"👤 **{st.session_state.ad_soyad}**")
-        st.success("Giriş Başarılı! Aşağıdan ders seçiniz.")
         st.divider()
-        
         if st.button("🏠 Çıkış Yap"):
             st.session_state.ekran = 'giris'
             st.session_state.oturum = False
@@ -224,10 +239,9 @@ elif st.session_state.ekran == 'sinav':
             if tur_secimi == "TYT Deneme (PDF)":
                 if TYT_VERI:
                     dersler = sorted(list(set(v["ders"] for v in TYT_VERI.values())))
-                    # CSS ile beyaz yaptığımız Selectbox
-                    ders = st.selectbox("Ders Seçiniz:", ["Karışık Deneme"] + dersler)
+                    # Renk sorunu CSS ile çözüldü
+                    ders = st.selectbox("Ders:", ["Karışık Deneme"] + dersler)
                     adet = st.slider("Sayfa Sayısı:", 1, 10, 3)
-                    
                     if st.button("TYT Başlat"):
                         uygun = [s for s, d in TYT_VERI.items() if ders == "Karışık Deneme" or d["ders"] == ders]
                         if uygun:
@@ -239,12 +253,10 @@ elif st.session_state.ekran == 'sinav':
                             st.session_state.aktif_index = 0
                             st.rerun()
                         else: st.error("Ders bulunamadı.")
-                else:
-                    st.warning("Veri yüklenemedi.")
-
             else:
                 if MESLEK_VERI:
-                    alan = st.selectbox("Alan/Sınıf Seçiniz:", list(MESLEK_VERI.keys()))
+                    # Renk sorunu CSS ile çözüldü
+                    alan = st.selectbox("Alan/Sınıf:", list(MESLEK_VERI.keys()))
                     if st.button("Meslek Sınavı Başlat"):
                         sorular = MESLEK_VERI.get(alan, [])
                         if sorular:
@@ -256,8 +268,6 @@ elif st.session_state.ekran == 'sinav':
                             st.session_state.aktif_index = 0
                             st.rerun()
                         else: st.error("Soru yok.")
-                else:
-                    st.warning("Veri yüklenemedi.")
 
     # --- SORU ÇÖZME VEYA SONUÇ EKRANI ---
     if st.session_state.oturum:
@@ -278,20 +288,24 @@ elif st.session_state.ekran == 'sinav':
             
             st.divider()
             
-            # HATALI SORULAR ANALİZİ
             st.subheader("🔍 Hatalı Yaptığınız Soruların Analizi")
+            
             yanlislar = [k for k in st.session_state.karne if k["durum"] == "Yanlış"]
             
             if not yanlislar:
                 st.success("Tebrikler! Hiç yanlışınız yok. Harika iş çıkardınız. 🌟")
             else:
                 st.info("Aşağıda yanlış yaptığınız soruları ve doğru cevaplarını inceleyebilirsiniz.")
+                
                 for hata in yanlislar:
                     if hata["tip"] == "MESLEK":
-                        st.error(f"SORU: {hata['soru_metni']}")
-                        st.write(f"❌ Sizin Cevabınız: {hata['secilen']}")
-                        st.write(f"✅ Doğru Cevap: {hata['dogru']}")
-                        st.divider()
+                        st.markdown(f"""
+                        <div class='hata-karti'>
+                            <b>SORU:</b> {hata['soru_metni']}<br><br>
+                            ❌ <b>Sizin Cevabınız:</b> {hata['secilen']}<br>
+                            ✅ <b>Doğru Cevap:</b> {hata['dogru']}
+                        </div>
+                        """, unsafe_allow_html=True)
                     
                     elif hata["tip"] == "PDF":
                         with st.expander(f"📄 Sayfa {hata['sayfa_no']} - {hata['ders']} (Hataları Gör)"):
@@ -300,10 +314,13 @@ elif st.session_state.ekran == 'sinav':
                                 pdf_sayfa_getir(TYT_PDF_ADI, hata['sayfa_no'])
                             with c_detay:
                                 for yanlis_detay in hata['hatali_sorular']:
-                                    st.error(f"Soru {yanlis_detay['soru_no']}")
-                                    st.write(f"❌ Sizin Cevabınız: {yanlis_detay['secilen']}")
-                                    st.write(f"✅ Doğru Cevap: {yanlis_detay['dogru']}")
-                                    st.markdown("---")
+                                    st.markdown(f"""
+                                    <div class='hata-karti'>
+                                        <b>Soru {yanlis_detay['soru_no']}</b><br>
+                                        ❌ Sizin Cevabınız: {yanlis_detay['secilen']}<br>
+                                        ✅ Doğru Cevap: {yanlis_detay['dogru']}
+                                    </div>
+                                    """, unsafe_allow_html=True)
 
             if st.button("Yeni Sınav Başlat"):
                 st.session_state.oturum = False
@@ -334,7 +351,8 @@ elif st.session_state.ekran == 'sinav':
                             for i in range(len(cevaplar)):
                                 val = st.session_state.get(f"c_{sayfa_no}_{i}")
                                 dogru_cevap = cevaplar[i]
-                                if dogru_cevap == "X": continue 
+                                
+                                if dogru_cevap == "X": continue
                                 
                                 if val is None:
                                     st.session_state.bos_sayisi_toplam += 1
@@ -342,13 +360,23 @@ elif st.session_state.ekran == 'sinav':
                                     st.session_state.dogru_sayisi_toplam += 1
                                 else:
                                     st.session_state.yanlis_sayisi_toplam += 1
-                                    sayfa_hatalari.append({"soru_no": i+1, "secilen": val, "dogru": dogru_cevap})
+                                    sayfa_hatalari.append({
+                                        "soru_no": i+1,
+                                        "secilen": val,
+                                        "dogru": dogru_cevap
+                                    })
                             
                             if sayfa_hatalari:
-                                st.session_state.karne.append({"tip": "PDF", "durum": "Yanlış", "sayfa_no": sayfa_no, "ders": veri['ders'], "hatali_sorular": sayfa_hatalari})
+                                st.session_state.karne.append({
+                                    "tip": "PDF",
+                                    "durum": "Yanlış",
+                                    "sayfa_no": sayfa_no,
+                                    "ders": veri['ders'],
+                                    "hatali_sorular": sayfa_hatalari
+                                })
                             
                             st.toast("Cevaplar Kaydedildi...")
-                            time.sleep(0.5)
+                            time.sleep(1)
                             st.session_state.aktif_index += 1
                             st.rerun()
 
@@ -374,7 +402,13 @@ elif st.session_state.ekran == 'sinav':
                             else:
                                 st.toast("Yanlış! ❌")
                                 st.session_state.yanlis_sayisi_toplam += 1
-                                st.session_state.karne.append({"tip": "MESLEK", "durum": "Yanlış", "soru_metni": soru['soru'], "secilen": sec, "dogru": soru['cevap']})
+                                st.session_state.karne.append({
+                                    "tip": "MESLEK",
+                                    "durum": "Yanlış",
+                                    "soru_metni": soru['soru'],
+                                    "secilen": sec,
+                                    "dogru": soru['cevap']
+                                })
                             
                             if "karisik_secenekler" in st.session_state: del st.session_state.karisik_secenekler
                             time.sleep(0.5)
