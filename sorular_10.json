@@ -1,0 +1,78 @@
+{
+  "10. Sınıf": {
+    "Genel Muhasebe": {
+      "Test 1 (Kavramlar ve Hesaplar - ZOR)": [
+        {"soru": "İşletme sahibi kişisel borcunu kasa hesabından öderse hangi kavram ihlal edilir?", "secenekler": ["Kişilik", "Dönemsellik", "Tutarlılık", "Tam Açıklama"], "cevap": "Kişilik"},
+        {"soru": "103 Verilen Çekler hesabı bilançoda nerede yer alır?", "secenekler": ["Dönen Varlıklar (-) (Pasif Karakterli)", "Pasif", "Gelir", "Gider"], "cevap": "Dönen Varlıklar (-) (Pasif Karakterli)"},
+        {"soru": "120 Alıcılar hesabının borç kalanı 100.000 TL ise bu neyi ifade eder?", "secenekler": ["Müşterilerin işletmeye olan borcunu", "İşletmenin borcunu", "Kasadaki parayı", "Satış tutarını"], "cevap": "Müşterilerin işletmeye olan borcunu"},
+        {"soru": "KDV dahil 11.800 TL'lik malın %18 KDV hariç tutarı nedir?", "secenekler": ["10.000 TL", "1.800 TL", "11.000 TL", "2.000 TL"], "cevap": "10.000 TL"},
+        {"soru": "Reeskont işlemi hangi ilke gereği yapılır?", "secenekler": ["Dönemsellik", "Tutarlılık", "Önemlilik", "Vergi"], "cevap": "Dönemsellik"},
+        {"soru": "Kasa noksanı geçici olarak nereye kaydedilir?", "secenekler": ["197 Sayım Noksanları", "397 Sayım Fazlaları", "689 Gider", "100 Kasa"], "cevap": "197 Sayım Noksanları"},
+        {"soru": "Nazım hesaplar bilanço toplamını etkiler mi?", "secenekler": ["Hayır, bilgi amaçlıdır", "Evet artırır", "Evet azaltır", "Sermayeyi etkiler"], "cevap": "Hayır, bilgi amaçlıdır"},
+        {"soru": "Açılış kaydında Pasif hesaplar nasıl çalışır?", "secenekler": ["Alacak taraflı", "Borç taraflı", "Eksi", "Çalışmaz"], "cevap": "Alacak taraflı"},
+        {"soru": "Senetsiz borçlar hangi hesaptır?", "secenekler": ["320 Satıcılar", "321 Senetler", "120 Alıcılar", "100 Kasa"], "cevap": "320 Satıcılar"},
+        {"soru": "Duran varlık satış karı hangi hesaptır?", "secenekler": ["679 Diğer Olağandışı Gelir", "600 Satış", "649 Gelir", "500 Sermaye"], "cevap": "679 Diğer Olağandışı Gelir"},
+        {"soru": "Amortisman nedir?", "secenekler": ["Duran varlık yıpranma payı", "Değer artışı", "Vergi", "Stok"], "cevap": "Duran varlık yıpranma payı"},
+        {"soru": "Banka kredisinin vadesi 1 yılın altına düşerse?", "secenekler": ["303 Uzun Vadeli Kredi Taksitleri", "300 Kredi", "400 Kredi", "100 Kasa"], "cevap": "303 Uzun Vadeli Kredi Taksitleri"},
+        {"soru": "Veresiye mal alışı kaydı?", "secenekler": ["153 (B) / 320 (A)", "153 (B) / 100 (A)", "320 (B) / 153 (A)", "600 (B)"], "cevap": "153 (B) / 320 (A)"},
+        {"soru": "Çek ciro etmek ne demektir?", "secenekler": ["Hakkını başkasına devretmek", "Tahsil etmek", "İptal etmek", "Yırtmak"], "cevap": "Hakkını başkasına devretmek"},
+        {"soru": "Bilanço denkliği?", "secenekler": ["Varlık = Kaynak", "Gelir = Gider", "Aktif = Sermaye", "Borç = Alacak"], "cevap": "Varlık = Kaynak"}
+      ],
+      "Test 2 (Envanter ve Değerleme - ZOR)": [
+        {"soru": "FIFO yöntemi nedir?", "secenekler": ["İlk Giren İlk Çıkar", "Son Giren İlk Çıkar", "Ortalama", "Piyasa"], "cevap": "İlk Giren İlk Çıkar"},
+        {"soru": "Stok devir hızı?", "secenekler": ["SMM / Ortalama Stok", "Ciro / Stok", "Kar / Stok", "Kasa / Stok"], "cevap": "SMM / Ortalama Stok"},
+        {"soru": "Şüpheli alacak karşılığı gider hesabı?", "secenekler": ["654 Karşılık Giderleri", "689 Gider", "770 Gider", "129 Karşılık"], "cevap": "654 Karşılık Giderleri"},
+        {"soru": "Değeri düşen stok karşılığı?", "secenekler": ["158 Stok Değer Düşüklüğü (-)", "157 Diğer", "153 Mal", "654 Gider"], "cevap": "158 Stok Değer Düşüklüğü (-)"},
+        {"soru": "KDV tahakkukunda ödenecek vergi hesabı?", "secenekler": ["360 Ödenecek Vergi ve Fonlar", "190 Devreden", "100 Kasa", "391 KDV"], "cevap": "360 Ödenecek Vergi ve Fonlar"},
+        {"soru": "Kambiyo zararı hesabı?", "secenekler": ["656 Kambiyo Zararları", "646 Kar", "780 Finansman", "689 Gider"], "cevap": "656 Kambiyo Zararları"},
+        {"soru": "Azalan bakiyeler amortisman oranı?", "secenekler": ["Normalin 2 katı", "Aynı", "Yarısı", "3 katı"], "cevap": "Normalin 2 katı"},
+        {"soru": "Maliyet hesapları nereye yansıtılır?", "secenekler": ["Gelir Tablosu hesaplarına", "Bilançoya", "Kasaya", "Bankaya"], "cevap": "Gelir Tablosu hesaplarına"},
+        {"soru": "690 Dönem Karı Zararı alacak bakiyesi verirse?", "secenekler": ["Kar vardır", "Zarar vardır", "Eşittir", "Hata vardır"], "cevap": "Kar vardır"},
+        {"soru": "Brüt Satış Karı formülü?", "secenekler": ["Net Satış - SMM", "Satış - Gider", "Kar - Vergi", "Varlık - Borç"], "cevap": "Net Satış - SMM"},
+        {"soru": "Gelecek aylara ait gider hesabı?", "secenekler": ["180 Gelecek Ay Gider", "280 Gelecek Yıl", "770 Gider", "380 Gelir"], "cevap": "180 Gelecek Ay Gider"},
+        {"soru": "Satış iadesi hesabı?", "secenekler": ["610 Satıştan İadeler", "600 Satış", "153 Mal", "391 KDV"], "cevap": "610 Satıştan İadeler"},
+        {"soru": "Malın maliyetine girmeyen gider?", "secenekler": ["Pazarlama Gideri", "Nakliye", "Sigorta", "Gümrük"], "cevap": "Pazarlama Gideri"},
+        {"soru": "Yoldaki mallar hesabı?", "secenekler": ["157 Diğer Stoklar", "153 Mal", "150 Madde", "770 Gider"], "cevap": "157 Diğer Stoklar"},
+        {"soru": "Sermaye taahhüdü hesabı?", "secenekler": ["501 Ödenmemiş Sermaye", "500 Sermaye", "100 Kasa", "102 Banka"], "cevap": "501 Ödenmemiş Sermaye"}
+      ]
+    },
+    "Ekonomi": {
+      "Test 1 (Mikro İktisat - ZOR)": [
+        {"soru": "Fiyat artınca talep azalıyorsa?", "secenekler": ["Talep Kanunu", "Arz Kanunu", "Giffen", "Veblen"], "cevap": "Talep Kanunu"},
+        {"soru": "Tamamlayıcı mal fiyatı artarsa diğer malın talebi?", "secenekler": ["Azalır", "Artar", "Değişmez", "Sıfırlanır"], "cevap": "Azalır"},
+        {"soru": "Fırsat maliyeti?", "secenekler": ["Vazgeçilen en iyi alternatif", "Üretim maliyeti", "Kar", "Zarar"], "cevap": "Vazgeçilen en iyi alternatif"},
+        {"soru": "Tek satıcı piyasası?", "secenekler": ["Monopol", "Oligopol", "Tam Rekabet", "Monopson"], "cevap": "Monopol"},
+        {"soru": "Tavan fiyat sonucu?", "secenekler": ["Karaborsa ve Talep Fazlası", "Arz fazlası", "Denge", "Ucuzluk"], "cevap": "Karaborsa ve Talep Fazlası"},
+        {"soru": "Marjinal fayda?", "secenekler": ["Son birimin sağladığı ek fayda", "Toplam fayda", "Zarar", "Kar"], "cevap": "Son birimin sağladığı ek fayda"},
+        {"soru": "Sabit maliyet örneği?", "secenekler": ["Kira", "Hammadde", "İşçilik", "Enerji"], "cevap": "Kira"},
+        {"soru": "Esneklik 1'den büyükse?", "secenekler": ["Esnek talep", "Katı talep", "Birim esnek", "Sıfır"], "cevap": "Esnek talep"},
+        {"soru": "Giffen malı?", "secenekler": ["Fiyat artınca talebi artan mal", "Normal mal", "Lüks mal", "Ucuz mal"], "cevap": "Fiyat artınca talebi artan mal"},
+        {"soru": "Üretim faktörleri?", "secenekler": ["Emek, Sermaye, Doğal Kaynak, Girişimci", "Para, Döviz", "Mal, Hizmet", "Banka"], "cevap": "Emek, Sermaye, Doğal Kaynak, Girişimci"},
+        {"soru": "Kar maksimizasyonu?", "secenekler": ["MC = MR", "TR = TC", "P = AC", "Kar = 0"], "cevap": "MC = MR"},
+        {"soru": "Oligopol?", "secenekler": ["Az sayıda satıcı", "Tek satıcı", "Çok satıcı", "Tek alıcı"], "cevap": "Az sayıda satıcı"},
+        {"soru": "Tam rekabet özelliği?", "secenekler": ["Atomize (Çok alıcı satıcı), Homojen ürün", "Tekel", "Marka", "Reklam"], "cevap": "Atomize (Çok alıcı satıcı), Homojen ürün"},
+        {"soru": "Engel eğrisi?", "secenekler": ["Gelir - Talep ilişkisi", "Fiyat - Miktar", "Arz - Talep", "Kar - Zarar"], "cevap": "Gelir - Talep ilişkisi"},
+        {"soru": "Pareto optimumu?", "secenekler": ["En etkin kaynak dağılımı", "Enflasyon", "Kriz", "Büyüme"], "cevap": "En etkin kaynak dağılımı"}
+      ]
+    },
+    "Temel Hukuk": {
+      "Test 1 (Hukuk Kuralları - ZOR)": [
+        {"soru": "Yaptırımı manevi olan kural?", "secenekler": ["Ahlak", "Hukuk", "Kanun", "Yönetmelik"], "cevap": "Ahlak"},
+        {"soru": "Cebri icra?", "secenekler": ["Devlet zoruyla borç ödetme", "Hapis", "Sürgün", "İdam"], "cevap": "Devlet zoruyla borç ödetme"},
+        {"soru": "Yokluk yaptırımı?", "secenekler": ["Kurucu unsur eksikliği (İmam nikahı)", "Kanuna aykırılık", "Hile", "Hata"], "cevap": "Kurucu unsur eksikliği (İmam nikahı)"},
+        {"soru": "Butlan nedir?", "secenekler": ["Baştan itibaren geçersizlik", "İptal", "Geçerli", "Yokluk"], "cevap": "Baştan itibaren geçersizlik"},
+        {"soru": "Normlar hiyerarşisi zirvesi?", "secenekler": ["Anayasa", "Kanun", "Yönetmelik", "Genelge"], "cevap": "Anayasa"},
+        {"soru": "Hukuk boşluğu?", "secenekler": ["Yazılı ve yazısız kural olmaması", "Kanun yokluğu", "Hata", "Suç"], "cevap": "Yazılı ve yazısız kural olmaması"},
+        {"soru": "İyiniyet (Subjektif)?", "secenekler": ["Hak kazanımında geçerli", "Borç ödemede", "Sözleşmede", "Dürüstlük"], "cevap": "Hak kazanımında geçerli"},
+        {"soru": "Dürüstlük kuralı?", "secenekler": ["Hak kullanımında ve borç ifasında", "Hak kazanırken", "Doğarken", "Ölürken"], "cevap": "Hak kullanımında ve borç ifasında"},
+        {"soru": "Hak düşürücü süre?", "secenekler": ["Hakkı sona erdirir, hakim resen dikkate alır", "Borcu siler", "Zamanaşımı", "İtiraz"], "cevap": "Hakkı sona erdirir, hakim resen dikkate alır"},
+        {"soru": "Kısıtlı (Mahcur)?", "secenekler": ["Ehliyeti mahkemece alınan ergin", "Küçük", "Yabancı", "Hasta"], "cevap": "Ehliyeti mahkemece alınan ergin"},
+        {"soru": "Dernek kurma?", "secenekler": ["İzinsiz, 7 kişi ile", "İzinli, 5 kişi", "Vali izni", "10 kişi"], "cevap": "İzinsiz, 7 kişi ile"},
+        {"soru": "Gaiplik?", "secenekler": ["Ölüm tehlikesiyle kaybolma", "Ölüm", "Boşanma", "Hapis"], "cevap": "Ölüm tehlikesiyle kaybolma"},
+        {"soru": "Erginlik yaşı?", "secenekler": ["18", "15", "20", "21"], "cevap": "18"},
+        {"soru": "Tam ehliyet şartı?", "secenekler": ["Ayırt etme, Erginlik, Kısıtlı olmama", "Zenginlik", "Eğitim", "Vatandaşlık"], "cevap": "Ayırt etme, Erginlik, Kısıtlı olmama"},
+        {"soru": "Miras reddi süresi?", "secenekler": ["3 Ay", "1 Ay", "1 Yıl", "Süresiz"], "cevap": "3 Ay"}
+      ]
+    }
+  }
+}
