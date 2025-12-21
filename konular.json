@@ -2,102 +2,56 @@
   "10. Sınıf": {
     "Genel Muhasebe": [
       {
-        "baslik": "1. Muhasebenin Tanımı ve İşlevleri",
-        "icerik": "Muhasebe; işletmenin varlık ve kaynaklarında değişme yaratan mali nitelikteki işlemleri kaydeder, sınıflandırır, özetler, analiz eder ve yorumlar.<br><b>Temel Denklem:</b> VARLIKLAR = KAYNAKLAR (Sermaye + Borçlar)"
+        "baslik": "1. Muhasebe Mantığı (Borç/Alacak)",
+        "icerik": "<b>AKTİF HESAPLAR (Varlıklar):</b> Artışlar BORÇ, Azalışlar ALACAK tarafına yazılır. (Örn: 100, 101, 102, 153)<br><b>PASİF HESAPLAR (Kaynaklar):</b> Artışlar ALACAK, Azalışlar BORÇ tarafına yazılır. (Örn: 300, 320, 500)<br><b>İSTİSNA (Düzenleyici Hesaplar):</b> Yanında (-) olan hesaplar (Örn: 103, 257) ters çalışır. Aktifte olsa bile Pasif gibi işlem görür."
       },
       {
-        "baslik": "2. Hesap Kavramı ve İşleyişi",
-        "icerik": "<b>Aktif Hesaplar (Varlıklar):</b> Açılışta ve artışta BORÇ, azalışta ALACAK tarafına yazılır. (Örn: 100 Kasa, 102 Bankalar)<br><b>Pasif Hesaplar (Kaynaklar):</b> Açılışta ve artışta ALACAK, azalışta BORÇ tarafına yazılır. (Örn: 320 Satıcılar, 500 Sermaye)"
+        "baslik": "2. Önemli Yevmiye Kayıtları",
+        "icerik": "<b>Mal Alışı:</b> 153 (B) / 191 (B) -> 320 veya 100 (A)<br><b>Mal Satışı:</b> 120 veya 100 (B) -> 600 (A) / 391 (A)<br><b>KDV Mahsubu:</b> 391 (B) -> 191 (A) (Aradaki fark 360 veya 190 olur).<br><b>Kasa Noksanı:</b> 197 (B) / 100 (A)"
       },
       {
-        "baslik": "3. Tek Düzen Hesap Planı Kodları",
-        "icerik": "<b>1- Dönen Varlıklar:</b> 1 yıl içinde paraya çevrilebilir (Kasa, Banka, Çekler).<br><b>2- Duran Varlıklar:</b> 1 yıldan uzun süreli kullanılır (Demirbaş, Bina, Taşıt).<br><b>3- K.V.Y.K:</b> 1 yıldan kısa vadeli borçlar.<br><b>4- U.V.Y.K:</b> 1 yıldan uzun vadeli borçlar.<br><b>5- Öz Kaynaklar:</b> Sermaye ve karlar.<br><b>6- Gelir Tablosu:</b> Gelir ve giderler."
+        "baslik": "3. Amortisman ve Değerleme",
+        "icerik": "<b>Normal Amortisman:</b> Tutar x Oran (Her yıl eşit).<br><b>Azalan Bakiyeler:</b> Kalan Değer x (Oran x 2).<br><b>Reeskont:</b> Senetli alacak/borçların vade farkının ayrıştırılmasıdır (Dönemsellik gereği)."
       }
     ],
     "Ekonomi": [
       {
-        "baslik": "1. Temel Kavramlar",
-        "icerik": "<b>İhtiyaç:</b> Karşılanmadığında acı ve üzüntü, karşılandığında haz veren duygudur.<br><b>Fayda:</b> Mal ve hizmetlerin ihtiyacı karşılama özelliğidir.<br><b>Mal:</b> İhtiyaçları gideren fiziksel varlıklardır (Ekmek, Araba)."
-      },
-      {
-        "baslik": "2. Üretim Faktörleri",
-        "icerik": "1. <b>Emek (İşgücü):</b> İnsan kaynağı.<br>2. <b>Doğal Kaynaklar:</b> Toprak, su, maden.<br>3. <b>Sermaye:</b> Üretim için kullanılan araç, gereç ve para.<br>4. <b>Girişimci (Müteşebbis):</b> Diğer 3 faktörü bir araya getiren kişi."
-      },
-      {
-        "baslik": "3. Arz ve Talep",
-        "icerik": "<b>Talep:</b> Alım gücüyle desteklenmiş satın alma isteğidir. Fiyat artarsa talep düşer.<br><b>Arz:</b> Piyasaya sunulan mal miktarıdır. Fiyat artarsa arz artar."
-      }
-    ],
-    "Temel Hukuk": [
-      {
-        "baslik": "1. Sosyal Hayatı Düzenleyen Kurallar",
-        "icerik": "1. Din Kuralları<br>2. Ahlak Kuralları<br>3. Görgü Kuralları<br>4. <b>Hukuk Kuralları:</b> Devlet gücüyle desteklenen, uyulması zorunlu kurallardır. Yaptırımı vardır (Ceza, Cebri İcra vb.)."
-      },
-      {
-        "baslik": "2. Hukukun Kaynakları (Normlar Hiyerarşisi)",
-        "icerik": "1. Anayasa (En üst)<br>2. Kanunlar / Uluslararası Antlaşmalar<br>3. Cumhurbaşkanlığı Kararnamesi<br>4. Yönetmelikler<br>5. Genelgeler"
-      },
-      {
-        "baslik": "3. Kişilik Kavramı",
-        "icerik": "<b>Gerçek Kişi:</b> İnsanlar. Sağ ve tam doğmakla başlar.<br><b>Tüzel Kişi:</b> Belli bir amaç için örgütlenmiş kişi veya mal topluluklarıdır (Şirketler, Dernekler, Vakıflar)."
+        "baslik": "1. Piyasa Kanunları",
+        "icerik": "<b>Talep Kanunu:</b> Fiyat artarsa talep azalır.<br><b>Arz Kanunu:</b> Fiyat artarsa arz artar.<br><b>Denge Fiyatı:</b> Arz ve talebin eşitlendiği noktadır."
       }
     ]
   },
   "11. Sınıf": {
-    "Şirketler Muhasebesi": [
-      {
-        "baslik": "1. Şirket Türleri",
-        "icerik": "<b>Şahıs Şirketleri:</b> Kolektif, Komandit (Ortaklar sınırsız sorumludur).<br><b>Sermaye Şirketleri:</b> Anonim (A.Ş.), Limited (Ltd. Şti.), Sermayesi Paylara Bölünmüş Komandit. (Ortaklar koydukları sermaye kadar sorumludur)."
-      },
-      {
-        "baslik": "2. Kuruluş İşlemleri",
-        "icerik": "<b>Sermaye Taahhüdü:</b> Ortakların sermaye koyma sözü vermesidir.<br>Kayıt: 501 Ödenmemiş Sermaye (B) / 500 Sermaye (A).<br><b>Sermayenin Ödenmesi:</b> Taahhüdün yerine getirilmesidir.<br>Kayıt: 102 Bankalar (B) / 501 Ödenmemiş Sermaye (A)."
-      },
-      {
-        "baslik": "3. Kar Dağıtımı",
-        "icerik": "Şirketler dönem karından önce vergiyi (Kurumlar Vergisi), sonra kanuni zorunluluk olan <b>Yedek Akçeleri</b> ayırır. Kalan kısım ortaklara <b>Temettü</b> olarak dağıtılır."
-      }
-    ],
     "Maliyet Muhasebesi": [
       {
-        "baslik": "1. Temel Gider Hesapları (7/A)",
-        "icerik": "<b>710 DİMM:</b> Üretime giren hammadde (Kumaş, Un, Demir).<br><b>720 Direkt İşçilik:</b> Üretimde çalışan işçinin ücreti.<br><b>730 Genel Üretim Giderleri:</b> Direkt yüklenemeyen giderler (Elektrik, Kira, Amortisman)."
+        "baslik": "1. Maliyet Akışı ve Hesaplar",
+        "icerik": "<b>710 DİMM:</b> Hammadde (Üretime giren).<br><b>720 DİG:</b> İşçilik.<br><b>730 GÜG:</b> Elektrik, Kira, Amortisman.<br><b>Yansıtma:</b> 711, 721, 731 ile 151 Yarı Mamule aktarılır.<br><b>Mamul:</b> 151'den 152 Mamuller hesabına geçer."
       },
       {
-        "baslik": "2. Stok Hesapları Akışı",
-        "icerik": "1. Alış: <b>150 İlk Madde ve Malzeme</b><br>2. Üretime Sevk: <b>151 Yarı Mamuller</b> (710, 720, 730 buraya yansır)<br>3. Üretim Bitişi: <b>152 Mamuller</b><br>4. Satış: <b>620 Satılan Mamul Maliyeti</b>"
+        "baslik": "2. Birim Maliyet Formülü",
+        "icerik": "Toplam Üretim Maliyeti / Üretim Miktarı = Birim Maliyet.<br><b>Önemli:</b> Sabit giderler üretim artsa da toplamda değişmez ama birim başına düşen payı azalır."
       }
     ],
-    "Bilgisayarlı Muhasebe (Luca)": [
+    "Şirketler Muhasebesi": [
       {
-        "baslik": "1. Fiş Türleri",
-        "icerik": "<b>Açılış Fişi:</b> Dönem başı bilançosunun girildiği fiş.<br><b>Tahsil Fişi:</b> Kasaya para GİRİŞİ olan işlemler (100 Kasa Borçlu).<br><b>Tediye Fişi:</b> Kasadan para ÇIKIŞI olan işlemler (100 Kasa Alacaklı).<br><b>Mahsup Fişi:</b> Kasa kullanılmayan, hesaptan hesaba aktarım işlemleri."
+        "baslik": "1. A.Ş. Kuruluş Kaydı",
+        "icerik": "Taahhüt: 501 (B) / 500 (A)<br>Ödeme: 102 (B) / 501 (A)<br><b>501 Hesabı:</b> Ödenmemiş sermayeyi gösterir, Pasifi düzenleyen aktiftir."
       },
       {
-        "baslik": "2. Önemli Kısayollar",
-        "icerik": "<b>F2:</b> Kaydet<br><b>Alt+F3:</b> Satır Sil<br><b>F5:</b> Fiş Kopyala<br><b>Alt+B:</b> Hesap Bakiyesi Göster"
+        "baslik": "2. Kar Dağıtımı Sırası",
+        "icerik": "1. Kurumlar Vergisi<br>2. I. Tertip Yasal Yedek (%5)<br>3. I. Temettü (Ortaklara)<br>4. II. Tertip Yasal Yedek<br>5. II. Temettü"
       }
     ]
   },
   "12. Sınıf": {
-    "Finansal Okuryazarlık": [
+    "Bankacılık": [
       {
-        "baslik": "1. Bütçe Yönetimi",
-        "icerik": "<b>Gelir:</b> Kazanılan para (Maaş, kira geliri vb.).<br><b>Gider:</b> Harcanan para (Kira, fatura, gıda).<br><b>Tasarruf:</b> Gelir - Gider. Gelecek için kenara ayrılan kısımdır.<br>Kural: Önce tasarruf hedefini ayır, kalanı harca."
+        "baslik": "1. Banka Bilançosu Mantığı",
+        "icerik": "<b>Mevduat:</b> Banka için BORÇTUR (Pasif). Çünkü müşteriye geri ödeyecektir.<br><b>Kredi:</b> Banka için ALACAKTIR (Aktif). Çünkü müşteriden tahsil edecektir.<br><b>Kasa:</b> Bankanın nakit parasıdır (Aktif)."
       },
       {
-        "baslik": "2. Yatırım Araçları",
-        "icerik": "<b>Mevduat:</b> Bankaya faiz karşılığı para yatırmak (Düşük risk).<br><b>Hisse Senedi:</b> Şirketlere ortak olmak (Yüksek risk/getiri).<br><b>Altın/Döviz:</b> Değer saklama araçları."
-      }
-    ],
-    "Bankacılık ve Banka Muhasebesi": [
-      {
-        "baslik": "1. Banka Türleri",
-        "icerik": "<b>Merkez Bankası (TCMB):</b> Para basar, para politikasını yönetir.<br><b>Ticari Bankalar:</b> Mevduat toplar, kredi verir (Ziraat, İş Bankası vb.).<br><b>Katılım Bankaları:</b> Faizsiz bankacılık (Kar payı) esasına göre çalışır."
-      },
-      {
-        "baslik": "2. Temel Kavramlar",
-        "icerik": "<b>Mevduat:</b> Bankaya yatırılan para.<br><b>Kredi:</b> Bankadan borç alınan para.<br><b>Dekont:</b> Banka işlemlerini gösteren belge.<br><b>EFT:</b> Farklı bankalar arası para transferi.<br><b>Havale:</b> Aynı banka şubeleri arası transfer."
+        "baslik": "2. Kredi Türleri",
+        "icerik": "<b>Nakdi Kredi:</b> Para olarak verilen (İhtiyaç, Konut).<br><b>Gayrinakdi Kredi:</b> Para değil, garanti verilen (Teminat Mektubu, Akreditif). Nazım hesaplarda izlenir."
       }
     ]
   }
