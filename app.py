@@ -125,7 +125,7 @@ def meslek_veri_yukle():
 if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
 if 'oturum' not in st.session_state: st.session_state.oturum = False
 if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
-if 'mod' not in st.session_state: st.session_state.mod = "" # "PDF" veya "MESLEK"
+if 'mod' not in st.session_state: st.session_state.mod = "" 
 if 'secilen_liste' not in st.session_state: st.session_state.secilen_liste = []
 if 'aktif_index' not in st.session_state: st.session_state.aktif_index = 0
 if 'toplam_puan' not in st.session_state: st.session_state.toplam_puan = 0
@@ -149,7 +149,6 @@ if st.session_state.ekran == 'giris':
         
         ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Ali Yılmaz")
         
-        # Uyarılar (Dosya eksikse hoca görsün)
         if not TYT_VERI and not MESLEK_VERI:
             st.error("⚠️ Sistemde soru dosyaları (JSON) bulunamadı.")
 
@@ -162,7 +161,7 @@ if st.session_state.ekran == 'giris':
                 st.error("Lütfen adınızı giriniz!")
         
         st.markdown("""
-        <div class='imza-not'>Okulumuz Muh. ve Finansman alanının öğrencilerimize hediyesidir.</div>
+        <div class='imza-not'>Okulumuz Muhasebe ve Finansman alanının öğrencilerimize hediyesidir.</div>
         <div class='imza'></div>
         """, unsafe_allow_html=True)
 
@@ -181,7 +180,6 @@ elif st.session_state.ekran == 'sinav':
         
         st.divider()
         
-        # SINAV SEÇİM MENÜSÜ
         if not st.session_state.oturum:
             st.header("Sınav Türü Seçin")
             tur_secimi = st.radio("Hangisi çözülecek?", ["TYT Deneme (PDF)", "Meslek Lisesi (Test)"])
@@ -230,7 +228,6 @@ elif st.session_state.ekran == 'sinav':
     # --- SORU ÇÖZME ALANI ---
     if st.session_state.oturum:
         
-        # SINAV BİTTİ Mİ?
         if st.session_state.aktif_index >= len(st.session_state.secilen_liste):
             st.balloons()
             st.success(f"🎉 Sınav Tamamlandı! Puanınız: {st.session_state.toplam_puan}")
@@ -250,7 +247,7 @@ elif st.session_state.ekran == 'sinav':
                 with tab1:
                     pdf_sayfa_getir(TYT_PDF_ADI, sayfa_no)
                 with tab2:
-                    cevaplar = veri["cevaplar"] # "ABCDX" gibi string
+                    cevaplar = veri["cevaplar"]
                     dogru_sayisi = 0
                     
                     with st.form(f"form_{sayfa_no}"):
@@ -265,7 +262,6 @@ elif st.session_state.ekran == 'sinav':
                                 val = st.session_state.get(f"c_{sayfa_no}_{i}")
                                 dogru_cevap = cevaplar[i]
                                 
-                                # Eğer cevap anahtarında X varsa (boşsa) kontrol etme
                                 if dogru_cevap == "X":
                                     st.warning(f"Soru {i+1}: Cevap anahtarı girilmemiş.")
                                 elif val == dogru_cevap:
@@ -286,19 +282,30 @@ elif st.session_state.ekran == 'sinav':
                 st.subheader(f"❓ Soru {st.session_state.aktif_index + 1}")
                 st.markdown(f"<div class='soru-karti'>{soru['soru']}</div>", unsafe_allow_html=True)
                 
-                secenekler = soru["secenekler"].copy()
-                random.shuffle(secenekler)
+                # Şıkları karıştır ama kaybetme
+                if "karisik_secenekler" not in st.session_state:
+                     secenekler = soru["secenekler"].copy()
+                     random.shuffle(secenekler)
+                     st.session_state.karisik_secenekler = secenekler
+                else:
+                     secenekler = st.session_state.karisik_secenekler
                 
                 c1, c2 = st.columns(2)
                 for idx, sec in enumerate(secenekler):
                     with (c1 if idx % 2 == 0 else c2):
                         if st.button(sec, key=f"btn_{st.session_state.aktif_index}_{idx}", use_container_width=True):
-                            if sec == soru["cevap"]:
+                            # --- KRİTİK DÜZELTME BURADA YAPILDI ---
+                            # .strip() ile görünmez boşlukları temizliyoruz
+                            if sec.strip() == soru["cevap"].strip():
                                 st.balloons()
                                 st.success("DOĞRU! ✅")
-                                st.session_state.toplam_puan += 10 # Meslek sorusu puanı
+                                st.session_state.toplam_puan += 10
                             else:
                                 st.error(f"YANLIŞ! ❌ (Doğru Cevap: {soru['cevap']})")
+                            
+                            # Sonraki soru için temizlik
+                            if "karisik_secenekler" in st.session_state:
+                                del st.session_state.karisik_secenekler
                             
                             time.sleep(2)
                             st.session_state.aktif_index += 1
