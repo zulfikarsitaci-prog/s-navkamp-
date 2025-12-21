@@ -11,28 +11,103 @@ st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="�
 # --- DOSYA İSİMLERİ ---
 TYT_PDF_ADI = "tytson8.pdf"
 TYT_JSON_ADI = "tyt_data.json"
-MESLEK_JSON_ADI = "sorular.json"  # TEK DOSYA
+MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 
 # --- TASARIM VE CSS ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
+    
     .stApp { background-color: #F0F4C3 !important; }
     h1, h2, h3, h4, .stMarkdown, p, label { color: #212121 !important; }
-    .stSelectbox div[data-baseweb="select"] > div { background-color: #FFFFFF !important; color: #000000 !important; border: 2px solid #FF7043; }
+    
+    /* DROPDOWN DÜZELTMESİ */
+    .stSelectbox div[data-baseweb="select"] > div {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+        border: 2px solid #FF7043;
+    }
+    
     .stDeployButton {display:none;}
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
-    .giris-kart { background-color: white; padding: 40px; border-radius: 20px; border: 3px solid #FF7043; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    .secim-karti { background-color: white; padding: 20px; border-radius: 15px; border: 2px solid #FF7043; text-align: center; transition: transform 0.2s; }
-    .secim-karti:hover { transform: scale(1.02); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-    .imza-container { margin-top: 40px; text-align: right; padding-right: 20px; opacity: 0.9; }
-    .imza-baslik { font-family: 'Courier New', monospace; font-size: 14px; color: #555; font-weight: bold; margin-bottom: 10px; text-decoration: underline; }
-    .imza { font-family: 'Dancing Script', cursive; color: #D84315; font-size: 24px; margin-bottom: 5px; line-height: 1.2; }
-    .ozel-footer { position: fixed; left: 0; bottom: 0; width: 100%; background-color: #FF7043; color: white; text-align: center; padding: 10px; font-size: 16px; font-weight: bold; font-family: 'Courier New', monospace; z-index: 999; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-    .stButton>button { background-color: #FF7043 !important; color: white !important; border-radius: 8px; font-weight: bold; width: 100%; border: 2px solid #D84315 !important; min-height: 50px; font-size: 16px !important; }
-    .stButton>button:hover { background-color: #E64A19 !important; }
+    
+    /* GİRİŞ KARTI */
+    .giris-kart {
+        background-color: white;
+        padding: 40px;
+        border-radius: 20px;
+        border: 3px solid #FF7043;
+        text-align: center;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    /* SEÇİM KARTLARI */
+    .secim-karti {
+        background-color: white;
+        padding: 20px;
+        border-radius: 15px;
+        border: 2px solid #FF7043;
+        text-align: center;
+        transition: transform 0.2s;
+    }
+    .secim-karti:hover {
+        transform: scale(1.02);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    /* İMZA ALANI */
+    .imza-container {
+        margin-top: 40px;
+        text-align: right;
+        padding-right: 20px;
+        opacity: 0.9; 
+    }
+    .imza-baslik {
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        color: #555;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-decoration: underline;
+    }
+    .imza {
+        font-family: 'Dancing Script', cursive;
+        color: #D84315;
+        font-size: 24px;
+        margin-bottom: 5px;
+        line-height: 1.2;
+    }
+    
+    /* TEŞEKKÜR YAZISI (SADELEŞTİRİLDİ) */
+    .tesekkur-yazisi {
+        margin-top: 60px;
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+        font-family: 'Courier New', monospace;
+        opacity: 0.8;
+        font-style: italic;
+    }
+    
+    /* BUTONLAR */
+    .stButton>button {
+        background-color: #FF7043 !important;
+        color: white !important;
+        border-radius: 8px;
+        font-weight: bold;
+        width: 100%;
+        border: 2px solid #D84315 !important;
+        min-height: 50px;
+        font-size: 16px !important;
+    }
+    .stButton>button:hover {
+        background-color: #E64A19 !important;
+    }
+    
+    /* KARTLAR */
     .konu-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 6px solid #2196F3; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .konu-baslik { color: #1565C0; font-size: 20px; font-weight: bold; margin-bottom: 10px; }
     .konu-icerik { font-size: 16px; line-height: 1.6; color: #333; }
@@ -44,26 +119,36 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# ==============================================================================
+# FONKSİYONLAR
+# ==============================================================================
+
 def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
-    if not os.path.exists(dosya_yolu): st.error(f"⚠️ PDF ({dosya_yolu}) yok!"); return
+    if not os.path.exists(dosya_yolu):
+        st.error(f"⚠️ PDF Dosyası ({dosya_yolu}) bulunamadı!")
+        return
     try:
         doc = fitz.open(dosya_yolu)
         if sayfa_numarasi > len(doc): return
         page = doc.load_page(sayfa_numarasi - 1)
         pix = page.get_pixmap(dpi=150)
         st.image(pix.tobytes(), caption=f"Sayfa {sayfa_numarasi}", use_container_width=True)
-    except: pass
+    except Exception as e:
+        st.error(f"PDF Hatası: {e}")
 
 def dosya_yukle(dosya_adi):
     if not os.path.exists(dosya_adi): return {}
     try:
         with open(dosya_adi, "r", encoding="utf-8") as f:
             data = json.load(f)
-            if dosya_adi == TYT_JSON_ADI: return {int(k): v for k, v in data.items()}
+            if dosya_adi == TYT_JSON_ADI:
+                return {int(k): v for k, v in data.items()}
             return data
-    except json.JSONDecodeError: st.error(f"⚠️ {dosya_adi} dosyasında yazım hatası var!"); return {}
     except: return {}
 
+# ==============================================================================
+# EKRAN VE DEĞİŞKENLER
+# ==============================================================================
 if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
 if 'oturum' not in st.session_state: st.session_state.oturum = False
 if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
@@ -76,56 +161,105 @@ if 'dogru_sayisi' not in st.session_state: st.session_state.dogru_sayisi = 0
 if 'yanlis_sayisi' not in st.session_state: st.session_state.yanlis_sayisi = 0
 if 'bos_sayisi' not in st.session_state: st.session_state.bos_sayisi = 0
 
+# VERİLERİ YÜKLE
 TYT_VERI = dosya_yukle(TYT_JSON_ADI)
 MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
 KONU_VERI = dosya_yukle(KONU_JSON_ADI)
 
+# --- 1. GİRİŞ EKRANI ---
 if st.session_state.ekran == 'giris':
-    c1, c2, c3 = st.columns([1, 2, 1])
-    with c2:
-        st.markdown("<div class='giris-kart'><h1>🎓 Bağarası ÇPAL</h1><h2>Dijital Sınav Merkezi</h2><hr><p style='font-size:18px; font-weight:bold; color:#D84315;'>Okulumuz Muhasebe ve Finansman Alanının öğrencilerimize hediyesidir.</p><br><p>Lütfen adınızı giriniz.</p></div>", unsafe_allow_html=True)
-        ad = st.text_input("Adınız Soyadınız:")
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("""
+        <div class='giris-kart'>
+            <h1>🎓 Bağarası ÇPAL</h1>
+            <h2>Dijital Sınav Merkezi</h2>
+            <hr>
+            <p style="font-size:18px; font-weight:bold; color:#D84315;">
+                Okulumuz Muhasebe ve Finansman Alanının öğrencilerimize hediyesidir.
+            </p>
+            <br>
+            <p>Lütfen sınava başlamak için kimlik bilgilerinizi giriniz.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Ali Yılmaz")
+        
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
-            if ad.strip():
-                st.session_state.ad_soyad = ad
+            if ad_soyad_input.strip():
+                st.session_state.ad_soyad = ad_soyad_input
                 st.session_state.ekran = 'sinav'
+                st.session_state.karne = []
+                st.session_state.dogru_sayisi = 0
+                st.session_state.yanlis_sayisi = 0
+                st.session_state.bos_sayisi = 0
+                st.session_state.secim_turu = None 
                 st.rerun()
-            else: st.error("İsim giriniz.")
-        st.markdown("<div class='imza-container'><div class='imza-baslik'>Muhasebe ve Finansman Öğretmenleri</div><div class='imza'>Zülfikar Sıtacı</div><div class='imza'>Mustafa Bağcık</div></div>", unsafe_allow_html=True)
+            else:
+                st.error("Lütfen adınızı giriniz!")
+        
+        # İMZA BÖLÜMÜ (ALT ALTA)
+        st.markdown("""
+        <div class='imza-container'>
+            <div class='imza-baslik'>Muhasebe ve Finansman Öğretmenleri</div>
+            <div class='imza'>Zülfikar SITACI</div>
+            <div class='imza'>Mustafa BAĞCIK</div>
+        </div>
+        """, unsafe_allow_html=True)
 
+        # TEŞEKKÜR YAZISI (SADE VE ALTTA)
+        st.markdown("""
+        <div class='tesekkur-yazisi'>
+            ❤️ Sevgili Arkadaşım Mehmet KARADUMAN'a Teşekkürler
+        </div>
+        """, unsafe_allow_html=True)
+
+# --- 2. SINAV VE MENÜ EKRANI ---
 elif st.session_state.ekran == 'sinav':
+    
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=100)
         st.write(f"👤 **{st.session_state.ad_soyad}**")
         st.divider()
         if st.button("🏠 Çıkış Yap"):
-            st.session_state.ekran, st.session_state.oturum = 'giris', False
+            st.session_state.ekran = 'giris'
+            st.session_state.oturum = False
             st.rerun()
 
+    # --- ANA EKRAN ---
     if not st.session_state.oturum:
+        
         st.markdown("<h2 style='text-align:center;'>Sınav Türünü Seçiniz 👇</h2><br>", unsafe_allow_html=True)
-        c1, c2 = st.columns(2)
-        with c1:
-            st.markdown("<div class='secim-karti'><h3>📘 TYT Kampı</h3><p>Gerçek çıkmış sorulardan oluşan PDF denemeleri.</p></div>", unsafe_allow_html=True)
+        
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.markdown("""<div class='secim-karti'><h3>📘 TYT Kampı</h3><p>Gerçek çıkmış sorulardan oluşan PDF denemeleri.</p></div>""", unsafe_allow_html=True)
             if st.button("TYT Çöz ➡️", key="btn_tyt"): st.session_state.secim_turu = "TYT"
-        with c2:
-            st.markdown("<div class='secim-karti'><h3>💼 Meslek Lisesi</h3><p>Konu Testleri ve Ders Notları</p></div>", unsafe_allow_html=True)
+        
+        with col_b:
+            st.markdown("""<div class='secim-karti'><h3>💼 Meslek Lisesi</h3><p>Konu Testleri ve Ders Notları</p></div>""", unsafe_allow_html=True)
             if st.button("Meslek Çöz ➡️", key="btn_meslek"): st.session_state.secim_turu = "MESLEK"
         
         st.divider()
         
+        # --- TYT AYARLARI ---
         if st.session_state.secim_turu == "TYT":
+            st.subheader("📘 TYT Ayarları")
             if TYT_VERI:
-                ders = st.selectbox("Ders:", ["Karışık Deneme"] + sorted(list(set(v["ders"] for v in TYT_VERI.values()))))
-                adet = st.slider("Sayfa:", 1, 10, 3)
+                dersler = sorted(list(set(v["ders"] for v in TYT_VERI.values())))
+                ders = st.selectbox("Ders Seçiniz:", ["Karışık Deneme"] + dersler)
+                adet = st.slider("Kaç Sayfa Çözmek İstersiniz?", 1, 10, 3)
+                
                 if st.button("SINAVI BAŞLAT 🚀"):
                     uygun = [s for s, d in TYT_VERI.items() if ders == "Karışık Deneme" or d["ders"] == ders]
                     if uygun:
                         random.shuffle(uygun)
                         st.session_state.secilen_liste = uygun[:adet]
-                        st.session_state.mod, st.session_state.oturum = "PDF", True
-                        st.session_state.karne, st.session_state.aktif_index = [], 0
+                        st.session_state.mod = "PDF"
+                        st.session_state.oturum = True
+                        st.session_state.karne = [] 
+                        st.session_state.aktif_index = 0
                         st.session_state.dogru_sayisi = 0
                         st.session_state.yanlis_sayisi = 0
                         st.session_state.bos_sayisi = 0
@@ -133,6 +267,7 @@ elif st.session_state.ekran == 'sinav':
                     else: st.error("Soru yok.")
             else: st.warning("TYT verisi yok.")
                 
+        # --- MESLEK AYARLARI ---
         elif st.session_state.secim_turu == "MESLEK":
             st.subheader("💼 Meslek Alanı")
             tab1, tab2 = st.tabs(["📝 TEST ÇÖZ (Konu & Zor)", "📚 DERS NOTLARI"])
@@ -150,15 +285,17 @@ elif st.session_state.ekran == 'sinav':
                             st.info(f"Bu testte {len(testler[test])} soru bulunmaktadır.")
                             if st.button("TESTİ BAŞLAT 🚀", key="btn_konu"):
                                 st.session_state.secilen_liste = testler[test]
-                                st.session_state.mod, st.session_state.oturum = "MESLEK", True
-                                st.session_state.karne, st.session_state.aktif_index = [], 0
+                                st.session_state.mod = "MESLEK"
+                                st.session_state.oturum = True
+                                st.session_state.karne = [] 
+                                st.session_state.aktif_index = 0
                                 st.session_state.dogru_sayisi = 0
                                 st.session_state.yanlis_sayisi = 0
                                 st.session_state.bos_sayisi = 0
                                 st.rerun()
                         else: st.warning("Test yok.")
                     else: st.warning("Ders yok.")
-                else: st.warning("Veri yüklenemedi veya boş.")
+                else: st.warning("Veri yok.")
 
             with tab2:
                 if KONU_VERI:
@@ -173,6 +310,7 @@ elif st.session_state.ekran == 'sinav':
                     else: st.warning("Not yok.")
                 else: st.warning("Konu verisi yok.")
 
+    # --- SORU ÇÖZME ---
     else:
         if st.session_state.aktif_index >= len(st.session_state.secilen_liste):
             st.balloons()
@@ -187,9 +325,9 @@ elif st.session_state.ekran == 'sinav':
                 if h["tip"] == "MESLEK": st.markdown(f"<div class='hata-karti'><b>SORU:</b> {h['soru_metni']}<br>❌ <b>Sizin Cevabınız:</b> {h['secilen']}<br>✅ <b>Doğru Cevap:</b> {h['dogru']}</div>", unsafe_allow_html=True)
                 elif h["tip"] == "PDF":
                     with st.expander(f"📄 Sayfa {h['sayfa_no']} - {h['ders']} (Hataları Gör)"):
-                        c1, c2 = st.columns(2)
-                        with c1: pdf_sayfa_getir(TYT_PDF_ADI, h['sayfa_no'])
-                        with c2: 
+                        c_pdf, c_detay = st.columns([1, 1])
+                        with c_pdf: pdf_sayfa_getir(TYT_PDF_ADI, h['sayfa_no'])
+                        with c_detay: 
                             for yanlis in h['hatali_sorular']: st.markdown(f"<div class='hata-karti'><b>Soru {yanlis['soru_no']}</b><br>❌ {yanlis['secilen']} | ✅ {yanlis['dogru']}</div>", unsafe_allow_html=True)
             if st.button("Yeni Sınav Başlat"): st.session_state.oturum = False; st.rerun()
         
@@ -231,6 +369,3 @@ elif st.session_state.ekran == 'sinav':
                                 hatalar.append({"soru": i+1, "secilen": secilen, "dogru": dogru})
                         if hatalar: st.session_state.karne.append({"tip": "PDF", "durum": "Yanlış", "sayfa_no": sayfa, "ders": TYT_VERI[sayfa]['ders'], "hatali_sorular": hatalar})
                         st.session_state.aktif_index += 1; st.rerun()
-
-# --- ALT TEŞEKKÜR MESAJI (FOOTER) ---
-st.markdown("<div class='ozel-footer'> Desteklerinden dolayı Sevgili Arkadaşım Mehmet KARADUMAN'a Teşekkürler</div>", unsafe_allow_html=True)
