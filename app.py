@@ -141,8 +141,8 @@ if st.session_state.ekran == 'giris':
                 st.error("Lütfen adınızı giriniz!")
         
         st.markdown("""
-        <div class='imza-not'>Okulumuz muhasebe alanının okulumuza hediyesidir.</div>
-        <div class='imza'>Zülfikar Sıtacı</div>
+        <div class='imza-not'>Okulumuz Muh. ve Fin. alanının hediyesidir.</div>
+        <div class='imza'></div>
         """, unsafe_allow_html=True)
 
 # 2. SINAV EKRANI
