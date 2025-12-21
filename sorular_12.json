@@ -1,0 +1,42 @@
+{
+  "12. Sınıf": {
+    "Finansal Okuryazarlık": {
+      "Test 1 (Bütçe ve Yatırım - ZOR)": [
+        {"soru": "72 Kuralı?", "secenekler": ["Paranın ikiye katlanma süresi (72/Faiz)", "Vergi", "Emeklilik", "Kredi"], "cevap": "Paranın ikiye katlanma süresi (72/Faiz)"},
+        {"soru": "Reel getiri?", "secenekler": ["Enflasyondan arındırılmış kazanç", "Nominal faiz", "Brüt kazanç", "Ana para"], "cevap": "Enflasyondan arındırılmış kazanç"},
+        {"soru": "Bileşik faiz?", "secenekler": ["Faizin faizi", "Basit faiz", "Düşük", "Sabit"], "cevap": "Faizin faizi"},
+        {"soru": "Ayı piyasası?", "secenekler": ["Düşen piyasa", "Yükselen", "Durgun", "Canlı"], "cevap": "Düşen piyasa"},
+        {"soru": "Boğa piyasası?", "secenekler": ["Yükselen piyasa", "Düşen", "Kriz", "Savaş"], "cevap": "Yükselen piyasa"},
+        {"soru": "KKB notu en yüksek?", "secenekler": ["1900", "1500", "1000", "100"], "cevap": "1900"},
+        {"soru": "Asgari ödeme?", "secenekler": ["Kredi kartı minimum ödeme", "Tamamı", "Faiz", "Aidat"], "cevap": "Kredi kartı minimum ödeme"},
+        {"soru": "BES devlet katkısı?", "secenekler": ["%30", "%25", "%10", "%50"], "cevap": "%30"},
+        {"soru": "Portföy?", "secenekler": ["Risk dağıtmak için çeşitlendirme", "Tek hisse", "Nakit", "Borç"], "cevap": "Risk dağıtmak için çeşitlendirme"},
+        {"soru": "DASK?", "secenekler": ["Zorunlu Deprem Sigortası", "Kasko", "Sağlık", "Hayat"], "cevap": "Zorunlu Deprem Sigortası"},
+        {"soru": "Arbitraj?", "secenekler": ["Fiyat farkından risksiz kar", "Spekülasyon", "Yatırım", "Kumar"], "cevap": "Fiyat farkından risksiz kar"},
+        {"soru": "Likidite?", "secenekler": ["Nakde dönme hızı", "Kar", "Borç", "Risk"], "cevap": "Nakde dönme hızı"},
+        {"soru": "Ponzi?", "secenekler": ["Saadet zinciri dolandırıcılığı", "Yasal fon", "Borsa", "Banka"], "cevap": "Saadet zinciri dolandırıcılığı"},
+        {"soru": "Acil durum fonu?", "secenekler": ["3-6 aylık gider kadar", "1 aylık", "Yok", "Tüm para"], "cevap": "3-6 aylık gider kadar"},
+        {"soru": "Enflasyondan korunma?", "secenekler": ["Reel varlık yatırımı (Altın, Hisse)", "Nakit", "Vadesiz", "Harcama"], "cevap": "Reel varlık yatırımı (Altın, Hisse)"}
+      ]
+    },
+    "Bankacılık ve Banka Muhasebesi": {
+      "Test 1 (Banka İşlemleri - ZOR)": [
+        {"soru": "SYR (Sermaye Yeterlilik Rasyosu)?", "secenekler": ["%8 (Basel) / %12 (TR)", "%50", "%1", "%100"], "cevap": "%8 (Basel) / %12 (TR)"},
+        {"soru": "Mevduat banka için?", "secenekler": ["Pasif (Borç)", "Aktif", "Gelir", "Gider"], "cevap": "Pasif (Borç)"},
+        {"soru": "Kredi banka için?", "secenekler": ["Aktif (Alacak)", "Pasif", "Sermaye", "Gider"], "cevap": "Aktif (Alacak)"},
+        {"soru": "Takipteki alacak?", "secenekler": ["90 gün ödenmeyen kredi", "Yeni kredi", "Ödenmiş", "Yapılandırılan"], "cevap": "90 gün ödenmeyen kredi"},
+        {"soru": "Gayrinakdi kredi?", "secenekler": ["Teminat Mektubu", "İhtiyaç", "Konut", "KMH"], "cevap": "Teminat Mektubu"},
+        {"soru": "Munzam karşılık artarsa?", "secenekler": ["Piyasa sıkılaşır, kredi azalır", "Para bollaşır", "Faiz düşer", "Enflasyon artar"], "cevap": "Piyasa sıkılaşır, kredi azalır"},
+        {"soru": "Katılım bankası?", "secenekler": ["Kar payı esası", "Faiz", "Tefecilik", "Döviz"], "cevap": "Kar payı esası"},
+        {"soru": "Sendikasyon?", "secenekler": ["Uluslararası konsorsiyum kredisi", "Bireysel", "KOBİ", "Esnaf"], "cevap": "Uluslararası konsorsiyum kredisi"},
+        {"soru": "SWIFT?", "secenekler": ["Uluslararası transfer", "Yurtiçi", "ATM", "Kredi"], "cevap": "Uluslararası transfer"},
+        {"soru": "Açık pozisyon?", "secenekler": ["Döviz borcunun varlıktan çok olması", "Döviz fazlası", "Kasa fazlası", "Kredi"], "cevap": "Döviz borcunun varlıktan çok olması"},
+        {"soru": "Repo?", "secenekler": ["Geri alım vaadiyle satış", "Kredi", "Mevduat", "Hisse"], "cevap": "Geri alım vaadiyle satış"},
+        {"soru": "BDDK?", "secenekler": ["Denetleme ve düzenleme", "Para basma", "Vergi", "Kredi"], "cevap": "Denetleme ve düzenleme"},
+        {"soru": "TCMB?", "secenekler": ["Fiyat istikrarı", "Kar", "Mevduat", "Konut"], "cevap": "Fiyat istikrarı"},
+        {"soru": "Mevduat garantisi?", "secenekler": ["650.000 TL", "100.000", "Sınırsız", "Yok"], "cevap": "650.000 TL"},
+        {"soru": "FAST?", "secenekler": ["7/24 Anlık transfer", "EFT", "Havale", "Swift"], "cevap": "7/24 Anlık transfer"}
+      ]
+    }
+  }
+}
