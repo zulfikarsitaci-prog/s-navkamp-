@@ -233,4 +233,4 @@ elif st.session_state.ekran == 'sinav':
                         st.session_state.aktif_index += 1; st.rerun()
 
 # --- ALT TEŞEKKÜR MESAJI (FOOTER) ---
-st.markdown("<div class='ozel-footer'>❤️ Sevgili Arkadaşım Mehmet KARADUMAN'a Teşekkürler</div>", unsafe_allow_html=True)
+st.markdown("<div class='ozel-footer'> Desteklerinden dolayı Sevgili Arkadaşım Mehmet KARADUMAN'a Teşekkürler</div>", unsafe_allow_html=True)
