@@ -1,0 +1,61 @@
+{
+  "11. Sınıf": {
+    "Şirketler Muhasebesi": {
+      "Test 1 (Kuruluş ve Sermaye - ZOR)": [
+        {"soru": "A.Ş. nakit sermaye peşin ödeme oranı?", "secenekler": ["%25", "%50", "%100", "%10"], "cevap": "%25"},
+        {"soru": "501 Ödenmemiş Sermaye karakteri?", "secenekler": ["Pasifi düzenleyen Aktif hesap", "Pasif", "Gider", "Gelir"], "cevap": "Pasifi düzenleyen Aktif hesap"},
+        {"soru": "Limited şirket hisse devri?", "secenekler": ["Noter onayı şart", "Sözlü", "Banka", "Adi yazılı"], "cevap": "Noter onayı şart"},
+        {"soru": "Emisyon Primi (520) vergi durumu?", "secenekler": ["Kurumlar vergisinden istisna", "Vergili", "KDV'li", "Stopajlı"], "cevap": "Kurumlar vergisinden istisna"},
+        {"soru": "1. Tertip Yedek Akçe tavanı?", "secenekler": ["Sermayenin %20'si", "%50", "%10", "Sınırsız"], "cevap": "Sermayenin %20'si"},
+        {"soru": "2. Tertip Yedek Akçe matrahı?", "secenekler": ["Dağıtılan karın %5'i aşıldıktan sonraki kısmın %10'u", "Net kar", "Sermaye", "Ciro"], "cevap": "Dağıtılan karın %5'i aşıldıktan sonraki kısmın %10'u"},
+        {"soru": "Tasfiye sonu kalanı kime verilir?", "secenekler": ["Ortaklara", "Devlete", "Çalışana", "Bankaya"], "cevap": "Ortaklara"},
+        {"soru": "Sermaye azaltımı ilanı?", "secenekler": ["3 kez", "1 kez", "5 kez", "Yapılmaz"], "cevap": "3 kez"},
+        {"soru": "Şirket birleşmesinde halefiyet?", "secenekler": ["Külli Halefiyet", "Cüzi", "Kısmi", "Yok"], "cevap": "Külli Halefiyet"},
+        {"soru": "A.Ş. en yetkili organ?", "secenekler": ["Genel Kurul", "Yönetim", "Denetim", "Müdür"], "cevap": "Genel Kurul"},
+        {"soru": "Huzur hakkı nedir?", "secenekler": ["Yönetim kurulu üyesine ödenen ücret", "Kar payı", "Rüşvet", "Bağış"], "cevap": "Yönetim kurulu üyesine ödenen ücret"},
+        {"soru": "Bedelli sermaye artırımı?", "secenekler": ["Nakit girişi ile", "Yedeklerden", "Kardan", "Fonlardan"], "cevap": "Nakit girişi ile"},
+        {"soru": "Rüçhan hakkı?", "secenekler": ["Yeni payı öncelikli alma hakkı", "Yönetim", "Oy", "Kar"], "cevap": "Yeni payı öncelikli alma hakkı"},
+        {"soru": "Geçici İlmühaber?", "secenekler": ["Hisse yerine geçen belge", "Tahvil", "Makbuz", "Fatura"], "cevap": "Hisse yerine geçen belge"},
+        {"soru": "Holding amacı?", "secenekler": ["Başka şirketlere iştirak edip yönetmek", "Üretim", "Satış", "İhracat"], "cevap": "Başka şirketlere iştirak edip yönetmek"}
+      ]
+    },
+    "Maliyet Muhasebesi": {
+      "Test 1 (Giderler ve Sistemler - ZOR)": [
+        {"soru": "710 DİMM nedir?", "secenekler": ["Üretime giren ana madde gideri", "Yardımcı madde", "İşçilik", "Kira"], "cevap": "Üretime giren ana madde gideri"},
+        {"soru": "730 GÜG nedir?", "secenekler": ["Direkt yüklenemeyen üretim giderleri", "Hammadde", "Direkt işçilik", "Satış"], "cevap": "Direkt yüklenemeyen üretim giderleri"},
+        {"soru": "Sipariş maliyeti nerede kullanılır?", "secenekler": ["Özel üretim (Gemi, Mobilya)", "Seri üretim", "Çimento", "Şeker"], "cevap": "Özel üretim (Gemi, Mobilya)"},
+        {"soru": "Safha maliyeti nerede kullanılır?", "secenekler": ["Tek tip seri üretim", "Sipariş", "İnşaat", "Proje"], "cevap": "Tek tip seri üretim"},
+        {"soru": "Eşdeğer ürün miktarı?", "secenekler": ["Yarı mamulün tam mamul cinsinden karşılığı", "Toplam üretim", "Satış", "Stok"], "cevap": "Yarı mamulün tam mamul cinsinden karşılığı"},
+        {"soru": "Normal fire maliyeti?", "secenekler": ["Sağlam ürün maliyetine eklenir", "Gider", "Zarar", "Yok"], "cevap": "Sağlam ürün maliyetine eklenir"},
+        {"soru": "Anormal fire maliyeti?", "secenekler": ["689 KKEG (Dönem Gideri)", "Maliyet", "Stok", "İade"], "cevap": "689 KKEG (Dönem Gideri)"},
+        {"soru": "Yansıtma hesapları nereye gider?", "secenekler": ["151 Yarı Mamul", "152", "620", "600"], "cevap": "151 Yarı Mamul"},
+        {"soru": "Birim maliyet?", "secenekler": ["Toplam Maliyet / Miktar", "Satış / Miktar", "Kar / Miktar", "Gider"], "cevap": "Toplam Maliyet / Miktar"},
+        {"soru": "II. Dağıtım?", "secenekler": ["Yardımcıdan Esasa", "Giderden yere", "Mamule", "Satışa"], "cevap": "Yardımcıdan Esasa"},
+        {"soru": "Matematiksel dağıtım?", "secenekler": ["Karşılıklı hizmeti dikkate alır", "Basittir", "Sıralıdır", "Eşittir"], "cevap": "Karşılıklı hizmeti dikkate alır"},
+        {"soru": "Sabit gider?", "secenekler": ["Üretimden bağımsız (Kira)", "Hammadde", "Değişken", "Enerji"], "cevap": "Üretimden bağımsız (Kira)"},
+        {"soru": "Başabaş noktası?", "secenekler": ["Karın sıfır olduğu nokta", "Maksimum kar", "Zarar", "İflas"], "cevap": "Karın sıfır olduğu nokta"},
+        {"soru": "LIFO neden yasak?", "secenekler": ["Vergiyi azalttığı için", "Zor olduğu için", "Eski olduğu için", "Yanlış olduğu için"], "cevap": "Vergiyi azalttığı için"},
+        {"soru": "7/B gider çeşitleri?", "secenekler": ["790-799", "710-780", "150-153", "600-690"], "cevap": "790-799"}
+      ]
+    },
+    "Bilgisayarlı Muhasebe": {
+      "Test 1 (Luca ve Uygulama - ZOR)": [
+        {"soru": "KDV mahsup fişi?", "secenekler": ["Ay sonu", "Yıl sonu", "Her gün", "Fatura anı"], "cevap": "Ay sonu"},
+        {"soru": "Fiş kopyalama?", "secenekler": ["F5", "F2", "F9", "F1"], "cevap": "F5"},
+        {"soru": "Bakiye eşitleme?", "secenekler": ["F7", "F4", "F12", "Esc"], "cevap": "F7"},
+        {"soru": "E-Defter süresi?", "secenekler": ["Takip eden 3. ay sonu", "Her ay 1'i", "Yıl sonu", "Anında"], "cevap": "Takip eden 3. ay sonu"},
+        {"soru": "Tevkifatlı faturada KDV?", "secenekler": ["Otomatik ayrılır, KDV2 doğar", "Ayrılmaz", "Elle girilir", "Giderdir"], "cevap": "Otomatik ayrılır, KDV2 doğar"},
+        {"soru": "Muhtasar kodları?", "secenekler": ["011 Asgari, 012 Diğer", "041", "302", "101"], "cevap": "011 Asgari, 012 Diğer"},
+        {"soru": "BA/BS limiti?", "secenekler": ["5.000 TL", "10.000", "2.000", "Yok"], "cevap": "5.000 TL"},
+        {"soru": "Z Raporu kaydı?", "secenekler": ["Perakende Satış Fişi", "Fatura", "Dekont", "Makbuz"], "cevap": "Perakende Satış Fişi"},
+        {"soru": "Kur farkı faturası?", "secenekler": ["Kur değişiminden doğan fark için", "Her zaman", "İhracatta", "Bankada"], "cevap": "Kur değişiminden doğan fark için"},
+        {"soru": "Personel entegrasyonu?", "secenekler": ["Bordroyu fişe çevirir", "Maaş öder", "İzin yazar", "Giriş yapar"], "cevap": "Bordroyu fişe çevirir"},
+        {"soru": "Açılış fişi dengesizse?", "secenekler": ["Mizan tutmaz, uyarı verir", "Kaydetmez", "Siler", "Düzeltir"], "cevap": "Mizan tutmaz, uyarı verir"},
+        {"soru": "Amortisman ayırma?", "secenekler": ["Sabit Kıymet Modülü", "Stok", "Cari", "Kasa"], "cevap": "Sabit Kıymet Modülü"},
+        {"soru": "Geçici vergi dönemi?", "secenekler": ["3 ayda bir", "Ayda bir", "Yılda bir", "6 ayda bir"], "cevap": "3 ayda bir"},
+        {"soru": "Yansıtma fişi?", "secenekler": ["Otomatik oluşur", "Elle", "Yapılmaz", "Silinir"], "cevap": "Otomatik oluşur"},
+        {"soru": "Kapanış fişi?", "secenekler": ["Dönem sonu otomatik", "Yılbaşı", "Elle", "Rastgele"], "cevap": "Dönem sonu otomatik"}
+      ]
+    }
+  }
+}
