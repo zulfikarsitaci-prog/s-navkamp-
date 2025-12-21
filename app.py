@@ -54,13 +54,22 @@ def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
     except: pass
 
 def dosya_yukle(dosya_adi):
-    if not os.path.exists(dosya_adi): return {}
+    if not os.path.exists(dosya_adi): 
+        return {}
     try:
         with open(dosya_adi, "r", encoding="utf-8") as f:
             data = json.load(f)
             if dosya_adi == TYT_JSON_ADI: return {int(k): v for k, v in data.items()}
             return data
-    except: return {}
+    except json.JSONDecodeError as e:
+        # HATA YAKALAYICI: JSON bozuksa hatayı ekrana basar
+        st.error(f"⚠️ HATA: '{dosya_adi}' dosyasında yapısal bozukluk var!")
+        st.error(f"Hata Detayı: {e}")
+        st.warning("Lütfen JSON dosyasındaki parantezleri ve virgülleri kontrol edin.")
+        return {}
+    except Exception as e:
+        st.error(f"Dosya okuma hatası: {e}")
+        return {}
 
 if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
 if 'oturum' not in st.session_state: st.session_state.oturum = False
@@ -81,7 +90,7 @@ KONU_VERI = dosya_yukle(KONU_JSON_ADI)
 if st.session_state.ekran == 'giris':
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
-        st.markdown("<div class='giris-kart'><h1>🎓 Bağarası ÇPAL</h1><h2>Dijital Sınav Merkezi</h2><hr><p style='font-size:18px; font-weight:bold; color:#D84315;'>Okulumuz Muhasebe ve Finansman Alanının öğrencilerimize hediyesidir.</p><br><p>Lütfen bilgilerinizi giriniz.</p></div>", unsafe_allow_html=True)
+        st.markdown("<div class='giris-kart'><h1>🎓 Bağarası ÇPAL</h1><h2>Dijital Sınav Merkezi</h2><hr><p style='font-size:18px; font-weight:bold; color:#D84315;'>Okulumuz Muhasebe ve Finansman Alanının öğrencilerimize hediyesidir.</p><br><p>Lütfen adınızı giriniz.</p></div>", unsafe_allow_html=True)
         ad = st.text_input("Adınız Soyadınız:")
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
@@ -90,7 +99,7 @@ if st.session_state.ekran == 'giris':
                 st.session_state.ekran = 'sinav'
                 st.rerun()
             else: st.error("İsim giriniz.")
-        st.markdown("<div class='imza-container'><div class='imza-baslik'>Muhasebe ve Finansman Öğretmenleri</div><div class='imza'>Zülfikar SITACI</div>Mustafa BAĞCIK</div>", unsafe_allow_html=True)
+        st.markdown("<div class='imza-container'><div class='imza-baslik'>Muhasebe ve Finansman Öğretmenleri</div><div class='imza'>Zülfikar Sıtacı & Mustafa Bağcık</div></div>", unsafe_allow_html=True)
 
 elif st.session_state.ekran == 'sinav':
     with st.sidebar:
@@ -153,7 +162,9 @@ elif st.session_state.ekran == 'sinav':
                                 st.rerun()
                         else: st.warning("Bu derse ait test bulunamadı.")
                     else: st.warning("Bu sınıfa ait ders bulunamadı.")
-                else: st.warning("Veri yok.")
+                else: 
+                    if MESLEK_VERI: st.warning("KONU_TARAMA verisi boş.")
+                    else: st.error("sorular.json yüklenemedi!")
 
             # --- TAB 2: GENEL DENEME (Sınıf -> Deneme) ---
             with t2:
@@ -171,15 +182,16 @@ elif st.session_state.ekran == 'sinav':
                             st.session_state.dogru_sayisi = st.session_state.yanlis_sayisi = st.session_state.bos_sayisi = 0
                             st.rerun()
                     else: st.warning("Bu sınıfa ait deneme yok.")
-                else: st.warning("Veri yok.")
+                else: st.warning("DENEME_SINAVLARI verisi boş.")
 
             # --- TAB 3: KONU ANLATIMI ---
             with t3:
                 if KONU_VERI:
-                    s = st.selectbox("Sınıf:", list(KONU_VERI.keys()), key="k_s")
+                    s = st.selectbox("Sınıf Seçiniz:", list(KONU_VERI.keys()), key="k_s")
                     d = st.selectbox("Ders:", list(KONU_VERI[s].keys()), key="k_d")
                     for n in KONU_VERI[s][d]:
                         st.markdown(f"<div class='konu-karti'><div class='konu-baslik'>{n['baslik']}</div><div class='konu-icerik'>{n['icerik']}</div></div>", unsafe_allow_html=True)
+                else: st.warning("Konu verisi yüklenemedi.")
 
     else:
         if st.session_state.aktif_index >= len(st.session_state.secilen_liste):
