@@ -28,7 +28,6 @@ st.markdown("""
         border: 2px solid #FF7043;
     }
     
-    /* GİZLİLİK */
     .stDeployButton {display:none;}
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
@@ -44,7 +43,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* SEÇİM KARTLARI (ORTA EKRAN) */
+    /* SEÇİM KARTLARI */
     .secim-karti {
         background-color: white;
         padding: 20px;
@@ -160,8 +159,7 @@ if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
 if 'mod' not in st.session_state: st.session_state.mod = "" 
 if 'secilen_liste' not in st.session_state: st.session_state.secilen_liste = []
 if 'aktif_index' not in st.session_state: st.session_state.aktif_index = 0
-if 'toplam_puan' not in st.session_state: st.session_state.toplam_puan = 0
-if 'secim_turu' not in st.session_state: st.session_state.secim_turu = None # Ekranda hangisini seçti
+if 'secim_turu' not in st.session_state: st.session_state.secim_turu = None 
 
 # KARNE DEĞİŞKENLERİ
 if 'karne' not in st.session_state: st.session_state.karne = []
@@ -192,14 +190,16 @@ if st.session_state.ekran == 'giris':
         ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Ali Yılmaz")
         
         st.write("")
-        if st.button("Sisteme Giriş Yap ➡️"):
+        if st.button("Sınav Türünü Seçmek İçin Giriş Yapınız ➡️"):
             if ad_soyad_input.strip():
                 st.session_state.ad_soyad = ad_soyad_input
                 st.session_state.ekran = 'sinav'
+                # Değişkenleri sıfırla
                 st.session_state.karne = []
                 st.session_state.dogru_sayisi_toplam = 0
                 st.session_state.yanlis_sayisi_toplam = 0
-                st.session_state.secim_turu = None # Seçimi sıfırla
+                st.session_state.bos_sayisi_toplam = 0
+                st.session_state.secim_turu = None 
                 st.rerun()
             else:
                 st.error("Lütfen adınızı giriniz!")
@@ -213,7 +213,7 @@ if st.session_state.ekran == 'giris':
 # --- 2. SINAV EKRANI ---
 elif st.session_state.ekran == 'sinav':
     
-    # --- SOL MENÜ (SADECE PROFİL) ---
+    # --- SOL MENÜ ---
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=100)
         st.write(f"👤 **{st.session_state.ad_soyad}**")
@@ -229,7 +229,6 @@ elif st.session_state.ekran == 'sinav':
         st.markdown("<h2 style='text-align:center;'>Lütfen Sınav Türünü Seçiniz 👇</h2>", unsafe_allow_html=True)
         st.write("")
         
-        # ORTA KISIMDA İKİ KART
         col_a, col_b = st.columns(2)
         
         with col_a:
@@ -294,22 +293,22 @@ elif st.session_state.ekran == 'sinav':
             else:
                 st.warning("Meslek verileri yüklenmemiş.")
 
-    # --- SORU ÇÖZME EKRANI (OTURUM BAŞLADIYSA) ---
+    # --- SORU ÇÖZME EKRANI ---
     else:
         
-        # KARNE EKRANI
+        # KARNE EKRANI (SINAV BİTİNCE)
         if st.session_state.aktif_index >= len(st.session_state.secilen_liste):
             st.balloons()
             st.markdown(f"<h2 style='text-align:center;'>🏁 Sınav Sonucu: {st.session_state.ad_soyad}</h2>", unsafe_allow_html=True)
             
-            c1, c2, c3, c4 = st.columns(4)
+            # SADECE DOĞRU - YANLIŞ - BOŞ (Puan Yok)
+            c1, c2, c3 = st.columns(3)
             c1.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.dogru_sayisi_toplam}</div><div class='stat-label'>Doğru</div></div>", unsafe_allow_html=True)
             c2.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.yanlis_sayisi_toplam}</div><div class='stat-label'>Yanlış</div></div>", unsafe_allow_html=True)
             c3.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.bos_sayisi_toplam}</div><div class='stat-label'>Boş</div></div>", unsafe_allow_html=True)
-            toplam_puan = st.session_state.dogru_sayisi_toplam * (5 if st.session_state.mod == "PDF" else 10)
-            c4.markdown(f"<div class='stat-card'><div class='stat-number'>{toplam_puan}</div><div class='stat-label'>Puan</div></div>", unsafe_allow_html=True)
             
             st.divider()
+            
             st.subheader("🔍 Hatalı Yaptığınız Soruların Analizi")
             yanlislar = [k for k in st.session_state.karne if k["durum"] == "Yanlış"]
             
