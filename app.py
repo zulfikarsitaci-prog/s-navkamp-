@@ -21,13 +21,14 @@ st.markdown("""
     .stApp { background-color: #F0F4C3 !important; }
     h1, h2, h3, h4, .stMarkdown, p, label { color: #212121 !important; }
     
-    /* DROPDOWN DÜZELTMESİ */
+    /* DROPDOWN (Açılır Liste) DÜZELTMESİ - Beyaz Arka Plan */
     .stSelectbox div[data-baseweb="select"] > div {
         background-color: #FFFFFF !important;
         color: #000000 !important;
         border: 2px solid #FF7043;
     }
     
+    /* GİZLİLİK */
     .stDeployButton {display:none;}
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
@@ -43,7 +44,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* SEÇİM KARTLARI */
+    /* SEÇİM KARTLARI (ORTA EKRAN) */
     .secim-karti {
         background-color: white;
         padding: 20px;
@@ -57,17 +58,24 @@ st.markdown("""
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
     
-    /* İMZA */
+    /* İMZA ALANI */
     .imza-container {
         margin-top: 50px;
         text-align: right;
         padding-right: 20px;
-        opacity: 0.7; 
+        opacity: 0.8; 
+    }
+    .imza-baslik {
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        color: #555;
+        font-weight: bold;
+        margin-bottom: 5px;
     }
     .imza {
         font-family: 'Dancing Script', cursive;
         color: #D84315;
-        font-size: 18px; 
+        font-size: 22px; 
     }
     
     /* BUTONLAR */
@@ -163,9 +171,9 @@ if 'secim_turu' not in st.session_state: st.session_state.secim_turu = None
 
 # KARNE DEĞİŞKENLERİ
 if 'karne' not in st.session_state: st.session_state.karne = []
-if 'dogru_sayisi_toplam' not in st.session_state: st.session_state.dogru_sayisi_toplam = 0
-if 'yanlis_sayisi_toplam' not in st.session_state: st.session_state.yanlis_sayisi_toplam = 0
-if 'bos_sayisi_toplam' not in st.session_state: st.session_state.bos_sayisi_toplam = 0
+if 'dogru_sayisi' not in st.session_state: st.session_state.dogru_sayisi = 0
+if 'yanlis_sayisi' not in st.session_state: st.session_state.yanlis_sayisi = 0
+if 'bos_sayisi' not in st.session_state: st.session_state.bos_sayisi = 0
 
 TYT_VERI = tyt_veri_yukle()
 MESLEK_VERI = meslek_veri_yukle()
@@ -194,19 +202,21 @@ if st.session_state.ekran == 'giris':
             if ad_soyad_input.strip():
                 st.session_state.ad_soyad = ad_soyad_input
                 st.session_state.ekran = 'sinav'
-                # Değişkenleri sıfırla
+                # Sıfırla
                 st.session_state.karne = []
-                st.session_state.dogru_sayisi_toplam = 0
-                st.session_state.yanlis_sayisi_toplam = 0
-                st.session_state.bos_sayisi_toplam = 0
+                st.session_state.dogru_sayisi = 0
+                st.session_state.yanlis_sayisi = 0
+                st.session_state.bos_sayisi = 0
                 st.session_state.secim_turu = None 
                 st.rerun()
             else:
                 st.error("Lütfen adınızı giriniz!")
         
+        # GÜNCELLENEN İMZA ALANI
         st.markdown("""
         <div class='imza-container'>
-            <div class='imza'>Zülfikar Sıtacı</div>
+            <div class='imza-baslik'>Muhasebe ve Finansman Öğretmenleri</div>
+            <div class='imza'>Zülfikar Sıtacı & Mustafa Bağcık</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -245,7 +255,7 @@ elif st.session_state.ekran == 'sinav':
             st.markdown("""
             <div class='secim-karti'>
                 <h3>💼 Meslek Lisesi</h3>
-                <p>Muhasebe ve mesleki alan test soruları.</p>
+                <p>10, 11 ve 12. Sınıf Alan Testleri</p>
             </div>
             """, unsafe_allow_html=True)
             if st.button("Meslek Çöz ➡️", key="btn_meslek"):
@@ -278,18 +288,26 @@ elif st.session_state.ekran == 'sinav':
         elif st.session_state.secim_turu == "MESLEK":
             st.subheader("💼 Meslek Alanı Ayarları")
             if MESLEK_VERI:
-                alan = st.selectbox("Alan / Sınıf Seçiniz:", list(MESLEK_VERI.keys()))
-                if st.button("SINAVI BAŞLAT 🚀"):
-                    sorular = MESLEK_VERI.get(alan, [])
-                    if sorular:
-                        random.shuffle(sorular)
-                        st.session_state.secilen_liste = sorular
-                        st.session_state.mod = "MESLEK"
-                        st.session_state.oturum = True
-                        st.session_state.karne = [] 
-                        st.session_state.aktif_index = 0
-                        st.rerun()
-                    else: st.error("Bu alanda soru bulunamadı.")
+                # 1. Aşama: SINIF SEÇİMİ
+                secilen_sinif = st.selectbox("Sınıf / Alan Seçiniz:", list(MESLEK_VERI.keys()))
+                
+                # 2. Aşama: TEST SEÇİMİ (O sınıfa ait testleri getir)
+                secilen_sinif_testleri = MESLEK_VERI.get(secilen_sinif, {})
+                if secilen_sinif_testleri:
+                    secilen_test_adi = st.selectbox("Çözülecek Testi Seçiniz:", list(secilen_sinif_testleri.keys()))
+                    
+                    if st.button("SINAVI BAŞLAT 🚀"):
+                        sorular = secilen_sinif_testleri.get(secilen_test_adi, [])
+                        if sorular:
+                            st.session_state.secilen_liste = sorular
+                            st.session_state.mod = "MESLEK"
+                            st.session_state.oturum = True
+                            st.session_state.karne = [] 
+                            st.session_state.aktif_index = 0
+                            st.rerun()
+                        else: st.error("Bu testte soru yok.")
+                else:
+                    st.error("Bu sınıfa ait test bulunamadı.")
             else:
                 st.warning("Meslek verileri yüklenmemiş.")
 
@@ -301,11 +319,10 @@ elif st.session_state.ekran == 'sinav':
             st.balloons()
             st.markdown(f"<h2 style='text-align:center;'>🏁 Sınav Sonucu: {st.session_state.ad_soyad}</h2>", unsafe_allow_html=True)
             
-            # SADECE DOĞRU - YANLIŞ - BOŞ (Puan Yok)
             c1, c2, c3 = st.columns(3)
-            c1.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.dogru_sayisi_toplam}</div><div class='stat-label'>Doğru</div></div>", unsafe_allow_html=True)
-            c2.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.yanlis_sayisi_toplam}</div><div class='stat-label'>Yanlış</div></div>", unsafe_allow_html=True)
-            c3.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.bos_sayisi_toplam}</div><div class='stat-label'>Boş</div></div>", unsafe_allow_html=True)
+            c1.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.dogru_sayisi}</div><div class='stat-label'>Doğru</div></div>", unsafe_allow_html=True)
+            c2.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.yanlis_sayisi}</div><div class='stat-label'>Yanlış</div></div>", unsafe_allow_html=True)
+            c3.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.bos_sayisi}</div><div class='stat-label'>Boş</div></div>", unsafe_allow_html=True)
             
             st.divider()
             
@@ -351,10 +368,10 @@ elif st.session_state.ekran == 'sinav':
                                 val = st.session_state.get(f"c_{sayfa_no}_{i}")
                                 dogru_cevap = cevaplar[i]
                                 if dogru_cevap == "X": continue
-                                if val is None: st.session_state.bos_sayisi_toplam += 1
-                                elif val == dogru_cevap: st.session_state.dogru_sayisi_toplam += 1
+                                if val is None: st.session_state.bos_sayisi += 1
+                                elif val == dogru_cevap: st.session_state.dogru_sayisi += 1
                                 else:
-                                    st.session_state.yanlis_sayisi_toplam += 1
+                                    st.session_state.yanlis_sayisi += 1
                                     sayfa_hatalari.append({"soru_no": i+1, "secilen": val, "dogru": dogru_cevap})
                             if sayfa_hatalari:
                                 st.session_state.karne.append({"tip": "PDF", "durum": "Yanlış", "sayfa_no": sayfa_no, "ders": veri['ders'], "hatali_sorular": sayfa_hatalari})
@@ -380,10 +397,10 @@ elif st.session_state.ekran == 'sinav':
                         if st.button(sec, key=f"btn_{st.session_state.aktif_index}_{idx}", use_container_width=True):
                             if sec.strip() == soru["cevap"].strip():
                                 st.toast("Doğru! ✅")
-                                st.session_state.dogru_sayisi_toplam += 1
+                                st.session_state.dogru_sayisi += 1
                             else:
                                 st.toast("Yanlış! ❌")
-                                st.session_state.yanlis_sayisi_toplam += 1
+                                st.session_state.yanlis_sayisi += 1
                                 st.session_state.karne.append({"tip": "MESLEK", "durum": "Yanlış", "soru_metni": soru['soru'], "secilen": sec, "dogru": soru['cevap']})
                             if "karisik_secenekler" in st.session_state: del st.session_state.karisik_secenekler
                             time.sleep(0.5)
