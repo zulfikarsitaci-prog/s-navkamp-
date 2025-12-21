@@ -90,7 +90,7 @@ if st.session_state.ekran == 'giris':
                 st.session_state.ekran = 'sinav'
                 st.rerun()
             else: st.error("İsim giriniz.")
-        st.markdown("<div class='imza-container'><div class='imza-baslik'>Muhasebe ve Finansman Öğretmenleri</div><div class='imza'></div></div>", unsafe_allow_html=True)
+        st.markdown("<div class='imza-container'><div class='imza-baslik'>Muhasebe ve Finansman Öğretmenleri</div><div class='imza'>Zülfikar SITACI</div>Mustafa BAĞCIK</div>", unsafe_allow_html=True)
 
 elif st.session_state.ekran == 'sinav':
     with st.sidebar:
