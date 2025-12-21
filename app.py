@@ -183,7 +183,7 @@ if st.session_state.ekran == 'giris':
         </div>
         """, unsafe_allow_html=True)
         
-        ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Ali Yılmaz")
+        ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: zülfikar sıtacı")
         
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
@@ -211,7 +211,7 @@ if st.session_state.ekran == 'giris':
         # TEŞEKKÜR YAZISI (SADE VE ALTTA)
         st.markdown("""
         <div class='tesekkur-yazisi'>
-            ❤️ Sevgili Arkadaşım Mehmet KARADUMAN'a Teşekkürler
+             Desteklerinden dolayı Sevgili Arkadaşım Mehmet KARADUMAN'a Teşekkürler
         </div>
         """, unsafe_allow_html=True)
 
