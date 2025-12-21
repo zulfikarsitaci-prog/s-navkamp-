@@ -1,251 +1,160 @@
 {
   "KONU_TARAMA": {
-    "10. Sınıf Muhasebe": {
-      "Test 1 (Temel Kavramlar)": [
-        {"soru": "İşletmenin varlık ve kaynaklarını gösteren tablo?", "secenekler": ["Bilanço", "Gelir Tablosu", "Mizan", "Yevmiye"], "cevap": "Bilanço"},
-        {"soru": "100 Kasa hesabı hangi gruptadır?", "secenekler": ["Dönen Varlıklar", "Duran Varlıklar", "Kısa Vadeli Kaynaklar", "Öz Kaynaklar"], "cevap": "Dönen Varlıklar"},
-        {"soru": "Satıcıya olan senetsiz borçlar?", "secenekler": ["320 Satıcılar", "120 Alıcılar", "100 Kasa", "321 Borç Senetleri"], "cevap": "320 Satıcılar"},
-        {"soru": "Nazım Hesapların özelliği?", "secenekler": ["Bilgi amaçlıdır", "Borç bakiyesi verir", "Kârı gösterir", "Vergi hesaplar"], "cevap": "Bilgi amaçlıdır"},
-        {"soru": "Tacir kime denir?", "secenekler": ["Ticari işletmeyi kendi adına işleten kişiye", "Müdüre", "Esnafa", "Memura"], "cevap": "Ticari işletmeyi kendi adına işleten kişiye"},
-        {"soru": "Günlük defter hangisidir?", "secenekler": ["Yevmiye Defteri", "Büyük Defter", "Envanter", "Kasa Defteri"], "cevap": "Yevmiye Defteri"},
-        {"soru": "Kasadan para çıkışı olunca kasa nasıl çalışır?", "secenekler": ["Alacaklandırılır", "Borçlandırılır", "Değişmez", "Kapatılır"], "cevap": "Alacaklandırılır"},
-        {"soru": "102 Bankalar hesabı karakteri?", "secenekler": ["Aktif", "Pasif", "Düzenleyici", "Nazım"], "cevap": "Aktif"},
-        {"soru": "Bankaya para yatırılınca yapılacak kayıt?", "secenekler": ["102 Bankalar (B) / 100 Kasa (A)", "100 Kasa (B) / 102 Bankalar (A)", "102 (B) / 120 (A)", "320 (B) / 102 (A)"], "cevap": "102 Bankalar (B) / 100 Kasa (A)"},
-        {"soru": "Veresiye mal satışı kaydı?", "secenekler": ["120 Alıcılar", "320 Satıcılar", "100 Kasa", "600 Satışlar"], "cevap": "120 Alıcılar"},
-        {"soru": "KDV hariç tutarı bulmak için (KDV %20)?", "secenekler": ["1,20'ye bölünür", "0,20 ile çarpılır", "1,18'e bölünür", "20 ile çarpılır"], "cevap": "1,20'ye bölünür"},
-        {"soru": "İşletmenin kullandığı bilgisayar hangi hesap?", "secenekler": ["255 Demirbaşlar", "153 Ticari Mallar", "770 Gider", "254 Taşıtlar"], "cevap": "255 Demirbaşlar"},
-        {"soru": "Çek keşide etmek?", "secenekler": ["Çek düzenleyip vermek", "Çek tahsil etmek", "Bankaya yatırmak", "Ciro etmek"], "cevap": "Çek düzenleyip vermek"},
-        {"soru": "103 Verilen Çekler bilançoda nerede?", "secenekler": ["Dönen Varlıklar (-) olarak", "Pasif tarafta", "Gelir tablosunda", "Duran varlıkta"], "cevap": "Dönen Varlıklar (-) olarak"},
-        {"soru": "Tek Düzen Hesap Planı kodu örneği?", "secenekler": ["100", "9999", "ABC", "10-A"], "cevap": "100"},
-        {"soru": "Tutulması zorunlu olmayan defter?", "secenekler": ["Çek Defteri", "Yevmiye", "Kebir", "Envanter"], "cevap": "Çek Defteri"},
-        {"soru": "Dönem karı hangi hesaba devredilir?", "secenekler": ["690 Dönem Karı Zararı", "100 Kasa", "500 Sermaye", "600 Satışlar"], "cevap": "690 Dönem Karı Zararı"},
-        {"soru": "Aktif hesaplar ilk kayıtta?", "secenekler": ["Borçlu çalışır", "Alacaklı çalışır", "Farketmez", "Eksi çalışır"], "cevap": "Borçlu çalışır"},
-        {"soru": "Pasif hesap azalışı?", "secenekler": ["Borç tarafına", "Alacak tarafına", "Gider tarafına", "Gelir tarafına"], "cevap": "Borç tarafına"},
-        {"soru": "Temel muhasebe denkliği?", "secenekler": ["Varlık = Kaynak", "Gelir = Gider", "Aktif = Sermaye", "Borç = Alacak"], "cevap": "Varlık = Kaynak"}
-      ]
+    "10. Sınıf": {
+      "Genel Muhasebe": {
+        "Test 1 (Temel Kavramlar)": [
+          {"soru": "Muhasebenin temel denklemi hangisidir?", "secenekler": ["Varlıklar = Kaynaklar", "Gelir = Gider", "Aktif = Sermaye", "Borç = Alacak"], "cevap": "Varlıklar = Kaynaklar"},
+          {"soru": "100 Kasa hesabı hangi grupta yer alır?", "secenekler": ["Dönen Varlıklar", "Duran Varlıklar", "Kısa Vadeli Kaynaklar", "Öz Kaynaklar"], "cevap": "Dönen Varlıklar"},
+          {"soru": "İşletmenin kasasına para girdiğinde kasa hesabı nasıl çalışır?", "secenekler": ["Borçlandırılır", "Alacaklandırılır", "Değişmez", "Kapatılır"], "cevap": "Borçlandırılır"},
+          {"soru": "Satıcıya olan senetsiz borçlar hangi hesapta izlenir?", "secenekler": ["320 Satıcılar", "120 Alıcılar", "100 Kasa", "321 Borç Senetleri"], "cevap": "320 Satıcılar"},
+          {"soru": "Tek düzen hesap planında '1' ile başlayan hesaplar nedir?", "secenekler": ["Dönen Varlıklar", "Duran Varlıklar", "Gelirler", "Giderler"], "cevap": "Dönen Varlıklar"}
+        ],
+        "Test 2 (Kasa ve Banka İşlemleri)": [
+          {"soru": "Bankadan para çekildiğinde hangi hesap borçlanır?", "secenekler": ["100 Kasa", "102 Bankalar", "103 Verilen Çekler", "120 Alıcılar"], "cevap": "100 Kasa"},
+          {"soru": "102 Bankalar hesabı ne bakiyesi verir?", "secenekler": ["Borç", "Alacak", "Bakiye vermez", "Eksi"], "cevap": "Borç"},
+          {"soru": "Verilen çekler hesabı (103) bilançoda nasıl gösterilir?", "secenekler": ["Dönen Varlıklar (-) olarak", "Pasif tarafta", "Gelir tablosunda", "Duran varlıkta"], "cevap": "Dönen Varlıklar (-) olarak"},
+          {"soru": "Kasa noksanı geçici olarak nereye yazılır?", "secenekler": ["197 Sayım Noksanları", "397 Sayım Fazlaları", "689 Gider", "100 Kasa"], "cevap": "197 Sayım Noksanları"},
+          {"soru": "Kasada yabancı para değerlemesi olumlu fark?", "secenekler": ["646 Kambiyo Karı", "656 Kambiyo Zararı", "600 Satış", "642 Faiz"], "cevap": "646 Kambiyo Karı"}
+        ],
+        "Test 3 (Ticari Mallar ve KDV)": [
+          {"soru": "Mal alımında ödenen KDV hangi hesapta izlenir?", "secenekler": ["191 İndirilecek KDV", "391 Hesaplanan KDV", "190 Devreden KDV", "360 Ödenecek KDV"], "cevap": "191 İndirilecek KDV"},
+          {"soru": "Satılan malın maliyet kaydı?", "secenekler": ["621 STMM (B)", "153 Mal (B)", "600 Satış (B)", "391 KDV (B)"], "cevap": "621 STMM (B)"},
+          {"soru": "Ticari mal hesabının borç tarafına ne yazılır?", "secenekler": ["Mal alışları", "Mal satışları", "Satış iadeleri", "İskontolar"], "cevap": "Mal alışları"},
+          {"soru": "Satış iadesi hangi hesaba yazılır?", "secenekler": ["610 Satıştan İadeler", "600 Satışlar", "153 Ticari Mallar", "391 KDV"], "cevap": "610 Satıştan İadeler"},
+          {"soru": "KDV hariç tutarı bulmak için (KDV %20)?", "secenekler": ["1,20'ye bölünür", "0,20 ile çarpılır", "1,18'e bölünür", "20 ile çarpılır"], "cevap": "1,20'ye bölünür"}
+        ],
+        "Test 4 (Senetler ve Çekler)": [
+          {"soru": "Alacak senedi tahsil edilince hangi hesap alacaklanır?", "secenekler": ["121 Alacak Senetleri", "100 Kasa", "120 Alıcılar", "600 Satışlar"], "cevap": "121 Alacak Senetleri"},
+          {"soru": "Ciro etmek ne demektir?", "secenekler": ["Çek/senedin hakkını başkasına devretmek", "Tahsil etmek", "Bankaya yatırmak", "İptal etmek"], "cevap": "Çek/senedin hakkını başkasına devretmek"},
+          {"soru": "Senetsiz alacaklar hangi hesapta izlenir?", "secenekler": ["120 Alıcılar", "121 Alacak Senetleri", "320 Satıcılar", "100 Kasa"], "cevap": "120 Alıcılar"},
+          {"soru": "Protestolu senet ne demektir?", "secenekler": ["Vadesinde ödenmeyen senet", "Vadesi gelmemiş senet", "Ödenmiş senet", "Hatır senedi"], "cevap": "Vadesinde ödenmeyen senet"},
+          {"soru": "Hatır senedi nedir?", "secenekler": ["Ticari işlem olmadan verilen senet", "Mal karşılığı senet", "Hizmet karşılığı senet", "Banka senedi"], "cevap": "Ticari işlem olmadan verilen senet"}
+        ],
+        "Test 5 (Duran Varlıklar ve Amortisman)": [
+          {"soru": "Amortisman nedir?", "secenekler": ["Duran varlık yıpranma payı", "Değer artışı", "Vergi", "Borç"], "cevap": "Duran varlık yıpranma payı"},
+          {"soru": "Amortisman ayrılmayan duran varlık?", "secenekler": ["250 Arazi ve Arsa", "252 Bina", "254 Taşıt", "255 Demirbaş"], "cevap": "250 Arazi ve Arsa"},
+          {"soru": "Demirbaş satış karı hesabı?", "secenekler": ["679 Diğer Olağandışı Gelir", "600 Satışlar", "649 Diğer Gelir", "500 Sermaye"], "cevap": "679 Diğer Olağandışı Gelir"},
+          {"soru": "255 Demirbaşlar hesabı hangi gruptadır?", "secenekler": ["Maddi Duran Varlıklar", "Maddi Olmayan Duran Varlıklar", "Stoklar", "Mali Duran Varlıklar"], "cevap": "Maddi Duran Varlıklar"},
+          {"soru": "Birikmiş amortismanlar bilançoda nasıl görünür?", "secenekler": ["Aktifte eksi (-) olarak", "Pasifte", "Gelir tablosunda", "Görünmez"], "cevap": "Aktifte eksi (-) olarak"}
+        ]
+      },
+      "Ekonomi": {
+        "Test 1 (Temel Kavramlar)": [
+          {"soru": "İnsan ihtiyaçlarını karşılayan araçlara ne denir?", "secenekler": ["Mal ve Hizmet", "Para", "Sermaye", "Emek"], "cevap": "Mal ve Hizmet"},
+          {"soru": "Fayda nedir?", "secenekler": ["Malın ihtiyacı giderme özelliği", "Malın fiyatı", "Malın maliyeti", "Malın miktarı"], "cevap": "Malın ihtiyacı giderme özelliği"},
+          {"soru": "Aşağıdakilerden hangisi üretim faktörüdür?", "secenekler": ["Emek", "Para", "Banka", "Döviz"], "cevap": "Emek"},
+          {"soru": "Girişimci kime denir?", "secenekler": ["Üretim faktörlerini bir araya getiren kişi", "İşçi", "Memur", "Tüketici"], "cevap": "Üretim faktörlerini bir araya getiren kişi"},
+          {"soru": "İhtiyaçlar nasıldır?", "secenekler": ["Sınırsızdır", "Sınırlıdır", "Sabittir", "Azalır"], "cevap": "Sınırsızdır"}
+        ],
+        "Test 2 (Arz ve Talep)": [{"soru": "Fiyat artarsa talep ne olur?", "secenekler": ["Azalır", "Artar", "Değişmez", "Sıfırlanır"], "cevap": "Azalır"}],
+        "Test 3 (Piyasalar)": [{"soru": "Tek bir satıcının olduğu piyasa?", "secenekler": ["Monopol", "Oligopol", "Tam Rekabet", "Monopson"], "cevap": "Monopol"}],
+        "Test 4 (Üretim ve Maliyet)": [{"soru": "Sabit maliyet örneği?", "secenekler": ["Kira", "Hammadde", "Enerji", "İşçilik"], "cevap": "Kira"}],
+        "Test 5 (Makro Ekonomi)": [{"soru": "Genel fiyat düzeyinin sürekli artışı?", "secenekler": ["Enflasyon", "Deflasyon", "Devalüasyon", "Resesyon"], "cevap": "Enflasyon"}]
+      },
+      "Temel Hukuk": {
+        "Test 1 (Hukuk Kuralları)": [{"soru": "Yaptırımı manevi olan kural?", "secenekler": ["Ahlak Kuralı", "Hukuk Kuralı", "Kanun", "Yönetmelik"], "cevap": "Ahlak Kuralı"}],
+        "Test 2 (Hukukun Kaynakları)": [{"soru": "En üst hukuk kaynağı?", "secenekler": ["Anayasa", "Kanun", "Yönetmelik", "Genelge"], "cevap": "Anayasa"}],
+        "Test 3 (Kişiler Hukuku)": [{"soru": "Gerçek kişilik ne zaman başlar?", "secenekler": ["Sağ ve tam doğumla", "18 yaşla", "Evlenince", "Okula başlayınca"], "cevap": "Sağ ve tam doğumla"}],
+        "Test 4 (Haklar)": [{"soru": "Herkese karşı ileri sürülebilen haklar?", "secenekler": ["Mutlak Haklar", "Nispi Haklar", "Kişisel Haklar", "Alacak Hakkı"], "cevap": "Mutlak Haklar"}],
+        "Test 5 (Yaptırımlar)": [{"soru": "Hukuka aykırı işlemin geçersiz sayılması?", "secenekler": ["Hükümsüzlük", "Ceza", "Tazminat", "İcra"], "cevap": "Hükümsüzlük"}]
+      }
     },
-    "11. Sınıf Muhasebe": {
-      "Test 1 (Maliyet Muhasebesi)": [
-        {"soru": "Hammadde hesabı hangisidir?", "secenekler": ["150 İlk Madde ve Malzeme", "153 Ticari Mallar", "710 DİMM", "152 Mamuller"], "cevap": "150 İlk Madde ve Malzeme"},
-        {"soru": "Mamulün bünyesine giren direkt giderler?", "secenekler": ["710 Direkt İlk Madde ve Malzeme", "720 Direkt İşçilik", "730 GÜG", "770 GYG"], "cevap": "710 Direkt İlk Madde ve Malzeme"},
-        {"soru": "Henüz tamamlanmamış ürünler?", "secenekler": ["151 Yarı Mamuller", "152 Mamuller", "150 İlk Madde", "620 SMM"], "cevap": "151 Yarı Mamuller"},
-        {"soru": "7/A seçeneği sınıflandırması?", "secenekler": ["Fonksiyon esasına göre", "Çeşit esasına göre", "Tutar esasına göre", "Vade esasına göre"], "cevap": "Fonksiyon esasına göre"},
-        {"soru": "Direkt yüklenemeyen üretim giderleri (kira, elektrik)?", "secenekler": ["730 Genel Üretim Giderleri", "710 DİMM", "720 İşçilik", "760 Pazarlama"], "cevap": "730 Genel Üretim Giderleri"},
-        {"soru": "Direkt işçilik örneği?", "secenekler": ["Üretim bandı işçisi", "Bekçi", "Muhasebeci", "Satış elemanı"], "cevap": "Üretim bandı işçisi"},
-        {"soru": "Üretim tamamlanınca yapılan kayıt?", "secenekler": ["152 (B) / 151 (A)", "620 (B) / 152 (A)", "151 (B) / 710 (A)", "153 (B) / 150 (A)"], "cevap": "152 (B) / 151 (A)"},
-        {"soru": "Gider yansıtma hesapları?", "secenekler": ["711, 721, 731", "600, 601, 602", "100, 101, 102", "900'lü hesaplar"], "cevap": "711, 721, 731"},
-        {"soru": "Satılan mamul maliyeti kaydı?", "secenekler": ["620 (B)", "621 (B)", "152 (B)", "600 (B)"], "cevap": "620 (B)"},
-        {"soru": "Endirekt malzeme örneği?", "secenekler": ["Makine yağı", "Ahşap", "Un", "Kumaş"], "cevap": "Makine yağı"},
-        {"soru": "7/B seçeneği sınıflandırması?", "secenekler": ["Gider Çeşitlerine göre", "Gider Yerlerine göre", "Fonksiyona göre", "Üretime göre"], "cevap": "Gider Çeşitlerine göre"},
-        {"soru": "Fabrika amortismanı 7/A'da nereye?", "secenekler": ["730 Genel Üretim Giderleri", "770 GYG", "720 İşçilik", "780 Finansman"], "cevap": "730 Genel Üretim Giderleri"},
-        {"soru": "Yarı mamul borç kalanı neyi gösterir?", "secenekler": ["Üretimdeki tamamlanmamış ürünleri", "Satılanları", "Depodakileri", "Alınanları"], "cevap": "Üretimdeki tamamlanmamış ürünleri"},
-        {"soru": "Sermaye taahhüdü borçlu hesap?", "secenekler": ["501 Ödenmemiş Sermaye", "500 Sermaye", "100 Kasa", "102 Bankalar"], "cevap": "501 Ödenmemiş Sermaye"},
-        {"soru": "Limited şirket ortaklık payı?", "secenekler": ["Pay", "Tahvil", "Bono", "Emtia"], "cevap": "Pay"},
-        {"soru": "Hisse senedi ihraç primi?", "secenekler": ["520 Hisse Senedi İhraç Primleri", "600 Satışlar", "649 Diğer Gelir", "500 Sermaye"], "cevap": "520 Hisse Senedi İhraç Primleri"},
-        {"soru": "Zorunlu yedek akçe hesabı?", "secenekler": ["540 Yasal Yedekler", "542 Olağanüstü", "570 Geçmiş Yıl Karı", "590 Dönem Karı"], "cevap": "540 Yasal Yedekler"},
-        {"soru": "Şirketin kendi hissesini alması?", "secenekler": ["529 Diğer Sermaye Yedekleri", "110 Hisse", "240 Menkul Kıymet", "500 Sermaye"], "cevap": "529 Diğer Sermaye Yedekleri"},
-        {"soru": "Rüçhan hakkı nedir?", "secenekler": ["Öncelikli satın alma hakkı", "Ayrılma hakkı", "Kar alma hakkı", "Yönetim hakkı"], "cevap": "Öncelikli satın alma hakkı"},
-        {"soru": "Kuruluş giderleri aktifleştirilirse?", "secenekler": ["262 Kuruluş ve Örgütlenme", "770 GYG", "180 Gelecek Ay", "760 Pazarlama"], "cevap": "262 Kuruluş ve Örgütlenme"}
-      ]
+    "11. Sınıf": {
+      "Şirketler Muhasebesi": {
+        "Test 1 (Şirket Türleri)": [
+          {"soru": "Sermayesi paylara bölünmüş, ortakların sorumluluğu sınırlı şirket?", "secenekler": ["Anonim Şirket", "Kolektif", "Adi Şirket", "Komandit"], "cevap": "Anonim Şirket"},
+          {"soru": "En az sermaye ile kurulabilen şirket?", "secenekler": ["Limited Şirket", "Anonim Şirket", "Holding", "Banka"], "cevap": "Limited Şirket"},
+          {"soru": "Şahıs şirketi örneği?", "secenekler": ["Kolektif Şirket", "Anonim Şirket", "Limited Şirket", "Kooperatif"], "cevap": "Kolektif Şirket"},
+          {"soru": "Limited şirket ortak sayısı en az?", "secenekler": ["1", "2", "5", "50"], "cevap": "1"},
+          {"soru": "A.Ş. en yetkili organı?", "secenekler": ["Genel Kurul", "Yönetim Kurulu", "Denetim Kurulu", "Müdürler"], "cevap": "Genel Kurul"}
+        ],
+        "Test 2 (Kuruluş İşlemleri)": [{"soru": "Sermaye taahhüdü kaydı?", "secenekler": ["501 (B) / 500 (A)", "102 (B) / 500 (A)", "500 (B) / 501 (A)", "100 (B) / 500 (A)"], "cevap": "501 (B) / 500 (A)"}],
+        "Test 3 (Kar Dağıtımı)": [{"soru": "Zorunlu ayrılan yedek?", "secenekler": ["Yasal Yedekler", "Olağanüstü Yedek", "Statü Yedeği", "Özel Fon"], "cevap": "Yasal Yedekler"}],
+        "Test 4 (Sermaye Artırımı)": [{"soru": "Bedelli sermaye artırımı nedir?", "secenekler": ["Dışarıdan yeni nakit girişi ile", "Yedeklerden", "Kardan", "Fonlardan"], "cevap": "Dışarıdan yeni nakit girişi ile"}],
+        "Test 5 (Tasfiye)": [{"soru": "Tasfiye dönemi ne demektir?", "secenekler": ["Şirketin faaliyetini durdurup kapanma süreci", "Kuruluş süreci", "Kar dağıtımı", "Birleşme"], "cevap": "Şirketin faaliyetini durdurup kapanma süreci"}]
+      },
+      "Maliyet Muhasebesi": {
+        "Test 1 (Gider Çeşitleri 7/A)": [
+          {"soru": "Hammadde gider hesabı?", "secenekler": ["710 DİMM", "720 İşçilik", "730 GÜG", "770 Yönetim"], "cevap": "710 DİMM"},
+          {"soru": "İşçi ücretleri hesabı?", "secenekler": ["720 Direkt İşçilik", "710 DİMM", "730 GÜG", "760 Pazarlama"], "cevap": "720 Direkt İşçilik"},
+          {"soru": "Fabrika kirası hangi hesap?", "secenekler": ["730 Genel Üretim Giderleri", "770 Yönetim", "760 Pazarlama", "780 Finansman"], "cevap": "730 Genel Üretim Giderleri"},
+          {"soru": "Endirekt malzeme nereye yazılır?", "secenekler": ["730 GÜG", "710 DİMM", "150 İlk Madde", "152 Mamul"], "cevap": "730 GÜG"},
+          {"soru": "Finansman giderleri kodu?", "secenekler": ["780", "770", "760", "750"], "cevap": "780"}
+        ],
+        "Test 2 (Stok Hareketleri)": [{"soru": "Üretim tamamlanınca?", "secenekler": ["152 (B) / 151 (A)", "620 (B)", "151 (B)", "153 (B)"], "cevap": "152 (B) / 151 (A)"}],
+        "Test 3 (Maliyet Sistemleri)": [{"soru": "Sipariş maliyet sistemi?", "secenekler": ["Her sipariş için ayrı maliyet", "Dönemlik maliyet", "Evre maliyet", "Standart maliyet"], "cevap": "Her sipariş için ayrı maliyet"}],
+        "Test 4 (Safha Maliyeti)": [{"soru": "Tek tip seri üretimde kullanılan sistem?", "secenekler": ["Safha (Evre) Maliyet", "Sipariş Maliyet", "Değişken Maliyet", "Tam Maliyet"], "cevap": "Safha (Evre) Maliyet"}],
+        "Test 5 (Maliyet Analizi)": [{"soru": "Başa baş noktası nedir?", "secenekler": ["Kar veya zararın olmadığı nokta", "En yüksek kar", "En düşük maliyet", "İflas noktası"], "cevap": "Kar veya zararın olmadığı nokta"}]
+      },
+      "Bilgisayarlı Muhasebe": {
+        "Test 1 (Fiş İşlemleri)": [
+          {"soru": "Kasa çıkışı fişi?", "secenekler": ["Tediye Fişi", "Tahsil Fişi", "Mahsup Fişi", "Açılış Fişi"], "cevap": "Tediye Fişi"},
+          {"soru": "Kasa girişi fişi?", "secenekler": ["Tahsil Fişi", "Tediye Fişi", "Mahsup Fişi", "Kapanış Fişi"], "cevap": "Tahsil Fişi"},
+          {"soru": "Kasasız işlem fişi?", "secenekler": ["Mahsup Fişi", "Tahsil", "Tediye", "Özel"], "cevap": "Mahsup Fişi"},
+          {"soru": "Açılış fişi tarihi?", "secenekler": ["01.01.XXXX", "31.12.XXXX", "Dönem ortası", "Her ay başı"], "cevap": "01.01.XXXX"},
+          {"soru": "Luca Kaydet kısayolu?", "secenekler": ["F2", "F5", "F10", "ESC"], "cevap": "F2"}
+        ],
+        "Test 2 (Raporlama)": [{"soru": "Hesapların borç alacak toplamını gösteren tablo?", "secenekler": ["Mizan", "Bilanço", "Muavin", "Yevmiye"], "cevap": "Mizan"}],
+        "Test 3 (Dönem Sonu)": [{"soru": "Yansıtma fişleri ne zaman yapılır?", "secenekler": ["Geçici vergi dönemleri ve yıl sonu", "Her gün", "Her hafta", "Hiç"], "cevap": "Geçici vergi dönemleri ve yıl sonu"}],
+        "Test 4 (Personel Modülü)": [{"soru": "Ücret tahakkuku fişi?", "secenekler": ["Mahsup Fişi", "Tahsil", "Tediye", "Kapanış"], "cevap": "Mahsup Fişi"}],
+        "Test 5 (E-Defter)": [{"soru": "E-Defter ne zaman gönderilir?", "secenekler": ["Takip eden 3. ayın sonuna kadar", "Her gün", "Yıl sonunda", "Anında"], "cevap": "Takip eden 3. ayın sonuna kadar"}]
+      }
     },
-    "12. Sınıf Muhasebe": {
-      "Test 1 (Girişimcilik ve Finans)": [
-        {"soru": "Girişimcinin iş planı?", "secenekler": ["İş Planı", "Ders Planı", "Bütçe", "Anayasa"], "cevap": "İş Planı"},
-        {"soru": "SWOT analizinde W?", "secenekler": ["Zayıf Yönler", "Zenginlik", "Dünya", "Kazanmak"], "cevap": "Zayıf Yönler"},
-        {"soru": "KOSGEB kime destek verir?", "secenekler": ["KOBİ ve Girişimci", "Holding", "Devlet", "Banka"], "cevap": "KOBİ ve Girişimci"},
-        {"soru": "Likidite oranları neyi ölçer?", "secenekler": ["Kısa vadeli borç ödeme gücünü", "Karlılığı", "Satışı", "Büyümeyi"], "cevap": "Kısa vadeli borç ödeme gücünü"},
-        {"soru": "Bilançoda 'Varlıklar' neye eşittir?", "secenekler": ["Kaynaklar", "Gelirler", "Giderler", "Karlılık"], "cevap": "Kaynaklar"}
-      ]
+    "12. Sınıf": {
+      "Finansal Okuryazarlık": {
+        "Test 1 (Bütçe)": [
+          {"soru": "Gelir - Gider neyi verir?", "secenekler": ["Tasarruf (veya Açık)", "Ciro", "Kar", "Maliyet"], "cevap": "Tasarruf (veya Açık)"},
+          {"soru": "Hangisi bir gider kalemidir?", "secenekler": ["Kira Ödemesi", "Maaş", "Faiz Geliri", "Prim"], "cevap": "Kira Ödemesi"},
+          {"soru": "İstek ve ihtiyaç farkı?", "secenekler": ["İhtiyaç zorunlu, istek keyfidir", "Fark yoktur", "İstek daha önemlidir", "İhtiyaç ertelenebilir"], "cevap": "İhtiyaç zorunlu, istek keyfidir"},
+          {"soru": "Bütçe nedir?", "secenekler": ["Gelecek dönem gelir gider planı", "Geçmişin özeti", "Banka hesabı", "Borç listesi"], "cevap": "Gelecek dönem gelir gider planı"},
+          {"soru": "Acil durum fonu ne için?", "secenekler": ["Beklenmedik harcamalar için", "Tatil için", "Araba almak için", "Yatırım için"], "cevap": "Beklenmedik harcamalar için"}
+        ],
+        "Test 2 (Yatırım)": [{"soru": "Risk ve getiri ilişkisi?", "secenekler": ["Risk artarsa beklenen getiri artar", "Ters orantılıdır", "İlişki yoktur", "Risk iyidir"], "cevap": "Risk artarsa beklenen getiri artar"}],
+        "Test 3 (Bankacılık Ürünleri)": [{"soru": "Kredi kartı asgari ödeme?", "secenekler": ["Ödenmesi zorunlu minimum tutar", "Tamamı", "Faiz", "Yıllık ücret"], "cevap": "Ödenmesi zorunlu minimum tutar"}],
+        "Test 4 (Kredi Notu)": [{"soru": "Kredi notunu ne düşürür?", "secenekler": ["Gecikmiş ödemeler", "Yüksek gelir", "Düzenli ödeme", "Tasarruf"], "cevap": "Gecikmiş ödemeler"}],
+        "Test 5 (Sigorta)": [{"soru": "BES nedir?", "secenekler": ["Bireysel Emeklilik Sistemi", "Banka Emeklilik", "Borç Sistemi", "Borsa"], "cevap": "Bireysel Emeklilik Sistemi"}]
+      },
+      "Bankacılık ve Banka Muhasebesi": {
+        "Test 1 (Banka Tanımı)": [
+          {"soru": "Para basma yetkisi kimde?", "secenekler": ["TCMB (Merkez Bankası)", "Ziraat Bankası", "Hazine", "Cumhurbaşkanı"], "cevap": "TCMB (Merkez Bankası)"},
+          {"soru": "Mevduat nedir?", "secenekler": ["Bankaya yatırılan para", "Çekilen kredi", "Senet", "Faiz"], "cevap": "Bankaya yatırılan para"},
+          {"soru": "Katılım bankası özelliği?", "secenekler": ["Faizsiz bankacılık", "Yüksek faiz", "Sadece döviz", "Devlet bankası"], "cevap": "Faizsiz bankacılık"},
+          {"soru": "Dekont nedir?", "secenekler": ["Banka işlem belgesi", "Fatura", "Çek", "Senet"], "cevap": "Banka işlem belgesi"},
+          {"soru": "IBAN kaç haneli?", "secenekler": ["26", "24", "16", "11"], "cevap": "26"}
+        ],
+        "Test 2 (Para Transferleri)": [{"soru": "Farklı bankalar arası transfer?", "secenekler": ["EFT / FAST", "Havale", "Virman", "Swift"], "cevap": "EFT / FAST"}],
+        "Test 3 (Krediler)": [{"soru": "İhtiyaç kredisi vadesi?", "secenekler": ["Maksimum 36 ay (Genelde)", "10 yıl", "1 ay", "Sınırsız"], "cevap": "Maksimum 36 ay (Genelde)"}],
+        "Test 4 (Banka Muhasebesi)": [{"soru": "Mevduat banka için nedir?", "secenekler": ["Borçtur (Pasif)", "Varlıktır", "Gelirdir", "Giderdir"], "cevap": "Borçtur (Pasif)"}],
+        "Test 5 (Kambiyo)": [{"soru": "Döviz alış kuru?", "secenekler": ["Bankanın döviz aldığı fiyat", "Sattığı fiyat", "Merkez bankası kuru", "Borsa fiyatı"], "cevap": "Bankanın döviz aldığı fiyat"}]
+      }
     }
   },
   "DENEME_SINAVLARI": {
     "10. Sınıf Muhasebe": {
-      "Deneme Sınavı 1 (Genel Muhasebe - 50 Soru)": [
-        {"soru": "Aşağıdakilerden hangisi işletmenin temel amaçlarından biri değildir?", "secenekler": ["Kamuyu aydınlatmak", "Kar elde etmek", "Topluma hizmet", "Süreklilik"], "cevap": "Kamuyu aydınlatmak"},
+      "Deneme 1 (Genel Muhasebe - 50 Soru)": [
         {"soru": "İşletmenin sahip olduğu varlıkların, işletme sahiplerinden ayrı olduğunu ifade eden kavram?", "secenekler": ["Kişilik", "Süreklilik", "Dönemsellik", "Maliyet Esası"], "cevap": "Kişilik"},
         {"soru": "Bilanço nedir?", "secenekler": ["İşletmenin belli bir tarihteki mali durum tablosu", "Kar zarar tablosu", "Nakit akış tablosu", "Maliyet tablosu"], "cevap": "İşletmenin belli bir tarihteki mali durum tablosu"},
-        {"soru": "100 Kasa hesabı nasıl çalışır?", "secenekler": ["Girişler borç, çıkışlar alacak", "Girişler alacak, çıkışlar borç", "Sadece borç", "Sadece alacak"], "cevap": "Girişler borç, çıkışlar alacak"},
-        {"soru": "Hangi hesap bir 'Borç' (Kaynak) hesabıdır?", "secenekler": ["320 Satıcılar", "120 Alıcılar", "100 Kasa", "153 Ticari Mallar"], "cevap": "320 Satıcılar"},
-        {"soru": "Çek üzerindeki vadeye ne denir?", "secenekler": ["Çekte vade olmaz, görüldüğünde ödenir", "Vade tarihi", "Düzenleme tarihi", "Ödeme günü"], "cevap": "Çekte vade olmaz, görüldüğünde ödenir"},
-        {"soru": "Senetsiz alacaklar hangi hesapta izlenir?", "secenekler": ["120 Alıcılar", "121 Alacak Senetleri", "320 Satıcılar", "100 Kasa"], "cevap": "120 Alıcılar"},
-        {"soru": "Veresiye mal alış kaydında alacaklı hesap?", "secenekler": ["320 Satıcılar", "120 Alıcılar", "100 Kasa", "600 Satışlar"], "cevap": "320 Satıcılar"},
-        {"soru": "KDV oranı %10 ise, 100 TL'nin KDV'si kaçtır?", "secenekler": ["10 TL", "20 TL", "18 TL", "1 TL"], "cevap": "10 TL"},
-        {"soru": "Ana faaliyet konusu malların izlendiği hesap?", "secenekler": ["153 Ticari Mallar", "150 İlk Madde", "255 Demirbaş", "770 Gider"], "cevap": "153 Ticari Mallar"},
-        {"soru": "Satılan malın iadesi hangi hesaba yazılır?", "secenekler": ["610 Satıştan İadeler", "600 Satışlar", "153 Ticari Mallar", "391 KDV"], "cevap": "610 Satıştan İadeler"},
-        {"soru": "Kasa noksanı geçici olarak nereye yazılır?", "secenekler": ["197 Sayım Noksanları", "397 Sayım Fazlaları", "689 Gider", "100 Kasa"], "cevap": "197 Sayım Noksanları"},
-        {"soru": "102 Bankalar hesabı ne bakiyesi verir?", "secenekler": ["Borç", "Alacak", "Bakiye vermez", "Eksi"], "cevap": "Borç"},
-        {"soru": "Alınan çek tahsil edilince?", "secenekler": ["100 Kasa (B) / 101 Çekler (A)", "101 Çekler (B) / 100 Kasa (A)", "102 (B) / 100 (A)", "100 (B) / 120 (A)"], "cevap": "100 Kasa (B) / 101 Çekler (A)"},
-        {"soru": "Demirbaş satış karı hesabı?", "secenekler": ["679 Diğer Olağandışı Gelir", "600 Satışlar", "649 Diğer Gelir", "500 Sermaye"], "cevap": "679 Diğer Olağandışı Gelir"},
-        {"soru": "Amortisman nedir?", "secenekler": ["Duran varlık yıpranma payı", "Değer artışı", "Vergi", "Borç"], "cevap": "Duran varlık yıpranma payı"},
-        {"soru": "Sermaye hesabı kodu?", "secenekler": ["500", "100", "600", "320"], "cevap": "500"},
-        {"soru": "Yevmiye defteri sayfa toplamı neye eşit olmalı?", "secenekler": ["Borç = Alacak", "Aktif = Pasif", "Gelir = Gider", "Kasa = Banka"], "cevap": "Borç = Alacak"},
-        {"soru": "Mizan nedir?", "secenekler": ["Hesapların kontrol çizelgesi", "Kar tablosu", "Bilanço", "Fatura"], "cevap": "Hesapların kontrol çizelgesi"},
-        {"soru": "Envanter ne zaman yapılır?", "secenekler": ["Dönem sonlarında", "Her gün", "Her saat", "Hiç"], "cevap": "Dönem sonlarında"}
+        {"soru": "Seçilen yöntemlerin dönemden döneme değişmemesi?", "secenekler": ["Tutarlılık", "İhtiyatlılık", "Özün Önceliği", "Tam Açıklama"], "cevap": "Tutarlılık"},
+        {"soru": "Riskler için karşılık ayrılması hangi kavram?", "secenekler": ["İhtiyatlılık", "Tutarlılık", "Maliyet Esası", "Kişilik"], "cevap": "İhtiyatlılık"},
+        {"soru": "Kasada yabancı para değerlemesi olumlu fark?", "secenekler": ["646 Kambiyo Karı", "656 Kambiyo Zararı", "600 Satış", "642 Faiz"], "cevap": "646 Kambiyo Karı"}
       ]
     },
     "11. Sınıf Muhasebe": {
-      "Deneme Sınavı 1 (Genel ve Maliyet - 50 Soru)": [
-        {"soru": "İşletmenin sahip olduğu varlıkların, işletme sahiplerinden, ortaklardan ve personelden ayrı bir varlık olduğunu ifade eden temel kavram hangisidir?", "secenekler": ["Kişilik", "İşletmenin Sürekliliği", "Sosyal Sorumluluk", "Dönemsellik"], "cevap": "Kişilik"},
-        {"soru": "İşletmenin sonsuz bir ömre sahip olduğu varsayımına dayanan ve tasfiye değerine değil maliyet bedeline göre değerlemeyi esas alan kavram hangisidir?", "secenekler": ["İşletmenin Sürekliliği", "Tutarlılık", "Tam Açıklama", "Önemlilik"], "cevap": "İşletmenin Sürekliliği"},
-        {"soru": "Muhasebe uygulamalarında seçilen politika ve yöntemlerin dönemden döneme değiştirilmemesi gerektiğini ifade eden kavram hangisidir?", "secenekler": ["Tutarlılık", "İhtiyatlılık", "Özün Önceliği", "Maliyet Esası"], "cevap": "Tutarlılık"},
-        {"soru": "Bir işlemin muhasebeye yansıtılmasında biçimden çok finansal karakterinin ve gerçek mahiyetinin esas alınması gerektiğini belirten kavram hangisidir?", "secenekler": ["Özün Önceliği", "Tam Açıklama", "Sosyal Sorumluluk", "Parayla Ölçme"], "cevap": "Özün Önceliği"},
-        {"soru": "İşletmenin muhtemel risklere karşı karşılık ayırmasını gerektiren temel kavram hangisidir?", "secenekler": ["İhtiyatlılık", "Maliyet Esası", "Tarafsızlık", "Belgelendirme"], "cevap": "İhtiyatlılık"},
-        {"soru": "Mali tabloların, bu tablolardan yararlanacak kişi ve kuruluşların doğru karar vermelerine yardımcı olacak kadar açık ve anlaşılır olmasını ifade eden kavram hangisidir?", "secenekler": ["Tam Açıklama", "Dönemsellik", "Tutarlılık", "Verilerin Güvenilirliği"], "cevap": "Tam Açıklama"},
-        {"soru": "Kasada bulunan yabancı paraların değerlemesi sonucunda oluşan olumlu kur farkları (kar) hangi hesaba kaydedilir?", "secenekler": ["646 Kambiyo Karları", "656 Kambiyo Zararları", "600 Yurt İçi Satışlar", "642 Faiz Gelirleri"], "cevap": "646 Kambiyo Karları"},
-        {"soru": "İşletme bankadaki hesabından 5.000 TL nakit çekmiştir. Bu işlem için yapılacak kayıtta borçlu hesap hangisidir?", "secenekler": ["100 Kasa", "102 Bankalar", "103 Verilen Çekler", "120 Alıcılar"], "cevap": "100 Kasa"},
-        {"soru": "Müşteriden alınan çeklerin takip edildiği hesap hangisidir?", "secenekler": ["101 Alınan Çekler", "103 Verilen Çekler ve Ödeme Emirleri (-)", "121 Alacak Senetleri", "100 Kasa"], "cevap": "101 Alınan Çekler"},
-        {"soru": "İşletme kendi banka hesabından ödenmek üzere satıcıya bir çek düzenleyip verdiğinde hangi hesap alacaklandırılır?", "secenekler": ["103 Verilen Çekler ve Ödeme Emirleri (-)", "101 Alınan Çekler", "102 Bankalar", "321 Borç Senetleri"], "cevap": "103 Verilen Çekler ve Ödeme Emirleri (-)"},
-        {"soru": "Bankadaki vadeli veya vadesiz mevduat hesaplarına para yatırıldığında '102 Bankalar' hesabı nasıl çalışır?", "secenekler": ["Borçlandırılır", "Alacaklandırılır", "Değişmez", "Kapatılır"], "cevap": "Borçlandırılır"},
-        {"soru": "İşletmenin elindeki hisse senetlerini, satın alma değerinden daha düşük bir fiyata satması durumunda oluşan zarar hangi hesaba kaydedilir?", "secenekler": ["655 Menkul Kıymet Satış Zararları", "645 Menkul Kıymet Satış Karları", "659 Diğer Olağan Gider ve Zararlar", "770 Genel Yönetim Giderleri"], "cevap": "655 Menkul Kıymet Satış Zararları"},
-        {"soru": "Kredili (veresiye) mal satışından doğan senetsiz alacaklar hangi hesapta izlenir?", "secenekler": ["120 Alıcılar", "121 Alacak Senetleri", "136 Diğer Çeşitli Alacaklar", "320 Satıcılar"], "cevap": "120 Alıcılar"},
-        {"soru": "Alacak senetleri için ayrılan reeskont tutarı, dönem sonunda hangi hesaba gider olarak kaydedilir?", "secenekler": ["657 Reeskont Faiz Giderleri", "647 Reeskont Faiz Gelirleri", "780 Finansman Giderleri", "659 Diğer Olağan Gider ve Zararlar"], "cevap": "657 Reeskont Faiz Giderleri"},
-        {"soru": "İşletme, şüpheli hale gelen bir alacağı için karşılık ayırdığında borçlandırılacak gider hesabı hangisidir?", "secenekler": ["654 Karşılık Giderleri", "129 Şüpheli Ticari Alacaklar Karşılığı (-)", "689 Diğer Olağandışı Gider ve Zararlar", "770 Genel Yönetim Giderleri"], "cevap": "654 Karşılık Giderleri"},
-        {"soru": "Değeri düşen stoklar için ayrılan karşılıklar bilançoda hangi hesapta negatif (düzenleyici) olarak yer alır?", "secenekler": ["158 Stok Değer Düşüklüğü Karşılığı (-)", "153 Ticari Mallar", "654 Karşılık Giderleri", "157 Diğer Stoklar"], "cevap": "158 Stok Değer Düşüklüğü Karşılığı (-)"},
-        {"soru": "İşletmenin satmak amacıyla aldığı ticari malların izlendiği hesap hangisidir?", "secenekler": ["153 Ticari Mallar", "150 İlk Madde ve Malzeme", "152 Mamuller", "151 Yarı Mamuller"], "cevap": "153 Ticari Mallar"},
-        {"soru": "Satın alınan malın maliyetine, malın satın alma bedeli dışında hangi harcamalar eklenir?", "secenekler": ["Nakliye ve Sigorta Giderleri", "Genel Yönetim Giderleri", "Pazarlama Giderleri", "Finansman Giderleri"], "cevap": "Nakliye ve Sigorta Giderleri"},
-        {"soru": "Üretim işletmelerinde, üretim sürecinde kullanılan hammadde ve malzemeler hangi hesaba kaydedilir?", "secenekler": ["150 İlk Madde ve Malzeme", "153 Ticari Mallar", "152 Mamuller", "710 Direkt İlk Madde ve Malzeme Giderleri"], "cevap": "150 İlk Madde ve Malzeme"},
-        {"soru": "Dönem içinde '191 İndirilecek KDV' hesabı, '391 Hesaplanan KDV' hesabından büyükse aradaki fark bir sonraki döneme ne olarak devreder?", "secenekler": ["190 Devreden KDV", "360 Ödenecek Vergi ve Fonlar", "100 Kasa", "689 Diğer Olağandışı Gider ve Zararlar"], "cevap": "190 Devreden KDV"},
-        {"soru": "İşletme personeline işletme adına yapacağı masraflar için önceden verilen paralar hangi hesapta izlenir?", "secenekler": ["196 Personel Avansları", "195 İş Avansları", "135 Personelden Alacaklar", "770 Genel Yönetim Giderleri"], "cevap": "195 İş Avansları"},
-        {"soru": "Bir yıldan uzun sürede paraya çevrilmesi düşünülen varlıklar bilançonun hangi grubunda yer alır?", "secenekler": ["2- Duran Varlıklar", "1- Dönen Varlıklar", "3- Kısa Vadeli Yabancı Kaynaklar", "5- Öz Kaynaklar"], "cevap": "2- Duran Varlıklar"},
-        {"soru": "Yıpranmaya tabi olmayan ve bu nedenle amortisman ayrılmayan maddi duran varlık hangisidir?", "secenekler": ["250 Arazi ve Arsalar", "252 Binalar", "254 Taşıtlar", "255 Demirbaşlar"], "cevap": "250 Arazi ve Arsalar"},
-        {"soru": "Maddi duran varlıkların ekonomik ömrü boyunca değerinde meydana gelen azalma ne olarak adlandırılır?", "secenekler": ["Amortisman", "Reeskont", "Tükenme Payı", "Değer Düşüklüğü"], "cevap": "Amortisman"},
-        {"soru": "Maddi duran varlık satışı sonucunda elde edilen kar hangi hesaba kaydedilir?", "secenekler": ["679 Diğer Olağandışı Gelir ve Karlar", "649 Diğer Olağan Gelir ve Karlar", "600 Yurt İçi Satışlar", "689 Diğer Olağandışı Gider ve Zararlar"], "cevap": "679 Diğer Olağandışı Gelir ve Karlar"},
-        {"soru": "İşletmenin patent, lisans, marka gibi fiziksel varlığı olmayan hakları hangi hesap grubunda izlenir?", "secenekler": ["26- Maddi Olmayan Duran Varlıklar", "25- Maddi Duran Varlıklar", "24- Mali Duran Varlıklar", "29- Diğer Duran Varlıklar"], "cevap": "26- Maddi Olmayan Duran Varlıklar"},
-        {"soru": "Kuruluş ve örgütlenme giderleri aktifleştirildiğinde hangi hesapta izlenir?", "secenekler": ["262 Kuruluş ve Örgütlenme Giderleri", "770 Genel Yönetim Giderleri", "260 Haklar", "180 Gelecek Aylara Ait Giderler"], "cevap": "262 Kuruluş ve Örgütlenme Giderleri"},
-        {"soru": "Bankadan çekilen kredilerin vadesi 1 yılın altındaysa hangi hesap kullanılır?", "secenekler": ["300 Banka Kredileri", "400 Banka Kredileri", "303 Uzun Vadeli Kredilerin Anapara Taksitleri", "102 Bankalar"], "cevap": "300 Banka Kredileri"},
-        {"soru": "Satıcılara olan senetsiz borçlar hangi hesapta takip edilir?", "secenekler": ["320 Satıcılar", "321 Borç Senetleri", "329 Diğer Ticari Borçlar", "336 Diğer Çeşitli Borçlar"], "cevap": "320 Satıcılar"},
-        {"soru": "İşletmenin ticari faaliyeti dışındaki işlemlerden doğan senetsiz borçları hangi hesapta izlenir?", "secenekler": ["336 Diğer Çeşitli Borçlar", "320 Satıcılar", "321 Borç Senetleri", "300 Banka Kredileri"], "cevap": "336 Diğer Çeşitli Borçlar"},
-        {"soru": "Dönem sonunda ödenecek vergi borçlarının izlendiği hesap hangisidir?", "secenekler": ["360 Ödenecek Vergi ve Fonlar", "361 Ödenecek Sosyal Güvenlik Kesintileri", "193 Peşin Ödenen Vergiler", "370 Dönem Karı Vergi Yükümlülüğü"], "cevap": "360 Ödenecek Vergi ve Fonlar"},
-        {"soru": "Personele ödenmemiş ücret borçları hangi hesapta yer alır?", "secenekler": ["335 Personele Borçlar", "196 Personel Avansları", "361 Ödenecek Sosyal Güvenlik Kesintileri", "381 Gider Tahakkukları"], "cevap": "335 Personele Borçlar"},
-        {"soru": "Gelecek dönemlere (bir sonraki yıla) ait peşin tahsil edilen gelirler, bilançoda hangi hesapta pasifleştirilir?", "secenekler": ["380 Gelecek Aylara Ait Gelirler", "480 Gelecek Yıllara Ait Gelirler", "600 Yurt İçi Satışlar", "649 Diğer Olağan Gelir ve Karlar"], "cevap": "380 Gelecek Aylara Ait Gelirler"},
-        {"soru": "Mal alımı sırasında satıcıya verilen sipariş avansları hangi hesapta izlenir?", "secenekler": ["159 Verilen Sipariş Avansları", "340 Alınan Sipariş Avansları", "195 İş Avansları", "320 Satıcılar"], "cevap": "159 Verilen Sipariş Avansları"},
-        {"soru": "Müşterilerden mal siparişi için alınan avanslar işletme için ne ifade eder?", "secenekler": ["Bir Borçtur (340 Alınan Sipariş Avansları)", "Bir Alacaktır (159 Verilen Sipariş Avansları)", "Bir Gelirdir (600 Yurt İçi Satışlar)", "Bir Giderdir"], "cevap": "Bir Borçtur (340 Alınan Sipariş Avansları)"},
-        {"soru": "KDV hariç 10.000 TL'lik mal %10 karla satılmıştır. KDV %20'dir. Alacaklanacak '600 Yurt İçi Satışlar' hesabı ne kadar olmalıdır?", "secenekler": ["11.000 TL", "10.000 TL", "13.200 TL", "12.000 TL"], "cevap": "11.000 TL"},
-        {"soru": "İşletme 20.000 TL sermaye ile kurulmuştur. Sermaye taahhüdü kaydında '500 Sermaye' hesabı nasıl çalışır?", "secenekler": ["Alacaklandırılır", "Borçlandırılır", "Değişmez", "Kapatılır"], "cevap": "Alacaklandırılır"},
-        {"soru": "Dönem net karı, bilançoda hangi hesap grubunda yer alır?", "secenekler": ["590 Dönem Net Karı (Öz Kaynaklar)", "690 Dönem Karı veya Zararı (Gelir Tablosu)", "600 Yurt İçi Satışlar", "570 Geçmiş Yıllar Karları"], "cevap": "590 Dönem Net Karı (Öz Kaynaklar)"},
-        {"soru": "Aşağıdakilerden hangisi bir gelir tablosu hesabıdır?", "secenekler": ["600 Yurt İçi Satışlar", "100 Kasa", "320 Satıcılar", "500 Sermaye"], "cevap": "600 Yurt İçi Satışlar"},
-        {"soru": "Satılan malların iade alınması durumunda kullanılan düzenleyici hesap hangisidir?", "secenekler": ["610 Satıştan İadeler (-)", "600 Yurt İçi Satışlar", "153 Ticari Mallar", "621 Satılan Ticari Mallar Maliyeti"], "cevap": "610 Satıştan İadeler (-)"},
-        {"soru": "Satışları artırmak amacıyla yapılan ıskontolar hangi hesapta izlenir?", "secenekler": ["611 Satış Iskontoları (-)", "760 Pazarlama Satış Dağıtım Giderleri", "653 Komisyon Giderleri", "612 Diğer İndirimler"], "cevap": "611 Satış Iskontoları (-)"},
-        {"soru": "Faaliyet dönemi sonunda 600, 601, 602 gibi gelir hesapları hangi hesaba devredilerek kapatılır?", "secenekler": ["690 Dönem Karı veya Zararı", "590 Dönem Net Karı", "621 Satılan Ticari Mallar Maliyeti", "649 Diğer Olağan Gelir ve Karlar"], "cevap": "690 Dönem Karı veya Zararı"},
-        {"soru": "Yönetim faaliyetleri ile ilgili kırtasiye, ısınma, aydınlatma giderleri hangi gider hesabında izlenir?", "secenekler": ["770 Genel Yönetim Giderleri", "760 Pazarlama Satış Dağıtım Giderleri", "780 Finansman Giderleri", "750 Araştırma Geliştirme Giderleri"], "cevap": "770 Genel Yönetim Giderleri"},
-        {"soru": "Kısa vadeli borçlanma için bankaya ödenen faizler hangi gider hesabına kaydedilir?", "secenekler": ["780 Finansman Giderleri", "770 Genel Yönetim Giderleri", "642 Faiz Gelirleri", "659 Diğer Olağan Gider ve Zararlar"], "cevap": "780 Finansman Giderleri"},
-        {"soru": "Satılan ticari malların maliyet kaydı yapılırken borçlandırılacak hesap hangisidir?", "secenekler": ["621 Satılan Ticari Mallar Maliyeti", "153 Ticari Mallar", "600 Yurt İçi Satışlar", "391 Hesaplanan KDV"], "cevap": "621 Satılan Ticari Mallar Maliyeti"},
-        {"soru": "Tek Düzen Hesap Planında '7' ile başlayan hesaplar hangi gruba aittir?", "secenekler": ["Maliyet Hesapları", "Gelir Tablosu Hesapları", "Bilanço Hesapları", "Nazım Hesaplar"], "cevap": "Maliyet Hesapları"},
-        {"soru": "Nazım hesaplar (9'lu grup) bilanço toplamını nasıl etkiler?", "secenekler": ["Etkilemez (Bilgi amaçlıdır)", "Artırır", "Azaltır", "Öz kaynakları azaltır"], "cevap": "Etkilemez (Bilgi amaçlıdır)"},
-        {"soru": "Aşağıdakilerden hangisi en likit (paraya en çabuk çevrilebilen) varlıktır?", "secenekler": ["100 Kasa", "102 Bankalar", "121 Alacak Senetleri", "153 Ticari Mallar"], "cevap": "100 Kasa"},
-        {"soru": "İşletmenin borç ödeme gücünü (likiditesini) analiz etmek için kullanılan en temel rasyo hangisidir?", "secenekler": ["Cari Oran", "Kaldıraç Oranı", "Stok Devir Hızı", "Karlılık Oranı"], "cevap": "Cari Oran"},
-        {"soru": "Bilanço eşitliği aşağıdakilerden hangisidir?", "secenekler": ["Varlıklar = Kaynaklar (Yabancı Kaynaklar + Öz Kaynaklar)", "Varlıklar = Gelirler - Giderler", "Dönen Varlıklar = Kısa Vadeli Borçlar", "Aktif = Sermaye"], "cevap": "Varlıklar = Kaynaklar (Yabancı Kaynaklar + Öz Kaynaklar)"}
-      ],
-      "Deneme Sınavı 2 (Şirketler ve Analiz - 50 Soru)": [
-        {"soru": "İşletmenin vadesi bir yılın altına düşen uzun vadeli borçları, dönem sonunda hangi hesaba aktarılır?", "secenekler": ["303 Uzun Vadeli Kredilerin Anapara Taksitleri ve Faizleri", "300 Banka Kredileri", "400 Banka Kredileri", "304 Tahvil Anapara Borç Taksit ve Faizleri"], "cevap": "303 Uzun Vadeli Kredilerin Anapara Taksitleri ve Faizleri"},
-        {"soru": "Çıkarılmış bonolar ve senetler hangi hesap grubunda izlenir?", "secenekler": ["30- Mali Borçlar", "32- Ticari Borçlar", "33- Diğer Borçlar", "36- Ödenecek Vergi ve Diğer Yükümlülükler"], "cevap": "30- Mali Borçlar"},
-        {"soru": "İşletmenin aleyhine açılan davalar sonucunda muhtemel bir borç ödemesi söz konusu olduğunda ayrılan karşılık hangi hesapta izlenir?", "secenekler": ["379 Diğer Borç ve Gider Karşılıkları", "373 Maliyet Giderleri Karşılığı", "654 Karşılık Giderleri", "372 Kıdem Tazminatı Karşılığı"], "cevap": "379 Diğer Borç ve Gider Karşılıkları"},
-        {"soru": "Personelin kıdem tazminatı karşılığı ayrıldığında borçlandırılacak hesap hangisidir?", "secenekler": ["770 Genel Yönetim Giderleri (veya ilgili gider yeri)", "472 Kıdem Tazminatı Karşılığı", "372 Kıdem Tazminatı Karşılığı", "655 Menkul Kıymet Satış Zararları"], "cevap": "770 Genel Yönetim Giderleri (veya ilgili gider yeri)"},
-        {"soru": "Anonim şirketlerde, sermaye artırımı sırasında hisse senetlerinin nominal değerinin üzerinde bir fiyatla satılması sonucu oluşan olumlu fark (Agio) hangi hesapta izlenir?", "secenekler": ["520 Hisse Senedi İhraç Primleri", "500 Sermaye", "649 Diğer Olağan Gelir ve Karlar", "540 Yasal Yedekler"], "cevap": "520 Hisse Senedi İhraç Primleri"},
-        {"soru": "Dönem karından, kanun veya ana sözleşme gereği ayrılan yedekler hangi grupta yer alır?", "secenekler": ["54- Kar Yedekleri", "52- Sermaye Yedekleri", "59- Dönem Net Karı", "57- Geçmiş Yıllar Karları"], "cevap": "54- Kar Yedekleri"},
-        {"soru": "Türk Ticaret Kanunu'na göre ayrılması zorunlu olan 'I. Tertip Yasal Yedek Akçe' hangi hesapta takip edilir?", "secenekler": ["540 Yasal Yedekler", "541 Statü Yedekleri", "542 Olağanüstü Yedekler", "520 Hisse Senedi İhraç Primleri"], "cevap": "540 Yasal Yedekler"},
-        {"soru": "Geçmiş yıllarda ortaya çıkan zararların izlendiği ve öz kaynakları azaltan hesap hangisidir?", "secenekler": ["580 Geçmiş Yıllar Zararları (-)", "591 Dönem Net Zararı (-)", "689 Diğer Olağandışı Gider ve Zararlar", "190 Devreden KDV"], "cevap": "580 Geçmiş Yıllar Zararları (-)"},
-        {"soru": "Gelir tablosunda 'Brüt Satış Karı' nasıl hesaplanır?", "secenekler": ["Net Satışlar - Satışların Maliyeti", "Brüt Satışlar - Satış İndirimleri", "Faaliyet Karı + Diğer Gelirler", "Dönem Karı - Vergi"], "cevap": "Net Satışlar - Satışların Maliyeti"},
-        {"soru": "Gelir tablosunda 'Net Satışlar' kalemine ulaşmak için Brüt Satışlardan hangileri düşülür?", "secenekler": ["Satıştan İadeler, Satış Iskontoları, Diğer İndirimler", "Satılan Mamul Maliyeti, Satılan Ticari Mal Maliyeti", "Faaliyet Giderleri", "Finansman Giderleri"], "cevap": "Satıştan İadeler, Satış Iskontoları, Diğer İndirimler"},
-        {"soru": "Bir işletmenin esas faaliyetinden (örneğin mobilya üretimi) elde ettiği kar ile faiz gelirleri arasındaki fark nedir?", "secenekler": ["Biri Faaliyet Karıdır, diğeri Olağan Kar'dır", "İkisi de Brüt Satış Karıdır", "İkisi de Olağandışı Kardır", "Fark yoktur"], "cevap": "Biri Faaliyet Karıdır, diğeri Olağan Kar'dır"},
-        {"soru": "Gelir tablosu hesapları (6'lı grup) dönem sonunda hangi hesap aracılığıyla kapatılır?", "secenekler": ["690 Dönem Karı veya Zararı", "590 Dönem Net Karı", "500 Sermaye", "600 Yurt İçi Satışlar"], "cevap": "690 Dönem Karı veya Zararı"},
-        {"soru": "Dönem sonunda 690 Dönem Karı veya Zararı hesabı alacak bakiyesi veriyorsa bu neyi ifade eder?", "secenekler": ["Dönem Karını", "Dönem Zararını", "Brüt Satış Karını", "Faaliyet Giderlerini"], "cevap": "Dönem Karını"},
-        {"soru": "690 Dönem Karı veya Zararı hesabı vergi karşılığı düşüldükten sonra hangi bilanço hesabına devredilir?", "secenekler": ["590 Dönem Net Karı", "591 Dönem Net Zararı", "570 Geçmiş Yıllar Karları", "500 Sermaye"], "cevap": "590 Dönem Net Karı"},
-        {"soru": "7/A seçeneğinde giderler neye göre sınıflandırılır?", "secenekler": ["Fonksiyonlarına Göre (Üretim, Yönetim, Pazarlama vb.)", "Çeşitlerine Göre (Madde, İşçilik, Amortisman vb.)", "Tutarlarına Göre", "Ödeme Şekline Göre"], "cevap": "Fonksiyonlarına Göre (Üretim, Yönetim, Pazarlama vb.)"},
-        {"soru": "7/B seçeneğinde giderler neye göre sınıflandırılır?", "secenekler": ["Çeşitlerine Göre (İlk Madde, İşçi Ücreti, Memur Ücreti vb.)", "Fonksiyonlarına Göre", "Departmanlara Göre", "Ürünlere Göre"], "cevap": "Çeşitlerine Göre (İlk Madde, İşçi Ücreti, Memur Ücreti vb.)"},
-        {"soru": "Üretim işletmesinde mamulün bünyesine doğrudan giren ve temel yapısını oluşturan maddeler hangi gider hesabında izlenir?", "secenekler": ["710 Direkt İlk Madde ve Malzeme Giderleri", "720 Direkt İşçilik Giderleri", "730 Genel Üretim Giderleri", "150 İlk Madde ve Malzeme"], "cevap": "710 Direkt İlk Madde ve Malzeme Giderleri"},
-        {"soru": "Üretimle ilgili olup mamul maliyetine doğrudan yüklenemeyen (kira, elektrik, temizlik vb.) giderler hangi hesapta toplanır?", "secenekler": ["730 Genel Üretim Giderleri", "720 Direkt İşçilik Giderleri", "770 Genel Yönetim Giderleri", "760 Pazarlama Satış Dağıtım Giderleri"], "cevap": "730 Genel Üretim Giderleri"},
-        {"soru": "Dönem sonunda 710, 720 ve 730 nolu maliyet hesapları, yansıtma hesapları (711, 721, 731) aracılığıyla hangi hesaba aktarılır?", "secenekler": ["151 Yarı Mamuller Üretim", "152 Mamuller", "620 Satılan Mamuller Maliyeti", "690 Dönem Karı veya Zararı"], "cevap": "151 Yarı Mamuller Üretim"},
-        {"soru": "Tamamlanan mamuller, yarı mamul hesabından çıkarılıp hangi hesaba alınır?", "secenekler": ["152 Mamuller", "153 Ticari Mallar", "620 Satılan Mamuller Maliyeti", "600 Yurt İçi Satışlar"], "cevap": "152 Mamuller"},
-        {"soru": "Hangi rasyo işletmenin kısa vadeli borçlarını ödeme gücünü en hassas şekilde ölçer (stokları dikkate almaz)?", "secenekler": ["Asit-Test (Likidite) Oranı", "Cari Oran", "Kaldıraç Oranı", "Nakit Oran"], "cevap": "Asit-Test (Likidite) Oranı"},
-        {"soru": "Toplam Borçlar / Toplam Varlıklar oranı neyi ifade eder?", "secenekler": ["Kaldıraç Oranı (Varlıkların ne kadarının yabancı kaynakla finanse edildiği)", "Cari Oran", "Karlılık Oranı", "Devir Hızı"], "cevap": "Kaldıraç Oranı (Varlıkların ne kadarının yabancı kaynakla finanse edildiği)"},
-        {"soru": "Stok Devir Hızı oranının yüksek olması işletme için ne anlama gelir?", "secenekler": ["Stokların hızlı satıldığı ve paraya çevrildiği", "Stokların elde kaldığı", "Satışların düşük olduğu", "Aşırı stok yatırımı yapıldığı"], "cevap": "Stokların hızlı satıldığı ve paraya çevrildiği"},
-        {"soru": "Net İşletme Sermayesi nasıl hesaplanır?", "secenekler": ["Dönen Varlıklar - Kısa Vadeli Yabancı Kaynaklar", "Duran Varlıklar - Uzun Vadeli Kaynaklar", "Toplam Varlıklar - Toplam Borçlar", "Hazır Değerler - Kısa Vadeli Borçlar"], "cevap": "Dönen Varlıklar - Kısa Vadeli Yabancı Kaynaklar"},
-        {"soru": "Aşağıdakilerden hangisi Finansal Tablolar Analizi yöntemlerinden biri değildir?", "secenekler": ["Çift Kayıt Yöntemi", "Karşılaştırmalı Tablolar Analizi", "Yüzde Yöntemi ile Analiz", "Eğilim Yüzdeleri (Trend) Analizi"], "cevap": "Çift Kayıt Yöntemi"},
-        {"soru": "Satıcı 'X' firmasına olan 10.000 TL borç için %10 gecikme faizi tahakkuk ettirilmiştir. Faiz gideri hangi hesaba yazılır?", "secenekler": ["780 Finansman Giderleri", "642 Faiz Gelirleri", "659 Diğer Olağan Gider ve Zararlar", "770 Genel Yönetim Giderleri"], "cevap": "780 Finansman Giderleri"},
-        {"soru": "Banka kredisinin anapara geri ödemesi yapıldığında hangi hesap borçlandırılır?", "secenekler": ["300 Banka Kredileri", "780 Finansman Giderleri", "102 Bankalar", "100 Kasa"], "cevap": "300 Banka Kredileri"},
-        {"soru": "İşletme sahip olduğu binayı kiraya vermiş ve kira bedelini peşin tahsil etmiştir. Elde edilen gelir hangi hesaba kaydedilir?", "secenekler": ["649 Diğer Olağan Gelir ve Karlar", "600 Yurt İçi Satışlar", "602 Diğer Gelirler", "679 Diğer Olağandışı Gelir ve Karlar"], "cevap": "649 Diğer Olağan Gelir ve Karlar"},
-        {"soru": "KDV mahsup kaydı yapılırken '191 İndirilecek KDV' hesabı nasıl kapatılır?", "secenekler": ["Alacaklandırılarak", "Borçlandırılarak", "190 Hesabına Devredilerek", "360 Hesabına Aktarılarak"], "cevap": "Alacaklandırılarak"},
-        {"soru": "KDV mahsup kaydı yapılırken '391 Hesaplanan KDV' hesabı nasıl kapatılır?", "secenekler": ["Borçlandırılarak", "Alacaklandırılarak", "190 Hesabına Devredilerek", "360 Hesabına Aktarılarak"], "cevap": "Borçlandırılarak"},
-        {"soru": "İşletmenin kasasında sayım noksanı çıkmış ve nedeni o an bulunamamıştır. Hangi hesap kullanılır?", "secenekler": ["197 Sayım ve Tesellüm Noksanları", "397 Sayım ve Tesellüm Fazlaları", "689 Diğer Olağandışı Gider ve Zararlar", "135 Personelden Alacaklar"], "cevap": "197 Sayım ve Tesellüm Noksanları"},
-        {"soru": "Kasada sayım fazlası çıkmış ve nedeni bulunamamıştır. Hangi hesap kullanılır?", "secenekler": ["397 Sayım ve Tesellüm Fazlaları", "197 Sayım ve Tesellüm Noksanları", "679 Diğer Olağandışı Gelir ve Karlar", "100 Kasa"], "cevap": "397 Sayım ve Tesellüm Fazlaları"},
-        {"soru": "Sayım noksanının nedeni bulunamazsa dönem sonunda bu tutar hangi hesaba gider yazılır?", "secenekler": ["689 Diğer Olağandışı Gider ve Zararlar", "770 Genel Yönetim Giderleri", "659 Diğer Olağan Gider ve Zararlar", "197 Sayım ve Tesellüm Noksanları"], "cevap": "689 Diğer Olağandışı Gider ve Zararlar"},
-        {"soru": "Sayım fazlasının nedeni bulunamazsa dönem sonunda bu tutar hangi hesaba gelir yazılır?", "secenekler": ["679 Diğer Olağandışı Gelir ve Karlar", "649 Diğer Olağan Gelir ve Karlar", "602 Diğer Gelirler", "397 Sayım ve Tesellüm Fazlaları"], "cevap": "679 Diğer Olağandışı Gelir ve Karlar"},
-        {"soru": "Duran varlık satışı karlı ise, KDV matrahı hangi tutar üzerinden hesaplanır?", "secenekler": ["Satış Bedeli", "Kayıtlı Değer", "Net Defter Değeri", "Kar Tutarı"], "cevap": "Satış Bedeli"},
-        {"soru": "Amortisman ayrılma yöntemi olarak 'Azalan Bakiyeler' yöntemi seçilirse, amortisman oranı normal amortisman oranının kaç katıdır?", "secenekler": ["2 Katı (%50'yi geçmemek şartıyla)", "Aynıdır", "Yarısıdır", "3 Katıdır"], "cevap": "2 Katı (%50'yi geçmemek şartıyla)"},
-        {"soru": "Mali Duran Varlıklar grubunda, sermaye payı oranı %10 ile %50 arasında olan yatırımlar hangi hesapta izlenir?", "secenekler": ["242 İştirakler", "240 Bağlı Menkul Kıymetler", "245 Bağlı Ortaklıklar", "110 Hisse Senetleri"], "cevap": "242 İştirakler"},
-        {"soru": "Sermaye payı oranı %50'den fazla olan yatırımlar hangi hesapta izlenir?", "secenekler": ["245 Bağlı Ortaklıklar", "242 İştirakler", "240 Bağlı Menkul Kıymetler", "248 Diğer Mali Duran Varlıklar"], "cevap": "245 Bağlı Ortaklıklar"},
-        {"soru": "Çıkarılmış tahviller bilançoda hangi grupta yer alır?", "secenekler": ["40- Uzun Vadeli Mali Borçlar (405 Çıkarılmış Tahviller)", "30- Kısa Vadeli Mali Borçlar", "50- Ödenmiş Sermaye", "32- Ticari Borçlar"], "cevap": "40- Uzun Vadeli Mali Borçlar (405 Çıkarılmış Tahviller)"},
-        {"soru": "Açılış kaydında aktif hesaplar nasıl çalışır?", "secenekler": ["Borçlu", "Alacaklı", "Bakiye Vermez", "Pasif Hesaba Devredilir"], "cevap": "Borçlu"},
-        {"soru": "Kapanış kaydında pasif hesaplar nasıl kapatılır?", "secenekler": ["Borçlandırılarak", "Alacaklandırılarak", "Gelir Tablosuna Aktarılarak", "Sermayeye Eklenerek"], "cevap": "Borçlandırılarak"},
-        {"soru": "Reeskont işlemi hangi temel kavramın gereğidir?", "secenekler": ["Dönemsellik", "Tutarlılık", "İhtiyatlılık", "Maliyet Esası"], "cevap": "Dönemsellik"},
-        {"soru": "Gelir ve giderlerin tahakkuk esasına göre kaydedilmesi hangi kavramın gereğidir?", "secenekler": ["Dönemsellik", "Tam Açıklama", "Parayla Ölçme", "Kişilik"], "cevap": "Dönemsellik"},
-        {"soru": "Nazım hesaplar bilançonun neresinde gösterilir?", "secenekler": ["Dipnotlarda veya Bilanço toplamından sonra ayrı bir bölümde", "Aktif toplamının içinde", "Pasif toplamının içinde", "Öz kaynakların altında"], "cevap": "Dipnotlarda veya Bilanço toplamından sonra ayrı bir bölümde"},
-        {"soru": "Hangi işlem bilanço toplamını değiştirmez?", "secenekler": ["Bankadan para çekilmesi (Kasa Artar, Banka Azalır)", "Kredili mal alımı", "Peşin sermaye artırımı", "Banka kredisi çekilmesi"], "cevap": "Bankadan para çekilmesi (Kasa Artar, Banka Azalır)"},
-        {"soru": "Bir varlık hesabı borçlanırken, bir kaynak hesabı alacaklanıyorsa bilanço toplamı ne olur?", "secenekler": ["Artar", "Azalır", "Değişmez", "Belirsizdir"], "cevap": "Artar"},
-        {"soru": "610 Satıştan İadeler hesabı gelir tablosunda hangi değeri azaltır?", "secenekler": ["Brüt Satışları", "Net Satışları", "Satışların Maliyetini", "Faaliyet Giderlerini"], "cevap": "Brüt Satışları"},
-        {"soru": "Dönem karından ödenecek vergi ve yasal yükümlülükler karşılığı (691) hesaplandıktan sonra kalan tutar nedir?", "secenekler": ["Dönem Net Karı (692)", "Ticari Kar", "Mali Kar", "Brüt Kar"], "cevap": "Dönem Net Karı (692)"},
-        {"soru": "Tek Düzen Hesap Planında '500 Sermaye' hesabı hangi grubun ana hesabıdır?", "secenekler": ["Ödenmiş Sermaye", "Kar Yedekleri", "Sermaye Yedekleri", "Geçmiş Yıllar Karları"], "cevap": "Ödenmiş Sermaye"},
-        {"soru": "Muhasebe sürecinin en son aşaması nedir?", "secenekler": ["Kapanış Bilançosunun Düzenlenmesi", "Genel Geçici Mizan", "Kesin Mizan", "Envanter İşlemleri"], "cevap": "Kapanış Bilançosunun Düzenlenmesi"}
+      "Deneme 1 (Maliyet ve Şirketler)": [
+        {"soru": "Kısa vadeli banka kredisi?", "secenekler": ["300 Banka Kredileri", "400 Kredi", "303 Taksit", "102 Banka"], "cevap": "300 Banka Kredileri"},
+        {"soru": "Satıcıya senetsiz borç?", "secenekler": ["320 Satıcılar", "321 Senet", "329 Diğer", "336 Diğer"], "cevap": "320 Satıcılar"},
+        {"soru": "Ticari faaliyet dışı senetsiz borç?", "secenekler": ["336 Diğer Çeşitli Borçlar", "320 Satıcı", "321 Senet", "300 Kredi"], "cevap": "336 Diğer Çeşitli Borçlar"},
+        {"soru": "Ödenecek vergi hesabı?", "secenekler": ["360 Ödenecek Vergi Fon", "361 SGK", "193 Peşin", "370 Karşılık"], "cevap": "360 Ödenecek Vergi Fon"},
+        {"soru": "Personele borç?", "secenekler": ["335 Personele Borçlar", "196 Avans", "361 SGK", "381 Tahakkuk"], "cevap": "335 Personele Borçlar"}
       ]
     },
     "12. Sınıf Muhasebe": {
-      "Deneme Sınavı 1 (Girişimcilik ve Finans - 50 Soru)": [
-        {"soru": "Girişimcinin iş planı?", "secenekler": ["İş Planı", "Ders Planı", "Bütçe", "Anayasa"], "cevap": "İş Planı"},
-        {"soru": "SWOT analizinde W?", "secenekler": ["Zayıf Yönler", "Zenginlik", "Dünya", "Kazanmak"], "cevap": "Zayıf Yönler"},
-        {"soru": "KOSGEB kime destek verir?", "secenekler": ["KOBİ ve Girişimci", "Holding", "Devlet", "Banka"], "cevap": "KOBİ ve Girişimci"},
-        {"soru": "Likidite oranları neyi ölçer?", "secenekler": ["Kısa vadeli borç ödeme gücünü", "Karlılığı", "Satışı", "Büyümeyi"], "cevap": "Kısa vadeli borç ödeme gücünü"},
-        {"soru": "Bilançoda 'Varlıklar' neye eşittir?", "secenekler": ["Kaynaklar", "Gelirler", "Giderler", "Karlılık"], "cevap": "Kaynaklar"},
-        {"soru": "İşletmenin vadesi bir yılın altına düşen uzun vadeli borçları, dönem sonunda hangi hesaba aktarılır?", "secenekler": ["303 Uzun Vadeli Kredilerin Anapara Taksitleri ve Faizleri", "300 Banka Kredileri", "400 Banka Kredileri", "304 Tahvil Anapara Borç Taksit ve Faizleri"], "cevap": "303 Uzun Vadeli Kredilerin Anapara Taksitleri ve Faizleri"},
-        {"soru": "Çıkarılmış bonolar ve senetler hangi hesap grubunda izlenir?", "secenekler": ["30- Mali Borçlar", "32- Ticari Borçlar", "33- Diğer Borçlar", "36- Ödenecek Vergi ve Diğer Yükümlülükler"], "cevap": "30- Mali Borçlar"},
-        {"soru": "İşletmenin aleyhine açılan davalar sonucunda muhtemel bir borç ödemesi söz konusu olduğunda ayrılan karşılık hangi hesapta izlenir?", "secenekler": ["379 Diğer Borç ve Gider Karşılıkları", "373 Maliyet Giderleri Karşılığı", "654 Karşılık Giderleri", "372 Kıdem Tazminatı Karşılığı"], "cevap": "379 Diğer Borç ve Gider Karşılıkları"},
-        {"soru": "Personelin kıdem tazminatı karşılığı ayrıldığında borçlandırılacak hesap hangisidir?", "secenekler": ["770 Genel Yönetim Giderleri (veya ilgili gider yeri)", "472 Kıdem Tazminatı Karşılığı", "372 Kıdem Tazminatı Karşılığı", "655 Menkul Kıymet Satış Zararları"], "cevap": "770 Genel Yönetim Giderleri (veya ilgili gider yeri)"},
-        {"soru": "Anonim şirketlerde, sermaye artırımı sırasında hisse senetlerinin nominal değerinin üzerinde bir fiyatla satılması sonucu oluşan olumlu fark (Agio) hangi hesapta izlenir?", "secenekler": ["520 Hisse Senedi İhraç Primleri", "500 Sermaye", "649 Diğer Olağan Gelir ve Karlar", "540 Yasal Yedekler"], "cevap": "520 Hisse Senedi İhraç Primleri"},
-        {"soru": "Dönem karından, kanun veya ana sözleşme gereği ayrılan yedekler hangi grupta yer alır?", "secenekler": ["54- Kar Yedekleri", "52- Sermaye Yedekleri", "59- Dönem Net Karı", "57- Geçmiş Yıllar Karları"], "cevap": "54- Kar Yedekleri"},
-        {"soru": "Türk Ticaret Kanunu'na göre ayrılması zorunlu olan 'I. Tertip Yasal Yedek Akçe' hangi hesapta takip edilir?", "secenekler": ["540 Yasal Yedekler", "541 Statü Yedekleri", "542 Olağanüstü Yedekler", "520 Hisse Senedi İhraç Primleri"], "cevap": "540 Yasal Yedekler"},
-        {"soru": "Geçmiş yıllarda ortaya çıkan zararların izlendiği ve öz kaynakları azaltan hesap hangisidir?", "secenekler": ["580 Geçmiş Yıllar Zararları (-)", "591 Dönem Net Zararı (-)", "689 Diğer Olağandışı Gider ve Zararlar", "190 Devreden KDV"], "cevap": "580 Geçmiş Yıllar Zararları (-)"},
-        {"soru": "Gelir tablosunda 'Brüt Satış Karı' nasıl hesaplanır?", "secenekler": ["Net Satışlar - Satışların Maliyeti", "Brüt Satışlar - Satış İndirimleri", "Faaliyet Karı + Diğer Gelirler", "Dönem Karı - Vergi"], "cevap": "Net Satışlar - Satışların Maliyeti"},
-        {"soru": "Gelir tablosunda 'Net Satışlar' kalemine ulaşmak için Brüt Satışlardan hangileri düşülür?", "secenekler": ["Satıştan İadeler, Satış Iskontoları, Diğer İndirimler", "Satılan Mamul Maliyeti, Satılan Ticari Mal Maliyeti", "Faaliyet Giderleri", "Finansman Giderleri"], "cevap": "Satıştan İadeler, Satış Iskontoları, Diğer İndirimler"},
-        {"soru": "Bir işletmenin esas faaliyetinden (örneğin mobilya üretimi) elde ettiği kar ile faiz gelirleri arasındaki fark nedir?", "secenekler": ["Biri Faaliyet Karıdır, diğeri Olağan Kar'dır", "İkisi de Brüt Satış Karıdır", "İkisi de Olağandışı Kardır", "Fark yoktur"], "cevap": "Biri Faaliyet Karıdır, diğeri Olağan Kar'dır"},
-        {"soru": "Gelir tablosu hesapları (6'lı grup) dönem sonunda hangi hesap aracılığıyla kapatılır?", "secenekler": ["690 Dönem Karı veya Zararı", "590 Dönem Net Karı", "500 Sermaye", "600 Yurt İçi Satışlar"], "cevap": "690 Dönem Karı veya Zararı"},
-        {"soru": "Dönem sonunda 690 Dönem Karı veya Zararı hesabı alacak bakiyesi veriyorsa bu neyi ifade eder?", "secenekler": ["Dönem Karını", "Dönem Zararını", "Brüt Satış Karını", "Faaliyet Giderlerini"], "cevap": "Dönem Karını"},
-        {"soru": "690 Dönem Karı veya Zararı hesabı vergi karşılığı düşüldükten sonra hangi bilanço hesabına devredilir?", "secenekler": ["590 Dönem Net Karı", "591 Dönem Net Zararı", "570 Geçmiş Yıllar Karları", "500 Sermaye"], "cevap": "590 Dönem Net Karı"},
-        {"soru": "7/A seçeneğinde giderler neye göre sınıflandırılır?", "secenekler": ["Fonksiyonlarına Göre (Üretim, Yönetim, Pazarlama vb.)", "Çeşitlerine Göre (Madde, İşçilik, Amortisman vb.)", "Tutarlarına Göre", "Ödeme Şekline Göre"], "cevap": "Fonksiyonlarına Göre (Üretim, Yönetim, Pazarlama vb.)"},
-        {"soru": "7/B seçeneğinde giderler neye göre sınıflandırılır?", "secenekler": ["Çeşitlerine Göre (İlk Madde, İşçi Ücreti, Memur Ücreti vb.)", "Fonksiyonlarına Göre", "Departmanlara Göre", "Ürünlere Göre"], "cevap": "Çeşitlerine Göre (İlk Madde, İşçi Ücreti, Memur Ücreti vb.)"},
-        {"soru": "Üretim işletmesinde mamulün bünyesine doğrudan giren ve temel yapısını oluşturan maddeler hangi gider hesabında izlenir?", "secenekler": ["710 Direkt İlk Madde ve Malzeme Giderleri", "720 Direkt İşçilik Giderleri", "730 Genel Üretim Giderleri", "150 İlk Madde ve Malzeme"], "cevap": "710 Direkt İlk Madde ve Malzeme Giderleri"},
-        {"soru": "Üretimle ilgili olup mamul maliyetine doğrudan yüklenemeyen (kira, elektrik, temizlik vb.) giderler hangi hesapta toplanır?", "secenekler": ["730 Genel Üretim Giderleri", "720 Direkt İşçilik Giderleri", "770 Genel Yönetim Giderleri", "760 Pazarlama Satış Dağıtım Giderleri"], "cevap": "730 Genel Üretim Giderleri"},
-        {"soru": "Dönem sonunda 710, 720 ve 730 nolu maliyet hesapları, yansıtma hesapları (711, 721, 731) aracılığıyla hangi hesaba aktarılır?", "secenekler": ["151 Yarı Mamuller Üretim", "152 Mamuller", "620 Satılan Mamuller Maliyeti", "690 Dönem Karı veya Zararı"], "cevap": "151 Yarı Mamuller Üretim"},
-        {"soru": "Tamamlanan mamuller, yarı mamul hesabından çıkarılıp hangi hesaba alınır?", "secenekler": ["152 Mamuller", "153 Ticari Mallar", "620 Satılan Mamuller Maliyeti", "600 Yurt İçi Satışlar"], "cevap": "152 Mamuller"},
-        {"soru": "Hangi rasyo işletmenin kısa vadeli borçlarını ödeme gücünü en hassas şekilde ölçer (stokları dikkate almaz)?", "secenekler": ["Asit-Test (Likidite) Oranı", "Cari Oran", "Kaldıraç Oranı", "Nakit Oran"], "cevap": "Asit-Test (Likidite) Oranı"},
-        {"soru": "Toplam Borçlar / Toplam Varlıklar oranı neyi ifade eder?", "secenekler": ["Kaldıraç Oranı (Varlıkların ne kadarının yabancı kaynakla finanse edildiği)", "Cari Oran", "Karlılık Oranı", "Devir Hızı"], "cevap": "Kaldıraç Oranı (Varlıkların ne kadarının yabancı kaynakla finanse edildiği)"},
-        {"soru": "Stok Devir Hızı oranının yüksek olması işletme için ne anlama gelir?", "secenekler": ["Stokların hızlı satıldığı ve paraya çevrildiği", "Stokların elde kaldığı", "Satışların düşük olduğu", "Aşırı stok yatırımı yapıldığı"], "cevap": "Stokların hızlı satıldığı ve paraya çevrildiği"},
-        {"soru": "Net İşletme Sermayesi nasıl hesaplanır?", "secenekler": ["Dönen Varlıklar - Kısa Vadeli Yabancı Kaynaklar", "Duran Varlıklar - Uzun Vadeli Kaynaklar", "Toplam Varlıklar - Toplam Borçlar", "Hazır Değerler - Kısa Vadeli Borçlar"], "cevap": "Dönen Varlıklar - Kısa Vadeli Yabancı Kaynaklar"},
-        {"soru": "Aşağıdakilerden hangisi Finansal Tablolar Analizi yöntemlerinden biri değildir?", "secenekler": ["Çift Kayıt Yöntemi", "Karşılaştırmalı Tablolar Analizi", "Yüzde Yöntemi ile Analiz", "Eğilim Yüzdeleri (Trend) Analizi"], "cevap": "Çift Kayıt Yöntemi"},
-        {"soru": "Satıcı 'X' firmasına olan 10.000 TL borç için %10 gecikme faizi tahakkuk ettirilmiştir. Faiz gideri hangi hesaba yazılır?", "secenekler": ["780 Finansman Giderleri", "642 Faiz Gelirleri", "659 Diğer Olağan Gider ve Zararlar", "770 Genel Yönetim Giderleri"], "cevap": "780 Finansman Giderleri"},
-        {"soru": "Banka kredisinin anapara geri ödemesi yapıldığında hangi hesap borçlandırılır?", "secenekler": ["300 Banka Kredileri", "780 Finansman Giderleri", "102 Bankalar", "100 Kasa"], "cevap": "300 Banka Kredileri"},
-        {"soru": "İşletme sahip olduğu binayı kiraya vermiş ve kira bedelini peşin tahsil etmiştir. Elde edilen gelir hangi hesaba kaydedilir?", "secenekler": ["649 Diğer Olağan Gelir ve Karlar", "600 Yurt İçi Satışlar", "602 Diğer Gelirler", "679 Diğer Olağandışı Gelir ve Karlar"], "cevap": "649 Diğer Olağan Gelir ve Karlar"},
-        {"soru": "KDV mahsup kaydı yapılırken '191 İndirilecek KDV' hesabı nasıl kapatılır?", "secenekler": ["Alacaklandırılarak", "Borçlandırılarak", "190 Hesabına Devredilerek", "360 Hesabına Aktarılarak"], "cevap": "Alacaklandırılarak"},
-        {"soru": "KDV mahsup kaydı yapılırken '391 Hesaplanan KDV' hesabı nasıl kapatılır?", "secenekler": ["Borçlandırılarak", "Alacaklandırılarak", "190 Hesabına Devredilerek", "360 Hesabına Aktarılarak"], "cevap": "Borçlandırılarak"},
-        {"soru": "İşletmenin kasasında sayım noksanı çıkmış ve nedeni o an bulunamamıştır. Hangi hesap kullanılır?", "secenekler": ["197 Sayım ve Tesellüm Noksanları", "397 Sayım ve Tesellüm Fazlaları", "689 Diğer Olağandışı Gider ve Zararlar", "135 Personelden Alacaklar"], "cevap": "197 Sayım ve Tesellüm Noksanları"},
-        {"soru": "Kasada sayım fazlası çıkmış ve nedeni bulunamamıştır. Hangi hesap kullanılır?", "secenekler": ["397 Sayım ve Tesellüm Fazlaları", "197 Sayım ve Tesellüm Noksanları", "679 Diğer Olağandışı Gelir ve Karlar", "100 Kasa"], "cevap": "397 Sayım ve Tesellüm Fazlaları"},
-        {"soru": "Sayım noksanının nedeni bulunamazsa dönem sonunda bu tutar hangi hesaba gider yazılır?", "secenekler": ["689 Diğer Olağandışı Gider ve Zararlar", "770 Genel Yönetim Giderleri", "659 Diğer Olağan Gider ve Zararlar", "197 Sayım ve Tesellüm Noksanları"], "cevap": "689 Diğer Olağandışı Gider ve Zararlar"},
-        {"soru": "Sayım fazlasının nedeni bulunamazsa dönem sonunda bu tutar hangi hesaba gelir yazılır?", "secenekler": ["679 Diğer Olağandışı Gelir ve Karlar", "649 Diğer Olağan Gelir ve Karlar", "602 Diğer Gelirler", "397 Sayım ve Tesellüm Fazlaları"], "cevap": "679 Diğer Olağandışı Gelir ve Karlar"},
-        {"soru": "Duran varlık satışı karlı ise, KDV matrahı hangi tutar üzerinden hesaplanır?", "secenekler": ["Satış Bedeli", "Kayıtlı Değer", "Net Defter Değeri", "Kar Tutarı"], "cevap": "Satış Bedeli"},
-        {"soru": "Amortisman ayrılma yöntemi olarak 'Azalan Bakiyeler' yöntemi seçilirse, amortisman oranı normal amortisman oranının kaç katıdır?", "secenekler": ["2 Katı (%50'yi geçmemek şartıyla)", "Aynıdır", "Yarısıdır", "3 Katıdır"], "cevap": "2 Katı (%50'yi geçmemek şartıyla)"},
-        {"soru": "Mali Duran Varlıklar grubunda, sermaye payı oranı %10 ile %50 arasında olan yatırımlar hangi hesapta izlenir?", "secenekler": ["242 İştirakler", "240 Bağlı Menkul Kıymetler", "245 Bağlı Ortaklıklar", "110 Hisse Senetleri"], "cevap": "242 İştirakler"},
-        {"soru": "Sermaye payı oranı %50'den fazla olan yatırımlar hangi hesapta izlenir?", "secenekler": ["245 Bağlı Ortaklıklar", "242 İştirakler", "240 Bağlı Menkul Kıymetler", "248 Diğer Mali Duran Varlıklar"], "cevap": "245 Bağlı Ortaklıklar"},
-        {"soru": "Çıkarılmış tahviller bilançoda hangi grupta yer alır?", "secenekler": ["40- Uzun Vadeli Mali Borçlar (405 Çıkarılmış Tahviller)", "30- Kısa Vadeli Mali Borçlar", "50- Ödenmiş Sermaye", "32- Ticari Borçlar"], "cevap": "40- Uzun Vadeli Mali Borçlar (405 Çıkarılmış Tahviller)"},
-        {"soru": "Açılış kaydında aktif hesaplar nasıl çalışır?", "secenekler": ["Borçlu", "Alacaklı", "Bakiye Vermez", "Pasif Hesaba Devredilir"], "cevap": "Borçlu"},
-        {"soru": "Kapanış kaydında pasif hesaplar nasıl kapatılır?", "secenekler": ["Borçlandırılarak", "Alacaklandırılarak", "Gelir Tablosuna Aktarılarak", "Sermayeye Eklenerek"], "cevap": "Borçlandırılarak"},
-        {"soru": "Reeskont işlemi hangi temel kavramın gereğidir?", "secenekler": ["Dönemsellik", "Tutarlılık", "İhtiyatlılık", "Maliyet Esası"], "cevap": "Dönemsellik"},
-        {"soru": "Gelir ve giderlerin tahakkuk esasına göre kaydedilmesi hangi kavramın gereğidir?", "secenekler": ["Dönemsellik", "Tam Açıklama", "Parayla Ölçme", "Kişilik"], "cevap": "Dönemsellik"},
-        {"soru": "Nazım hesaplar bilançonun neresinde gösterilir?", "secenekler": ["Dipnotlarda veya Bilanço toplamından sonra ayrı bir bölümde", "Aktif toplamının içinde", "Pasif toplamının içinde", "Öz kaynakların altında"], "cevap": "Dipnotlarda veya Bilanço toplamından sonra ayrı bir bölümde"},
-        {"soru": "Hangi işlem bilanço toplamını değiştirmez?", "secenekler": ["Bankadan para çekilmesi (Kasa Artar, Banka Azalır)", "Kredili mal alımı", "Peşin sermaye artırımı", "Banka kredisi çekilmesi"], "cevap": "Bankadan para çekilmesi (Kasa Artar, Banka Azalır)"},
-        {"soru": "Bir varlık hesabı borçlanırken, bir kaynak hesabı alacaklanıyorsa bilanço toplamı ne olur?", "secenekler": ["Artar", "Azalır", "Değişmez", "Belirsizdir"], "cevap": "Artar"},
-        {"soru": "610 Satıştan İadeler hesabı gelir tablosunda hangi değeri azaltır?", "secenekler": ["Brüt Satışları", "Net Satışları", "Satışların Maliyetini", "Faaliyet Giderlerini"], "cevap": "Brüt Satışları"},
-        {"soru": "Dönem karından ödenecek vergi ve yasal yükümlülükler karşılığı (691) hesaplandıktan sonra kalan tutar nedir?", "secenekler": ["Dönem Net Karı (692)", "Ticari Kar", "Mali Kar", "Brüt Kar"], "cevap": "Dönem Net Karı (692)"},
-        {"soru": "Tek Düzen Hesap Planında '500 Sermaye' hesabı hangi grubun ana hesabıdır?", "secenekler": ["Ödenmiş Sermaye", "Kar Yedekleri", "Sermaye Yedekleri", "Geçmiş Yıllar Karları"], "cevap": "Ödenmiş Sermaye"},
-        {"soru": "Muhasebe sürecinin en son aşaması nedir?", "secenekler": ["Kapanış Bilançosunun Düzenlenmesi", "Genel Geçici Mizan", "Kesin Mizan", "Envanter İşlemleri"], "cevap": "Kapanış Bilançosunun Düzenlenmesi"}
+      "Deneme 1 (Finans ve Yönetim)": [
+        {"soru": "Vadesi 1 yılın altına düşen uzun vadeli borç?", "secenekler": ["303 Uzun Vadeli Kredi Taksit", "300 Kredi", "400 Kredi", "304 Tahvil"], "cevap": "303 Uzun Vadeli Kredi Taksit"},
+        {"soru": "Bonolar hangi grup?", "secenekler": ["30- Mali Borç", "32- Ticari", "33- Diğer", "36- Vergi"], "cevap": "30- Mali Borç"},
+        {"soru": "Dava karşılığı hesabı?", "secenekler": ["379 Diğer Borç Karşılığı", "373 Maliyet", "654 Gider", "372 Kıdem"], "cevap": "379 Diğer Borç Karşılığı"},
+        {"soru": "Kıdem tazminatı karşılığı gider yeri?", "secenekler": ["770 Genel Yönetim", "472 Karşılık", "372 Karşılık", "655 Gider"], "cevap": "770 Genel Yönetim"},
+        {"soru": "Hisse senedi ihraç primi?", "secenekler": ["520 İhraç Primi", "500 Sermaye", "649 Gelir", "540 Yedek"], "cevap": "520 İhraç Primi"}
       ]
     }
   }
