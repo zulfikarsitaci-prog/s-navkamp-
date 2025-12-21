@@ -17,12 +17,7 @@
           {"soru": "103 Verilen Çekler bilançoda nerede?", "secenekler": ["Dönen Varlıklar (-) olarak", "Pasif tarafta", "Gelir tablosunda", "Duran varlıkta"], "cevap": "Dönen Varlıklar (-) olarak"},
           {"soru": "Tek Düzen Hesap Planı kodu örneği?", "secenekler": ["100", "9999", "ABC", "10-A"], "cevap": "100"},
           {"soru": "Tutulması zorunlu olmayan defter?", "secenekler": ["Çek Defteri", "Yevmiye", "Kebir", "Envanter"], "cevap": "Çek Defteri"},
-          {"soru": "Dönem karı hangi hesaba devredilir?", "secenekler": ["690 Dönem Karı Zararı", "100 Kasa", "500 Sermaye", "600 Satışlar"], "cevap": "690 Dönem Karı Zararı"},
-          {"soru": "Aktif hesaplar ilk kayıtta?", "secenekler": ["Borçlu çalışır", "Alacaklı çalışır", "Farketmez", "Eksi çalışır"], "cevap": "Borçlu çalışır"},
-          {"soru": "Pasif hesap azalışı?", "secenekler": ["Borç tarafına", "Alacak tarafına", "Gider tarafına", "Gelir tarafına"], "cevap": "Borç tarafına"},
-          {"soru": "Temel muhasebe denkliği?", "secenekler": ["Varlık = Kaynak", "Gelir = Gider", "Aktif = Sermaye", "Borç = Alacak"], "cevap": "Varlık = Kaynak"},
-          {"soru": "Muhasebenin fonksiyonlarından biri?", "secenekler": ["Kaydetme", "Satış", "Pazarlama", "Üretim"], "cevap": "Kaydetme"},
-          {"soru": "Sosyal sorumluluk kavramı?", "secenekler": ["Muhasebenin tüm topluma karşı sorumlu olması", "Patrona karşı sorumluluk", "Vergi ödemek", "Kar etmek"], "cevap": "Muhasebenin tüm topluma karşı sorumlu olması"}
+          {"soru": "Dönem karı hangi hesaba devredilir?", "secenekler": ["690 Dönem Karı Zararı", "100 Kasa", "500 Sermaye", "600 Satışlar"], "cevap": "690 Dönem Karı Zararı"}
         ],
         "Test 2 (Kasa ve Banka)": [
           {"soru": "Kasa noksanı geçici hesap?", "secenekler": ["197 Sayım Noksanları", "397 Sayım Fazlaları", "689 Gider", "100 Kasa"], "cevap": "197 Sayım Noksanları"},
@@ -37,100 +32,85 @@
           {"soru": "Pos cihazı satış hesabı?", "secenekler": ["108 Diğer Hazır Değerler", "100 Kasa", "102 Banka", "120 Alıcı"], "cevap": "108 Diğer Hazır Değerler"},
           {"soru": "Bankadaki paraya faiz işlemesi?", "secenekler": ["102 (B) / 642 (A)", "100 (B) / 642 (A)", "642 (B) / 102 (A)", "102 (B) / 600 (A)"], "cevap": "102 (B) / 642 (A)"},
           {"soru": "Verilen çekin ödenmesi?", "secenekler": ["103 (B) / 102 (A)", "102 (B) / 103 (A)", "320 (B) / 100 (A)", "100 (B) / 103 (A)"], "cevap": "103 (B) / 102 (A)"},
-          {"soru": "Tahsil için bankaya çek verilmesi?", "secenekler": ["Nazım Hesaplarda izlenir (veya alt hesap)", "102 (B)", "100 (B)", "120 (B)"], "cevap": "Nazım Hesaplarda izlenir (veya alt hesap)"},
+          {"soru": "Tahsil için bankaya çek verilmesi?", "secenekler": ["Nazım Hesaplarda izlenir", "102 (B)", "100 (B)", "120 (B)"], "cevap": "Nazım Hesaplarda izlenir"},
           {"soru": "Hatır çeki nedir?", "secenekler": ["Ticari işlem olmadan verilen çek", "Mal karşılığı", "Hizmet karşılığı", "Banka çeki"], "cevap": "Ticari işlem olmadan verilen çek"},
           {"soru": "Çekte vade var mıdır?", "secenekler": ["Hukuken yoktur, görüldüğünde ödenir", "Vardır", "1 aydır", "3 aydır"], "cevap": "Hukuken yoktur, görüldüğünde ödenir"}
-        ]
+        ],
+        "Test 3 (Stoklar)": [{"soru": "Ana stok hesabı?", "secenekler": ["153 Ticari Mallar", "150", "151", "152"], "cevap": "153 Ticari Mallar"}],
+        "Test 4 (Duran Varlıklar)": [{"soru": "Demirbaş hesabı?", "secenekler": ["255", "254", "252", "250"], "cevap": "255"}],
+        "Test 5 (Gelir Tablosu)": [{"soru": "Satışlar hesabı?", "secenekler": ["600", "601", "602", "649"], "cevap": "600"}]
+      },
+      "Ekonomi": {
+        "Test 1 (Temel Kavramlar)": [
+          {"soru": "İnsan ihtiyaçlarını karşılayan araçlara ne denir?", "secenekler": ["Mal ve Hizmet", "Para", "Sermaye", "Emek"], "cevap": "Mal ve Hizmet"},
+          {"soru": "Fayda nedir?", "secenekler": ["Malın ihtiyacı giderme özelliği", "Malın fiyatı", "Malın maliyeti", "Malın miktarı"], "cevap": "Malın ihtiyacı giderme özelliği"},
+          {"soru": "Aşağıdakilerden hangisi üretim faktörüdür?", "secenekler": ["Emek", "Para", "Banka", "Döviz"], "cevap": "Emek"},
+          {"soru": "Girişimci kime denir?", "secenekler": ["Üretim faktörlerini bir araya getiren kişi", "İşçi", "Memur", "Tüketici"], "cevap": "Üretim faktörlerini bir araya getiren kişi"},
+          {"soru": "İhtiyaçlar nasıldır?", "secenekler": ["Sınırsızdır", "Sınırlıdır", "Sabittir", "Azalır"], "cevap": "Sınırsızdır"},
+          {"soru": "Ekonomik mal nedir?", "secenekler": ["Elde etmek için emek ve bedel ödenen mal", "Hava", "Güneş ışığı", "Deniz suyu"], "cevap": "Elde etmek için emek ve bedel ödenen mal"},
+          {"soru": "Tüketim nedir?", "secenekler": ["Mal ve hizmetlerin ihtiyaçları karşılamak için kullanılması", "Üretim", "Satış", "İhracat"], "cevap": "Mal ve hizmetlerin ihtiyaçları karşılamak için kullanılması"},
+          {"soru": "Hizmet nedir?", "secenekler": ["Maddi olmayan ekonomik faaliyetler (Eğitim, Sağlık)", "Eşya", "Araba", "Ekmek"], "cevap": "Maddi olmayan ekonomik faaliyetler (Eğitim, Sağlık)"},
+          {"soru": "Fayda çeşitlerinden 'Şekil Faydası' nedir?", "secenekler": ["Maddenin şeklinin değiştirilerek yararlı hale getirilmesi (Odun -> Masa)", "Yer değiştirme", "Zamanlama", "Mülkiyet"], "cevap": "Maddenin şeklinin değiştirilerek yararlı hale getirilmesi (Odun -> Masa)"},
+          {"soru": "Ekonominin tanımı?", "secenekler": ["Sınırsız ihtiyaçların sınırlı kaynaklarla karşılanması bilimi", "Para sayma", "Banka yönetimi", "Ticaret"], "cevap": "Sınırsız ihtiyaçların sınırlı kaynaklarla karşılanması bilimi"},
+          {"soru": "Mikro ekonomi neyi inceler?", "secenekler": ["Birey ve firma davranışlarını", "Devleti", "Dünyayı", "Enflasyonu"], "cevap": "Birey ve firma davranışlarını"},
+          {"soru": "Makro ekonomi neyi inceler?", "secenekler": ["Milli gelir, enflasyon, işsizlik gibi genel konuları", "Bir fabrikayı", "Bir aileyi", "Bir bakkalı"], "cevap": "Milli gelir, enflasyon, işsizlik gibi genel konuları"},
+          {"soru": "Serbest piyasa ekonomisi?", "secenekler": ["Fiyatların arz ve talebe göre belirlendiği sistem", "Devlet kontrolü", "Tekel", "Takas"], "cevap": "Fiyatların arz ve talebe göre belirlendiği sistem"},
+          {"soru": "Enflasyon nedir?", "secenekler": ["Fiyatlar genel düzeyinin sürekli artışı", "Fiyat düşüşü", "Para basma", "Zenginleşme"], "cevap": "Fiyatlar genel düzeyinin sürekli artışı"},
+          {"soru": "Deflasyon nedir?", "secenekler": ["Fiyatlar genel düzeyinin sürekli düşüşü", "Fiyat artışı", "Pahalılık", "Büyüme"], "cevap": "Fiyatlar genel düzeyinin sürekli düşüşü"}
+        ],
+        "Test 2 (Arz ve Talep)": [{"soru": "Fiyat artarsa talep ne olur?", "secenekler": ["Azalır", "Artar", "Değişmez", "Sıfırlanır"], "cevap": "Azalır"}],
+        "Test 3 (Piyasalar)": [{"soru": "Tek satıcı?", "secenekler": ["Monopol", "Oligopol", "Tam Rekabet", "Düopol"], "cevap": "Monopol"}],
+        "Test 4 (Para)": [{"soru": "Paranın işlevi?", "secenekler": ["Değişim aracı, değer ölçüsü", "Sadece kağıt", "Sadece maden", "Yatırım"], "cevap": "Değişim aracı, değer ölçüsü"}],
+        "Test 5 (Milli Gelir)": [{"soru": "GSYİH?", "secenekler": ["Yurtiçi toplam üretim", "Dış borç", "İhracat", "İthalat"], "cevap": "Yurtiçi toplam üretim"}]
       },
       "Temel Hukuk": {
-        "Test 1 (Hukukun Temel Kavramları)": [
-          {"soru": "Hukuk kurallarını diğer sosyal kurallardan ayıran en temel özellik nedir?", "secenekler": ["Devlet gücüne dayalı maddi yaptırımı olması", "Yazılı olması", "Eski olması", "Ahlaka uygun olması"], "cevap": "Devlet gücüne dayalı maddi yaptırımı olması"},
-          {"soru": "Bir kimsenin hukuka aykırı olarak başkasına verdiği zararı ödeme yükümlülüğüne ne denir?", "secenekler": ["Tazminat", "Ceza", "İptal", "Cebri İcra"], "cevap": "Tazminat"},
-          {"soru": "Hukuk kurallarına uymamanın genel adına ne denir?", "secenekler": ["Müeyyide (Yaptırım)", "Suç", "Kabahat", "Hata"], "cevap": "Müeyyide (Yaptırım)"},
-          {"soru": "Kanunun suç saydığı eylemi gerçekleştiren kişiye uygulanan yaptırım nedir?", "secenekler": ["Ceza (Hapis/Para)", "Tazminat", "İptal", "Hükümsüzlük"], "cevap": "Ceza (Hapis/Para)"},
-          {"soru": "Borcunu ödemeyen kişinin devlet zoruyla borcunu ödemesinin sağlanmasına ne denir?", "secenekler": ["Cebri İcra", "Hapis", "Tazminat", "Müsadere"], "cevap": "Cebri İcra"},
-          {"soru": "Kurucu unsurları eksik olan bir işlemin hiç doğmamış sayılmasına ne denir?", "secenekler": ["Yokluk", "Butlan", "İptal", "Tek taraflı bağlamazlık"], "cevap": "Yokluk"},
-          {"soru": "Emredici hukuk kuralları ne anlama gelir?", "secenekler": ["Aksine sözleşme yapılamayan, uyulması zorunlu kurallar", "Yedek kurallar", "Tamamlayıcı kurallar", "Yorumlayıcı kurallar"], "cevap": "Aksine sözleşme yapılamayan, uyulması zorunlu kurallar"},
-          {"soru": "Hakimin önüne gelen bir olayda yazılı ve yazısız kural bulamaması durumuna ne denir?", "secenekler": ["Hukuk Boşluğu", "Kanun Boşluğu", "Kural İçi Boşluk", "Örtülü Boşluk"], "cevap": "Hukuk Boşluğu"},
-          {"soru": "Hakim hukuk boşluğu durumunda ne yapar?", "secenekler": ["Hukuk yaratır", "Dkavayı reddeder", "Bilirkişiye sorar", "Meclise yazı yazar"], "cevap": "Hukuk yaratır"},
-          {"soru": "İyi niyet (Subjektif iyi niyet) kuralı nerede geçerlidir?", "secenekler": ["Hakların kazanılmasında", "Hakların kullanılmasında", "Borçların ödenmesinde", "Sözleşmelerde"], "cevap": "Hakların kazanılmasında"},
-          {"soru": "Dürüstlük kuralı (Objektif iyi niyet) nerede geçerlidir?", "secenekler": ["Hakların kullanılması ve borçların yerine getirilmesinde", "Hakların kazanılmasında", "Doğumda", "Ölümde"], "cevap": "Hakların kullanılması ve borçların yerine getirilmesinde"},
-          {"soru": "Hakkını kendi eliyle koruma (İhkak-ı Hak) hukukumuzda nasıldır?", "secenekler": ["Kural olarak yasaktır, istisnai hallerde (Meşru müdafaa vb.) izin verilir", "Serbesttir", "Sadece alacaklılara serbesttir", "Sadece polise serbesttir"], "cevap": "Kural olarak yasaktır, istisnai hallerde (Meşru müdafaa vb.) izin verilir"},
-          {"soru": "Meşru müdafaa (Nefsi müdafaa) nedir?", "secenekler": ["Kendisine veya başkasına yönelen haksız saldırıyı defetmek", "Öc almak", "Zarar vermek", "Kavga etmek"], "cevap": "Kendisine veya başkasına yönelen haksız saldırıyı defetmek"},
-          {"soru": "Zorda kalma (Iztırar) hali nedir?", "secenekler": ["Kendisinin veya başkasının tehlikeden kurtulmak için üçüncü kişiye zarar vermesi", "Saldırıya karşılık verme", "Hakkını alma", "Kaçma"], "cevap": "Kendisinin veya başkasının tehlikeden kurtulmak için üçüncü kişiye zarar vermesi"},
-          {"soru": "Hukukun yazısız kaynağı nedir?", "secenekler": ["Örf ve Adet Hukuku", "Kanun", "Yönetmelik", "Genelge"], "cevap": "Örf ve Adet Hukuku"}
+        "Test 1 (Hukuk Kuralları)": [
+          {"soru": "Yaptırımı manevi olan kural?", "secenekler": ["Ahlak Kuralı", "Hukuk Kuralı", "Kanun", "Yönetmelik"], "cevap": "Ahlak Kuralı"},
+          {"soru": "Hukuk kurallarının yaptırımı nasıldır?", "secenekler": ["Maddi ve Devlet gücüne dayalı", "Manevi", "Kınama", "Ayıplama"], "cevap": "Maddi ve Devlet gücüne dayalı"},
+          {"soru": "Cebri icra nedir?", "secenekler": ["Borcunu ödemeyenin devlet zoruyla ödemesinin sağlanması", "Hapis", "Sürgün", "İdam"], "cevap": "Borcunu ödemeyenin devlet zoruyla ödemesinin sağlanması"},
+          {"soru": "Tazminat nedir?", "secenekler": ["Verilen zararın ödetilmesi", "Cezaevi", "Hapis", "İptal"], "cevap": "Verilen zararın ödetilmesi"},
+          {"soru": "Hükümsüzlük türlerinden 'Yokluk' nedir?", "secenekler": ["Kurucu unsurun eksik olması (İmam nikahı gibi)", "Kanuna aykırılık", "İrade sakatlığı", "Hata"], "cevap": "Kurucu unsurun eksik olması (İmam nikahı gibi)"},
+          {"soru": "Mutlak butlan nedir?", "secenekler": ["İşlemin baştan itibaren geçersiz olması (Akıl hastasının evliliği)", "Sonradan iptal", "Geçerli işlem", "Yokluk"], "cevap": "İşlemin baştan itibaren geçersiz olması (Akıl hastasının evliliği)"},
+          {"soru": "Nisbi butlan (İptal edilebilirlik) nedir?", "secenekler": ["İrade sakatlığı (Hata, hile, tehdit) ile yapılan işlem", "Yok hükmünde", "Kesin geçersiz", "Tam geçerli"], "cevap": "İrade sakatlığı (Hata, hile, tehdit) ile yapılan işlem"},
+          {"soru": "Normlar hiyerarşisinin en üstü?", "secenekler": ["Anayasa", "Kanun", "Yönetmelik", "Genelge"], "cevap": "Anayasa"},
+          {"soru": "Kanunları kim yapar?", "secenekler": ["TBMM", "Cumhurbaşkanı", "Mahkeme", "Vali"], "cevap": "TBMM"},
+          {"soru": "Yönetmelik kim çıkarır?", "secenekler": ["Cumhurbaşkanı, Bakanlıklar ve Kamu Tüzel Kişileri", "Sadece meclis", "Muhtar", "Polis"], "cevap": "Cumhurbaşkanı, Bakanlıklar ve Kamu Tüzel Kişileri"},
+          {"soru": "Örf ve adet hukuku nedir?", "secenekler": ["Yazısız hukuk kaynağı", "Kanun", "Kararname", "Tüzük"], "cevap": "Yazısız hukuk kaynağı"},
+          {"soru": "Hakimin hukuk yaratması ne zaman olur?", "secenekler": ["Hukuk boşluğu varsa", "Kanun boşluğunda", "Her zaman", "Asla"], "cevap": "Hukuk boşluğu varsa"},
+          {"soru": "Dürüstlük kuralı (Objektif iyi niyet) nerede geçerlidir?", "secenekler": ["Hakların kullanılmasında ve borçların ifasında", "Hak kazanırken", "Doğarken", "Ölürken"], "cevap": "Hakların kullanılmasında ve borçların ifasında"},
+          {"soru": "İyiniyet (Subjektif) nerede geçerlidir?", "secenekler": ["Hakların kazanılmasında", "Hak kullanımında", "Borç ödemede", "Sözleşmede"], "cevap": "Hakların kazanılmasında"},
+          {"soru": "Hakkın kötüye kullanılması?", "secenekler": ["Hukuk düzeni korumaz", "Korur", "Ceza vermez", "Ödüllendirir"], "cevap": "Hukuk düzeni korumaz"}
         ],
-        "Test 2 (Kişiler Hukuku)": [
-          {"soru": "Hak ehliyeti ne zaman başlar?", "secenekler": ["Sağ ve tam doğmak şartıyla ana rahmine düşüldüğü an", "18 yaşını doldurunca", "Doğunca", "Nüfusa kayıtla"], "cevap": "Sağ ve tam doğmak şartıyla ana rahmine düşüldüğü an"},
-          {"soru": "Tam ehliyetli olmanın şartları nelerdir?", "secenekler": ["Ayırt etme gücü, Erginlik, Kısıtlı olmamak", "Sadece 18 yaş", "Sadece akıl sağlığı", "Zengin olmak"], "cevap": "Ayırt etme gücü, Erginlik, Kısıtlı olmamak"},
-          {"soru": "Ayırt etme gücü (Mümeyyizlik) ne demektir?", "secenekler": ["İyiyi kötüden, doğruyu yanlıştan ayırabilme yeteneği", "Zeka seviyesi", "Okuma yazma", "Konuşma yeteneği"], "cevap": "İyiyi kötüden, doğruyu yanlıştan ayırabilme yeteneği"},
-          {"soru": "Ayırt etme gücü olmayan kişinin yaptığı işlemlerin hukuki sonucu nedir?", "secenekler": ["Tam hükümsüzdür (Kesin butlan)", "Geçerlidir", "İptal edilebilir", "Askıda geçersizdir"], "cevap": "Tam hükümsüzdür (Kesin butlan)"},
-          {"soru": "Sınırlı ehliyetsiz kime denir?", "secenekler": ["Ayırt etme gücü olan küçükler ve kısıtlılar", "Akıl hastaları", "Sarhoşlar", "Tam ehliyetliler"], "cevap": "Ayırt etme gücü olan küçükler ve kısıtlılar"},
-          {"soru": "Erginlik (Reşitlik) yaşı kaçtır?", "secenekler": ["18 yaşın doldurulması", "15 yaş", "21 yaş", "25 yaş"], "cevap": "18 yaşın doldurulması"},
-          {"soru": "Evlenme ile erginlik yaşı kaçtır?", "secenekler": ["16 yaşın doldurulması (Mahkeme izniyle)", "15 yaş", "17 yaş", "18 yaş"], "cevap": "16 yaşın doldurulması (Mahkeme izniyle)"},
-          {"soru": "Gaiplik nedir?", "secenekler": ["Ölüm tehlikesi içinde kaybolma veya kendisinden uzun süre haber alınamama", "Ölüm", "Boşanma", "Hapis"], "cevap": "Ölüm tehlikesi içinde kaybolma veya kendisinden uzun süre haber alınamama"},
-          {"soru": "Tüzel kişilik ne zaman başlar?", "secenekler": ["Kanunun aradığı şartlar tamamlanıp tescil edilince", "Fikir oluşunca", "Para toplanınca", "Bina tutulunca"], "cevap": "Kanunun aradığı şartlar tamamlanıp tescil edilince"},
-          {"soru": "Dernekler en az kaç kişiyle kurulur?", "secenekler": ["7 gerçek veya tüzel kişi", "5 kişi", "3 kişi", "1 kişi"], "cevap": "7 gerçek veya tüzel kişi"},
-          {"soru": "Vakıflar ne amaçla kurulur?", "secenekler": ["Belli bir mal topluluğunun belli bir amaca tahsisi için", "Kar etmek için", "Siyaset için", "Spor için"], "cevap": "Belli bir mal topluluğunun belli bir amaca tahsisi için"},
-          {"soru": "Yerleşim yeri (İkametgah) nedir?", "secenekler": ["Bir kimsenin sürekli kalma niyetiyle oturduğu yer", "İş yeri", "Yazlık", "Okul"], "cevap": "Bir kimsenin sürekli kalma niyetiyle oturduğu yer"},
-          {"soru": "Bir kimsenin birden fazla yerleşim yeri olabilir mi?", "secenekler": ["Kural olarak olamaz (Ticari yerleşim yeri hariç)", "Evet olabilir", "İstediği kadar olur", "Sadece yazın olur"], "cevap": "Kural olarak olamaz (Ticari yerleşim yeri hariç)"},
-          {"soru": "Hısımlık kaç çeşittir?", "secenekler": ["Kan hısımlığı, Kayın hısımlığı, Evlatlık hısımlığı", "Sadece kan", "Sadece evlilik", "Arkadaşlık"], "cevap": "Kan hısımlığı, Kayın hısımlığı, Evlatlık hısımlığı"},
-          {"soru": "Kardeşler arası hısımlık derecesi nedir?", "secenekler": ["2. derece yansoy", "1. derece", "3. derece", "Hısım değildir"], "cevap": "2. derece yansoy"}
-        ],
-        "Test 3 (Aile ve Miras Hukuku)": [
-          {"soru": "Nişanlanma hukuken ne anlama gelir?", "secenekler": ["Evlenme vaadiyle yapılan sözleşme", "Evlilik", "Arkadaşlık", "Tanışma"], "cevap": "Evlenme vaadiyle yapılan sözleşme"},
-          {"soru": "Evlenmenin geçerli olması için resmi memur önünde yapılması şartı ne tür bir şarttır?", "secenekler": ["Kurucu unsur (Şekil şartı)", "Önemsiz", "İsteğe bağlı", "Dini şart"], "cevap": "Kurucu unsur (Şekil şartı)"},
-          {"soru": "Ayırt etme gücü olmayan birinin evlenmesi?", "secenekler": ["Mutlak butlanla batıldır (Geçersizdir)", "Geçerlidir", "Boşanma sebebidir", "Sürelidir"], "cevap": "Mutlak butlanla batıldır (Geçersizdir)"},
-          {"soru": "Yasal mal rejimi nedir?", "secenekler": ["Edinilmiş Mallara Katılma Rejimi", "Mal ayrılığı", "Mal ortaklığı", "Paylaşmalı mal ayrılığı"], "cevap": "Edinilmiş Mallara Katılma Rejimi"},
-          {"soru": "Boşanma davasında yetkili mahkeme?", "secenekler": ["Aile Mahkemesi", "Asliye Hukuk", "Sulh Hukuk", "İcra"], "cevap": "Aile Mahkemesi"},
-          {"soru": "Mirasbırakanın ölümüyle mirası kime geçer?", "secenekler": ["Mirasçılarına (Külli halefiyet)", "Devlete", "Bankaya", "Komşulara"], "cevap": "Mirasçılarına (Külli halefiyet)"},
-          {"soru": "Saklı paylı mirasçılar kimlerdir?", "secenekler": ["Altsoy, Ana-Baba, Eş", "Kardeşler", "Amca-Dayı", "Herkes"], "cevap": "Altsoy, Ana-Baba, Eş"},
-          {"soru": "Mirasın reddi (Reddi miras) süresi?", "secenekler": ["3 Ay", "1 Ay", "1 Yıl", "Süresiz"], "cevap": "3 Ay"},
-          {"soru": "Vasiyetname çeşitleri?", "secenekler": ["Resmi, El yazılı, Sözlü", "Sadece noter", "Sadece sözlü", "Sadece yazılı"], "cevap": "Resmi, El yazılı, Sözlü"},
-          {"soru": "Miras bırakanın terekesi borca batıksa miras durumu?", "secenekler": ["Hükmen reddedilmiş sayılır", "Mirasçılar öder", "Devlet öder", "Silinir"], "cevap": "Hükmen reddedilmiş sayılır"},
-          {"soru": "Velayet nedir?", "secenekler": ["Ergin olmayan çocukların bakım ve eğitimi konusunda ana-babanın hakkı", "Vasi atama", "Kayyım atama", "Evlat edinme"], "cevap": "Ergin olmayan çocukların bakım ve eğitimi konusunda ana-babanın hakkı"},
-          {"soru": "Vesayet nedir?", "secenekler": ["Kısıtlı veya velayet altında olmayan küçüklere vasi atanması", "Ana baba hakkı", "Evlilik", "Boşanma"], "cevap": "Kısıtlı veya velayet altında olmayan küçüklere vasi atanması"},
-          {"soru": "Nafaka türleri?", "secenekler": ["Tedbir, Yoksulluk, İştirak, Yardım", "Sadece yoksulluk", "Sadece çocuk", "Sadece eş"], "cevap": "Tedbir, Yoksulluk, İştirak, Yardım"},
-          {"soru": "Evlat edinme yaşı farkı en az kaç olmalı?", "secenekler": ["18 yaş", "10 yaş", "5 yaş", "20 yaş"], "cevap": "18 yaş"},
-          {"soru": "Soybağı nasıl kurulur?", "secenekler": ["Evlilik, Tanıma, Hakim hükmü, Evlat edinme", "Sadece evlilik", "Sadece mahkeme", "Sözlü beyan"], "cevap": "Evlilik, Tanıma, Hakim hükmü, Evlat edinme"}
-        ],
-        "Test 4 (Borçlar Hukuku)": [
-          {"soru": "Borcun kaynakları nelerdir?", "secenekler": ["Sözleşme, Haksız Fiil, Sebepsiz Zenginleşme", "Kanun, Yönetmelik", "Suç, Ceza", "Alış, Veriş"], "cevap": "Sözleşme, Haksız Fiil, Sebepsiz Zenginleşme"},
-          {"soru": "Sözleşme serbestisi nedir?", "secenekler": ["Tarafların kanuna aykırı olmamak şartıyla dilediği sözleşmeyi yapabilmesi", "Sözleşme yasağı", "Devlet izni", "Tek tip sözleşme"], "cevap": "Tarafların kanuna aykırı olmamak şartıyla dilediği sözleşmeyi yapabilmesi"},
-          {"soru": "Muvazaa nedir?", "secenekler": ["Tarafların 3. kişileri aldatmak için gerçek iradelerine uymayan işlem yapması", "Hata", "Hile", "Tehdit"], "cevap": "Tarafların 3. kişileri aldatmak için gerçek iradelerine uymayan işlem yapması"},
-          {"soru": "İfa ne demektir?", "secenekler": ["Borcun yerine getirilmesi", "Borcun silinmesi", "Borcun yenilenmesi", "Borcun devri"], "cevap": "Borcun yerine getirilmesi"},
-          {"soru": "Temerrüt nedir?", "secenekler": ["Borçlunun borcunu zamanında ödememesi (Direnim)", "Borcun ödenmesi", "Borcun bitmesi", "Borcun inkarı"], "cevap": "Borçlunun borcunu zamanında ödememesi (Direnim)"},
-          {"soru": "Kusursuz sorumluluk halleri?", "secenekler": ["Adam çalıştıranın, hayvan bulunduranın, bina malikinin sorumluluğu", "Sadece kasten zarar", "Sadece ihmal", "Sorumluluk yoktur"], "cevap": "Adam çalıştıranın, hayvan bulunduranın, bina malikinin sorumluluğu"},
-          {"soru": "Zamanaşımı nedir?", "secenekler": ["Belli bir süre geçmekle alacağın dava edilebilme niteliğini kaybetmesi", "Borcun silinmesi", "Hakkın doğması", "Dava açılması"], "cevap": "Belli bir süre geçmekle alacağın dava edilebilme niteliğini kaybetmesi"},
-          {"soru": "Genel zamanaşımı süresi?", "secenekler": ["10 Yıl", "5 Yıl", "1 Yıl", "20 Yıl"], "cevap": "10 Yıl"},
-          {"soru": "İbra ne demektir?", "secenekler": ["Alacaklının borçluyu borcundan kurtarması (Aklama)", "Borç ödeme", "Dava açma", "İcra takibi"], "cevap": "Alacaklının borçluyu borcundan kurtarması (Aklama)"},
-          {"soru": "Takas nedir?", "secenekler": ["Karşılıklı, aynı cins ve muaccel borçların birbirinden düşülmesi", "Mal değişimi", "Para değişimi", "Çek senet"], "cevap": "Karşılıklı, aynı cins ve muaccel borçların birbirinden düşülmesi"},
-          {"soru": "Müteselsil borçluluk?", "secenekler": ["Alacaklının borcun tamamını borçlulardan herhangi birinden isteyebilmesi", "Herkesin payını ödemesi", "Sadece kefilin ödemesi", "Borcun bölünmesi"], "cevap": "Alacaklının borcun tamamını borçlulardan herhangi birinden isteyebilmesi"},
-          {"soru": "Kefalet sözleşmesi şekil şartı?", "secenekler": ["Yazılı olmalı, kefilin sorumlu olduğu miktar ve tarih el yazısıyla belirtilmeli", "Sözlü olabilir", "Noter şarttır", "Şekil şartı yoktur"], "cevap": "Yazılı olmalı, kefilin sorumlu olduğu miktar ve tarih el yazısıyla belirtilmeli"},
-          {"soru": "Satış sözleşmesi nedir?", "secenekler": ["Satıcının malı teslim, alıcının bedeli ödeme borcu altına girdiği sözleşme", "Kiralama", "Bağışlama", "Trampa"], "cevap": "Satıcının malı teslim, alıcının bedeli ödeme borcu altına girdiği sözleşme"},
-          {"soru": "Kira sözleşmesinde kiracının asli borcu?", "secenekler": ["Kira bedelini ödemek", "Evi satmak", "Tamirat yapmak", "Vergi ödemek"], "cevap": "Kira bedelini ödemek"},
-          {"soru": "Haksız fiilin unsurları?", "secenekler": ["Fiil, Zarar, İlliyet Bağı, Kusur, Hukuka Aykırılık", "Sözleşme, İmza", "Para, Mal", "Alacak, Borç"], "cevap": "Fiil, Zarar, İlliyet Bağı, Kusur, Hukuka Aykırılık"}
-        ],
-        "Test 5 (Anayasa ve İdare)": [
-          {"soru": "Yasama yetkisi kime aittir?", "secenekler": ["TBMM", "Cumhurbaşkanı", "Mahkemeler", "Halk"], "cevap": "TBMM"},
-          {"soru": "Yürütme yetkisi kime aittir?", "secenekler": ["Cumhurbaşkanı", "TBMM", "Bakanlar", "Valiler"], "cevap": "Cumhurbaşkanı"},
-          {"soru": "Yargı yetkisi kime aittir?", "secenekler": ["Bağımsız ve Tarafsız Mahkemeler", "Adalet Bakanlığı", "Barolar", "Savcılar"], "cevap": "Bağımsız ve Tarafsız Mahkemeler"},
-          {"soru": "Anayasa Mahkemesinin görevi?", "secenekler": ["Kanunların anayasaya uygunluğunu denetlemek", "Suçluları yargılamak", "Boşanmaya bakmak", "Vergi toplamak"], "cevap": "Kanunların anayasaya uygunluğunu denetlemek"},
-          {"soru": "Yönetmelikleri kim çıkarır?", "secenekler": ["Cumhurbaşkanı, Bakanlıklar ve Kamu Tüzel Kişileri", "Sadece TBMM", "Muhtarlar", "Polis"], "cevap": "Cumhurbaşkanı, Bakanlıklar ve Kamu Tüzel Kişileri"},
-          {"soru": "İdarenin bütünlüğü ilkesi neyle sağlanır?", "secenekler": ["Hiyerarşi ve İdari Vesayet", "Emir komuta", "Baskı", "Seçim"], "cevap": "Hiyerarşi ve İdari Vesayet"},
-          {"soru": "Belediye başkanı nasıl seçilir?", "secenekler": ["Halk tarafından 5 yıllığına", "Atama ile", "Sınavla", "Kura ile"], "cevap": "Halk tarafından 5 yıllığına"},
-          {"soru": "Vali kimin temsilcisidir?", "secenekler": ["Cumhurbaşkanı ve Devletin", "Belediyenin", "Halkın", "Meclisin"], "cevap": "Cumhurbaşkanı ve Devletin"},
-          {"soru": "Memurların yargılanması için ne gerekir?", "secenekler": ["İzin sistemi (Amir izni)", "Doğrudan dava", "İzin gerekmez", "Yargılanamazlar"], "cevap": "İzin sistemi (Amir izni)"},
-          {"soru": "Danıştay'ın görevi?", "secenekler": ["İdari davaların temyiz merciidir", "Adli dava", "Askeri dava", "Anayasa davası"], "cevap": "İdari davaların temyiz merciidir"},
-          {"soru": "Yargıtay'ın görevi?", "secenekler": ["Adli davaların temyiz merciidir", "İdari dava", "Anayasa", "Sayıştay"], "cevap": "Adli davaların temyiz merciidir"},
-          {"soru": "Sayıştay ne iş yapar?", "secenekler": ["TBMM adına mali denetim yapar", "Para basar", "Vergi koyar", "Kanun yapar"], "cevap": "TBMM adına mali denetim yapar"},
-          {"soru": "MGK başkanı kimdir?", "secenekler": ["Cumhurbaşkanı", "Genelkurmay Başkanı", "Başbakan", "Meclis Başkanı"], "cevap": "Cumhurbaşkanı"},
-          {"soru": "Olağanüstü Hal (OHAL) ilan etme yetkisi?", "secenekler": ["Cumhurbaşkanı (TBMM onayıyla)", "Vali", "Asker", "Polis"], "cevap": "Cumhurbaşkanı (TBMM onayıyla)"},
-          {"soru": "Temel hak ve hürriyetler ne ile sınırlanabilir?", "secenekler": ["Sadece Kanunla", "Yönetmelikle", "Genelgeyle", "Sözle"], "cevap": "Sadece Kanunla"}
-        ]
+        "Test 2 (Kişiler Hukuku)": [{"soru": "Hak ehliyeti başlangıcı?", "secenekler": ["Sağ ve tam doğum", "18 yaş", "Evlilik", "Reşitlik"], "cevap": "Sağ ve tam doğum"}],
+        "Test 3 (Aile Hukuku)": [{"soru": "Nişanlanma nedir?", "secenekler": ["Evlenme vaadi", "Evlilik", "Arkadaşlık", "Tanışma"], "cevap": "Evlenme vaadi"}],
+        "Test 4 (Borçlar Hukuku)": [{"soru": "Sözleşme serbestisi?", "secenekler": ["İstenilen sözleşmeyi yapabilme", "Yasak", "Zorunluluk", "İzinli"], "cevap": "İstenilen sözleşmeyi yapabilme"}],
+        "Test 5 (Anayasa)": [{"soru": "Yasama organı?", "secenekler": ["TBMM", "Cumhurbaşkanı", "Mahkeme", "Halk"], "cevap": "TBMM"}]
       }
     },
     "11. Sınıf": {
+      "Şirketler Muhasebesi": {
+        "Test 1 (Kuruluş İşlemleri)": [
+          {"soru": "A.Ş. kuruluşunda nakit sermayenin en az ne kadarı peşin ödenmelidir?", "secenekler": ["%25 (1/4)", "%50", "Tamamı", "%10"], "cevap": "%25 (1/4)"},
+          {"soru": "501 Ödenmemiş Sermaye hesabı bilançoda nerede ve nasıl yer alır?", "secenekler": ["Öz Kaynaklar grubunda eksi (-) değerle (Pasifi düzenleyen aktif)", "Aktifte", "Borçlarda", "Giderlerde"], "cevap": "Öz Kaynaklar grubunda eksi (-) değerle (Pasifi düzenleyen aktif)"},
+          {"soru": "Limited Şirket hisse devri için hangi şart zorunludur?", "secenekler": ["Noter onayı ve Genel Kurul onayı", "Sadece sözlü anlaşma", "Banka dekontu", "Yönetim kurulu kararı"], "cevap": "Noter onayı ve Genel Kurul onayı"},
+          {"soru": "Sermaye taahhüdü kaydında borçlu hesap hangisidir?", "secenekler": ["501 Ödenmemiş Sermaye", "500 Sermaye", "100 Kasa", "102 Bankalar"], "cevap": "501 Ödenmemiş Sermaye"},
+          {"soru": "Ayni sermaye (Mal, Taşıt vb.) konulursa değerini kim belirler?", "secenekler": ["Mahkemece atanan Bilirkişi", "Ortaklar", "Noter", "Banka"], "cevap": "Mahkemece atanan Bilirkişi"},
+          {"soru": "Hisse Senedi İhraç Primi (Agio) hangi hesapta izlenir?", "secenekler": ["520 Hisse Senedi İhraç Primleri", "500 Sermaye", "600 Satışlar", "649 Diğer Gelir"], "cevap": "520 Hisse Senedi İhraç Primleri"},
+          {"soru": "Kuruluş ve Örgütlenme Giderleri (262) en fazla kaç yılda itfa edilir (yok edilir)?", "secenekler": ["5 Yıl", "1 Yıl", "10 Yıl", "Süresiz"], "cevap": "5 Yıl"},
+          {"soru": "A.Ş. en az sermaye tutarı (2024)?", "secenekler": ["250.000 TL", "50.000 TL", "100.000 TL", "10.000 TL"], "cevap": "250.000 TL"},
+          {"soru": "Limited Şirket en az sermaye tutarı (2024)?", "secenekler": ["50.000 TL", "10.000 TL", "100.000 TL", "5.000 TL"], "cevap": "50.000 TL"},
+          {"soru": "Yedek Akçeler hangi grupta yer alır?", "secenekler": ["54- Kar Yedekleri", "52- Sermaye Yedekleri", "50- Sermaye", "59- Dönem Karı"], "cevap": "54- Kar Yedekleri"},
+          {"soru": "I. Tertip Yasal Yedek Akçe oranı nedir?", "secenekler": ["Net karın %5'i", "%10", "%20", "%1"], "cevap": "Net karın %5'i"},
+          {"soru": "Kar dağıtımında öncelik hangisindedir?", "secenekler": ["Vergi ve Yasal Yükümlülükler", "Ortaklar", "Yedekler", "Yönetim Kurulu"], "cevap": "Vergi ve Yasal Yükümlülükler"},
+          {"soru": "Geçmiş yıl zararları (580) kapatılmadan kar dağıtımı yapılabilir mi?", "secenekler": ["Hayır yapılamaz", "Evet yapılabilir", "Kısmen yapılır", "Yedeklerden yapılır"], "cevap": "Hayır yapılamaz"},
+          {"soru": "Tasfiye dönemi ne zaman başlar?", "secenekler": ["Tasfiye kararının tescil ve ilanıyla", "Zarar edince", "Borçlanınca", "Yıl sonunda"], "cevap": "Tasfiye kararının tescil ve ilanıyla"},
+          {"soru": "Tasfiye sonunda kalan para kime dağıtılır?", "secenekler": ["Payları oranında ortaklara", "Devlete", "Çalışanlara", "Hayır kurumlarına"], "cevap": "Payları oranında ortaklara"}
+        ],
+        "Test 2 (Kar Dağıtımı)": [{"soru": "Temettü nedir?", "secenekler": ["Kar payı", "Faiz", "Vergi", "Maaş"], "cevap": "Kar payı"}],
+        "Test 3 (Sermaye Artırımı)": [{"soru": "Bedelli artırım?", "secenekler": ["Nakit girişli", "Yedeklerden", "Kardan", "Fonlardan"], "cevap": "Nakit girişli"}],
+        "Test 4 (Şirket Türleri)": [{"soru": "Sermayesi paylara bölünmüş şirket?", "secenekler": ["Anonim Şirket", "Kolektif", "Adi", "Komandit"], "cevap": "Anonim Şirket"}],
+        "Test 5 (Tasfiye)": [{"soru": "Tasfiye memuru?", "secenekler": ["Tasfiyeyi yürüten kişi", "Müdür", "Ortak", "Memur"], "cevap": "Tasfiyeyi yürüten kişi"}]
+      },
       "Maliyet Muhasebesi": {
         "Test 1 (Gider Hesapları)": [
           {"soru": "710 Direkt İlk Madde ve Malzeme Gideri nedir?", "secenekler": ["Üretilen mamulün bünyesine giren ana madde gideridir", "Yardımcı madde", "İşçilik", "Kira"], "cevap": "Üretilen mamulün bünyesine giren ana madde gideridir"},
@@ -148,8 +128,101 @@
           {"soru": "793 Dışarıdan Sağlanan Fayda ve Hizmetler?", "secenekler": ["Elektrik, Su, Gaz, Haberleşme, Bakım", "Malzeme", "Personel", "Vergi"], "cevap": "Elektrik, Su, Gaz, Haberleşme, Bakım"},
           {"soru": "794 Çeşitli Giderler?", "secenekler": ["Sigorta, Kira, Mahkeme giderleri", "Faiz", "Hammadde", "İşçilik"], "cevap": "Sigorta, Kira, Mahkeme giderleri"},
           {"soru": "Maliyet muhasebesi hangi raporu düzenler?", "secenekler": ["Satılan Mamul Maliyeti Tablosu", "Bilanço", "Nakit Akış", "Özkaynak Değişim"], "cevap": "Satılan Mamul Maliyeti Tablosu"}
-        ]
+        ],
+        "Test 2 (Maliyet Akışı)": [{"soru": "Hammadde üretime verilince?", "secenekler": ["710 (B) / 150 (A)", "150 (B) / 710 (A)", "151 (B)", "152 (B)"], "cevap": "710 (B) / 150 (A)"}],
+        "Test 3 (Sipariş Maliyeti)": [{"soru": "Özel üretimde kullanılan sistem?", "secenekler": ["Sipariş Maliyet Sistemi", "Safha Maliyet", "Standart", "Değişken"], "cevap": "Sipariş Maliyet Sistemi"}],
+        "Test 4 (Safha Maliyeti)": [{"soru": "Seri üretimde kullanılan sistem?", "secenekler": ["Safha (Evre) Maliyet", "Sipariş", "Tahmini", "Standart"], "cevap": "Safha (Evre) Maliyet"}],
+        "Test 5 (Maliyet Analizi)": [{"soru": "Sabit maliyet?", "secenekler": ["Üretimden bağımsız değişmeyen gider", "Değişken gider", "Hammadde", "Enerji"], "cevap": "Üretimden bağımsız değişmeyen gider"}]
+      },
+      "Bilgisayarlı Muhasebe": {
+        "Test 1 (Fiş İşlemleri)": [
+          {"soru": "Kasa çıkışı fişi?", "secenekler": ["Tediye Fişi", "Tahsil Fişi", "Mahsup Fişi", "Açılış Fişi"], "cevap": "Tediye Fişi"},
+          {"soru": "Kasa girişi fişi?", "secenekler": ["Tahsil Fişi", "Tediye Fişi", "Mahsup Fişi", "Kapanış Fişi"], "cevap": "Tahsil Fişi"},
+          {"soru": "Kasasız işlem fişi?", "secenekler": ["Mahsup Fişi", "Tahsil", "Tediye", "Özel"], "cevap": "Mahsup Fişi"},
+          {"soru": "Açılış fişi tarihi?", "secenekler": ["01.01.XXXX", "31.12.XXXX", "Dönem ortası", "Her ay başı"], "cevap": "01.01.XXXX"},
+          {"soru": "Luca Kaydet kısayolu?", "secenekler": ["F2", "F5", "F10", "ESC"], "cevap": "F2"},
+          {"soru": "Fiş kopyalama?", "secenekler": ["F5", "F2", "F1", "F9"], "cevap": "F5"},
+          {"soru": "Bakiye eşitleme?", "secenekler": ["F7", "F4", "F12", "Esc"], "cevap": "F7"},
+          {"soru": "Satır silme?", "secenekler": ["Alt + F3", "Delete", "F9", "Backspace"], "cevap": "Alt + F3"},
+          {"soru": "Hesap planı?", "secenekler": ["F10", "F1", "F5", "F2"], "cevap": "F10"},
+          {"soru": "KDV mahsup fişi ne zaman?", "secenekler": ["Ay sonu", "Yıl sonu", "Her gün", "Fatura kesince"], "cevap": "Ay sonu"},
+          {"soru": "Yansıtma fişi?", "secenekler": ["Giderleri gelir tablosuna aktarır", "KDV hesaplar", "Stok sayar", "Fiş siler"], "cevap": "Giderleri gelir tablosuna aktarır"},
+          {"soru": "Mizan?", "secenekler": ["Hesap özet tablosu", "Bilanço", "Kar zarar", "Defter"], "cevap": "Hesap özet tablosu"},
+          {"soru": "Muavin defter?", "secenekler": ["Hesap detay dökümü", "Özet", "Borç", "Alacak"], "cevap": "Hesap detay dökümü"},
+          {"soru": "Personel modülü?", "secenekler": ["Bordro yapar", "Fiş girer", "Stok tutar", "Demirbaş izler"], "cevap": "Bordro yapar"},
+          {"soru": "E-Defter gönderim süresi?", "secenekler": ["Takip eden 3. ay sonu", "Her ay başı", "Yıl sonu", "Anında"], "cevap": "Takip eden 3. ay sonu"}
+        ],
+        "Test 2 (Beyannameler)": [{"soru": "KDV beyannamesi?", "secenekler": ["Ayın 28. günü", "24. günü", "15. günü", "Son günü"], "cevap": "Ayın 28. günü"}],
+        "Test 3 (E-Fatura)": [{"soru": "Temel fatura?", "secenekler": ["Reddedilemeyen fatura", "Ticari fatura", "Kağıt fatura", "Arşiv"], "cevap": "Reddedilemeyen fatura"}],
+        "Test 4 (Dönem Sonu)": [{"soru": "Kapanış fişi?", "secenekler": ["Otomatik oluşur", "Elle girilir", "Yapılmaz", "Silinir"], "cevap": "Otomatik oluşur"}],
+        "Test 5 (Sabit Kıymet)": [{"soru": "Amortisman?", "secenekler": ["Otomatik hesaplanır", "Elle yapılır", "Hesaplanmaz", "Tahmindir"], "cevap": "Otomatik hesaplanır"}]
       }
+    },
+    "12. Sınıf": {
+      "Finansal Okuryazarlık": {
+        "Test 1 (Bütçe ve Planlama)": [
+          {"soru": "Gelir - Gider?", "secenekler": ["Tasarruf (veya Açık)", "Ciro", "Kar", "Maliyet"], "cevap": "Tasarruf (veya Açık)"},
+          {"soru": "Gider kalemi?", "secenekler": ["Kira", "Maaş", "Faiz Geliri", "Prim"], "cevap": "Kira"},
+          {"soru": "İhtiyaç nedir?", "secenekler": ["Zorunlu harcama", "İstek", "Lüks", "Tatil"], "cevap": "Zorunlu harcama"},
+          {"soru": "Bütçe nedir?", "secenekler": ["Gelecek planı", "Geçmiş özeti", "Banka", "Borç"], "cevap": "Gelecek planı"},
+          {"soru": "Acil durum fonu?", "secenekler": ["Beklenmedik giderler için", "Tatil", "Araba", "Yatırım"], "cevap": "Beklenmedik giderler için"},
+          {"soru": "Enflasyondan korunma?", "secenekler": ["Yatırım yapma", "Para saklama", "Harcama", "Borçlanma"], "cevap": "Yatırım yapma"},
+          {"soru": "Risk - Getiri?", "secenekler": ["Doğru orantılı", "Ters orantılı", "İlişkisiz", "Risk kötüdür"], "cevap": "Doğru orantılı"},
+          {"soru": "Portföy?", "secenekler": ["Yatırım çeşitlendirme", "Tek hisse", "Nakit", "Borç"], "cevap": "Yatırım çeşitlendirme"},
+          {"soru": "Bileşik faiz?", "secenekler": ["Faizin faizi", "Basit faiz", "Düşük faiz", "Sabit faiz"], "cevap": "Faizin faizi"},
+          {"soru": "Kredi notu?", "secenekler": ["Ödeme alışkanlığı puanı", "Gelir", "Zenginlik", "Eğitim"], "cevap": "Ödeme alışkanlığı puanı"},
+          {"soru": "Asgari ödeme?", "secenekler": ["Kredi kartı minimum ödemesi", "Tamamı", "Faiz", "Aidat"], "cevap": "Kredi kartı minimum ödemesi"},
+          {"soru": "BES?", "secenekler": ["Bireysel Emeklilik", "Banka", "Borsa", "Borç"], "cevap": "Bireysel Emeklilik"},
+          {"soru": "DASK?", "secenekler": ["Zorunlu Deprem Sigortası", "Kasko", "Sağlık", "Hayat"], "cevap": "Zorunlu Deprem Sigortası"},
+          {"soru": "Hisse senedi?", "secenekler": ["Ortaklık payı", "Borç senedi", "Faiz", "Döviz"], "cevap": "Ortaklık payı"},
+          {"soru": "Tahvil?", "secenekler": ["Borçlanma senedi", "Ortaklık", "Hisse", "Tapu"], "cevap": "Borçlanma senedi"}
+        ],
+        "Test 2 (Yatırım)": [{"soru": "Altın?", "secenekler": ["Güvenli liman", "Riskli", "Spekülatif", "Değersiz"], "cevap": "Güvenli liman"}],
+        "Test 3 (Bankacılık)": [{"soru": "Mevduat garantisi?", "secenekler": ["650.000 TL", "100.000 TL", "Sınırsız", "Yok"], "cevap": "650.000 TL"}],
+        "Test 4 (Vergi)": [{"soru": "KDV?", "secenekler": ["Harcama vergisi", "Gelir vergisi", "Emlak vergisi", "Motorlu taşıt"], "cevap": "Harcama vergisi"}],
+        "Test 5 (Sigorta)": [{"soru": "Trafik sigortası?", "secenekler": ["Zorunlu", "İsteğe bağlı", "Kasko", "Gereksiz"], "cevap": "Zorunlu"}]
+      },
+      "Bankacılık ve Banka Muhasebesi": {
+        "Test 1 (Banka Tanımı ve İşlemler)": [
+          {"soru": "Para basan kurum?", "secenekler": ["TCMB", "Ziraat", "Hazine", "Cumhurbaşkanı"], "cevap": "TCMB"},
+          {"soru": "Mevduat nedir?", "secenekler": ["Bankaya yatan para", "Kredi", "Senet", "Faiz"], "cevap": "Bankaya yatan para"},
+          {"soru": "Katılım bankası?", "secenekler": ["Faizsiz bankacılık", "Faizli", "Döviz bürosu", "Devlet bankası"], "cevap": "Faizsiz bankacılık"},
+          {"soru": "Dekont?", "secenekler": ["İşlem belgesi", "Fatura", "Çek", "Senet"], "cevap": "İşlem belgesi"},
+          {"soru": "IBAN?", "secenekler": ["26 hane", "24 hane", "16 hane", "11 hane"], "cevap": "26 hane"},
+          {"soru": "EFT?", "secenekler": ["Farklı bankalar arası transfer", "Aynı banka", "Yurtdışı", "Nakit"], "cevap": "Farklı bankalar arası transfer"},
+          {"soru": "Havale?", "secenekler": ["Aynı banka içi transfer", "Farklı banka", "Yurtdışı", "Çek"], "cevap": "Aynı banka içi transfer"},
+          {"soru": "FAST?", "secenekler": ["7/24 Anlık transfer", "EFT", "Havale", "Swift"], "cevap": "7/24 Anlık transfer"},
+          {"soru": "Kredi nedir?", "secenekler": ["Ödünç para verme", "Hibe", "Mevduat", "Yatırım"], "cevap": "Ödünç para verme"},
+          {"soru": "Mevduat banka için nedir?", "secenekler": ["Borç (Pasif)", "Varlık", "Gelir", "Gider"], "cevap": "Borç (Pasif)"},
+          {"soru": "Kredi banka için nedir?", "secenekler": ["Alacak (Aktif)", "Borç", "Sermaye", "Gider"], "cevap": "Alacak (Aktif)"},
+          {"soru": "Teminat mektubu?", "secenekler": ["Gayrinakdi kredi", "Nakdi kredi", "Mevduat", "Para"], "cevap": "Gayrinakdi kredi"},
+          {"soru": "Döviz alış kuru?", "secenekler": ["Bankanın döviz aldığı fiyat", "Sattığı fiyat", "Merkez kuru", "Borsa"], "cevap": "Bankanın döviz aldığı fiyat"},
+          {"soru": "Kambiyo karı?", "secenekler": ["Döviz işlem karı", "Faiz", "Komisyon", "Hizmet"], "cevap": "Döviz işlem karı"},
+          {"soru": "Stopaj?", "secenekler": ["Vergi kesintisi", "Faiz", "Komisyon", "Ücret"], "cevap": "Vergi kesintisi"}
+        ],
+        "Test 2 (Krediler)": [{"soru": "İhtiyaç kredisi?", "secenekler": ["Bireysel kredi", "Ticari", "Kurumsal", "Devlet"], "cevap": "Bireysel kredi"}],
+        "Test 3 (Dış Ticaret)": [{"soru": "Akreditif?", "secenekler": ["Ödeme garantisi", "Nakit", "Çek", "Senet"], "cevap": "Ödeme garantisi"}],
+        "Test 4 (Merkez Bankası)": [{"soru": "TCMB amacı?", "secenekler": ["Fiyat istikrarı", "Kar", "Kredi", "İstihdam"], "cevap": "Fiyat istikrarı"}],
+        "Test 5 (Risk)": [{"soru": "KKB?", "secenekler": ["Kredi Kayıt Bürosu", "Merkez Bankası", "Maliye", "Tapu"], "cevap": "Kredi Kayıt Bürosu"}]
+      }
+    }
+  },
+  "DENEME_SINAVLARI": {
+    "10. Sınıf Muhasebe": {
+      "Deneme 1 (Genel Muhasebe)": [
+        {"soru": "İşletmenin sahip olduğu varlıkların, işletme sahiplerinden ayrı olduğunu ifade eden kavram?", "secenekler": ["Kişilik", "Süreklilik", "Dönemsellik", "Maliyet Esası"], "cevap": "Kişilik"},
+        {"soru": "Bilanço nedir?", "secenekler": ["İşletmenin belli bir tarihteki mali durum tablosu", "Kar zarar tablosu", "Nakit akış tablosu", "Maliyet tablosu"], "cevap": "İşletmenin belli bir tarihteki mali durum tablosu"}
+      ]
+    },
+    "11. Sınıf Muhasebe": {
+      "Deneme 1 (Maliyet & Şirketler)": [
+        {"soru": "Kısa vadeli banka kredisi?", "secenekler": ["300 Banka Kredileri", "400 Kredi", "303 Taksit", "102 Banka"], "cevap": "300 Banka Kredileri"}
+      ]
+    },
+    "12. Sınıf Muhasebe": {
+      "Deneme 1 (Finans & Banka)": [
+        {"soru": "Vadesi 1 yılın altına düşen uzun vadeli borç?", "secenekler": ["303 Uzun Vadeli Kredi Taksit", "300 Kredi", "400 Kredi", "304 Tahvil"], "cevap": "303 Uzun Vadeli Kredi Taksit"}
+      ]
     }
   }
 }
