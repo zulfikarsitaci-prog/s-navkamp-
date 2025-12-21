@@ -21,14 +21,13 @@ st.markdown("""
     .stApp { background-color: #F0F4C3 !important; }
     h1, h2, h3, h4, .stMarkdown, p, label { color: #212121 !important; }
     
-    /* DROPDOWN (Açılır Liste) DÜZELTMESİ - Beyaz Arka Plan */
+    /* DROPDOWN DÜZELTMESİ */
     .stSelectbox div[data-baseweb="select"] > div {
         background-color: #FFFFFF !important;
         color: #000000 !important;
         border: 2px solid #FF7043;
     }
     
-    /* GİZLİLİK */
     .stDeployButton {display:none;}
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
@@ -44,7 +43,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* SEÇİM KARTLARI (ORTA EKRAN) */
+    /* SEÇİM KARTLARI */
     .secim-karti {
         background-color: white;
         padding: 20px;
@@ -58,7 +57,7 @@ st.markdown("""
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
     
-    /* İMZA ALANI */
+    /* İMZA */
     .imza-container {
         margin-top: 50px;
         text-align: right;
@@ -72,11 +71,10 @@ st.markdown("""
         font-weight: bold;
         margin-bottom: 5px;
     }
-    .imza-satir {
+    .imza {
         font-family: 'Dancing Script', cursive;
         color: #D84315;
         font-size: 22px; 
-        line-height: 1.5;
     }
     
     /* BUTONLAR */
@@ -196,7 +194,7 @@ if st.session_state.ekran == 'giris':
         </div>
         """, unsafe_allow_html=True)
         
-        ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Zülfikar Sıtacı")
+        ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Ali Yılmaz")
         
         st.write("")
         if st.button("Sınav Türünü Seçmek İçin Giriş Yapınız ➡️"):
@@ -213,12 +211,10 @@ if st.session_state.ekran == 'giris':
             else:
                 st.error("Lütfen adınızı giriniz!")
         
-        # GÜNCELLENEN İMZA ALANI (ZÜLFİKAR ÜSTTE, MUSTAFA ALTTA)
         st.markdown("""
         <div class='imza-container'>
             <div class='imza-baslik'>Muhasebe ve Finansman Öğretmenleri</div>
-            <div class='imza-satir'></div>
-            <div class='imza-satir'></div>
+            <div class='imza'>Zülfikar Sıtacı & Mustafa Bağcık</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -257,7 +253,7 @@ elif st.session_state.ekran == 'sinav':
             st.markdown("""
             <div class='secim-karti'>
                 <h3>💼 Meslek Lisesi</h3>
-                <p>10, 11 ve 12. Sınıf Alan Testleri</p>
+                <p>Muhasebe Alanı: Konu Testleri ve Deneme Sınavları</p>
             </div>
             """, unsafe_allow_html=True)
             if st.button("Meslek Çöz ➡️", key="btn_meslek"):
@@ -290,26 +286,49 @@ elif st.session_state.ekran == 'sinav':
         elif st.session_state.secim_turu == "MESLEK":
             st.subheader("💼 Meslek Alanı Ayarları")
             if MESLEK_VERI:
-                # 1. Aşama: SINIF SEÇİMİ
-                secilen_sinif = st.selectbox("Sınıf / Alan Seçiniz:", list(MESLEK_VERI.keys()))
+                # İKİ SEKME: KONU TARAMA vs GENEL DENEME
+                tab_konu, tab_deneme = st.tabs(["📝 KONU TARAMA TESTLERİ (20 Soru)", "🏆 GENEL DENEME SINAVLARI (50 Soru)"])
                 
-                # 2. Aşama: TEST SEÇİMİ (O sınıfa ait testleri getir)
-                secilen_sinif_testleri = MESLEK_VERI.get(secilen_sinif, {})
-                if secilen_sinif_testleri:
-                    secilen_test_adi = st.selectbox("Çözülecek Testi Seçiniz:", list(secilen_sinif_testleri.keys()))
-                    
-                    if st.button("SINAVI BAŞLAT 🚀"):
-                        sorular = secilen_sinif_testleri.get(secilen_test_adi, [])
-                        if sorular:
-                            st.session_state.secilen_liste = sorular
-                            st.session_state.mod = "MESLEK"
-                            st.session_state.oturum = True
-                            st.session_state.karne = [] 
-                            st.session_state.aktif_index = 0
-                            st.rerun()
-                        else: st.error("Bu testte soru yok.")
-                else:
-                    st.error("Bu sınıfa ait test bulunamadı.")
+                # 1. SEKME: KONU TARAMA
+                with tab_konu:
+                    konu_verisi = MESLEK_VERI.get("KONU_TARAMA", {})
+                    if konu_verisi:
+                        sinif = st.selectbox("Sınıf Seçiniz:", list(konu_verisi.keys()), key="sb_konu")
+                        testler = konu_verisi.get(sinif, {})
+                        test = st.selectbox("Test Seçiniz:", list(testler.keys()), key="sb_test")
+                        
+                        if st.button("TESTİ BAŞLAT 🚀", key="btn_konu"):
+                            sorular = testler.get(test, [])
+                            if sorular:
+                                st.session_state.secilen_liste = sorular
+                                st.session_state.mod = "MESLEK"
+                                st.session_state.oturum = True
+                                st.session_state.karne = [] 
+                                st.session_state.aktif_index = 0
+                                st.rerun()
+                    else:
+                        st.warning("Konu tarama testleri yüklenmemiş.")
+
+                # 2. SEKME: GENEL DENEME
+                with tab_deneme:
+                    deneme_verisi = MESLEK_VERI.get("DENEME_SINAVLARI", {})
+                    if deneme_verisi:
+                        sinif_d = st.selectbox("Sınıf Seçiniz:", list(deneme_verisi.keys()), key="sb_deneme_sinif")
+                        denemeler = deneme_verisi.get(sinif_d, {})
+                        deneme = st.selectbox("Deneme Sınavı Seçiniz:", list(denemeler.keys()), key="sb_deneme")
+                        
+                        if st.button("DENEMEYİ BAŞLAT 🚀", key="btn_deneme"):
+                            sorular = denemeler.get(deneme, [])
+                            if sorular:
+                                st.session_state.secilen_liste = sorular
+                                st.session_state.mod = "MESLEK"
+                                st.session_state.oturum = True
+                                st.session_state.karne = [] 
+                                st.session_state.aktif_index = 0
+                                st.rerun()
+                    else:
+                        st.warning("Deneme sınavları yüklenmemiş.")
+
             else:
                 st.warning("Meslek verileri yüklenmemiş.")
 
