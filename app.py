@@ -81,7 +81,7 @@ KONU_VERI = dosya_yukle(KONU_JSON_ADI)
 if st.session_state.ekran == 'giris':
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
-        st.markdown("<div class='giris-kart'><h1>🎓 Bağarası ÇPAL</h1><h2>Dijital Sınav Merkezi</h2><hr><p style='font-size:18px; font-weight:bold; color:#D84315;'>Okulumuz Muhasebe ve Finansman Alanının öğrencilerimize hediyesidir.</p><br><p>Lütfen adınızı giriniz.</p></div>", unsafe_allow_html=True)
+        st.markdown("<div class='giris-kart'><h1>🎓 Bağarası ÇPAL</h1><h2>Dijital Sınav Merkezi</h2><hr><p style='font-size:18px; font-weight:bold; color:#D84315;'>Okulumuz Muhasebe ve Finansman Alanının öğrencilerimize hediyesidir.</p><br><p>zülfikar sıtacı.</p></div>", unsafe_allow_html=True)
         ad = st.text_input("Adınız Soyadınız:")
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
