@@ -14,45 +14,87 @@ TYT_PDF_ADI = "tytson8.pdf"
 TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
-LIFESIM_JSON_ADI = "lifesim_data.json"
 
-# ==============================================================================
-# VERİ YÜKLEME FONKSİYONLARI
-# ==============================================================================
+# --- SENARYO VERİTABANI (PYTHON LİSTESİ - GÜNCEL) ---
+SCENARIOS_DATA = [
+    {
+        "category": "Güncel Ekonomi",
+        "title": "1. Kredi Kartı Asgari Ödeme Tuzağı",
+        "text": "Bu ay harcamaların kontrolden çıktı, ekstre 40.000 TL geldi. Banka 'Asgari Tutar 8.000 TL öde, gerisini ertele' diyor. Kart faizi aylık %4.25 (yıllık bileşik %70+).<br><br><b>Karar:</b> Asgariyi ödeyip kalan parayla yatırım mı yaparsın? Yoksa birikimini bozdurup borcu tamamen kapatır mısın?",
+        "data": ["Bileşik Faiz", "Maliyet", "Yatırım Getirisi"],
+        "hint": "Borç faizi kesin, yatırım getirisi ihtimaldir.",
+        "doc": "📌 **HAP BİLGİ: Kredi Kartı Faizi**<br><br>• Kredi kartı faizi, piyasadaki en yüksek maliyetli borçlanma türüdür.<br>• Asgari ödeme yapmak, borcu bitirmez; sadece yasal takibi engeller. Kalan borç her ay çığ gibi büyür. Eğer elinizdeki parayı %70'ten fazla getiri getirecek bir yere koyamıyorsanız, borcu kapatmak en iyi yatırımdır."
+    },
+    {
+        "category": "Güncel Ekonomi",
+        "title": "2. Teknoloji Alışverişi ve Enflasyon",
+        "text": "Telefonun bozuldu. Yenisi 40.000 TL. Banka hesabında tam 40.000 TL var. Kredi kartı ile 12 taksit yaparsan vade farkıyla toplam 58.000 TL ödüyorsun. Ülkedeki yıllık enflasyon beklentisi %65.<br><br><b>Karar:</b> Nakit ödeyip parasız (likiditesiz) kalmak mı? Yoksa vade farkı ödeyip elindeki nakdi Altın/Döviz/Fon gibi araçlarda tutmak mı?",
+        "data": ["Reel Faiz", "Likidite", "Fırsat Maliyeti"],
+        "hint": "Paranın bugünkü değeri ile 1 yıl sonraki değeri aynı değil.",
+        "doc": "📌 **HAP BİLGİ: Enflasyonist Ortamda Borçlanma**<br><br>• **Reel Maliyet:** Eğer ödeyeceğiniz vade farkı oranı (%45), ülkedeki enflasyondan (%65) düşükse, borçlanmak karlıdır. Çünkü borcunuzun reel değeri zamanla erir.<br>• **Nakit Kraldır:** Tüm nakdi bir mala bağlamak risklidir. Taksit yapıp, eldeki nakdi enflasyondan fazla getiri getiren bir araca yatırmak matematiksel olarak daha karlıdır."
+    },
+    {
+        "category": "Hukuk",
+        "title": "3. Tahliye Taahhütnamesi Krizi",
+        "text": "Mükemmel bir ev buldun. Ev sahibi sözleşmeyi imzalarken önüne boş bir 'Tahliye Taahhütnamesi' koydu. 'İmzalarsan evi veririm' diyor.<br><br><b>Karar:</b> Evi tutmak için riski alıp imzalar mısın? Yoksa bu bir tuzaktır deyip vazgeçer misin?",
+        "data": ["Yargıtay Kararları", "Kiracı Hakkı", "Baskı"],
+        "hint": "Boş kağıda imza atmanın hukuki sonucu nedir?",
+        "doc": "📌 **HAP BİLGİ: Tahliye Taahhütnamesi**<br><br>• Bu belge, kiracının en büyük kabusudur. Ev sahibi sonradan istediği tarihi atıp icraya koyabilir.<br>• Yargıtay, boş kağıda imza atanın sonucuna katlanacağı görüşündedir. Bunu imzalamak, '1 yıl sonra kirayı 5 katına çıkarsan da sesimi çıkaramam' demektir."
+    },
+    {
+        "category": "Kariyer",
+        "title": "4. Kurumsal Kölelik mi, Girişimcilik mi?",
+        "text": "<b>A) Kurumsal:</b> 45.000 TL Maaş + Sigorta. (Konfor alanı)<br><b>B) Kendi İşin:</b> İlk 6 ay gelir yok, batma riski var ama potansiyel sınırsız.<br><br>Hangisini seçersin?",
+        "data": ["Risk İştahı", "J Eğrisi", "Finansal Tampon"],
+        "hint": "6 ay hiç para kazanmazsan yaşayabilir misin?",
+        "doc": "📌 **HAP BİLGİ: Fırsat Maliyeti**<br><br>• Kurumsal hayat 'Konfor Alanı'dır, düzenli gelir sağlar ama zamanını satarsın.<br>• Girişimcilikte ise başta zamanını ve paranı yatırırsın, karşılığını hemen alamazsın (J Eğrisi). Karar verirken '6 ay gelirsiz kalmaya dayanacak finansal tamponum var mı?' sorusunu sormalısın."
+    },
+    {
+        "category": "Etik",
+        "title": "5. Şirket Kartı ile Kişisel Harcama",
+        "text": "Şirket kartı sende. Özel bir yemeği 'Şirket gideri' gibi gösterip ödemek aklından geçti. Kimse fark etmeyecek.<br><br>Yapar mısın?",
+        "data": ["Güven", "Zimmet", "İtibar"],
+        "hint": "İtibar bir kere kaybedilir.",
+        "doc": "📌 **HAP BİLGİ: Güveni Kötüye Kullanma**<br><br>• Şirket varlıklarını (kart, araç, bilgisayar) kişisel çıkar için kullanmak, hukuken 'Güveni Kötüye Kullanma' suçudur.<br>• İşveren bunu fark edip ses çıkarmasa bile, senin hakkındaki notunu verir. Terfi zamanı geldiğinde 'Dürüstlüğü şüpheli' biri olarak elenirsin."
+    },
+    {
+        "category": "Yatırım",
+        "title": "6. 'Coin Uçuyor' (FOMO)",
+        "text": "Arkadaşın X Coin'den parayı vurdu. 'Gel sen de yatır' diyor. Projeyi bilmiyorsun, sadece grafik yükseliyor.<br><br>Tüm paranı basar mısın?",
+        "data": ["FOMO", "Araştırma", "Balon"],
+        "hint": "Bilmediğin şeye yatırım yapma.",
+        "doc": "📌 **HAP BİLGİ: FOMO ve Ponzi Şemaları**<br><br>• **FOMO (Fear of Missing Out):** Fırsatı kaçırma korkusu, yatırımcının en büyük düşmanıdır.<br>• Bir varlık, temel bir sebep olmadan sadece 'fiyatı artıyor' diye alınıyorsa bu bir balondur. Tarihte Lale Çılgınlığı'ndan bugüne, tepeden alanlar her zaman batmıştır."
+    },
+    {
+        "category": "Hukuk",
+        "title": "7. İkinci El Araçta 'Pert' Kaydı",
+        "text": "Tanıdıktan ekspertizsiz araba aldın. Satarken 'Pert' (Ağır hasarlı) çıktı. Satıcı 'Bilmiyordum' diyor. Ne yaparsın?",
+        "data": ["Gizli Ayıp", "Basiretli Tacir", "Sözleşme"],
+        "hint": "Tanıdıkla ticaret yaparken kurallar değişmez.",
+        "doc": "📌 **HAP BİLGİ: Ayıplı Mal ve Gizli Ayıp**<br><br>• İkinci el araç satışında satıcı, aracın kusurlarını gizlediyse (Gizli Ayıp), Borçlar Kanunu'na göre sorumludur.<br>• Noterde 'Haliyle kabul ettim' yazsa bile, gizlenen ağır hasar varsa dava açılabilir. Ancak süreç uzundur. Ders: Asla ekspertizsiz araç alma."
+    },
+    {
+        "category": "Yönetim",
+        "title": "8. Kriz Masası: Gıda Zehirlenmesi",
+        "text": "İşlettiğin kantinde zehirlenme şüphesi var. Veliler öfkeli.<br><br><b>Karar:</b> İnkar edip savunmaya mı geçersin? Sorumluluğu alıp işbirliği mi yaparsın?",
+        "data": ["Şeffaflık", "Kriz Yönetimi", "Empati"],
+        "hint": "Yangına benzinle gitme.",
+        "doc": "📌 **HAP BİLGİ: Kriz İletişimi**<br><br>• Savunmaya geçmek ('Biz yapmadık') karşı tarafın öfkesini artırır.<br>• Doğru Strateji: 1. Endişeyi kabul et. 2. Önlem al (Kantini geçici kapat). 3. İşbirliği yap (Numuneleri analize gönder). Şeffaflık güveni geri kazanmanın tek yoludur."
+    },
+    {
+        "category": "Sosyal",
+        "title": "9. Borç İsteyen Arkadaş",
+        "text": "Sevdiğin ama borcuna sadık olmayan arkadaşın 20.000 TL istedi. Vermezsen küsecek.<br><br>Parayı riske atıp verir misin? Yoksa ilişkiyi riske atıp reddeder misin?",
+        "data": ["Hayır Diyebilmek", "Risk", "İlişki"],
+        "hint": "Bu para geri gelmezse hayatın kayar mı?",
+        "doc": "📌 **HAP BİLGİ: Finansal Sınırlar**<br><br>• Birine borç verirken şu kuralı uygula: 'Bu para geri gelmese de hayatıma devam edebilir miyim?'<br>• Eğer cevap hayırsa, borç verme. Çünkü o para gelmediğinde sadece paranı değil, arkadaşını da kaybedersin. Dürüstçe 'Şu an müsait değilim' demek en sağlıklısıdır."
+    }
+]
 
-def dosya_yukle(dosya_adi):
-    if not os.path.exists(dosya_adi): return {}
-    try:
-        with open(dosya_adi, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            if dosya_adi == TYT_JSON_ADI:
-                return {int(k): v for k, v in data.items()}
-            return data
-    except Exception as e:
-        st.error(f"Dosya okuma hatası ({dosya_adi}): {e}")
-        return {}
+# JSON Verisini Hazırla
+SCENARIOS_JSON = json.dumps(SCENARIOS_DATA, ensure_ascii=False)
 
-def load_lifesim_data():
-    """LifeSim senaryolarını JSON dosyasından okur ve JS stringi olarak döndürür"""
-    if os.path.exists(LIFESIM_JSON_ADI):
-        try:
-            with open(LIFESIM_JSON_ADI, "r", encoding="utf-8") as f:
-                raw_data = f.read()
-                json.loads(raw_data) # Validasyon
-                return raw_data
-        except Exception as e:
-            st.error(f"Senaryo dosyası hatası: {e}")
-            return "[]"
-    else:
-        return "[]"
-
-# VERİLERİ YÜKLE
-TYT_VERI = dosya_yukle(TYT_JSON_ADI)
-MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
-KONU_VERI = dosya_yukle(KONU_JSON_ADI)
-SCENARIOS_JSON_STRING = load_lifesim_data()
-
-# --- LIFE-SIM HTML ŞABLONU ---
+# --- LIFE-SIM HTML ŞABLONU (V6.0 - SOKRATES MODU) ---
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -67,16 +109,29 @@ HTML_TEMPLATE = """
     </script>
     <style>
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; flex-direction: column; height: 100vh; padding: 10px; }
-        .glass { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+        .glass { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
         .glow-border:focus-within { box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
+        
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        .tab-btn { transition: all 0.3s ease; border-bottom: 3px solid transparent; opacity: 0.6; }
-        .tab-btn.active { border-bottom-color: #38bdf8; opacity: 1; color: white; background: rgba(56, 189, 248, 0.1); }
-        .tab-content { display: none; height: 100%; animation: fadeIn 0.4s ease; }
-        .tab-content.active { display: flex; flex-direction: column; gap: 1rem; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .main-container { height: 95vh; display: flex; flex-direction: column; gap: 1rem; padding: 0.5rem; }
+        @media (min-width: 768px) { .main-container { flex-direction: row; } }
+        .panel { display: flex; flex-direction: column; gap: 1rem; height: 100%; overflow-y: auto; }
+        .left-panel { flex: 4; }
+        .right-panel { flex: 5; position: relative; }
+        
+        /* Chat Balonları */
+        .msg-container { display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: auto; flex: 1; }
+        .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; animation: popIn 0.3s ease; }
+        .msg-ai { background: rgba(56, 189, 248, 0.15); border-left: 4px solid #38bdf8; align-self: flex-start; color: #e0f2fe; }
+        .msg-user { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); align-self: flex-end; color: #cbd5e1; }
+        
+        @keyframes popIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Bilgi Kartı Animasyonu */
         .info-card { 
             position: absolute; top: 0; right: 0; bottom: 0; left: 0; 
             background: rgba(15, 23, 42, 0.98); 
@@ -86,30 +141,35 @@ HTML_TEMPLATE = """
             display: flex; flex-direction: column;
         }
         .info-card.show { transform: translateX(0); }
-        .btn-analyze { background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%); }
-        .btn-analyze:hover { filter: brightness(1.1); }
+        
+        .btn-analyze { background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%); transition: all 0.3s; }
+        .btn-analyze:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-finish { background: linear-gradient(135deg, #34d399 0%, #059669 100%); }
+        
+        .tab-btn { transition: all 0.3s ease; border-bottom: 3px solid transparent; opacity: 0.6; }
+        .tab-btn.active { border-bottom-color: #38bdf8; opacity: 1; color: white; background: rgba(56, 189, 248, 0.1); }
     </style>
 </head>
 <body>
     <div class="flex gap-4 mb-2 shrink-0">
         <button onclick="switchTab('scenario')" id="tab-btn-scenario" class="tab-btn active flex-1 py-3 glass rounded-lg font-bold text-lg flex items-center justify-center gap-2">
-            <i data-lucide="book-open"></i> GÖREV & SENARYO
+            <i data-lucide="book-open"></i> GÖREV
         </button>
         <button onclick="switchTab('answer')" id="tab-btn-answer" class="tab-btn flex-1 py-3 glass rounded-lg font-bold text-lg flex items-center justify-center gap-2">
-            <i data-lucide="edit-3"></i> ÇÖZÜM & ANALİZ
+            <i data-lucide="message-circle"></i> İNTERAKTİF ANALİZ
         </button>
     </div>
 
     <div class="flex-1 overflow-hidden relative">
-        <div id="tab-scenario" class="tab-content active">
+        <div id="tab-scenario" class="panel hidden">
             <div class="glass p-4 rounded-xl border-l-4 border-accent shrink-0">
                 <label class="text-xs text-slate-400 uppercase font-bold flex items-center gap-2">
-                    <i data-lucide="map"></i> Hayat Senaryosu Seç
+                    <i data-lucide="map"></i> Senaryo Seçimi
                 </label>
                 <select id="scenarioSelect" onchange="loadScenario()" class="w-full mt-2 bg-slate-900 text-white p-3 rounded border border-slate-700 outline-none focus:border-accent cursor-pointer hover:bg-slate-800 transition"></select>
             </div>
             
-            <div class="glass p-8 rounded-xl flex-1 flex flex-col relative overflow-hidden">
+            <div class="glass p-8 rounded-xl flex-1 flex flex-col relative overflow-hidden mt-4">
                 <div class="flex justify-between items-start mb-6">
                     <span id="categoryBadge" class="px-4 py-1 bg-blue-500/20 text-blue-400 text-sm font-bold rounded-full border border-blue-500/30">YÜKLENİYOR</span>
                 </div>
@@ -125,17 +185,19 @@ HTML_TEMPLATE = """
                     </div>
                     <div class="flex flex-wrap gap-2 justify-end items-center" id="scenarioDataTags"></div>
                 </div>
+                
                 <button onclick="switchTab('answer')" class="mt-4 w-full py-4 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition md:hidden">
-                    Çözüme Başla <i data-lucide="arrow-right"></i>
+                    Analize Başla <i data-lucide="arrow-right"></i>
                 </button>
             </div>
         </div>
 
-        <div id="tab-answer" class="tab-content relative">
+        <div id="tab-answer" class="panel right-panel relative flex flex-col">
+            
             <div id="knowledgeCard" class="info-card border-l-4 border-success shadow-2xl rounded-xl">
                 <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
                     <h3 class="text-xl font-bold text-success flex items-center gap-2">
-                        <i data-lucide="book-open-check"></i> UZMAN GÖRÜŞÜ & DERS NOTU
+                        <i data-lucide="check-circle-2"></i> UZMAN GÖRÜŞÜ & DOĞRU CEVAP
                     </h3>
                     <button onclick="closeKnowledgeCard()" class="p-2 hover:bg-slate-700 rounded-full transition">
                         <i data-lucide="x" class="w-6 h-6 text-slate-400"></i>
@@ -144,45 +206,35 @@ HTML_TEMPLATE = """
                 <div id="knowledgeContent" class="p-8 text-slate-200 text-lg leading-8 space-y-6 overflow-y-auto flex-1"></div>
                 <div class="p-4 bg-slate-800/50 border-t border-slate-700 text-center">
                     <button onclick="downloadReport()" class="px-6 py-3 bg-success/20 hover:bg-success/30 text-success border border-success/50 rounded-lg font-bold flex items-center justify-center gap-2 mx-auto transition-all w-full md:w-auto">
-                        <i data-lucide="download"></i> Analiz Raporunu İndir
+                        <i data-lucide="download"></i> Simülasyon Raporunu İndir
                     </button>
                 </div>
             </div>
 
-            <div class="glass p-2 rounded-lg flex items-center justify-between shrink-0">
-                <div class="flex gap-2">
-                    <button onclick="setMode('text')" id="btn-text" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-slate-900 font-bold text-sm transition-all"><i data-lucide="file-edit" class="w-4 h-4"></i> Yazı</button>
-                    <button onclick="setMode('draw')" id="btn-draw" class="flex items-center gap-2 px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 text-sm transition-all"><i data-lucide="pencil" class="w-4 h-4"></i> Çizim</button>
+            <div id="chatContainer" class="msg-container glass rounded-xl mb-2">
+                <div class="msg msg-ai">
+                    <i data-lucide="bot" class="inline w-4 h-4 mr-2"></i>
+                    Merhaba! Bu senaryoyu dikkatlice okuduysan, ilk kararını ve gerekçeni aşağıya yaz. Finansal, hukuki ve etik açılardan değerlendireceğim.
                 </div>
-                <div class="text-right px-4 flex items-center gap-2"><i data-lucide="timer" class="w-4 h-4 text-slate-500"></i><span id="timer" class="text-xl font-mono text-white font-bold">00:00</span></div>
             </div>
 
-            <div class="glass p-1 rounded-xl flex-1 flex flex-col relative border border-slate-700 glow-border">
-                <textarea id="inputText" class="w-full h-full bg-transparent p-6 text-xl text-slate-200 resize-none outline-none font-light leading-relaxed placeholder-slate-600" 
-                placeholder="Bu durumda ne yaparsın? Kararının arkasındaki mantığı, riskleri ve fırsatları buraya yaz..."></textarea>
-                <div id="drawContainer" class="hidden w-full h-full bg-slate-900 relative rounded-lg overflow-hidden">
-                    <canvas id="drawingCanvas" class="w-full h-full block"></canvas>
-                    <button onclick="clearCanvas()" class="absolute top-4 right-4 bg-slate-700 p-2 rounded hover:bg-red-500 transition text-white z-10" title="Temizle"><i data-lucide="trash" class="w-4 h-4"></i></button>
+            <div class="glass p-1 rounded-xl shrink-0 border border-slate-700 glow-border flex flex-col">
+                <textarea id="inputText" class="w-full h-24 bg-transparent p-4 text-lg text-slate-200 resize-none outline-none font-light placeholder-slate-600" 
+                placeholder="Stratejini buraya yaz..."></textarea>
+                
+                <div class="flex justify-between items-center bg-slate-800/50 p-2 rounded-b-xl">
+                    <span class="text-xs text-slate-500 ml-2" id="stepIndicator">Aşama 1/3</span>
+                    <button id="analyzeBtn" onclick="analyzeSubmission()" class="btn-analyze text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2 shadow-lg">
+                        <span>GÖNDER</span> <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
             
-            <div class="glass p-0 rounded-xl overflow-hidden flex flex-col md:flex-row shrink-0 min-h-[140px]">
-                <button id="analyzeBtn" onclick="analyzeSubmission()" class="btn-analyze text-white font-bold p-6 flex flex-col items-center justify-center gap-2 md:w-1/4 transition-all active:scale-95">
-                    <i data-lucide="sparkles" class="w-8 h-8"></i>
-                    <span class="text-lg">ANALİZ ET</span>
+            <div id="expertBtnContainer" class="hidden absolute top-4 right-4 z-40">
+                <button onclick="openKnowledgeCard()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-bold transition-all animate-bounce">
+                    <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                    UZMAN GÖRÜŞÜNÜ GÖR
                 </button>
-                
-                <div class="p-6 flex-1 bg-slate-800/80 flex items-center relative">
-                    <div id="aiFeedback" class="text-base text-slate-300 leading-relaxed w-full">
-                        <div class="flex items-center gap-3 text-slate-500">
-                            <i data-lucide="bot" class="w-8 h-8"></i>
-                            <p>Senaryoyu okuduktan sonra kararını yaz ve 'Analiz Et' butonuna bas.</p>
-                        </div>
-                    </div>
-                    <button id="showDocBtn" onclick="openKnowledgeCard()" class="hidden absolute right-6 top-1/2 -translate-y-1/2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 text-sm font-bold transition-all animate-bounce">
-                        <i data-lucide="lightbulb" class="w-5 h-5"></i> UZMAN GÖRÜŞÜNÜ GÖR
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -191,8 +243,8 @@ HTML_TEMPLATE = """
         lucide.createIcons();
         const scenarios = __SCENARIOS_PLACEHOLDER__;
         let selectedScenarioIndex = 0;
-        let startTime = Date.now();
-
+        let currentStep = 1; // 1: İlk Cevap, 2: Revize/Detay, 3: Final
+        
         window.onload = function() {
             const select = document.getElementById('scenarioSelect');
             const categories = {};
@@ -203,28 +255,25 @@ HTML_TEMPLATE = """
             for (const [cat, items] of Object.entries(categories)) {
                 let group = document.createElement('optgroup'); group.label = cat.toUpperCase();
                 items.forEach(item => { 
-                    let opt = document.createElement('option'); 
-                    opt.value = item.idx; 
-                    opt.innerHTML = item.title; 
-                    group.appendChild(opt); 
+                    let opt = document.createElement('option'); opt.value = item.idx; opt.innerHTML = item.title; group.appendChild(opt); 
                 });
                 select.appendChild(group);
             }
             loadScenario();
-            setInterval(() => { 
-                const d = Math.floor((Date.now() - startTime)/1000); 
-                document.getElementById('timer').innerText = `${Math.floor(d/60).toString().padStart(2,'0')}:${(d%60).toString().padStart(2,'0')}`; 
-            }, 1000);
-            
-            setupCanvas();
         };
 
         function switchTab(tabName) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-btn-' + tabName).classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('tab-' + tabName).classList.add('active');
-            if(tabName === 'answer') resizeCanvas();
+            
+            if(tabName === 'scenario') {
+                document.getElementById('tab-scenario').classList.remove('hidden');
+                document.getElementById('tab-answer').classList.add('hidden');
+            } else {
+                document.getElementById('tab-scenario').classList.add('hidden');
+                document.getElementById('tab-answer').classList.remove('hidden');
+                document.getElementById('tab-answer').style.display = 'flex';
+            }
         }
 
         function loadScenario() {
@@ -232,6 +281,7 @@ HTML_TEMPLATE = """
             const s = scenarios[selectedScenarioIndex];
             
             switchTab('scenario');
+            
             document.getElementById('categoryBadge').innerText = s.category;
             document.getElementById('scenarioTitle').innerText = s.title;
             document.getElementById('scenarioText').innerHTML = s.text;
@@ -242,54 +292,95 @@ HTML_TEMPLATE = """
                 tags.innerHTML += `<span class="px-3 py-1 bg-slate-700 rounded-full text-sm text-primary border border-slate-600 font-mono">${d}</span>`;
             });
 
+            // Reset
+            currentStep = 1;
             document.getElementById('inputText').value = "";
+            document.getElementById('inputText').disabled = false;
             document.getElementById('hintBox').classList.add('hidden');
             document.getElementById('hintBtn').classList.remove('hidden');
-            document.getElementById('aiFeedback').innerHTML = `<div class="flex items-center gap-3 text-slate-500"><i data-lucide="bot" class="w-8 h-8"></i><p>Bekleniyor...</p></div>`;
-            document.getElementById('showDocBtn').classList.add('hidden');
+            document.getElementById('expertBtnContainer').classList.add('hidden');
             document.getElementById('knowledgeCard').classList.remove('show');
+            document.getElementById('stepIndicator').innerText = "Aşama 1/3";
+            
+            // Chat Sıfırla
+            const chat = document.getElementById('chatContainer');
+            chat.innerHTML = `<div class="msg msg-ai"><i data-lucide="bot" class="inline w-4 h-4 mr-2"></i>Bu senaryo için ilk stratejin nedir? Kararını ve nedenini yaz.</div>`;
+            lucide.createIcons();
             
             const btn = document.getElementById('analyzeBtn');
-            btn.innerHTML = '<i data-lucide="sparkles" class="w-8 h-8"></i><span class="text-lg">ANALİZ ET</span>';
+            btn.innerHTML = '<span>GÖNDER</span> <i data-lucide="send" class="w-4 h-4"></i>';
+            btn.className = "btn-analyze text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2 shadow-lg";
             btn.disabled = false;
-            btn.classList.remove('opacity-50');
+        }
+
+        function addMessage(text, type) {
+            const chat = document.getElementById('chatContainer');
+            const div = document.createElement('div');
+            div.className = `msg ${type === 'user' ? 'msg-user' : 'msg-ai'}`;
+            div.innerHTML = text;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+            lucide.createIcons();
         }
 
         function analyzeSubmission() {
-            const text = document.getElementById('inputText').value.trim().toLowerCase();
+            const input = document.getElementById('inputText');
+            const text = input.value.trim();
+            const s = scenarios[selectedScenarioIndex];
             const btn = document.getElementById('analyzeBtn');
-            const feedback = document.getElementById('aiFeedback');
-            
-            if (text.length < 15) {
-                feedback.innerHTML = "<span class='text-warning font-bold flex items-center gap-2'><i data-lucide='alert-triangle'></i> Çok kısa yazdın. Biraz daha detaylandır.</span>";
-                lucide.createIcons();
+
+            if (text.length < 10) {
+                addMessage("⚠ Lütfen biraz daha detaylı bir cevap yaz.", "msg-ai");
                 return;
             }
 
-            btn.innerHTML = '⏳';
+            // Kullanıcı mesajını ekle
+            addMessage(text, "msg-user");
+            input.value = "";
+            
+            // Yükleniyor efekti
             btn.disabled = true;
-            btn.classList.add('opacity-50');
-            feedback.innerHTML = "<span class='text-primary animate-pulse'>Yapay zeka stratejini inceliyor... Riskler hesaplanıyor...</span>";
+            btn.innerHTML = '⏳ Düşünüyor...';
 
             setTimeout(() => {
-                let msg = "";
-                if (text.includes("nakit") || text.includes("peşin")) {
-                    msg = "<span class='text-white font-bold'>🤔 Nakit tercih ettin.</span><br>Peki acil durum fonunu tamamen tüketmek, bu belirsiz ekonomide seni savunmasız bırakmaz mı?";
-                } else if (text.includes("taksit") || text.includes("kredi")) {
-                    msg = "<span class='text-white font-bold'>🤔 Borçlanmayı seçtin.</span><br>Peki aylık ödeme yükü, gelecekteki nakit akışını kilitlerse ne yapacaksın?";
-                } else if (text.includes("dava") || text.includes("mahkeme")) {
-                    msg = "<span class='text-white font-bold'>⚖ Hukuki yolu seçtin.</span><br>Haklısın ama davanın yıllarca süreceğini ve bu süreçteki stres maliyetini hesaba kattın mı?";
-                } else if (text.includes("uzlaş")) {
-                    msg = "<span class='text-success font-bold'>🤝 Uzlaşmayı seçtin.</span><br>Bazen haktan feragat etmek, huzuru satın almaktır. Bu pragmatik bir yaklaşım.";
-                } else {
-                    msg = "<span class='text-white font-bold'>Analiz Tamamlandı.</span><br>Yaklaşımın ilginç. Kararın finansal ve etik boyutlarını tam olarak görmek ister misin?";
+                let aiResponse = "";
+                const lowerText = text.toLowerCase();
+                const keywords = s.data.map(d => d.split(':')[0].toLowerCase());
+                
+                // --- AŞAMA 1: İLK TESPİT ---
+                if (currentStep === 1) {
+                    let missedKeywords = false;
+                    // Basit anahtar kelime kontrolü (Simülasyon)
+                    if(lowerText.length < 50) {
+                        aiResponse = "Kararın net, ancak gerekçelerin biraz zayıf görünüyor. Bu kararın finansal veya hukuki uzun vadeli sonuçlarını hesaba kattın mı? Riskleri biraz daha açabilir misin?";
+                    } else {
+                        aiResponse = "Güzel bir başlangıç. Peki bu kararı verirken senaryodaki verileri (Örn: " + s.data[0] + ") nasıl değerlendirdin? Alternatif maliyeti düşündün mü? Biraz daha detaylandır.";
+                    }
+                    
+                    currentStep++;
+                    document.getElementById('stepIndicator').innerText = "Aşama 2/3: Derinleşme";
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>DEVAM ET</span> <i data-lucide="arrow-up" class="w-4 h-4"></i>';
+                
+                // --- AŞAMA 2: FİNAL KARAR ---
+                } else if (currentStep === 2) {
+                    aiResponse = "Analizlerin kayda alındı. Yaklaşımın mantıklı temellere oturuyor. Şimdi bu konuda uzman görüşünü ve ideal stratejiyi görerek kendi cevabınla kıyaslayabilirsin. Sağ üstteki butona tıkla.";
+                    
+                    currentStep++;
+                    document.getElementById('stepIndicator').innerText = "Tamamlandı";
+                    
+                    // Final İşlemleri
+                    input.disabled = true;
+                    input.placeholder = "Simülasyon tamamlandı.";
+                    btn.className = "btn-finish text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2 shadow-lg opacity-50 cursor-not-allowed";
+                    btn.innerHTML = '<span>BİTTİ</span> <i data-lucide="check" class="w-4 h-4"></i>';
+                    
+                    document.getElementById('expertBtnContainer').classList.remove('hidden');
                 }
 
-                feedback.innerHTML = msg;
-                btn.innerHTML = '<i data-lucide="check" class="w-8 h-8"></i><span>BİTTİ</span>';
-                document.getElementById('showDocBtn').classList.remove('hidden');
-                lucide.createIcons();
-            }, 1500);
+                addMessage(aiResponse, "msg-ai");
+                
+            }, 1000);
         }
 
         function openKnowledgeCard() {
@@ -313,144 +404,27 @@ HTML_TEMPLATE = """
         
         function downloadReport() {
             const s = scenarios[selectedScenarioIndex];
-            const ans = document.getElementById('inputText').value;
-            const txt = `KONU: ${s.title}\\nCEVAP: ${ans}\\n\\nUZMAN NOTU:\\n${s.doc.replace(/<[^>]*>/g, '')}`;
+            // Chat geçmişini topla
+            let history = "";
+            document.querySelectorAll('.msg').forEach(m => {
+                history += m.classList.contains('msg-user') ? "ÖĞRENCİ: " : "SİSTEM: ";
+                history += m.innerText + "\n\n";
+            });
+            
+            const txt = `SİMÜLASYON RAPORU\nKONU: ${s.title}\n\n--- DİYALOG GEÇMİŞİ ---\n${history}\n--- UZMAN NOTU ---\n${s.doc.replace(/<[^>]*>/g, '')}`;
             const blob = new Blob([txt], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'Analiz_Raporu.txt';
+            a.download = 'Simulasyon_Raporu.txt';
             a.click();
         }
-
-        function setMode(mode) {
-            if(mode === 'text') {
-                document.getElementById('inputText').style.display = 'block';
-                document.getElementById('drawContainer').classList.add('hidden');
-            } else {
-                document.getElementById('inputText').style.display = 'none';
-                document.getElementById('drawContainer').classList.remove('hidden');
-                resizeCanvas();
-            }
-        }
-
-        let isDrawing = false; let ctx;
-        function setupCanvas() { 
-            const c = document.getElementById('drawingCanvas'); 
-            ctx = c.getContext('2d'); 
-            ['mousedown','touchstart'].forEach(e=>c.addEventListener(e,ev=>{ev.preventDefault();startDraw(ev.touches?ev.touches[0]:ev)})); 
-            ['mousemove','touchmove'].forEach(e=>c.addEventListener(e,ev=>{ev.preventDefault();draw(ev.touches?ev.touches[0]:ev)})); 
-            ['mouseup','touchend'].forEach(e=>c.addEventListener(e,()=>isDrawing=false)); 
-        }
-        function resizeCanvas() { 
-            const c=document.getElementById('drawingCanvas'); 
-            const p=document.getElementById('drawContainer'); 
-            if(c.width!==p.offsetWidth){c.width=p.offsetWidth;c.height=p.offsetHeight;ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;} 
-        }
-        function startDraw(e) { isDrawing=true; const r=e.target.getBoundingClientRect(); ctx.beginPath(); ctx.moveTo(e.clientX-r.left, e.clientY-r.top); }
-        function draw(e) { if(!isDrawing)return; const r=e.target.getBoundingClientRect(); ctx.lineTo(e.clientX-r.left, e.clientY-r.top); ctx.stroke(); }
-        function clearCanvas() { ctx.clearRect(0,0,document.getElementById('drawingCanvas').width, document.getElementById('drawingCanvas').height); }
-        
-        window.addEventListener('resize', () => { resizeCanvas(); });
     </script>
 </body>
 </html>
 """
 
-# ENJEKSİYON YAPILIYOR
-LIFE_SIM_HTML = HTML_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON_STRING)
-
-# --- TASARIM VE CSS ---
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
-    
-    .stApp { background-color: #F0F4C3 !important; }
-    h1, h2, h3, h4, .stMarkdown, p, label { color: #212121 !important; }
-    
-    /* DROPDOWN DÜZELTMESİ */
-    .stSelectbox div[data-baseweb="select"] > div {
-        background-color: #FFFFFF !important;
-        color: #000000 !important;
-        border: 2px solid #FF7043;
-    }
-    
-    .stDeployButton {display:none;}
-    footer {visibility: hidden;}
-    #MainMenu {visibility: hidden;}
-    
-    /* GİRİŞ KARTI */
-    .giris-kart {
-        background-color: white;
-        padding: 40px;
-        border-radius: 20px;
-        border: 3px solid #FF7043;
-        text-align: center;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-    }
-
-    /* SEÇİM KARTLARI */
-    .secim-karti {
-        background-color: white;
-        padding: 20px;
-        border-radius: 15px;
-        border: 2px solid #FF7043;
-        text-align: center;
-        transition: transform 0.2s;
-        height: 150px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-    }
-    .secim-karti:hover {
-        transform: scale(1.02);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    
-    /* BUTONLAR */
-    .stButton>button {
-        background-color: #FF7043 !important;
-        color: white !important;
-        border-radius: 8px;
-        font-weight: bold;
-        width: 100%;
-        border: 2px solid #D84315 !important;
-        min-height: 50px;
-        font-size: 16px !important;
-    }
-    .stButton>button:hover {
-        background-color: #E64A19 !important;
-    }
-    
-    /* KARTLAR */
-    .konu-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 6px solid #2196F3; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .soru-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 5px solid #FF7043; font-size: 18px; margin-bottom: 20px; color: #000 !important; }
-    .hata-karti { background-color: #FFEBEE; border-left: 5px solid #D32F2F; padding: 15px; margin-bottom: 15px; border-radius: 5px; color: #000; }
-    .stat-card { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; border: 2px solid #FF7043; }
-    .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
-    
-    /* İMZA */
-    .imza-container { margin-top: 40px; text-align: right; padding-right: 20px; opacity: 0.9; }
-    .imza { font-family: 'Dancing Script', cursive; color: #D84315; font-size: 24px; margin-bottom: 5px; }
-    </style>
-""", unsafe_allow_html=True)
-
-# ==============================================================================
-# EKRAN VE DEĞİŞKENLER
-# ==============================================================================
-if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
-if 'oturum' not in st.session_state: st.session_state.oturum = False
-if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
-if 'mod' not in st.session_state: st.session_state.mod = "" 
-if 'secilen_liste' not in st.session_state: st.session_state.secilen_liste = []
-if 'aktif_index' not in st.session_state: st.session_state.aktif_index = 0
-if 'secim_turu' not in st.session_state: st.session_state.secim_turu = None 
-if 'karne' not in st.session_state: st.session_state.karne = []
-if 'dogru_sayisi' not in st.session_state: st.session_state.dogru_sayisi = 0
-if 'yanlis_sayisi' not in st.session_state: st.session_state.yanlis_sayisi = 0
-if 'bos_sayisi' not in st.session_state: st.session_state.bos_sayisi = 0
+# ENJEKSİYON
+LIFE_SIM_HTML = HTML_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON)
 
 # --- 1. GİRİŞ EKRANI ---
 if st.session_state.ekran == 'giris':
@@ -459,10 +433,10 @@ if st.session_state.ekran == 'giris':
         st.markdown("""
         <div class='giris-kart'>
             <h1>🎓 Bağarası ÇPAL</h1>
-            <h2>Finans & Eğitim Ekosistemi</h2>
+            <h2>Hibrit Yaşam & Eğitim Merkezi</h2>
             <hr>
             <p style="font-size:18px; font-weight:bold; color:#D84315;">
-                Muhasebe ve Finansman Alanı Dijital Dönüşüm Projesi
+                Geleceğe Hazırlık Simülasyonu
             </p>
             <br>
             <p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p>
@@ -528,7 +502,7 @@ elif st.session_state.ekran == 'sinav':
 
         # --- 2. GRUP: SİMÜLASYON ---
         st.header("2. Bölüm: 🎮 Gerçek Hayat Simülasyonu")
-        st.markdown("""<div class='secim-karti' style='border-color:#38bdf8; height:120px;'><h3>🧠 Life-Sim</h3><p>Ekonomi, Hukuk ve Yönetim Senaryoları ile Kendini Dene!</p></div>""", unsafe_allow_html=True)
+        st.markdown("""<div class='secim-karti' style='border-color:#38bdf8; height:120px;'><h3>🧠 Life-Sim</h3><p>İnteraktif Yaşam Koçluğu ve Karar Verme Simülasyonu</p></div>""", unsafe_allow_html=True)
         if st.button("Simülasyonu Başlat 🚀", key="btn_life", use_container_width=True): 
             st.session_state.secim_turu = "LIFESIM"
             st.rerun()
