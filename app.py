@@ -35,90 +35,27 @@ LIFESIM_JSON_ADI = "lifesim_data.json"
 SHEET_ID = "1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo"
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
-# --- 4. CSS TASARIMI (RENKLER BURADA) ---
+# --- 4. TASARIM (CSS) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
-    
-    /* Genel Sayfa Arka Planı */
-    .stApp {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        font-family: 'Roboto', sans-serif;
-    }
-    
-    /* Başlıklar ve Yazılar */
+    .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); font-family: 'Roboto', sans-serif; }
     h1, h2, h3 { color: #1e3a8a !important; }
     p, label { color: #374151 !important; font-size: 16px; }
+    .giris-kart { background-color: white; padding: 50px; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); text-align: center; border-top: 6px solid #FF7043; margin-top: 50px; margin-bottom: 20px; }
+    .secim-karti { background-color: white; padding: 25px; border-radius: 15px; border: 2px solid #e5e7eb; text-align: center; transition: all 0.3s ease; height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .secim-karti:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #FF7043; }
+    .stButton>button { background-color: #FF7043 !important; color: white !important; border-radius: 10px; font-weight: bold; border: none !important; padding: 10px 20px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(255, 112, 67, 0.3); }
+    .stButton>button:hover { background-color: #F4511E !important; transform: scale(1.02); }
+    .stTextInput>div>div>input { border-radius: 10px; border: 2px solid #e5e7eb; padding: 10px; }
+    .footer-text { text-align: center; font-size: 11px; color: #9ca3af; margin-top: 30px; font-family: monospace; }
+    footer {visibility: hidden;} #MainMenu {visibility: hidden;}
     
-    /* Giriş Kartı */
-    .giris-kart {
-        background-color: white;
-        padding: 50px;
-        border-radius: 20px;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        text-align: center;
-        border-top: 6px solid #FF7043;
-        margin-top: 50px;
-        margin-bottom: 20px;
-    }
-    
-    /* Seçim Kartları (Butonlar Gibi) */
-    .secim-karti {
-        background-color: white;
-        padding: 25px;
-        border-radius: 15px;
-        border: 2px solid #e5e7eb;
-        text-align: center;
-        transition: all 0.3s ease;
-        height: 160px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-    .secim-karti:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        border-color: #FF7043;
-    }
-    
-    /* Standart Butonlar */
-    .stButton>button {
-        background-color: #FF7043 !important;
-        color: white !important;
-        border-radius: 10px;
-        font-weight: bold;
-        border: none !important;
-        padding: 10px 20px;
-        transition: all 0.2s;
-        box-shadow: 0 4px 6px rgba(255, 112, 67, 0.3);
-    }
-    .stButton>button:hover {
-        background-color: #F4511E !important;
-        transform: scale(1.02);
-    }
-
-    /* Input Alanları */
-    .stTextInput>div>div>input {
-        border-radius: 10px;
-        border: 2px solid #e5e7eb;
-        padding: 10px;
-    }
-    
-    /* Alt Bilgi (Footer) */
-    .footer-text {
-        text-align: center;
-        font-size: 11px;
-        color: #9ca3af;
-        margin-top: 30px;
-        font-family: monospace;
-    }
-    
-    /* Streamlit varsayılan footer gizle */
-    footer {visibility: hidden;}
-    #MainMenu {visibility: hidden;}
+    /* Kart Stilleri */
+    .konu-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 6px solid #2196F3; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .soru-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 5px solid #FF7043; font-size: 18px; margin-bottom: 20px; color: #000 !important; }
+    .stat-card { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; border: 2px solid #FF7043; }
+    .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -128,8 +65,7 @@ def dosya_yukle(dosya_adi):
     try:
         with open(dosya_adi, "r", encoding="utf-8") as f:
             data = json.load(f)
-            if dosya_adi == TYT_JSON_ADI:
-                return {int(k): v for k, v in data.items()}
+            if dosya_adi == TYT_JSON_ADI: return {int(k): v for k, v in data.items()}
             return data
     except: return {}
 
@@ -156,6 +92,8 @@ def get_leaderboard_data():
     try:
         df = pd.read_csv(SHEET_URL)
         df.columns = [str(c).strip() for c in df.columns]
+        
+        # Esnek sütun arama
         name_col = next((c for c in df.columns if c.lower() in ['isim', 'ad', 'name', 'ad soyad']), None)
         score_col = next((c for c in df.columns if c.lower() in ['puan', 'score', 'skor', 'money']), None)
         
@@ -168,7 +106,7 @@ def get_leaderboard_data():
             return json.dumps(data, ensure_ascii=False)
         else:
             return "ERROR_COLUMNS"
-    except Exception as e:
+    except:
         return "ERROR_CONNECTION"
 
 TYT_VERI = dosya_yukle(TYT_JSON_ADI)
@@ -246,8 +184,8 @@ GAME_HTML_TEMPLATE = """
         const INFLATION_RATE = 1.15; 
         
         try {
-            if(cloudResponse.startsWith("ERROR_COLUMNS")) { console.error("Sütun Hatası"); } 
-            else if(cloudResponse.startsWith("ERROR_CONNECTION")) { console.error("Bağlantı Hatası"); } 
+            if(cloudResponse === "ERROR_COLUMNS") { console.error("HATA: Excelde Isim ve Puan sutunlari yok!"); }
+            else if(cloudResponse === "ERROR_CONNECTION") { console.error("HATA: Baglanti hatasi!"); }
             else { cloudLeaderboard = JSON.parse(cloudResponse); }
         } catch(e) { cloudLeaderboard = []; }
 
@@ -330,10 +268,11 @@ if st.session_state.ekran == 'giris':
     with col2:
         st.markdown("""
         <div class='giris-kart'>
-            <h1>Muhasebe ve Finansman Dijital Gelişim Programı</h1>
+            <h1>🎓 Bağarası ÇPAL</h1>
+            <h1>Muhasebe ve Finansman Dijital Dönüşüm Projesi</h1>
             <hr>
             <p style="font-size:18px; font-weight:bold; color:#D84315;">
-                Geleceğe Hazırlık Simülasyonu
+                Finans & Eğitim Ekosistemi
             </p>
             <br>
             <p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p>
@@ -407,17 +346,17 @@ elif st.session_state.ekran == 'sinav':
         leaderboard_json = get_leaderboard_data()
         
         # Sütun hatası varsa kullanıcıyı uyar
-        if leaderboard_json.startswith("ERROR_COLUMNS"):
-            st.error(f"⚠️ Liderlik Tablosu Hatası: Google Sheets'te 'Isim' ve 'Puan' sütunları bulunamadı! Bulunan sütunlar: {leaderboard_json.split('|')[1]}")
+        if leaderboard_json == "ERROR_COLUMNS":
+            st.error("⚠️ Liderlik Tablosu Hatası: Google Sheets'te 'Isim' ve 'Puan' sütunları bulunamadı.")
             leaderboard_json = "[]"
-        elif leaderboard_json.startswith("ERROR_CONNECTION"):
-            st.error("⚠️ Bağlantı Hatası: Google Sheets'e erişilemiyor. 'Web'de Yayınla' seçeneğini açtığınızdan emin olun.")
+        elif leaderboard_json == "ERROR_CONNECTION":
+            st.error("⚠️ Bağlantı Hatası: Google Sheets'e erişilemiyor.")
             leaderboard_json = "[]"
 
         # Kullanıcı adını, ödülü ve liderlik verisini JS'e gönder
         final_game_html = GAME_HTML_TEMPLATE.replace("__REWARD_AMOUNT__", str(reward_val))
         final_game_html = final_game_html.replace("__USER_NAME__", st.session_state.ad_soyad)
-        final_game_html = final_game_html.replace("'__LEADERBOARD_JSON__'", leaderboard_json) # JSON string olarak gidecek
+        final_game_html = final_game_html.replace("'__LEADERBOARD_JSON__'", leaderboard_json)
         
         components.html(final_game_html, height=1000, scrolling=True)
 
