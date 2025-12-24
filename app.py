@@ -8,7 +8,7 @@ import fitz  # PyMuPDF
 # --- 1. SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası Hibrit Yaşam Merkezi", page_icon="🎓", layout="wide")
 
-# --- 2. SESSION STATE BAŞLATMA ---
+# --- 2. SESSION STATE BAŞLATMA (HATA ALMAMAK İÇİN EN ÜSTTE) ---
 if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
 if 'oturum' not in st.session_state: st.session_state.oturum = False
 if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
@@ -20,7 +20,6 @@ if 'dogru_sayisi' not in st.session_state: st.session_state.dogru_sayisi = 0
 if 'yanlis_sayisi' not in st.session_state: st.session_state.yanlis_sayisi = 0
 if 'bos_sayisi' not in st.session_state: st.session_state.bos_sayisi = 0
 if 'mod' not in st.session_state: st.session_state.mod = ""
-# YENİ: Ödül Sistemi Değişkeni
 if 'bekleyen_odul' not in st.session_state: st.session_state.bekleyen_odul = 0
 
 # --- 3. DOSYA İSİMLERİ ---
@@ -30,7 +29,7 @@ MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 LIFESIM_JSON_ADI = "lifesim_data.json"
 
-# --- 4. VERİ YÜKLEME ---
+# --- 4. VERİ YÜKLEME FONKSİYONLARI ---
 def dosya_yukle(dosya_adi):
     if not os.path.exists(dosya_adi): return {}
     try:
@@ -46,7 +45,7 @@ def load_lifesim_data():
         try:
             with open(LIFESIM_JSON_ADI, "r", encoding="utf-8") as f:
                 raw = f.read()
-                json.loads(raw); return raw
+                json.loads(raw); return raw # Validasyon
         except: return "[]"
     return "[]"
 
@@ -59,6 +58,7 @@ def pdf_sayfa_getir(yol, sayfa):
         st.image(pix.tobytes(), use_container_width=True)
     except: pass
 
+# Verileri Yükle
 TYT_VERI = dosya_yukle(TYT_JSON_ADI)
 MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
 KONU_VERI = dosya_yukle(KONU_JSON_ADI)
@@ -66,7 +66,7 @@ SCENARIOS_JSON_STRING = load_lifesim_data()
 
 # --- 5. HTML ŞABLONLARI ---
 
-# A) LIFE-SIM HTML
+# A) LIFE-SIM ŞABLONU (V6.0 SOKRATİK)
 LIFE_SIM_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -131,8 +131,7 @@ function toggleHint() { document.getElementById('hintBox').innerHTML = scenarios
 """
 LIFE_SIM_HTML = LIFE_SIM_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON_STRING)
 
-# B) OYUN HTML (V3.0 - Ödül Destekli)
-# Bu kısımda Python'dan gelen 'bekleyen_odul' değerini JS'e enjekte ediyoruz.
+# B) OYUN HTML (V3.0 - ÖDÜL DESTEKLİ)
 GAME_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -186,9 +185,7 @@ GAME_HTML_TEMPLATE = """
     </div>
 
     <script>
-        // PYTHON'DAN GELEN ÖDÜL BURAYA ENJEKTE EDİLİR
         let incomingReward = __REWARD_AMOUNT__;
-
         const INFLATION_RATE = 1.15; 
         const defaultData = {
             money: 0, startTime: Date.now(),
@@ -207,19 +204,16 @@ GAME_HTML_TEMPLATE = """
 
         window.onload = function() {
             lucide.createIcons(); loadGame();
-            
-            // ÖDÜL KONTROLÜ
             if (incomingReward > 0) {
                 document.getElementById('rewardAmountDisplay').innerText = formatNumber(incomingReward);
                 document.getElementById('rewardPopup').classList.remove('hidden');
             }
-
             setInterval(passiveIncomeLoop, 1000); setInterval(uiLoop, 100); setInterval(saveGame, 5000);
         };
 
         function claimReward() {
             game.money += incomingReward;
-            incomingReward = 0; // Tekrar alınmasın
+            incomingReward = 0;
             document.getElementById('rewardPopup').classList.add('hidden');
             updateUI(); saveGame();
         }
@@ -276,74 +270,248 @@ GAME_HTML_TEMPLATE = """
 </html>
 """
 
-# --- EKRAN YÖNETİMİ ---
+# --- CSS VE TASARIM ---
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
+    
+    .stApp { background-color: #F0F4C3 !important; }
+    h1, h2, h3, h4, .stMarkdown, p, label { color: #212121 !important; }
+    
+    /* DROPDOWN DÜZELTMESİ */
+    .stSelectbox div[data-baseweb="select"] > div {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+        border: 2px solid #FF7043;
+    }
+    
+    .stDeployButton {display:none;}
+    footer {visibility: hidden;}
+    #MainMenu {visibility: hidden;}
+    
+    /* GİRİŞ KARTI */
+    .giris-kart {
+        background-color: white;
+        padding: 40px;
+        border-radius: 20px;
+        border: 3px solid #FF7043;
+        text-align: center;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    /* SEÇİM KARTLARI */
+    .secim-karti {
+        background-color: white;
+        padding: 20px;
+        border-radius: 15px;
+        border: 2px solid #FF7043;
+        text-align: center;
+        transition: transform 0.2s;
+        height: 150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+    }
+    .secim-karti:hover {
+        transform: scale(1.02);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    /* BUTONLAR */
+    .stButton>button {
+        background-color: #FF7043 !important;
+        color: white !important;
+        border-radius: 8px;
+        font-weight: bold;
+        width: 100%;
+        border: 2px solid #D84315 !important;
+        min-height: 50px;
+        font-size: 16px !important;
+    }
+    .stButton>button:hover {
+        background-color: #E64A19 !important;
+    }
+    
+    /* KARTLAR */
+    .konu-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 6px solid #2196F3; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .soru-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 5px solid #FF7043; font-size: 18px; margin-bottom: 20px; color: #000 !important; }
+    .hata-karti { background-color: #FFEBEE; border-left: 5px solid #D32F2F; padding: 15px; margin-bottom: 15px; border-radius: 5px; color: #000; }
+    .stat-card { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; border: 2px solid #FF7043; }
+    .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
+    
+    /* İMZA */
+    .imza-container { margin-top: 40px; text-align: right; padding-right: 20px; opacity: 0.9; }
+    .imza { font-family: 'Dancing Script', cursive; color: #D84315; font-size: 24px; margin-bottom: 5px; }
+    </style>
+""", unsafe_allow_html=True)
+
+# ==============================================================================
+# EKRAN VE DEĞİŞKENLER
+# ==============================================================================
+if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
+if 'oturum' not in st.session_state: st.session_state.oturum = False
+if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
+if 'mod' not in st.session_state: st.session_state.mod = "" 
+if 'secilen_liste' not in st.session_state: st.session_state.secilen_liste = []
+if 'aktif_index' not in st.session_state: st.session_state.aktif_index = 0
+if 'secim_turu' not in st.session_state: st.session_state.secim_turu = None 
+if 'karne' not in st.session_state: st.session_state.karne = []
+if 'dogru_sayisi' not in st.session_state: st.session_state.dogru_sayisi = 0
+if 'yanlis_sayisi' not in st.session_state: st.session_state.yanlis_sayisi = 0
+if 'bos_sayisi' not in st.session_state: st.session_state.bos_sayisi = 0
+
+# --- 1. GİRİŞ EKRANI ---
 if st.session_state.ekran == 'giris':
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("""<div class='giris-kart'><h1>🎓 Bağarası ÇPAL</h1><h2>Hibrit Yaşam & Eğitim Merkezi</h2><hr><p style="font-size:18px; font-weight:bold; color:#D84315;">Geleceğe Hazırlık Simülasyonu</p><br><p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p></div>""", unsafe_allow_html=True)
+        st.markdown("""
+        <div class='giris-kart'>
+            <h1>🎓 Bağarası ÇPAL</h1>
+            <h2>Finans & Eğitim Ekosistemi</h2>
+            <hr>
+            <p style="font-size:18px; font-weight:bold; color:#D84315;">
+                Muhasebe ve Finansman Alanı Dijital Dönüşüm Projesi
+            </p>
+            <br>
+            <p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
         ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet Karaduman")
+        
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
             if ad_soyad_input.strip():
                 st.session_state.ad_soyad = ad_soyad_input
                 st.session_state.ekran = 'sinav'
+                st.session_state.karne = []
+                st.session_state.dogru_sayisi = 0
+                st.session_state.yanlis_sayisi = 0
+                st.session_state.bos_sayisi = 0
+                st.session_state.secim_turu = None 
                 st.rerun()
-            else: st.error("Lütfen adınızı giriniz!")
-        st.markdown("""<div class='imza-container'><div class='imza'>Zülfikar SITACI & Mustafa BAĞCIK</div></div>""", unsafe_allow_html=True)
+            else:
+                st.error("Lütfen adınızı giriniz!")
+        
+        st.markdown("""
+        <div class='imza-container'>
+            <div class='imza'></div>
+        </div>
+        """, unsafe_allow_html=True)
 
+# --- 2. ANA KUMANDA MERKEZİ ---
 elif st.session_state.ekran == 'sinav':
+    
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=100)
         st.write(f"👤 **{st.session_state.ad_soyad}**")
-        if st.button("🏠 Ana Menü"):
+        if st.button("🏠 Ana Ekrana Dön"):
              st.session_state.oturum = False
              st.session_state.secim_turu = None
              st.rerun()
         st.divider()
-        if st.button("🚪 Çıkış"):
+        if st.button("🚪 Çıkış Yap"):
             st.session_state.ekran = 'giris'
             st.session_state.oturum = False
             st.rerun()
 
-    # ANA MENÜ
+    # --- ANA MENÜ (SEÇİM EKRANI) ---
     if not st.session_state.oturum and st.session_state.secim_turu not in ["LIFESIM", "GAME"]:
+        
         st.markdown(f"<h2 style='text-align:center;'>Hoşgeldin {st.session_state.ad_soyad}, Bugün Ne Yapmak İstersin? 👇</h2><br>", unsafe_allow_html=True)
         
+        # --- 1. GRUP: SORU ÇÖZÜM MERKEZİ ---
         st.header("1. Bölüm: 📝 Soru Çözüm Merkezi")
-        c1, c2 = st.columns(2)
-        with c1:
-            st.markdown("""<div class='secim-karti'><h3>📘 TYT Kampı</h3><p>Çıkmış Sorular</p></div>""", unsafe_allow_html=True)
+        col_a, col_b = st.columns(2)
+        
+        with col_a:
+            st.markdown("""<div class='secim-karti'><h3>📘 TYT Kampı</h3><p>Çıkmış Sorular & Denemeler</p></div>""", unsafe_allow_html=True)
             if st.button("TYT Başlat ➡️", key="btn_tyt"): st.session_state.secim_turu = "TYT"
-        with c2:
-            st.markdown("""<div class='secim-karti'><h3>💼 Meslek Lisesi</h3><p>Alan Dersleri</p></div>""", unsafe_allow_html=True)
+        
+        with col_b:
+            st.markdown("""<div class='secim-karti'><h3>💼 Meslek Lisesi</h3><p>Alan Dersleri & Konu Testleri</p></div>""", unsafe_allow_html=True)
             if st.button("Meslek Çöz ➡️", key="btn_meslek"): st.session_state.secim_turu = "MESLEK"
-        
+
         st.markdown("---")
-        
-        st.header("2. Bölüm: 🎮 Simülasyon & Oyun")
+
+        # --- 2. GRUP: SİMÜLASYON ---
+        st.header("2. Bölüm: 🎮 Gerçek Hayat Simülasyonu")
         c3, c4 = st.columns(2)
         with c3:
-            st.markdown("""<div class='secim-karti' style='border-color:#38bdf8;'><h3>🧠 Life-Sim</h3><p>Yaşam Senaryoları</p></div>""", unsafe_allow_html=True)
+            st.markdown("""<div class='secim-karti' style='border-color:#38bdf8;'><h3>🧠 Life-Sim</h3><p>Sokratik Yöntemle Yaşam Senaryoları</p></div>""", unsafe_allow_html=True)
             if st.button("Simülasyonu Başlat 🚀", key="btn_life", use_container_width=True): 
                 st.session_state.secim_turu = "LIFESIM"
                 st.rerun()
+        
         with c4:
-            st.markdown("""<div class='secim-karti' style='border-color:#fbbf24;'><h3>👑 Finans İmparatoru</h3><p>Kendi Şirketini Kur!</p></div>""", unsafe_allow_html=True)
+            st.markdown("""<div class='secim-karti' style='border-color:#fbbf24;'><h3>👑 Finans İmparatoru</h3><p>Şirketini Kur, Pasif Gelir Elde Et!</p></div>""", unsafe_allow_html=True)
             if st.button("Oyunu Başlat 🎮", key="btn_game", use_container_width=True): 
                 st.session_state.secim_turu = "GAME"
                 st.rerun()
-
+        
         st.divider()
+        
+        # --- TYT AYARLARI ---
+        if st.session_state.secim_turu == "TYT":
+            st.subheader("📘 TYT Ayarları")
+            if TYT_VERI:
+                dersler = sorted(list(set(v["ders"] for v in TYT_VERI.values())))
+                ders = st.selectbox("Ders Seçiniz:", ["Karışık Deneme"] + dersler)
+                adet = st.slider("Kaç Sayfa Çözmek İstersiniz?", 1, 10, 3)
+                
+                if st.button("SINAVI BAŞLAT 🚀"):
+                    uygun = [s for s, d in TYT_VERI.items() if ders == "Karışık Deneme" or d["ders"] == ders]
+                    if uygun:
+                        random.shuffle(uygun)
+                        st.session_state.secilen_liste = uygun[:adet]
+                        st.session_state.mod = "PDF"
+                        st.session_state.oturum = True
+                        st.session_state.karne = [] 
+                        st.session_state.aktif_index = 0
+                        st.rerun()
+                    else: st.error("Soru yok.")
+            else: st.warning("TYT verisi yok.")
+                
+        # --- MESLEK AYARLARI ---
+        elif st.session_state.secim_turu == "MESLEK":
+            st.subheader("💼 Meslek Alanı")
+            tab1, tab2 = st.tabs(["📝 TEST ÇÖZ", "📚 DERS NOTLARI"])
+            
+            with tab1:
+                konu_verisi = MESLEK_VERI.get("KONU_TARAMA", {})
+                if konu_verisi:
+                    sinif = st.selectbox("Sınıf Seçiniz:", list(konu_verisi.keys()), key="s_konu")
+                    sinif_dersleri = konu_verisi.get(sinif, {})
+                    if sinif_dersleri:
+                        ders = st.selectbox("Ders Seçiniz:", list(sinif_dersleri.keys()), key="d_konu")
+                        testler = sinif_dersleri.get(ders, {})
+                        if testler:
+                            test = st.selectbox("Test Seçiniz:", list(testler.keys()), key="t_konu")
+                            if st.button("TESTİ BAŞLAT 🚀", key="btn_konu"):
+                                st.session_state.secilen_liste = testler[test]
+                                st.session_state.mod = "MESLEK"
+                                st.session_state.oturum = True
+                                st.session_state.karne = [] 
+                                st.session_state.aktif_index = 0
+                                st.rerun()
+                        else: st.warning("Test yok.")
+                    else: st.warning("Ders yok.")
+                else: st.warning("Veri yok.")
 
-    # OYUN SAYFASI (ÖDÜL ENTEGRASYONLU)
-    if st.session_state.secim_turu == "GAME":
-        # Python'daki ödülü JS'e aktar ve Python tarafında sıfırla
-        reward_val = st.session_state.bekleyen_odul
-        st.session_state.bekleyen_odul = 0 # Sıfırla ki tekrar tekrar vermesin
-        final_game_html = GAME_HTML_TEMPLATE.replace("__REWARD_AMOUNT__", str(reward_val))
-        components.html(final_game_html, height=1000, scrolling=True)
+            with tab2:
+                if KONU_VERI:
+                    k_sinif = st.selectbox("Sınıf Seçiniz:", list(KONU_VERI.keys()), key="k_s")
+                    k_dersler = KONU_VERI.get(k_sinif, {})
+                    if k_dersler:
+                        k_ders = st.selectbox("Ders Seçiniz:", list(k_dersler.keys()), key="k_d")
+                        notlar = k_dersler.get(k_ders, [])
+                        for not_maddesi in notlar:
+                            st.markdown(f"<div class='konu-karti'><div class='konu-baslik'>{not_maddesi['baslik']}</div><div class='konu-icerik'>{not_maddesi['icerik']}</div></div>", unsafe_allow_html=True)
 
-    # LIFE-SIM SAYFASI
+    # --- 3. MODÜL: LIFE-SIM (HTML ENTEGRASYONU) ---
     elif st.session_state.secim_turu == "LIFESIM":
         # Life-Sim için bir bitirme butonu ekleyelim
         col_ls_1, col_ls_2 = st.columns([3, 1])
@@ -355,6 +523,14 @@ elif st.session_state.ekran == 'sinav':
                 st.session_state.bekleyen_odul += 5000
                 st.session_state.secim_turu = "GAME"
                 st.rerun()
+    
+    # --- 4. MODÜL: GAME (HTML ENTEGRASYONU) ---
+    elif st.session_state.secim_turu == "GAME":
+        # Python'daki ödülü JS'e aktar ve Python tarafında sıfırla
+        reward_val = st.session_state.bekleyen_odul
+        st.session_state.bekleyen_odul = 0 # Sıfırla ki tekrar tekrar vermesin
+        final_game_html = GAME_HTML_TEMPLATE.replace("__REWARD_AMOUNT__", str(reward_val))
+        components.html(final_game_html, height=1000, scrolling=True)
 
     # --- 5. MODÜL: KLASİK SINAV MOTORU ---
     elif st.session_state.oturum:
