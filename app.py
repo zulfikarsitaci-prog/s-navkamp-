@@ -3,70 +3,131 @@ import streamlit.components.v1 as components
 import random
 import os
 import json
+import fitz  # PyMuPDF
 import time
 import pandas as pd
 
 # --- 1. SAYFA AYARLARI ---
-st.set_page_config(page_title="Dijital Gelişim Programı", page_icon="🎓", layout="wide")
+st.set_page_config(page_title="Bağarası Hibrit Yaşam Merkezi", page_icon="🎓", layout="wide")
 
-# --- 2. GÖMÜLÜ SABİT VERİLER (ASLA BOZULMAZ) ---
-TYT_DATA = {
-    "Türkçe": [
-        {"soru": "Hangi sözcükte ünlü düşmesi vardır?", "secenekler": ["Kitap", "Omuz (Omzu)", "Kalem", "Masa"], "cevap": "Omuz (Omzu)"},
-        {"soru": "Paragrafın ana düşüncesi genellikle nerede bulunur?", "secenekler": ["Giriş", "Gelişme", "Sonuç", "Hiçbiri"], "cevap": "Sonuç"},
-        {"soru": "'Sinekli Bakkal' kimin eseridir?", "secenekler": ["Halide Edip", "Reşat Nuri", "Ömer Seyfettin", "Ziya Gökalp"], "cevap": "Halide Edip"}
-    ],
-    "Matematik": [
-        {"soru": "2x + 5 = 15 ise x kaçtır?", "secenekler": ["2", "3", "5", "10"], "cevap": "5"},
-        {"soru": "Bir üçgenin iç açıları toplamı kaçtır?", "secenekler": ["180", "360", "90", "270"], "cevap": "180"},
-        {"soru": "12'nin %50'si kaçtır?", "secenekler": ["4", "5", "6", "8"], "cevap": "6"}
-    ],
-    "Tarih": [
-        {"soru": "Malazgirt Savaşı hangi yıl yapılmıştır?", "secenekler": ["1071", "1453", "1299", "1923"], "cevap": "1071"},
-        {"soru": "Türkiye Cumhuriyeti'nin ilk cumhurbaşkanı kimdir?", "secenekler": ["İsmet İnönü", "Mustafa Kemal Atatürk", "Celal Bayar", "Kazım Karabekir"], "cevap": "Mustafa Kemal Atatürk"}
-    ]
-}
-
-MESLEK_DATA = {
-    "9. Sınıf - Mesleki Gelişim": [
-        {"soru": "İletişimde mesajı gönderen kişiye ne denir?", "secenekler": ["Alıcı", "Kaynak", "Dönüt", "Kanal"], "cevap": "Kaynak"},
-        {"soru": "Aşağıdakilerden hangisi sözsüz iletişimdir?", "secenekler": ["Mektup", "Telefon", "Jest ve Mimikler", "Konuşma"], "cevap": "Jest ve Mimikler"}
-    ],
-    "10. Sınıf - Muhasebe": [
-        {"soru": "Kasa hesabı hangi kod ile başlar?", "secenekler": ["100", "102", "153", "600"], "cevap": "100"},
-        {"soru": "Bilanço denkliğinde hangisi doğrudur?", "secenekler": ["Aktif = Pasif", "Aktif > Pasif", "Borç = Gider", "Gelir = Gider"], "cevap": "Aktif = Pasif"}
-    ],
-    "11. Sınıf - Şirketler": [
-        {"soru": "Anonim şirket en az kaç kişiyle kurulur?", "secenekler": ["1", "5", "50", "2"], "cevap": "1"},
-        {"soru": "Hangisi sermaye şirketidir?", "secenekler": ["Kollektif", "Komandit", "Anonim", "Şahıs"], "cevap": "Anonim"}
-    ]
-}
-
-LIFESIM_SCENARIOS = """[
-    {"id":1, "category":"Girişimcilik", "title":"Okul Kantini İhalesi", "text":"Okul kantini ihalesine girmek için <b>5.000 TL</b> gerekiyor. İhaleyi kazanırsan günlük cirodan %20 kar edeceksin.<br><br><b>Karar:</b> Risk alıp girecek misin?", "hint":"Sabit giderleri (Kira, Elektrik) düşmeyi unutma.", "doc":"<h3>Ticari Risk</h3><p>Net Kar = Ciro - Giderler. Giderler yüksekse ciro yanıltıcı olabilir.</p>"},
-    {"id":2, "category":"Yatırım", "title":"Staj Parası", "text":"Stajdan kazandığın <b>10.000 TL</b> ile ne yapacaksın? Yeni bir telefon mu (Gider), yoksa Altın/Döviz mi (Yatırım)?", "hint":"Telefon değer kaybeder, altın değer kazanır.", "doc":"<h3>Aktif vs Pasif</h3><p>Cebine para koyan varlıklar aktiftir (Altın, Hisse). Cebinden para götürenler pasiftir (Araba, Telefon).</p>"}
-]"""
-
-# GOOGLE SHEETS
-SHEET_ID = "1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo"
-SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
+# --- 2. CSS TASARIMI (ESKİ ŞIK TASARIM) ---
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
+    
+    /* Arka Plan */
+    .stApp {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: 'Roboto', sans-serif;
+    }
+    
+    /* Başlıklar */
+    h1, h2, h3 { color: #1e3a8a !important; }
+    
+    /* Kartlar */
+    .giris-kart {
+        background-color: white; padding: 40px; border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;
+        border-top: 6px solid #FF7043; margin-top: 30px;
+    }
+    
+    .secim-karti {
+        background-color: white; padding: 25px; border-radius: 15px;
+        border: 2px solid #e5e7eb; text-align: center; transition: all 0.3s ease;
+        height: 160px; display: flex; flex-direction: column;
+        justify-content: center; align-items: center; cursor: pointer;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    .secim-karti:hover {
+        transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        border-color: #FF7043;
+    }
+    
+    /* Butonlar */
+    .stButton>button {
+        background-color: #FF7043 !important; color: white !important;
+        border-radius: 10px; font-weight: bold; border: none !important;
+        padding: 10px 20px; width: 100%; transition: all 0.2s;
+        box-shadow: 0 4px 6px rgba(255, 112, 67, 0.3);
+    }
+    .stButton>button:hover {
+        background-color: #F4511E !important; transform: scale(1.02);
+    }
+    
+    /* Inputlar */
+    .stTextInput>div>div>input {
+        border-radius: 10px; border: 2px solid #e5e7eb; padding: 10px;
+    }
+    
+    /* Footer */
+    .footer-text {
+        text-align: center; font-size: 10px; color: #9ca3af;
+        margin-top: 50px; font-family: monospace; opacity: 0.7;
+    }
+    
+    /* Gizlemeler */
+    footer {visibility: hidden;} #MainMenu {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
 
 # --- 3. SESSION STATE ---
 if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
 if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
-if 'aktif_mod' not in st.session_state: st.session_state.aktif_mod = "MENU" # MENU, TEST, GAME, LIFESIM
+if 'aktif_mod' not in st.session_state: st.session_state.aktif_mod = "MENU"
 if 'secilen_sorular' not in st.session_state: st.session_state.secilen_sorular = []
 if 'soru_index' not in st.session_state: st.session_state.soru_index = 0
 if 'dogru' not in st.session_state: st.session_state.dogru = 0
 if 'yanlis' not in st.session_state: st.session_state.yanlis = 0
 if 'bekleyen_odul' not in st.session_state: st.session_state.bekleyen_odul = 0
 
-# --- 4. YARDIMCI FONKSİYONLAR ---
+# --- 4. DOSYA VE LİNKLER ---
+TYT_PDF_ADI = "tytson8.pdf"
+TYT_JSON_ADI = "tyt_data.json"
+MESLEK_JSON_ADI = "sorular.json"
+LIFESIM_JSON_ADI = "lifesim_data.json"
+
+SHEET_ID = "1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo"
+SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
+
+# --- 5. VERİ YÜKLEME FONKSİYONLARI ---
+def dosya_yukle(dosya_adi):
+    if not os.path.exists(dosya_adi):
+        return {}
+    try:
+        with open(dosya_adi, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            # TYT verisindeki anahtarları integer yap (Örn: "1" -> 1)
+            if dosya_adi == TYT_JSON_ADI:
+                return {int(k): v for k, v in data.items()}
+            return data
+    except:
+        return {}
+
+def load_lifesim_data():
+    if os.path.exists(LIFESIM_JSON_ADI):
+        try:
+            with open(LIFESIM_JSON_ADI, "r", encoding="utf-8") as f:
+                return f.read()
+        except: pass
+    return "[]"
+
+def pdf_sayfa_getir(yol, sayfa):
+    if not os.path.exists(yol): 
+        st.warning("PDF Dosyası Bulunamadı")
+        return
+    try:
+        doc = fitz.open(yol)
+        if sayfa > len(doc): return
+        pix = doc.load_page(sayfa - 1).get_pixmap(dpi=150)
+        st.image(pix.tobytes(), use_container_width=True)
+    except: pass
+
 @st.cache_data(ttl=10)
 def get_hybrid_leaderboard(current_user, current_score):
     try:
         df = pd.read_csv(SHEET_URL)
-        df.columns = [str(c).strip().upper().replace('İ','I') for c in df.columns]
+        df.columns = [str(c).strip().upper().replace('İ','I').replace('Ş','S') for c in df.columns]
+        
         name_col = next((c for c in df.columns if 'ISIM' in c or 'AD' in c), None)
         score_col = next((c for c in df.columns if 'PUAN' in c or 'SKOR' in c), None)
         
@@ -78,7 +139,6 @@ def get_hybrid_leaderboard(current_user, current_score):
                     if p > 0: data.append({"name": str(row[name_col]), "score": p})
                 except: continue
         
-        # Kullanıcıyı ekle
         user_found = False
         for p in data:
             if p["name"] == current_user:
@@ -92,23 +152,10 @@ def get_hybrid_leaderboard(current_user, current_score):
     except:
         return json.dumps([{"name": current_user, "score": current_score, "isMe": True}], ensure_ascii=False)
 
-# --- 5. CSS TASARIM ---
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
-    .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); font-family: 'Roboto', sans-serif; }
-    h1, h2, h3 { color: #1e3a8a !important; }
-    .giris-kart { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #FF7043; margin-top: 50px; }
-    .menu-btn { 
-        background: white; border: 2px solid #e5e7eb; border-radius: 15px; padding: 20px; 
-        text-align: center; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 100%;
-        display: flex; flex-direction: column; justify-content: center; align-items: center;
-    }
-    .menu-btn:hover { border-color: #FF7043; transform: translateY(-5px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
-    .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; }
-    footer {visibility: hidden;}
-    </style>
-""", unsafe_allow_html=True)
+# VERİLERİ YÜKLE
+TYT_VERI = dosya_yukle(TYT_JSON_ADI)
+MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
+SCENARIOS_JSON_STRING = load_lifesim_data()
 
 # --- 6. HTML ŞABLONLARI ---
 LIFE_SIM_HTML = """
@@ -128,7 +175,7 @@ function next(){ idx=(idx+1)%data.length; load(); }
 function hint(){ document.getElementById('hintBox').classList.remove('hidden'); }
 load();
 </script></body></html>
-""".replace("__DATA__", LIFESIM_SCENARIOS)
+""".replace("__DATA__", SCENARIOS_JSON_STRING)
 
 GAME_HTML = """
 <!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><script src="https://cdn.tailwindcss.com"></script><script src="https://unpkg.com/lucide@latest"></script><style>body{background:radial-gradient(circle at center,#1e1b4b,#020617);color:white;font-family:sans-serif;overflow:hidden;user-select:none}.glass{background:rgba(255,255,255,0.03);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.05)}.pulse{animation:p 2s infinite}@keyframes p{0%{box-shadow:0 0 0 0 rgba(59,130,246,0.7)}70%{box-shadow:0 0 0 20px rgba(0,0,0,0)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}}.item{transition:0.2s}.item.ok{background:rgba(34,197,94,0.1);border-left:4px solid #22c55e;cursor:pointer}.item.no{opacity:0.5;filter:grayscale(1);cursor:not-allowed}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#334155;border-radius:5px}</style></head>
@@ -244,75 +291,137 @@ elif st.session_state.ekran == 'ana_menu':
     # TYT SEÇİM EKRANI
     elif st.session_state.aktif_mod == "TYT_SECIM":
         st.subheader("📘 TYT Test Seçimi")
-        ders = st.selectbox("Ders Seçiniz:", list(TYT_DATA.keys()))
-        if st.button("Testi Başlat 🚀"):
-            st.session_state.secilen_sorular = TYT_DATA[ders]
-            st.session_state.soru_index = 0
-            st.session_state.dogru = 0
-            st.session_state.yanlis = 0
-            st.session_state.aktif_mod = "TYT_COZ"
-            st.rerun()
+        if TYT_VERI:
+            test_listesi = list(TYT_VERI.keys())
+            secilen_test_id = st.selectbox("Bir Test Seçiniz:", test_listesi, format_func=lambda x: f"Test {x} - {TYT_VERI[x]['ders']}")
+            if st.button("Testi Başlat 🚀"):
+                # JSON formatına uygun şekilde listeye alıyoruz
+                st.session_state.secilen_sorular = [secilen_test_id]
+                st.session_state.soru_index = 0
+                st.session_state.dogru = 0
+                st.session_state.yanlis = 0
+                st.session_state.bos = 0
+                st.session_state.aktif_mod = "TYT_COZ"
+                st.rerun()
+        else:
+            st.error("TYT verisi bulunamadı!")
 
     # MESLEK SEÇİM EKRANI
     elif st.session_state.aktif_mod == "MESLEK_SECIM":
         st.subheader("💼 Meslek Test Seçimi")
-        ders = st.selectbox("Ders Seçiniz:", list(MESLEK_DATA.keys()))
-        if st.button("Testi Başlat 🚀"):
-            st.session_state.secilen_sorular = MESLEK_DATA[ders]
-            st.session_state.soru_index = 0
-            st.session_state.dogru = 0
-            st.session_state.yanlis = 0
-            st.session_state.aktif_mod = "MESLEK_COZ"
-            st.rerun()
+        # JSON yapısını güvenli şekilde geziyoruz
+        konu_data = MESLEK_VERI.get("KONU_TARAMA", {})
+        
+        if konu_data:
+            sinif = st.selectbox("Sınıf Seç:", list(konu_data.keys()))
+            if sinif:
+                ders = st.selectbox("Ders Seç:", list(konu_data[sinif].keys()))
+                if ders:
+                    test = st.selectbox("Test Seç:", list(konu_data[sinif][ders].keys()))
+                    
+                    if st.button("Testi Başlat 🚀"):
+                        # Seçilen soruları session state'e yüklüyoruz
+                        st.session_state.secilen_sorular = konu_data[sinif][ders][test]
+                        st.session_state.soru_index = 0
+                        st.session_state.dogru = 0
+                        st.session_state.yanlis = 0
+                        st.session_state.aktif_mod = "MESLEK_COZ"
+                        st.rerun()
+        else:
+            st.error("Meslek verisi bulunamadı!")
 
-    # SORU ÇÖZME EKRANI (ORTAK)
-    elif st.session_state.aktif_mod in ["TYT_COZ", "MESLEK_COZ"]:
+    # TYT ÇÖZME EKRANI (PDF + OPTİK FORM)
+    elif st.session_state.aktif_mod == "TYT_COZ":
+        test_id = st.session_state.secilen_sorular[0]
+        test_data = TYT_VERI[test_id]
+        
+        st.subheader(f"📄 {test_data['ders']}")
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            pdf_sayfa_getir(TYT_PDF_ADI, test_id)
+            
+        with col2:
+            with st.form("tyt_form"):
+                st.write("Cevaplarınızı İşaretleyiniz:")
+                for i in range(len(test_data["cevaplar"])):
+                    st.radio(f"Soru {i+1}", ["A", "B", "C", "D", "E"], key=f"q_{i}", horizontal=True, index=None)
+                
+                if st.form_submit_button("Testi Bitir"):
+                    d, y, b = 0, 0, 0
+                    for i, dogru in enumerate(test_data["cevaplar"]):
+                        secim = st.session_state.get(f"q_{i}")
+                        if secim == dogru: d += 1
+                        elif secim: y += 1
+                        else: b += 1
+                    
+                    st.session_state.dogru = d
+                    st.session_state.yanlis = y
+                    st.session_state.bos = b
+                    st.session_state.aktif_mod = "SONUC"
+                    st.rerun()
+
+    # MESLEK ÇÖZME EKRANI (INTERAKTİF)
+    elif st.session_state.aktif_mod == "MESLEK_COZ":
         if st.session_state.soru_index < len(st.session_state.secilen_sorular):
             soru = st.session_state.secilen_sorular[st.session_state.soru_index]
             
-            st.progress((st.session_state.soru_index + 1) / len(st.session_state.secilen_sorular))
+            # İlerleme Çubuğu
+            st.progress((st.session_state.soru_index) / len(st.session_state.secilen_sorular))
+            
             st.markdown(f"### ❓ Soru {st.session_state.soru_index + 1}")
             st.info(soru["soru"])
             
-            # Şıkları karıştır
             opts = soru["secenekler"]
-            if f"q_{st.session_state.soru_index}" not in st.session_state:
+            # Şıkları karıştır (State içinde sakla ki her tıkta değişmesin)
+            state_key = f"opts_{st.session_state.soru_index}"
+            if state_key not in st.session_state:
                 random.shuffle(opts)
-                st.session_state[f"q_{st.session_state.soru_index}"] = opts
+                st.session_state[state_key] = opts
             
             col1, col2 = st.columns(2)
-            for i, opt in enumerate(st.session_state[f"q_{st.session_state.soru_index}"]):
-                # HATA BURADAYDI, DÜZELTİLDİ:
-                button_container = col1 if i % 2 == 0 else col2
-                if button_container.button(opt, key=f"opt_{i}", use_container_width=True):
+            for i, opt in enumerate(st.session_state[state_key]):
+                # Renk ve tasarım hatasını önleyen düzeltilmiş buton yapısı
+                if (col1 if i % 2 == 0 else col2).button(opt, key=f"opt_{i}", use_container_width=True):
                     if opt == soru["cevap"]:
                         st.toast("Doğru! 🎉")
                         st.session_state.dogru += 1
                     else:
                         st.toast("Yanlış! ❌")
                         st.session_state.yanlis += 1
+                    
                     time.sleep(0.5)
                     st.session_state.soru_index += 1
                     st.rerun()
         else:
-            # BİTİŞ EKRANI
-            st.balloons()
-            st.success(f"🏁 Test Bitti! Doğru: {st.session_state.dogru} | Yanlış: {st.session_state.yanlis}")
-            odul = st.session_state.dogru * 150
-            if st.button(f"💰 {odul} ₺ Ödülü Al ve Şirketine Git"):
-                st.session_state.bekleyen_odul += odul
-                st.session_state.aktif_mod = "GAME"
-                st.rerun()
+            st.session_state.aktif_mod = "SONUC"
+            st.rerun()
+
+    # SONUÇ EKRANI
+    elif st.session_state.aktif_mod == "SONUC":
+        st.balloons()
+        st.success(f"🏁 Test Bitti! Doğru: {st.session_state.dogru} | Yanlış: {st.session_state.yanlis}")
+        odul = st.session_state.dogru * 150
+        if st.button(f"💰 {odul} ₺ Ödülü Al ve Şirketine Git", type="primary"):
+            st.session_state.bekleyen_odul += odul
+            st.session_state.aktif_mod = "GAME"
+            st.rerun()
 
     # LIFE SIM
     elif st.session_state.aktif_mod == "LIFESIM":
         components.html(LIFE_SIM_HTML, height=600, scrolling=True)
         st.markdown("### 📝 Analiz Raporu")
         analiz = st.text_area("Ne öğrendin?", placeholder="En az 50 karakter yazmalısın...")
-        if st.button("✅ Tamamla ve Ödülü Al (250 ₺)", disabled=len(analiz)<50):
+        
+        # Hile Koruması: 50 karakter altıysa buton pasif
+        btn_disabled = len(analiz) < 50
+        if st.button("✅ Tamamla ve Ödülü Al (250 ₺)", disabled=btn_disabled, type="primary"):
             st.session_state.bekleyen_odul += 250
             st.session_state.aktif_mod = "GAME"
             st.rerun()
+        
+        if btn_disabled:
+            st.caption(f"Kalan karakter: {50 - len(analiz)}")
 
     # GAME
     elif st.session_state.aktif_mod == "GAME":
