@@ -15,57 +15,81 @@ TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 
-# --- SENARYO VERİTABANI (GÜNLÜK HAYAT ODAKLI & UZUN) ---
+# --- SENARYO VERİTABANI (PYTHON LİSTESİ) ---
 SCENARIOS_DATA = [
     # --- GÜNCEL EKONOMİ ---
     {
         "category": "Güncel Ekonomi",
-        "title": "1. Teknoloji Alışverişi ve Enflasyon Çıkmazı",
-        "text": "Mevcut telefonun aniden bozuldu ve tamir edilemez durumda. İşlerin ve derslerin için acilen yeni bir telefona ihtiyacın var. İstediğin modelin piyasa fiyatı 40.000 TL. <br><br><b>Mevcut Durumun:</b><br>• Banka hesabında tam 40.000 TL nakit paran var (tüm birikimin bu).<br>• Kredi kartınla 12 taksit yapabilirsin ama banka aylık %4,5 vade farkı koyuyor (Toplam geri ödeme: ~58.000 TL).<br>• Ülkedeki yıllık enflasyon beklentisi %65.<br><br><b>Karar Anı:</b> Tüm nakdini verip 'borçsuz' ama 'parasız' kalmak mı? Yoksa vade farkı ödeyip nakdini 'altın/döviz/fon' gibi araçlarda tutmak mı? Hangi yolu seçersin ve neden?",
-        "data": ["Nakit: 40.000 TL", "Taksitli Tutar: 58.000 TL", "Enflasyon: %65"],
-        "hint": "Paranın Zaman Değeri kavramını düşün. Bugünün 40.000 TL'si ile 1 yıl sonraki 40.000 TL aynı mı?",
-        "doc": "📌 **HAP BİLGİ: Enflasyonist Ortamda Borçlanma**<br><br>• **Nominal vs Reel Maliyet:** Banka size %40 faizle kredi veriyorsa ama ülkede enflasyon %65 ise, aslında reel olarak 'eksi faizle' borçlanıyorsunuz demektir. Yani borcunuz zamanla erir.<br>• **Nakit Kraldır (Cash is King):** Belirsizlik dönemlerinde tüm nakdi bir mala bağlamak risklidir. Acil durumlar için likidite (nakit) bırakmak, vade farkı ödemekten daha değerli olabilir.<br>• **Karar:** Eğer elindeki nakdi, bankanın vade farkından (%45) daha yüksek getiri getirecek bir araca (Örn: Altın, Fon, Döviz - Beklenti %65) yatırabiliyorsan, taksitli almak matematiksel olarak daha karlıdır."
+        "title": "1. Teknoloji Alışverişi ve Enflasyon",
+        "text": "Telefonun bozuldu. Yenisi 40.000 TL. Banka hesabında tam 40.000 TL var. Kredi kartı ile 12 taksit yaparsan vade farkıyla 58.000 TL ödüyorsun. Enflasyon beklentisi %65.<br><br><b>Karar:</b> Nakit ödeyip parasız kalmak mı? Yoksa vade farkı ödeyip nakdini yatırımda (altın/döviz) tutmak mı?",
+        "data": ["Nakit: 40.000 TL", "Taksitli: 58.000 TL", "Enflasyon: %65"],
+        "hint": "Paranın Zaman Değeri: Bugünün 40 bini ile seneye 40 bin aynı değil.",
+        "doc": "📌 **HAP BİLGİ: Enflasyonist Ortamda Borçlanma**<br><br>• **Reel Maliyet:** Banka faizi (%45) Enflasyondan (%65) düşükse, borçlanmak karlıdır. Çünkü borcunuzun reel değeri zamanla erir.<br>• **Nakit Kraldır:** Tüm nakdi bir mala bağlamak risklidir. Taksit yapıp, eldeki nakdi enflasyondan fazla getiri getiren bir araca (Altın, Fon vb.) yatırmak matematiksel olarak daha karlıdır."
     },
     {
         "category": "Güncel Ekonomi",
         "title": "2. Kira Artışı ve Ev Sahibi Baskısı",
-        "text": "3 yıldır oturduğun evde kiran 5.000 TL. Bölgedeki emsal kiralar 20.000 TL'ye çıktı. Ev sahibin aradı ve 'Ya kirayı 15.000 TL yap ya da oğlum gelecek evi boşalt' dedi. <br><br>Yasal olarak %25 (veya TÜFE) oranında zam yapma hakkın var. Mahkemeye gitsen tahliye davası en az 3 yıl sürer ve kazanırsın. Ancak ev sahibi kapına gelip huzursuzluk çıkarabilir, apartmanda dedikodu yayabilir.<br><br><b>Karar Anı:</b> Yasaların sana verdiği hakkı sonuna kadar kullanıp (düşük kira) psikolojik baskıyı mı göze alırsın? Yoksa bütçeni zorlayıp 'huzur parası' diyerek orta yolda (12-13 bin) anlaşır mısın?",
-        "data": ["Mevcut Kira: 5.000", "Talep: 15.000", "Yasal Hak: ~8.000"],
-        "hint": "Bu sadece bir hukuk sorusu değil, bir 'Stres Yönetimi' ve 'Maliyet/Fayda' sorusudur.",
-        "doc": "📌 **HAP BİLGİ: Sulh ve Zaman Maliyeti**<br><br>• **Hukuki Hak:** Kiracı, sözleşme süresi bitmeden ve haklı bir neden (ihtiyaç, tadilat, 10 yıl dolumu) ispatlanmadan çıkarılamaz.<br>• **Görünmeyen Maliyet:** Dava süreci masraflıdır (Avukat, Dosya). Daha önemlisi 'Psikolojik Maliyet'tir. Huzursuz bir evde yaşamanın, sürekli gergin olmanın iş ve okul hayatına etkisi, aradaki 3-4 bin TL farktan daha büyük olabilir.<br>• **Strateji:** Genellikle 'Kötü bir sulh, iyi bir davadan iyidir'. Orta yolda anlaşmak (örneğin 10-12 bin TL), hem taşınma masrafından kurtarır hem de huzuru satın alır."
+        "text": "Kiran 5.000 TL. Bölge 20.000 TL oldu. Ev sahibi 'Ya 15.000 yap ya çık' diyor. Yasal zam hakkın %25 (veya TÜFE). Dava 3 yıl sürer. Huzurun kaçacak.<br><br><b>Karar:</b> Yasal hakkını kullanıp (düşük kira) baskıya direnmek mi? Yoksa bütçeyi zorlayıp orta yolda (12.000) anlaşıp huzur satın almak mı?",
+        "data": ["Mevcut: 5.000", "Talep: 15.000", "Yasal: ~8.000"],
+        "hint": "Bu sadece hukuk değil, bir 'Stres Yönetimi' sorusudur.",
+        "doc": "📌 **HAP BİLGİ: Sulh ve Zaman Maliyeti**<br><br>• **Görünmeyen Maliyet:** Dava masraflarından ziyade 'Psikolojik Maliyet' önemlidir. Huzursuz bir evde yaşamanın iş/okul hayatına zararı, aradaki 3-4 bin TL farktan büyük olabilir.<br>• **Strateji:** 'Kötü bir sulh, iyi bir davadan iyidir'. Orta yolda anlaşmak genellikle en rasyonel çözümdür."
     },
     {
-        "category": "Kariyer & Yönetim",
-        "title": "3. Maaş mı, Özgürlük mü? (Freelance İkilemi)",
-        "text": "Üniversiteden yeni mezun oldun. İki yerden teklif aldın:<br><br><b>A Şirketi (Kurumsal):</b> Sabah 9 - Akşam 6 mesai. İstanbul'da plazada. Maaş: 45.000 TL + Yemek + Sigorta. Ancak her gün 3 saat trafikte geçecek ve kıyafet zorunluluğu var.<br><b>B Şirketi (Startup - Uzaktan):</b> Evden çalışma (Home Office). Maaş: 30.000 TL. Sigorta var ama yemek yok. İstediğin şehirden çalışabilirsin.<br><br>İstanbul'da kira ve yaşam maliyeti çok yüksek. Anadolu'da ailenin yanında veya daha ucuz bir şehirde yaşama şansın var. Geleceğini ve yaşam kaliteni düşünerek hangisini seçersin?",
-        "data": ["Kurumsal: 45k (Ofis)", "Startup: 30k (Remote)", "Kira: İstanbul Pahalı"],
-        "hint": "Sadece maaşa bakma. 'Net Ele Geçen' ve 'Yaşam Maliyeti' (Cost of Living) hesabını yap.",
-        "doc": "📌 **HAP BİLGİ: Reel Gelir ve Yaşam Kalitesi**<br><br>• **Nominal Gelir:** Bordroda yazan rakamdır (45.000 TL).<br>• **Reel (Kullanılabilir) Gelir:** Zorunlu giderler düştükten sonra cebe kalan paradır.<br><br>💡 **Hesap:** İstanbul'da kira (20k) + yol + giyim + dışarıda yeme içme düştüğünde cebine 5.000 TL kalıyorsa; Anadolu'da kirasız evde 30.000 TL alıp 20.000 TL biriktirmek finansal olarak daha mantıklıdır. Ayrıca günde 3 saat trafik, haftada 15 saat (yılda neredeyse 1 ay) kayıp demektir. Zaman en değerli sermayedir."
+        "category": "Kariyer",
+        "title": "3. Kurumsal mı, Freelance mi?",
+        "text": "İki teklif aldın:<br><b>A) Kurumsal:</b> İstanbul Plaza. 45.000 TL Maaş + Yemek. Günde 3 saat trafik.<br><b>B) Startup:</b> Evden çalışma (Anadolu'da yaşayabilirsin). 30.000 TL Maaş. Yemek yok.<br><br>İstanbul'da kira 20.000 TL. Anadolu'da kira derdin yok. Hangisini seçersin?",
+        "data": ["Ofis: 45k (Yüksek Gider)", "Evden: 30k (Düşük Gider)"],
+        "hint": "Sadece maaşa bakma. 'Cebine Kalan Net' ve 'Yaşam Kalitesi'ni hesapla.",
+        "doc": "📌 **HAP BİLGİ: Reel Gelir ve Yaşam Kalitesi**<br><br>• **Nominal Gelir:** Bordroda yazan (45.000).<br>• **Reel Gelir:** Zorunlu giderler düştükten sonra kalan.<br>• İstanbul'da 20k kira + yol + masraflar düşünce cebe 5k kalıyorsa; Anadolu'da 30k alıp 20k biriktirmek finansal olarak kat kat üstündür. Ayrıca günde 3 saat trafik, ömründen yılda 1 ay çalmak demektir."
     },
-    
-    # --- ETİK & DEĞERLER ---
     {
-        "category": "Etik Değerler",
+        "category": "Etik",
         "title": "4. Rakibinin Kayıp Cüzdanı",
-        "text": "Okul birinciliği için yarıştığın ve hiç sevmediğin bir sınıf arkadaşın var. Sürekli seni ezikliyor. Okul çıkışı yerde bir cüzdan buldun. İçinde yüklü miktarda para ve o çocuğun kimliği var. Etrafta kamera yok, kimse seni görmedi.<br><br>Ailennin maddi durumu şu an sıkışık, o para evdeki büyük bir deliği kapatabilir. Cüzdanı çöpe atıp parayı alsan kimse bilmeyecek. Arkadaşın ise o parayı kaybederse çok üzülecek ama hayatı kaymayacak.<br><br>Vicdanınla baş başasın. Ne yaparsın? Dürüstçe anlat.",
+        "text": "Seni sürekli ezen rakibinin cüzdanını buldun. İçinde yüklü para var. Ailenin de paraya ihtiyacı var. Kamera yok, gören yok.<br><br>Cüzdanı çöpe atıp parayı almak mı? Sahibine teslim etmek mi?",
         "data": ["Miktar: Yüksek", "Risk: Sıfır", "Vicdan: ?"],
         "hint": "Karakter, kimse seni izlemiyorken ne yaptığındır.",
-        "doc": "📌 **HAP BİLGİ: Etik Liderlik ve Karakter**<br><br>• **Dürüstlük Testi:** İnsanlar genellikle 'Yakalanma riski varsa' dürüst davranır. Gerçek erdem, ceza korkusu olmadan doğruyu seçmektir.<br>• **Sevgi vs Adalet:** Birine adil davranmak için onu sevmek zorunda değilsiniz. Düşmanınızın bile hakkını korumak, sizi ondan üstün ve güçlü kılar. O parayı harcamak, ömür boyu sürecek bir vicdan yükü (manevi borç) yaratır."
+        "doc": "📌 **HAP BİLGİ: Etik Liderlik**<br><br>• **Dürüstlük Testi:** İnsanlar genelde yakalanma korkusuyla dürüsttür. Gerçek erdem, kimse bilmeyecek olsa bile doğruyu yapmaktır.<br>• Sevmediğin birine bile adil davranmak, seni ondan üstün ve güçlü kılar. O parayı harcamak ömür boyu sürecek bir manevi yük yaratır."
     },
     {
-        "category": "Güncel Ekonomi",
+        "category": "Pazarlama",
         "title": "5. 'Yalancı İndirim' Tuzağı",
-        "text": "Bir e-ticaret sitesinde aylardır takip ettiğin spor ayakkabı 3.000 TL idi. 'Efsane Cuma' indirimlerinde fiyatın üzerinin çizilip '5.000 TL'den 3.500 TL'ye düştü' yazıldığını gördün. Yani aslında eski fiyattan daha pahalıya satıyorlar ama 'Büyük İndirim' algısı var.<br><br>Ayakkabıya ihtiyacın var ve stoklar tükeniyor görünüyor (FOMO - Kaçırma Korkusu). Bu pazarlama tuzağına düşüp alır mısın, yoksa prensip gereği protesto mu edersin?",
-        "data": ["Gerçek Fiyat: 3.000", "Kampanya: 3.500", "Algı: İndirim Var"],
-        "hint": "Çapalama Etkisi (Anchoring Effect) denilen psikolojik tuzağı düşün.",
-        "doc": "📌 **HAP BİLGİ: Davranışsal Ekonomi ve Fiyat Algısı**<br><br>• **Çapalama (Anchoring):** Beynimiz ilk gördüğü sayıya (5.000 TL) odaklanır ve sonraki fiyatı (3.500 TL) buna göre 'ucuz' algılar. Oysa gerçek referans 3.000 TL'dir.<br>• **FOMO (Fear of Missing Out):** 'Son 3 ürün', 'İndirim bitiyor' sayaçları panik yaptırıp mantıklı düşünmeyi engellemek içindir. <br>• **Tavsiye:** Fiyat takip grafikleri kullanın ve ihtiyacınız yoksa 'ucuz' diye hiçbir şeyi almayın. En büyük tasarruf, almamaktır."
+        "text": "Ayakkabı 3.000 TL idi. İndirim gününde önce 5.000 yapıp üzerini çizmişler, 'İndirimle 3.500 TL' yazmışlar. Stok bitiyor görünüyor (FOMO).<br><br>İhtiyacın var ama kandırıldığını biliyorsun. Alır mısın, protesto mu edersin?",
+        "data": ["Gerçek: 3.000", "Etiket: 3.500", "Algı: İndirim"],
+        "hint": "Çapalama Etkisi (Anchoring) tuzağına dikkat.",
+        "doc": "📌 **HAP BİLGİ: Fiyat Algısı ve FOMO**<br><br>• **Çapalama:** Beyin ilk gördüğü yüksek sayıya (5.000) odaklanır, 3.500'ü ucuz sanır. Oysa gerçek fiyat 3.000'dir.<br>• **FOMO (Kaçırma Korkusu):** 'Son 3 ürün' sayaçları panik yaptırmak içindir. İhtiyacın yoksa 'ucuz' diye alınan her şey pahalıdır. En büyük tasarruf almamaktır."
+    },
+    {
+        "category": "Muhasebe",
+        "title": "6. E-Fatura Cezası",
+        "text": "Sistemsel hata yüzünden ay sonu 100 fatura kesilemedi. Ceza kapıda. Müşteriye durumu nasıl açıklarsın?",
+        "data": ["Ceza: Var", "İtibar: Riskli"],
+        "hint": "Dürüstlük ve teknik raporla başvurmak.",
+        "doc": "📌 **HAP BİLGİ: VUK ve Mücbir Sebep**<br><br>• E-Fatura kesilmemesi ceza gerektirir ancak teknik arızalar 'Mücbir Sebep' sayılabilir.<br>• Teknik raporla Gelir İdaresi'ne başvurulursa ceza iptal edilebilir. Müşteriye şeffaf davranmak güveni korur."
+    },
+    {
+        "category": "Yönetim",
+        "title": "7. Yapay Zeka ve İşten Çıkarma",
+        "text": "Şirkete aldığın Yapay Zeka, 3 kişinin işini yapıyor. Bu çalışanları kovarak maliyeti mi düşürürsün, yoksa onları eğitip (Upskilling) başka birimde mi değerlendirirsin?",
+        "data": ["Verim: Yüksek", "Etik: ?"],
+        "hint": "Kısa vadeli kar mı, uzun vadeli kurumsal hafıza mı?",
+        "doc": "📌 **HAP BİLGİ: İnsan Kaynakları Dönüşümü**<br><br>• Teknolojik işsizlik kaçınılmazdır. Ancak çözüm kovmak değil, dönüştürmektir.<br>• Sadık çalışanları AI operatörü olarak eğitmek, şirket kültürünü korur ve adaptasyonu hızlandırır."
+    },
+    {
+        "category": "Hukuk",
+        "title": "8. Sosyal Medya Hakareti",
+        "text": "Bir anlık öfkeyle müdüre sosyal medyadan hakaret ettin. Dava açıldı. Sicilin bozulabilir.<br><br>Savunma mı yaparsın, yoksa gururu bir kenara bırakıp uzlaşma/özür yolunu mu denersin?",
+        "data": ["Suç: TCK 125", "Risk: Sicil"],
+        "hint": "Hakaret suçu uzlaşmaya tabidir.",
+        "doc": "📌 **HAP BİLGİ: Bilişim Suçları**<br><br>• Sosyal medya 'kamuya açık alan' sayıldığı için ceza artırımı uygulanır.<br>• Hakaret 'Uzlaşmaya Tabi' bir suçtur. Savcı dava açmadan önce uzlaştırmacıya gönderir. Özür dilemek ve anlaşmak, sicilin kirlenmesini önleyen en pratik yoldur."
     }
 ]
 
+# JSON Verisini Hazırla
 SCENARIOS_JSON = json.dumps(SCENARIOS_DATA, ensure_ascii=False)
 
-# --- LIFE-SIM HTML KODU (V5.0 - SORGULAYICI GERİ BİLDİRİM & GİZLİ BİLGİ KARTI) ---
-LIFE_SIM_HTML = f"""
+# --- LIFE-SIM HTML ŞABLONU (DÜZ METİN OLARAK - F-STRING YOK) ---
+# Buradaki __SCENARIOS_PLACEHOLDER__ kısmını replace ile değiştireceğiz.
+HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -75,39 +99,39 @@ LIFE_SIM_HTML = f"""
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
-        tailwind.config = {{ theme: {{ extend: {{ colors: {{ bg: '#0f172a', surface: '#1e293b', primary: '#38bdf8', accent: '#f472b6', success: '#34d399', warning: '#fbbf24' }} }} }} }}
+        tailwind.config = { theme: { extend: { colors: { bg: '#0f172a', surface: '#1e293b', primary: '#38bdf8', accent: '#f472b6', success: '#34d399', warning: '#fbbf24' } } } }
     </script>
     <style>
-        body {{ background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }}
-        .glass {{ background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }}
-        .glow-border:focus-within {{ box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); border-color: #38bdf8; }}
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+        .glow-border:focus-within { box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
         
         /* Scrollbar */
-        ::-webkit-scrollbar {{ width: 6px; }}
-        ::-webkit-scrollbar-track {{ background: #0f172a; }}
-        ::-webkit-scrollbar-thumb {{ background: #334155; border-radius: 4px; }}
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         
         /* Layout */
-        .main-container {{ height: 100vh; display: flex; flex-direction: column; gap: 1rem; padding: 0.5rem; }}
-        @media (min-width: 768px) {{ .main-container {{ flex-direction: row; }} }}
-        .panel {{ display: flex; flex-direction: column; gap: 1rem; height: 100%; overflow-y: auto; }}
-        .left-panel {{ flex: 4; }}
-        .right-panel {{ flex: 5; position: relative; }}
+        .main-container { height: 100vh; display: flex; flex-direction: column; gap: 1rem; padding: 0.5rem; }
+        @media (min-width: 768px) { .main-container { flex-direction: row; } }
+        .panel { display: flex; flex-direction: column; gap: 1rem; height: 100%; overflow-y: auto; }
+        .left-panel { flex: 4; }
+        .right-panel { flex: 5; position: relative; }
         
         /* Bilgi Kartı Animasyonu */
-        .info-card {{ 
+        .info-card { 
             position: absolute; top: 0; right: 0; bottom: 0; left: 0; 
             background: rgba(15, 23, 42, 0.98); 
             z-index: 50; 
             transform: translateX(100%); 
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex; flex-direction: column;
-        }}
-        .info-card.show {{ transform: translateX(0); }}
+        }
+        .info-card.show { transform: translateX(0); }
         
         /* Buton Efektleri */
-        .btn-analyze {{ background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%); }}
-        .btn-analyze:hover {{ filter: brightness(1.1); }}
+        .btn-analyze { background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%); }
+        .btn-analyze:hover { filter: brightness(1.1); }
     </style>
 </head>
 <body>
@@ -192,30 +216,39 @@ LIFE_SIM_HTML = f"""
     
     <script>
         lucide.createIcons();
-        const scenarios = {SCENARIOS_JSON};
+        
+        // VERİ ENJEKSİYONU BURADA YAPILIYOR
+        const scenarios = __SCENARIOS_PLACEHOLDER__;
+        
         let selectedScenarioIndex = 0;
         let startTime = Date.now();
 
-        window.onload = function() {{
+        window.onload = function() {
             const select = document.getElementById('scenarioSelect');
-            const categories = {{}};
-            scenarios.forEach((s, index) => {{
+            const categories = {};
+            scenarios.forEach((s, index) => {
                 if(!categories[s.category]) categories[s.category] = [];
-                categories[s.category].push({{ ...s, idx: index }});
-            }});
-            for (const [cat, items] of Object.entries(categories)) {{
-                let group = document.createElement('optgroup'); group.label = cat.toUpperCase();
-                items.forEach(item => {{ let opt = document.createElement('option'); opt.value = item.idx; opt.innerHTML = item.title; group.appendChild(opt); }});
+                categories[s.category].push({ ...s, idx: index });
+            });
+            for (const [cat, items] of Object.entries(categories)) {
+                let group = document.createElement('optgroup'); 
+                group.label = cat.toUpperCase();
+                items.forEach(item => { 
+                    let opt = document.createElement('option'); 
+                    opt.value = item.idx; 
+                    opt.innerHTML = item.title; 
+                    group.appendChild(opt); 
+                });
                 select.appendChild(group);
-            }}
+            }
             loadScenario();
-            setInterval(() => {{ 
+            setInterval(() => { 
                 const d = Math.floor((Date.now() - startTime)/1000); 
-                document.getElementById('timer').innerText = `${{Math.floor(d/60).toString().padStart(2,'0')}}:${{(d%60).toString().padStart(2,'0')}}`; 
-            }}, 1000);
-        }};
+                document.getElementById('timer').innerText = `${Math.floor(d/60).toString().padStart(2,'0')}:${(d%60).toString().padStart(2,'0')}`; 
+            }, 1000);
+        };
 
-        function loadScenario() {{
+        function loadScenario() {
             selectedScenarioIndex = document.getElementById('scenarioSelect').value;
             const s = scenarios[selectedScenarioIndex];
             
@@ -225,9 +258,9 @@ LIFE_SIM_HTML = f"""
             
             const tags = document.getElementById('scenarioDataTags');
             tags.innerHTML = "";
-            s.data.forEach(d => {{
-                tags.innerHTML += `<span class="px-2 py-1 bg-slate-700 rounded text-xs text-primary border border-slate-600">${{d}}</span>`;
-            }});
+            s.data.forEach(d => {
+                tags.innerHTML += `<span class="px-2 py-1 bg-slate-700 rounded text-xs text-primary border border-slate-600">${d}</span>`;
+            });
 
             // Reset
             document.getElementById('inputText').value = "";
@@ -241,18 +274,18 @@ LIFE_SIM_HTML = f"""
             btn.innerHTML = '<i data-lucide="sparkles" class="w-8 h-8"></i><span>ANALİZ ET</span>';
             btn.disabled = false;
             btn.classList.remove('opacity-50');
-        }}
+        }
 
-        function analyzeSubmission() {{
+        function analyzeSubmission() {
             const text = document.getElementById('inputText').value.trim().toLowerCase();
             const btn = document.getElementById('analyzeBtn');
             const feedback = document.getElementById('aiFeedback');
             
-            if (text.length < 15) {{
+            if (text.length < 15) {
                 feedback.innerHTML = "<span class='text-warning font-bold flex items-center gap-2'><i data-lucide='alert-triangle'></i> Çok kısa yazdın. Biraz daha detaylandır.</span>";
                 lucide.createIcons();
                 return;
-            }}
+            }
 
             btn.innerHTML = '⏳';
             btn.disabled = true;
@@ -260,22 +293,21 @@ LIFE_SIM_HTML = f"""
             
             feedback.innerHTML = "<span class='text-primary animate-pulse'>Yapay zeka stratejini inceliyor... Riskler hesaplanıyor...</span>";
 
-            setTimeout(() => {{
+            setTimeout(() => {
                 // SORGULAYICI GERİ BİLDİRİM MANTIĞI
                 let msg = "";
                 
-                // Anahtar kelime yakalama (Basit Mantık)
-                if (text.includes("nakit") || text.includes("peşin")) {{
+                if (text.includes("nakit") || text.includes("peşin")) {
                     msg = "<span class='text-white font-bold'>🤔 Nakit tercih ettin.</span><br>Peki acil durum fonunu tamamen tüketmek, bu belirsiz ekonomide seni savunmasız bırakmaz mı?";
-                }} else if (text.includes("taksit") || text.includes("kredi") || text.includes("borç")) {{
+                } else if (text.includes("taksit") || text.includes("kredi") || text.includes("borç")) {
                     msg = "<span class='text-white font-bold'>🤔 Borçlanmayı seçtin.</span><br>Peki aylık ödeme yükü, gelecekteki nakit akışını kilitlerse ne yapacaksın? Reel faiz hesabını yaptın mı?";
-                }} else if (text.includes("dava") || text.includes("mahkeme")) {{
+                } else if (text.includes("dava") || text.includes("mahkeme")) {
                     msg = "<span class='text-white font-bold'>⚖ Hukuki yolu seçtin.</span><br>Haklısın ama davanın yıllarca süreceğini ve bu süreçteki stres maliyetini hesaba kattın mı?";
-                }} else if (text.includes("uzlaş") || text.includes("anlaş")) {{
+                } else if (text.includes("uzlaş") || text.includes("anlaş")) {
                     msg = "<span class='text-success font-bold'>🤝 Uzlaşmayı seçtin.</span><br>Bazen haktan feragat etmek, huzuru satın almaktır. Bu pragmatik bir yaklaşım.";
-                }} else {{
+                } else {
                     msg = "<span class='text-white font-bold'>Analiz Tamamlandı.</span><br>Yaklaşımın ilginç. Kararın finansal ve etik boyutlarını tam olarak görmek ister misin?";
-                }}
+                }
 
                 feedback.innerHTML = msg;
                 btn.innerHTML = '<i data-lucide="check" class="w-8 h-8"></i><span>BİTTİ</span>';
@@ -284,43 +316,46 @@ LIFE_SIM_HTML = f"""
                 document.getElementById('showDocBtn').classList.remove('hidden');
                 lucide.createIcons();
 
-            }}, 1500);
-        }}
+            }, 1500);
+        }
 
-        function openKnowledgeCard() {{
+        function openKnowledgeCard() {
             const s = scenarios[selectedScenarioIndex];
             document.getElementById('knowledgeContent').innerHTML = s.doc;
             document.getElementById('knowledgeCard').classList.remove('hidden');
-            // Animasyon için frame atlat
             requestAnimationFrame(() => document.getElementById('knowledgeCard').classList.add('show'));
-        }}
+        }
 
-        function closeKnowledgeCard() {{
+        function closeKnowledgeCard() {
             document.getElementById('knowledgeCard').classList.remove('show');
             setTimeout(() => document.getElementById('knowledgeCard').classList.add('hidden'), 400);
-        }}
+        }
 
-        function toggleHint() {{
+        function toggleHint() {
             const s = scenarios[selectedScenarioIndex];
-            document.getElementById('hintBox').innerHTML = `💡 ${{s.hint}}`;
+            document.getElementById('hintBox').innerHTML = `💡 ${s.hint}`;
             document.getElementById('hintBox').classList.remove('hidden');
             document.getElementById('hintBtn').classList.add('hidden');
-        }}
+        }
         
-        function downloadReport() {{
+        function downloadReport() {
             const s = scenarios[selectedScenarioIndex];
             const ans = document.getElementById('inputText').value;
-            const txt = `KONU: ${{s.title}}\\nCEVAP: ${{ans}}\\n\\nUZMAN NOTU:\\n${{s.doc.replace(/<[^>]*>/g, '')}}`;
-            const blob = new Blob([txt], {{type: 'text/plain'}});
+            const txt = `KONU: ${s.title}\nCEVAP: ${ans}\n\nUZMAN NOTU:\n${s.doc.replace(/<[^>]*>/g, '')}`;
+            const blob = new Blob([txt], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'Analiz_Raporu.txt';
             a.click();
-        }}
+        }
     </script>
 </body>
 </html>
 """
+
+# !!! KRİTİK NOKTA: Python değişkenini HTML içindeki yer tutucuya monte ediyoruz !!!
+LIFE_SIM_HTML = HTML_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON)
+
 
 # --- TASARIM VE CSS ---
 st.markdown("""
@@ -577,6 +612,7 @@ elif st.session_state.ekran == 'sinav':
 
     # --- 3. MODÜL: LIFE-SIM (HTML ENTEGRASYONU) ---
     elif st.session_state.secim_turu == "LIFESIM":
+        # Yüksekliği 1000px yaptık ki taşma olmasın ve scroll rahat çalışsın
         components.html(LIFE_SIM_HTML, height=1000, scrolling=True)
 
     # --- 4. MODÜL: KLASİK SINAV MOTORU ---
