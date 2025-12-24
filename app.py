@@ -31,7 +31,8 @@ MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 LIFESIM_JSON_ADI = "lifesim_data.json"
 
-# GOOGLE SHEETS AYARLARI
+# --- GÜNCELLENEN GOOGLE SHEETS LİNKİ ---
+# Verdiğin linkten ID'yi çektim: 1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo
 SHEET_ID = "1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo"
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
@@ -105,9 +106,10 @@ def get_leaderboard_data():
                 data.append({"name": str(row[name_col]), "score": int(row[score_col])})
             return json.dumps(data, ensure_ascii=False)
         else:
-            return "ERROR_COLUMNS"
-    except:
-        return "ERROR_CONNECTION"
+            # Hata durumunda sütun isimlerini döndür
+            return f"ERROR_COLUMNS|{', '.join(df.columns)}"
+    except Exception as e:
+        return f"ERROR_CONNECTION|{str(e)}"
 
 TYT_VERI = dosya_yukle(TYT_JSON_ADI)
 MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
@@ -184,8 +186,8 @@ GAME_HTML_TEMPLATE = """
         const INFLATION_RATE = 1.15; 
         
         try {
-            if(cloudResponse === "ERROR_COLUMNS") { console.error("HATA: Excelde Isim ve Puan sutunlari yok!"); }
-            else if(cloudResponse === "ERROR_CONNECTION") { console.error("HATA: Baglanti hatasi!"); }
+            if(cloudResponse.startsWith("ERROR_COLUMNS")) { console.error("Sütun Hatası"); } 
+            else if(cloudResponse.startsWith("ERROR_CONNECTION")) { console.error("Bağlantı Hatası"); } 
             else { cloudLeaderboard = JSON.parse(cloudResponse); }
         } catch(e) { cloudLeaderboard = []; }
 
@@ -266,31 +268,16 @@ GAME_HTML_TEMPLATE = """
 if st.session_state.ekran == 'giris':
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("""
-        <div class='giris-kart'>
-            <h1>🎓 Bağarası ÇPAL</h1>
-            <h1>Muhasebe ve Finansman Dijital Dönüşüm Projesi</h1>
-            <hr>
-            <p style="font-size:18px; font-weight:bold; color:#D84315;">
-                Finans & Eğitim Ekosistemi
-            </p>
-            <br>
-            <p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
+        st.markdown("""<div class='giris-kart'><h1>🎓 Bağarası ÇPAL</h1><h2>Finans & Eğitim Ekosistemi</h2><hr><p style="font-size:18px; font-weight:bold; color:#D84315;">Muhasebe ve Finansman Alanı Dijital Dönüşüm Projesi</p><br><p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p></div>""", unsafe_allow_html=True)
         ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet Karaduman")
-        
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
             if ad_soyad_input.strip():
                 st.session_state.ad_soyad = ad_soyad_input
                 st.session_state.ekran = 'sinav'
                 st.rerun()
-            else:
-                st.error("Lütfen adınızı giriniz!")
-        
-        st.markdown("<div class='footer-text'>Geliştirici: Zülfikar SITACI</div>", unsafe_allow_html=True)
+            else: st.error("Lütfen adınızı giriniz!")
+        st.markdown("""<div class='imza-container'><div class='imza'>Zülfikar SITACI & Mustafa BAĞCIK</div></div>""", unsafe_allow_html=True)
 
 elif st.session_state.ekran == 'sinav':
     with st.sidebar:
@@ -305,7 +292,6 @@ elif st.session_state.ekran == 'sinav':
             st.session_state.ekran = 'giris'
             st.session_state.oturum = False
             st.rerun()
-        st.markdown("<div class='footer-text'>Geliştirici: Zülfikar SITACI</div>", unsafe_allow_html=True)
 
     # ANA MENÜ
     if not st.session_state.oturum and st.session_state.secim_turu not in ["LIFESIM", "GAME"]:
@@ -346,17 +332,17 @@ elif st.session_state.ekran == 'sinav':
         leaderboard_json = get_leaderboard_data()
         
         # Sütun hatası varsa kullanıcıyı uyar
-        if leaderboard_json == "ERROR_COLUMNS":
-            st.error("⚠️ Liderlik Tablosu Hatası: Google Sheets'te 'Isim' ve 'Puan' sütunları bulunamadı.")
+        if leaderboard_json.startswith("ERROR_COLUMNS"):
+            st.error(f"⚠️ Liderlik Tablosu Hatası: Google Sheets'te 'Isim' ve 'Puan' sütunları bulunamadı! Bulunan sütunlar: {leaderboard_json.split('|')[1]}")
             leaderboard_json = "[]"
-        elif leaderboard_json == "ERROR_CONNECTION":
-            st.error("⚠️ Bağlantı Hatası: Google Sheets'e erişilemiyor.")
+        elif leaderboard_json.startswith("ERROR_CONNECTION"):
+            st.error("⚠️ Bağlantı Hatası: Google Sheets'e erişilemiyor. 'Web'de Yayınla' seçeneğini açtığınızdan emin olun.")
             leaderboard_json = "[]"
 
         # Kullanıcı adını, ödülü ve liderlik verisini JS'e gönder
         final_game_html = GAME_HTML_TEMPLATE.replace("__REWARD_AMOUNT__", str(reward_val))
         final_game_html = final_game_html.replace("__USER_NAME__", st.session_state.ad_soyad)
-        final_game_html = final_game_html.replace("'__LEADERBOARD_JSON__'", leaderboard_json)
+        final_game_html = final_game_html.replace("'__LEADERBOARD_JSON__'", leaderboard_json) # JSON string olarak gidecek
         
         components.html(final_game_html, height=1000, scrolling=True)
 
