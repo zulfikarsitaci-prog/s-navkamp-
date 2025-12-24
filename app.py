@@ -4,6 +4,7 @@ import random
 import os
 import json
 import fitz  # PyMuPDF
+import time  # <--- BU EKSİKTİ, EKLENDİ
 
 # --- 1. SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası Hibrit Yaşam Merkezi", page_icon="🎓", layout="wide")
@@ -398,7 +399,7 @@ if st.session_state.ekran == 'giris':
         
         st.markdown("""
         <div class='imza-container'>
-            <div class='imza'></div>
+            <div class='imza'>Zülfikar SITACI </div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -408,12 +409,12 @@ elif st.session_state.ekran == 'sinav':
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=100)
         st.write(f"👤 **{st.session_state.ad_soyad}**")
-        if st.button("🏠 Ana Ekrana Dön"):
+        if st.button("🏠 Ana Menü"):
              st.session_state.oturum = False
              st.session_state.secim_turu = None
              st.rerun()
         st.divider()
-        if st.button("🚪 Çıkış Yap"):
+        if st.button("🚪 Çıkış"):
             st.session_state.ekran = 'giris'
             st.session_state.oturum = False
             st.rerun()
