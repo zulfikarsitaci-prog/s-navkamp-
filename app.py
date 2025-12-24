@@ -356,54 +356,88 @@ elif st.session_state.ekran == 'sinav':
                 st.session_state.secim_turu = "GAME"
                 st.rerun()
 
-    # SINAV MOTORU
+    # --- 5. MODÜL: KLASİK SINAV MOTORU ---
     elif st.session_state.oturum:
+        # A) SINAV BİTTİYSE (SONUÇ EKRANI)
         if st.session_state.aktif_index >= len(st.session_state.secilen_liste):
             st.balloons()
-            st.markdown(f"<h2 style='text-align:center;'>Sonuçlar</h2>", unsafe_allow_html=True)
+            st.markdown(f"<h2 style='text-align:center;'>🏁 Sınav Tamamlandı!</h2>", unsafe_allow_html=True)
+            
+            # İstatistikler
             c1, c2, c3 = st.columns(3)
-            c1.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.dogru_sayisi}</div><div>Doğru</div></div>", unsafe_allow_html=True)
-            c2.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.yanlis_sayisi}</div><div>Yanlış</div></div>", unsafe_allow_html=True)
-            c3.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.bos_sayisi}</div><div>Boş</div></div>", unsafe_allow_html=True)
+            c1.markdown(f"<div class='stat-card'><div class='stat-number' style='color:#4caf50'>{st.session_state.dogru_sayisi}</div><div class='stat-label'>Doğru</div></div>", unsafe_allow_html=True)
+            c2.markdown(f"<div class='stat-card'><div class='stat-number' style='color:#f44336'>{st.session_state.yanlis_sayisi}</div><div class='stat-label'>Yanlış</div></div>", unsafe_allow_html=True)
+            c3.markdown(f"<div class='stat-card'><div class='stat-number' style='color:#ff9800'>{st.session_state.bos_sayisi}</div><div class='stat-label'>Boş</div></div>", unsafe_allow_html=True)
             
-            # ÖDÜL HESAPLAMA
-            odul = st.session_state.dogru_sayisi * 1000
-            st.success(f"Tebrikler! Bu sınavdan **{odul} ₺** kazandın.")
+            st.markdown("---")
             
-            if st.button(f"💰 {odul} ₺ Ödülü Al ve Şirketine Git"): 
-                st.session_state.bekleyen_odul += odul
-                st.session_state.oturum = False
-                st.session_state.secim_turu = "GAME"
-                st.rerun()
+            # ÖDÜL HESAPLAMA MANTIĞI
+            kazanc = st.session_state.dogru_sayisi * 1000
+            
+            if kazanc > 0:
+                st.success(f"🎉 TEBRİKLER! Bu testten şirket sermayen için **{kazanc} ₺** kazandın!")
+                
+                # ÖDÜLÜ AL BUTONU
+                if st.button(f"💰 {kazanc} ₺ Ödülü Al ve Şirketine Git 🚀", type="primary", use_container_width=True): 
+                    st.session_state.bekleyen_odul += kazanc
+                    st.session_state.oturum = False
+                    st.session_state.secim_turu = "GAME" # Direkt oyuna yönlendir
+                    st.rerun()
+            else:
+                st.warning("Maalesef hiç doğru yapamadığın için para kazanamadın. Tekrar dene!")
+                if st.button("Ana Menüye Dön", use_container_width=True): 
+                    st.session_state.oturum = False
+                    st.rerun()
         
+        # B) SINAV DEVAM EDİYORSA (SORU EKRANI)
         elif st.session_state.mod == "MESLEK":
             soru = st.session_state.secilen_liste[st.session_state.aktif_index]
-            st.subheader(f"Soru {st.session_state.aktif_index + 1}")
+            st.subheader(f"❓ Soru {st.session_state.aktif_index + 1}")
             st.markdown(f"<div class='soru-karti'>{soru['soru']}</div>", unsafe_allow_html=True)
+            
+            # Şıkları karıştır (sadece ilk yüklemede)
             if "secenekler_mix" not in st.session_state:
-                s = soru["secenekler"].copy(); random.shuffle(s); st.session_state.secenekler_mix = s
+                s = soru["secenekler"].copy()
+                random.shuffle(s)
+                st.session_state.secenekler_mix = s
+            
+            # Şık Butonları
             for idx, sec in enumerate(st.session_state.secenekler_mix):
                 if st.button(sec, key=f"btn_{idx}", use_container_width=True):
                     if sec.strip() == soru["cevap"].strip():
-                        st.toast("Doğru! ✅"); st.session_state.dogru_sayisi += 1
+                        st.toast("Doğru! ✅", icon="✅")
+                        st.session_state.dogru_sayisi += 1
                     else:
-                        st.toast("Yanlış! ❌"); st.session_state.yanlis_sayisi += 1
-                    del st.session_state.secenekler_mix; time.sleep(0.5); st.session_state.aktif_index += 1; st.rerun()
+                        st.toast("Yanlış! ❌", icon="❌")
+                        st.session_state.yanlis_sayisi += 1
+                    
+                    # Sonraki soruya geç
+                    if "secenekler_mix" in st.session_state:
+                        del st.session_state.secenekler_mix
+                    time.sleep(0.5)
+                    st.session_state.aktif_index += 1
+                    st.rerun()
 
         elif st.session_state.mod == "PDF":
             s = st.session_state.secilen_liste[st.session_state.aktif_index]
             st.subheader(f"📄 {TYT_VERI[s]['ders']} - Sayfa {s}")
+            
             c1, c2 = st.columns([1, 1])
-            with c1: pdf_sayfa_getir(TYT_PDF_ADI, s)
+            with c1: 
+                pdf_sayfa_getir(TYT_PDF_ADI, s)
             with c2:
                 with st.form(f"f_{s}"):
                     cevaplar = TYT_VERI[s]["cevaplar"]
-                    for i in range(len(cevaplar)): st.radio(f"Soru {i+1}", ["A","B","C","D","E"], key=f"c_{i}", horizontal=True, index=None)
-                    if st.form_submit_button("Kontrol Et"):
-                        for i, d in enumerate(cevaplar):
-                            sec = st.session_state.get(f"c_{i}")
-                            if d != "X":
-                                if not sec: st.session_state.bos_sayisi += 1
-                                elif sec == d: st.session_state.dogru_sayisi += 1
+                    st.write("Cevapları İşaretle:")
+                    for i in range(len(cevaplar)): 
+                        st.radio(f"Soru {i+1}", ["A","B","C","D","E"], key=f"c_{i}", horizontal=True, index=None)
+                    
+                    if st.form_submit_button("Sayfayı Kontrol Et ➡️"):
+                        for i, dogru in enumerate(cevaplar):
+                            secilen = st.session_state.get(f"c_{i}")
+                            if dogru != "X":
+                                if not secilen: st.session_state.bos_sayisi += 1
+                                elif secilen == dogru: st.session_state.dogru_sayisi += 1
                                 else: st.session_state.yanlis_sayisi += 1
-                        st.session_state.aktif_index += 1; st.rerun()
+                        st.session_state.aktif_index += 1
+                        st.rerun()
