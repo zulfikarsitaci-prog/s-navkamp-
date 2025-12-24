@@ -205,7 +205,7 @@ with st.sidebar:
 if st.session_state.ekran == 'giris':
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
-        st.markdown("""<div class='giris-kart'><h1 class='proje-baslik'>Muhasebe ve Finansman Alanı Dijital Gelişim Projesi</h1><div class='alan-ismi'> Hibrit Eğitim Modeli</div><p style='color:#666'>Bağarası ÇPAL</p></div>""", unsafe_allow_html=True)
+        st.markdown("""<div class='giris-kart'><h1 class='proje-baslik'>Bağarası ÇPAL </h1><div class='alan-ismi'> Muhasebe ve Finansman Alanı Dijital Gelişim Projesi</div><p style='color:#666'>Hibrit Eğitim Modeli</p></div>""", unsafe_allow_html=True)
         ad = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet Karaduman")
         if st.button("GİRİŞ YAP 🚀"):
             if ad.strip(): st.session_state.ad_soyad = ad; st.session_state.ekran = 'ana_menu'; st.rerun()
