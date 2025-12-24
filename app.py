@@ -4,12 +4,12 @@ import random
 import os
 import json
 import fitz  # PyMuPDF
-import time  # <--- BU EKSİKTİ, EKLENDİ
+import time  # Time modülü eklendi
 
 # --- 1. SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası Hibrit Yaşam Merkezi", page_icon="🎓", layout="wide")
 
-# --- 2. SESSION STATE BAŞLATMA (HATA ALMAMAK İÇİN EN ÜSTTE) ---
+# --- 2. SESSION STATE BAŞLATMA ---
 if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
 if 'oturum' not in st.session_state: st.session_state.oturum = False
 if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
@@ -46,7 +46,7 @@ def load_lifesim_data():
         try:
             with open(LIFESIM_JSON_ADI, "r", encoding="utf-8") as f:
                 raw = f.read()
-                json.loads(raw); return raw # Validasyon
+                json.loads(raw); return raw 
         except: return "[]"
     return "[]"
 
@@ -67,7 +67,7 @@ SCENARIOS_JSON_STRING = load_lifesim_data()
 
 # --- 5. HTML ŞABLONLARI ---
 
-# A) LIFE-SIM ŞABLONU (V6.0 SOKRATİK)
+# A) LIFE-SIM ŞABLONU
 LIFE_SIM_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -209,7 +209,7 @@ GAME_HTML_TEMPLATE = """
                 document.getElementById('rewardAmountDisplay').innerText = formatNumber(incomingReward);
                 document.getElementById('rewardPopup').classList.remove('hidden');
             }
-            setInterval(passiveIncomeLoop, 100); setInterval(uiLoop, 100); setInterval(saveGame, 300);
+            setInterval(passiveIncomeLoop, 1000); setInterval(uiLoop, 100); setInterval(saveGame, 5000);
         };
 
         function claimReward() {
@@ -399,7 +399,7 @@ if st.session_state.ekran == 'giris':
         
         st.markdown("""
         <div class='imza-container'>
-            <div class='imza'>Zülfikar SITACI </div>
+            <div class='imza'></div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -409,12 +409,12 @@ elif st.session_state.ekran == 'sinav':
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=100)
         st.write(f"👤 **{st.session_state.ad_soyad}**")
-        if st.button("🏠 Ana Menü"):
+        if st.button("🏠 Ana Ekrana Dön"):
              st.session_state.oturum = False
              st.session_state.secim_turu = None
              st.rerun()
         st.divider()
-        if st.button("🚪 Çıkış"):
+        if st.button("🚪 Çıkış Yap"):
             st.session_state.ekran = 'giris'
             st.session_state.oturum = False
             st.rerun()
@@ -520,8 +520,8 @@ elif st.session_state.ekran == 'sinav':
             components.html(LIFE_SIM_HTML, height=800, scrolling=True)
         with col_ls_2:
             st.info("Senaryoyu ve analizi tamamladıysan ödülünü al!")
-            if st.button("✅ Senaryoyu Bitirdim (+5.000 ₺)", use_container_width=True):
-                st.session_state.bekleyen_odul += 5000
+            if st.button("✅ Senaryoyu Bitirdim (+250 ₺)", use_container_width=True):
+                st.session_state.bekleyen_odul += 250
                 st.session_state.secim_turu = "GAME"
                 st.rerun()
     
@@ -549,7 +549,7 @@ elif st.session_state.ekran == 'sinav':
             st.markdown("---")
             
             # ÖDÜL HESAPLAMA MANTIĞI
-            kazanc = st.session_state.dogru_sayisi * 1000
+            kazanc = st.session_state.dogru_sayisi * 150
             
             if kazanc > 0:
                 st.success(f"🎉 TEBRİKLER! Bu testten şirket sermayen için **{kazanc} ₺** kazandın!")
