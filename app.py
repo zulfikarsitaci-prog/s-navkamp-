@@ -14,80 +14,58 @@ TYT_PDF_ADI = "tytson8.pdf"
 TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
+LIFESIM_JSON_ADI = "lifesim_data.json"
 
-# --- SENARYO VERİTABANI (PYTHON LİSTESİ) ---
-SCENARIOS_DATA = [
-    # --- GÜNCEL EKONOMİ ---
-    {
-        "category": "Güncel Ekonomi",
-        "title": "1. Teknoloji Alışverişi ve Enflasyon",
-        "text": "Telefonun bozuldu. Yenisi 40.000 TL. Banka hesabında tam 40.000 TL var. Kredi kartı ile 12 taksit yaparsan vade farkıyla 58.000 TL ödüyorsun. Enflasyon beklentisi %65.<br><br><b>Karar:</b> Nakit ödeyip parasız kalmak mı? Yoksa vade farkı ödeyip nakdini yatırımda (altın/döviz) tutmak mı?",
-        "data": ["Nakit: 40.000 TL", "Taksitli: 58.000 TL", "Enflasyon: %65"],
-        "hint": "Paranın Zaman Değeri: Bugünün 40 bini ile seneye 40 bin aynı değil.",
-        "doc": "📌 **HAP BİLGİ: Enflasyonist Ortamda Borçlanma**<br><br>• **Reel Maliyet:** Banka faizi (%45) Enflasyondan (%65) düşükse, borçlanmak karlıdır. Çünkü borcunuzun reel değeri zamanla erir.<br>• **Nakit Kraldır:** Tüm nakdi bir mala bağlamak risklidir. Taksit yapıp, eldeki nakdi enflasyondan fazla getiri getiren bir araca (Altın, Fon vb.) yatırmak matematiksel olarak daha karlıdır."
-    },
-    {
-        "category": "Güncel Ekonomi",
-        "title": "2. Kira Artışı ve Ev Sahibi Baskısı",
-        "text": "Kiran 5.000 TL. Bölge 20.000 TL oldu. Ev sahibi 'Ya 15.000 yap ya çık' diyor. Yasal zam hakkın %25 (veya TÜFE). Dava 3 yıl sürer. Huzurun kaçacak.<br><br><b>Karar:</b> Yasal hakkını kullanıp (düşük kira) baskıya direnmek mi? Yoksa bütçeyi zorlayıp orta yolda (12.000) anlaşıp huzur satın almak mı?",
-        "data": ["Mevcut: 5.000", "Talep: 15.000", "Yasal: ~8.000"],
-        "hint": "Bu sadece hukuk değil, bir 'Stres Yönetimi' sorusudur.",
-        "doc": "📌 **HAP BİLGİ: Sulh ve Zaman Maliyeti**<br><br>• **Görünmeyen Maliyet:** Dava masraflarından ziyade 'Psikolojik Maliyet' önemlidir. Huzursuz bir evde yaşamanın iş/okul hayatına zararı, aradaki 3-4 bin TL farktan büyük olabilir.<br>• **Strateji:** 'Kötü bir sulh, iyi bir davadan iyidir'. Orta yolda anlaşmak genellikle en rasyonel çözümdür."
-    },
-    {
-        "category": "Kariyer",
-        "title": "3. Kurumsal mı, Freelance mi?",
-        "text": "İki teklif aldın:<br><b>A) Kurumsal:</b> İstanbul Plaza. 45.000 TL Maaş + Yemek. Günde 3 saat trafik.<br><b>B) Startup:</b> Evden çalışma (Anadolu'da yaşayabilirsin). 30.000 TL Maaş. Yemek yok.<br><br>İstanbul'da kira 20.000 TL. Anadolu'da kira derdin yok. Hangisini seçersin?",
-        "data": ["Ofis: 45k (Yüksek Gider)", "Evden: 30k (Düşük Gider)"],
-        "hint": "Sadece maaşa bakma. 'Cebine Kalan Net' ve 'Yaşam Kalitesi'ni hesapla.",
-        "doc": "📌 **HAP BİLGİ: Reel Gelir ve Yaşam Kalitesi**<br><br>• **Nominal Gelir:** Bordroda yazan (45.000).<br>• **Reel Gelir:** Zorunlu giderler düştükten sonra kalan.<br>• İstanbul'da 20k kira + yol + masraflar düşünce cebe 5k kalıyorsa; Anadolu'da 30k alıp 20k biriktirmek finansal olarak kat kat üstündür. Ayrıca günde 3 saat trafik, ömründen yılda 1 ay çalmak demektir."
-    },
-    {
-        "category": "Etik",
-        "title": "4. Rakibinin Kayıp Cüzdanı",
-        "text": "Seni sürekli ezen rakibinin cüzdanını buldun. İçinde yüklü para var. Ailenin de paraya ihtiyacı var. Kamera yok, gören yok.<br><br>Cüzdanı çöpe atıp parayı almak mı? Sahibine teslim etmek mi?",
-        "data": ["Miktar: Yüksek", "Risk: Sıfır", "Vicdan: ?"],
-        "hint": "Karakter, kimse seni izlemiyorken ne yaptığındır.",
-        "doc": "📌 **HAP BİLGİ: Etik Liderlik**<br><br>• **Dürüstlük Testi:** İnsanlar genelde yakalanma korkusuyla dürüsttür. Gerçek erdem, kimse bilmeyecek olsa bile doğruyu yapmaktır.<br>• Sevmediğin birine bile adil davranmak, seni ondan üstün ve güçlü kılar. O parayı harcamak ömür boyu sürecek bir manevi yük yaratır."
-    },
-    {
-        "category": "Pazarlama",
-        "title": "5. 'Yalancı İndirim' Tuzağı",
-        "text": "Ayakkabı 3.000 TL idi. İndirim gününde önce 5.000 yapıp üzerini çizmişler, 'İndirimle 3.500 TL' yazmışlar. Stok bitiyor görünüyor (FOMO).<br><br>İhtiyacın var ama kandırıldığını biliyorsun. Alır mısın, protesto mu edersin?",
-        "data": ["Gerçek: 3.000", "Etiket: 3.500", "Algı: İndirim"],
-        "hint": "Çapalama Etkisi (Anchoring) tuzağına dikkat.",
-        "doc": "📌 **HAP BİLGİ: Fiyat Algısı ve FOMO**<br><br>• **Çapalama:** Beynimiz ilk gördüğü yüksek sayıya (5.000) odaklanır, 3.500'ü ucuz sanır. Oysa gerçek fiyat 3.000'dir.<br>• **FOMO (Kaçırma Korkusu):** 'Son 3 ürün' sayaçları panik yaptırmak içindir. İhtiyacın yoksa 'ucuz' diye alınan her şey pahalıdır. En büyük tasarruf almamaktır."
-    },
-    {
-        "category": "Muhasebe",
-        "title": "6. E-Fatura Cezası",
-        "text": "Sistemsel hata yüzünden ay sonu 100 fatura kesilemedi. Ceza kapıda. Müşteriye durumu nasıl açıklarsın?",
-        "data": ["Ceza: Var", "İtibar: Riskli"],
-        "hint": "Dürüstlük ve teknik raporla başvurmak.",
-        "doc": "📌 **HAP BİLGİ: VUK ve Mücbir Sebep**<br><br>• E-Fatura kesilmemesi ceza gerektirir ancak teknik arızalar 'Mücbir Sebep' sayılabilir.<br>• Teknik raporla Gelir İdaresi'ne başvurulursa ceza iptal edilebilir. Müşteriye şeffaf davranmak güveni korur."
-    },
-    {
-        "category": "Yönetim",
-        "title": "7. Yapay Zeka ve İşten Çıkarma",
-        "text": "Şirkete aldığın Yapay Zeka, 3 kişinin işini yapıyor. Bu çalışanları kovarak maliyeti mi düşürürsün, yoksa onları eğitip (Upskilling) başka birimde mi değerlendirirsin?",
-        "data": ["Verim: Yüksek", "Etik: ?"],
-        "hint": "Kısa vadeli kar mı, uzun vadeli kurumsal hafıza mı?",
-        "doc": "📌 **HAP BİLGİ: İnsan Kaynakları Dönüşümü**<br><br>• Teknolojik işsizlik kaçınılmazdır. Ancak çözüm kovmak değil, dönüştürmektir.<br>• Sadık çalışanları AI operatörü olarak eğitmek, şirket kültürünü korur ve adaptasyonu hızlandırır."
-    },
-    {
-        "category": "Hukuk",
-        "title": "8. Sosyal Medya Hakareti",
-        "text": "Bir anlık öfkeyle müdüre sosyal medyadan hakaret ettin. Dava açıldı. Sicilin bozulabilir.<br><br>Savunma mı yaparsın, yoksa gururu bir kenara bırakıp uzlaşma/özür yolunu mu denersin?",
-        "data": ["Suç: TCK 125", "Risk: Sicil"],
-        "hint": "Hakaret suçu uzlaşmaya tabidir.",
-        "doc": "📌 **HAP BİLGİ: Bilişim Suçları**<br><br>• Sosyal medya 'kamuya açık alan' sayıldığı için ceza artırımı uygulanır.<br>• Hakaret 'Uzlaşmaya Tabi' bir suçtur. Savcı dava açmadan önce uzlaştırmacıya gönderir. Özür dilemek ve anlaşmak, sicilin kirlenmesini önleyen en pratik yoldur."
-    }
-]
+# ==============================================================================
+# VERİ YÜKLEME FONKSİYONLARI
+# ==============================================================================
 
-# JSON Verisini Hazırla
-SCENARIOS_JSON = json.dumps(SCENARIOS_DATA, ensure_ascii=False)
+def dosya_yukle(dosya_adi):
+    if not os.path.exists(dosya_adi): return {}
+    try:
+        with open(dosya_adi, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if dosya_adi == TYT_JSON_ADI:
+                return {int(k): v for k, v in data.items()}
+            return data
+    except Exception as e:
+        st.error(f"Dosya okuma hatası ({dosya_adi}): {e}")
+        return {}
 
-# --- LIFE-SIM HTML ŞABLONU (TABLO YAPILI V5.1) ---
+def load_lifesim_data():
+    """LifeSim senaryolarını JSON dosyasından okur ve JS stringi olarak döndürür"""
+    if os.path.exists(LIFESIM_JSON_ADI):
+        try:
+            with open(LIFESIM_JSON_ADI, "r", encoding="utf-8") as f:
+                # JSON dosyasını oku ama string olarak (HTML'e gömmek için)
+                raw_data = f.read()
+                # Geçerli bir JSON olup olmadığını kontrol et
+                json.loads(raw_data) 
+                return raw_data
+        except Exception as e:
+            st.error(f"Senaryo dosyası hatası: {e}")
+            return "[]"
+    else:
+        # Dosya yoksa varsayılan boş bir senaryo döndür (Hata vermemesi için)
+        fallback = [
+            {
+                "category": "Sistem",
+                "title": "Veri Dosyası Bulunamadı",
+                "text": "Lütfen lifesim_data.json dosyasını yükleyin.",
+                "data": ["Hata"],
+                "hint": "Yöneticiye başvurun.",
+                "doc": "Dosya eksik."
+            }
+        ]
+        return json.dumps(fallback, ensure_ascii=False)
+
+# VERİLERİ YÜKLE
+TYT_VERI = dosya_yukle(TYT_JSON_ADI)
+MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
+KONU_VERI = dosya_yukle(KONU_JSON_ADI)
+SCENARIOS_JSON_STRING = load_lifesim_data() # JSON dosyasından okunan veri
+
+# --- LIFE-SIM HTML ŞABLONU ---
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -105,12 +83,10 @@ HTML_TEMPLATE = """
         .glass { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
         .glow-border:focus-within { box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
         
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         
-        /* Tab Yapısı */
         .tab-btn { transition: all 0.3s ease; border-bottom: 3px solid transparent; opacity: 0.6; }
         .tab-btn.active { border-bottom-color: #38bdf8; opacity: 1; color: white; background: rgba(56, 189, 248, 0.1); }
         
@@ -119,7 +95,6 @@ HTML_TEMPLATE = """
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Bilgi Kartı Animasyonu */
         .info-card { 
             position: absolute; top: 0; right: 0; bottom: 0; left: 0; 
             background: rgba(15, 23, 42, 0.98); 
@@ -145,7 +120,6 @@ HTML_TEMPLATE = """
     </div>
 
     <div class="flex-1 overflow-hidden relative">
-        
         <div id="tab-scenario" class="tab-content active">
             <div class="glass p-4 rounded-xl border-l-4 border-accent shrink-0">
                 <label class="text-xs text-slate-400 uppercase font-bold flex items-center gap-2">
@@ -178,7 +152,6 @@ HTML_TEMPLATE = """
         </div>
 
         <div id="tab-answer" class="tab-content relative">
-            
             <div id="knowledgeCard" class="info-card border-l-4 border-success shadow-2xl rounded-xl">
                 <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
                     <h3 class="text-xl font-bold text-success flex items-center gap-2">
@@ -188,8 +161,7 @@ HTML_TEMPLATE = """
                         <i data-lucide="x" class="w-6 h-6 text-slate-400"></i>
                     </button>
                 </div>
-                <div id="knowledgeContent" class="p-8 text-slate-200 text-lg leading-8 space-y-6 overflow-y-auto flex-1">
-                    </div>
+                <div id="knowledgeContent" class="p-8 text-slate-200 text-lg leading-8 space-y-6 overflow-y-auto flex-1"></div>
                 <div class="p-4 bg-slate-800/50 border-t border-slate-700 text-center">
                     <button onclick="downloadReport()" class="px-6 py-3 bg-success/20 hover:bg-success/30 text-success border border-success/50 rounded-lg font-bold flex items-center justify-center gap-2 mx-auto transition-all w-full md:w-auto">
                         <i data-lucide="download"></i> Analiz Raporunu İndir
@@ -208,7 +180,6 @@ HTML_TEMPLATE = """
             <div class="glass p-1 rounded-xl flex-1 flex flex-col relative border border-slate-700 glow-border">
                 <textarea id="inputText" class="w-full h-full bg-transparent p-6 text-xl text-slate-200 resize-none outline-none font-light leading-relaxed placeholder-slate-600" 
                 placeholder="Bu durumda ne yaparsın? Kararının arkasındaki mantığı, riskleri ve fırsatları buraya yaz..."></textarea>
-                
                 <div id="drawContainer" class="hidden w-full h-full bg-slate-900 relative rounded-lg overflow-hidden">
                     <canvas id="drawingCanvas" class="w-full h-full block"></canvas>
                     <button onclick="clearCanvas()" class="absolute top-4 right-4 bg-slate-700 p-2 rounded hover:bg-red-500 transition text-white z-10" title="Temizle"><i data-lucide="trash" class="w-4 h-4"></i></button>
@@ -228,10 +199,8 @@ HTML_TEMPLATE = """
                             <p>Senaryoyu okuduktan sonra kararını yaz ve 'Analiz Et' butonuna bas.</p>
                         </div>
                     </div>
-                    
                     <button id="showDocBtn" onclick="openKnowledgeCard()" class="hidden absolute right-6 top-1/2 -translate-y-1/2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 text-sm font-bold transition-all animate-bounce">
-                        <i data-lucide="lightbulb" class="w-5 h-5"></i>
-                        UZMAN GÖRÜŞÜNÜ GÖR
+                        <i data-lucide="lightbulb" class="w-5 h-5"></i> UZMAN GÖRÜŞÜNÜ GÖR
                     </button>
                 </div>
             </div>
@@ -240,7 +209,10 @@ HTML_TEMPLATE = """
     
     <script>
         lucide.createIcons();
+        
+        // --- VERİ ENJEKSİYONU (DIŞARIDAN GELEN JSON) ---
         const scenarios = __SCENARIOS_PLACEHOLDER__;
+        
         let selectedScenarioIndex = 0;
         let startTime = Date.now();
 
@@ -270,26 +242,18 @@ HTML_TEMPLATE = """
             setupCanvas();
         };
 
-        // --- TAB GEÇİŞLERİ ---
         function switchTab(tabName) {
-            // Butonları güncelle
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-btn-' + tabName).classList.add('active');
-            
-            // İçerikleri güncelle
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-' + tabName).classList.add('active');
-            
-            if(tabName === 'answer') {
-                resizeCanvas(); // Canvas bozulmasın diye
-            }
+            if(tabName === 'answer') resizeCanvas();
         }
 
         function loadScenario() {
             selectedScenarioIndex = document.getElementById('scenarioSelect').value;
             const s = scenarios[selectedScenarioIndex];
             
-            // İlk sekmeye dön
             switchTab('scenario');
             
             document.getElementById('categoryBadge').innerText = s.category;
@@ -302,7 +266,6 @@ HTML_TEMPLATE = """
                 tags.innerHTML += `<span class="px-3 py-1 bg-slate-700 rounded-full text-sm text-primary border border-slate-600 font-mono">${d}</span>`;
             });
 
-            // Reset
             document.getElementById('inputText').value = "";
             document.getElementById('hintBox').classList.add('hidden');
             document.getElementById('hintBtn').classList.remove('hidden');
@@ -330,19 +293,17 @@ HTML_TEMPLATE = """
             btn.innerHTML = '⏳';
             btn.disabled = true;
             btn.classList.add('opacity-50');
-            
             feedback.innerHTML = "<span class='text-primary animate-pulse'>Yapay zeka stratejini inceliyor... Riskler hesaplanıyor...</span>";
 
             setTimeout(() => {
                 let msg = "";
-                
                 if (text.includes("nakit") || text.includes("peşin")) {
                     msg = "<span class='text-white font-bold'>🤔 Nakit tercih ettin.</span><br>Peki acil durum fonunu tamamen tüketmek, bu belirsiz ekonomide seni savunmasız bırakmaz mı?";
-                } else if (text.includes("taksit") || text.includes("kredi") || text.includes("borç")) {
-                    msg = "<span class='text-white font-bold'>🤔 Borçlanmayı seçtin.</span><br>Peki aylık ödeme yükü, gelecekteki nakit akışını kilitlerse ne yapacaksın? Reel faiz hesabını yaptın mı?";
+                } else if (text.includes("taksit") || text.includes("kredi")) {
+                    msg = "<span class='text-white font-bold'>🤔 Borçlanmayı seçtin.</span><br>Peki aylık ödeme yükü, gelecekteki nakit akışını kilitlerse ne yapacaksın?";
                 } else if (text.includes("dava") || text.includes("mahkeme")) {
                     msg = "<span class='text-white font-bold'>⚖ Hukuki yolu seçtin.</span><br>Haklısın ama davanın yıllarca süreceğini ve bu süreçteki stres maliyetini hesaba kattın mı?";
-                } else if (text.includes("uzlaş") || text.includes("anlaş")) {
+                } else if (text.includes("uzlaş")) {
                     msg = "<span class='text-success font-bold'>🤝 Uzlaşmayı seçtin.</span><br>Bazen haktan feragat etmek, huzuru satın almaktır. Bu pragmatik bir yaklaşım.";
                 } else {
                     msg = "<span class='text-white font-bold'>Analiz Tamamlandı.</span><br>Yaklaşımın ilginç. Kararın finansal ve etik boyutlarını tam olarak görmek ister misin?";
@@ -350,10 +311,8 @@ HTML_TEMPLATE = """
 
                 feedback.innerHTML = msg;
                 btn.innerHTML = '<i data-lucide="check" class="w-8 h-8"></i><span>BİTTİ</span>';
-                
                 document.getElementById('showDocBtn').classList.remove('hidden');
                 lucide.createIcons();
-
             }, 1500);
         }
 
@@ -379,7 +338,7 @@ HTML_TEMPLATE = """
         function downloadReport() {
             const s = scenarios[selectedScenarioIndex];
             const ans = document.getElementById('inputText').value;
-            const txt = `KONU: ${s.title}\nCEVAP: ${ans}\n\nUZMAN NOTU:\n${s.doc.replace(/<[^>]*>/g, '')}`;
+            const txt = `KONU: ${s.title}\\nCEVAP: ${ans}\\n\\nUZMAN NOTU:\\n${s.doc.replace(/<[^>]*>/g, '')}`;
             const blob = new Blob([txt], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -387,7 +346,6 @@ HTML_TEMPLATE = """
             a.click();
         }
 
-        // Çizim ve Yazı Modu
         function setMode(mode) {
             if(mode === 'text') {
                 document.getElementById('inputText').style.display = 'block';
@@ -415,16 +373,14 @@ HTML_TEMPLATE = """
         function startDraw(e) { isDrawing=true; const r=e.target.getBoundingClientRect(); ctx.beginPath(); ctx.moveTo(e.clientX-r.left, e.clientY-r.top); }
         function draw(e) { if(!isDrawing)return; const r=e.target.getBoundingClientRect(); ctx.lineTo(e.clientX-r.left, e.clientY-r.top); ctx.stroke(); }
         function clearCanvas() { ctx.clearRect(0,0,document.getElementById('drawingCanvas').width, document.getElementById('drawingCanvas').height); }
-        
         window.addEventListener('resize', () => { resizeCanvas(); });
     </script>
 </body>
 </html>
 """
 
-# !!! KRİTİK NOKTA: Python değişkenini HTML içindeki yer tutucuya monte ediyoruz !!!
-LIFE_SIM_HTML = HTML_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON)
-
+# ENJEKSİYON YAPILIYOR
+LIFE_SIM_HTML = HTML_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON_STRING)
 
 # --- TASARIM VE CSS ---
 st.markdown("""
@@ -434,6 +390,7 @@ st.markdown("""
     .stApp { background-color: #F0F4C3 !important; }
     h1, h2, h3, h4, .stMarkdown, p, label { color: #212121 !important; }
     
+    /* DROPDOWN DÜZELTMESİ */
     .stSelectbox div[data-baseweb="select"] > div {
         background-color: #FFFFFF !important;
         color: #000000 !important;
@@ -444,6 +401,7 @@ st.markdown("""
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
     
+    /* GİRİŞ KARTI */
     .giris-kart {
         background-color: white;
         padding: 40px;
@@ -454,6 +412,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
+    /* SEÇİM KARTLARI */
     .secim-karti {
         background-color: white;
         padding: 20px;
@@ -466,13 +425,13 @@ st.markdown("""
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        cursor: pointer;
     }
     .secim-karti:hover {
         transform: scale(1.02);
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
     
+    /* BUTONLAR */
     .stButton>button {
         background-color: #FF7043 !important;
         color: white !important;
@@ -487,43 +446,18 @@ st.markdown("""
         background-color: #E64A19 !important;
     }
     
+    /* KARTLAR */
     .konu-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 6px solid #2196F3; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .soru-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 5px solid #FF7043; font-size: 18px; margin-bottom: 20px; color: #000 !important; }
     .hata-karti { background-color: #FFEBEE; border-left: 5px solid #D32F2F; padding: 15px; margin-bottom: 15px; border-radius: 5px; color: #000; }
     .stat-card { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; border: 2px solid #FF7043; }
     .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
     
+    /* İMZA */
     .imza-container { margin-top: 40px; text-align: right; padding-right: 20px; opacity: 0.9; }
     .imza { font-family: 'Dancing Script', cursive; color: #D84315; font-size: 24px; margin-bottom: 5px; }
     </style>
 """, unsafe_allow_html=True)
-
-# ==============================================================================
-# FONKSİYONLAR
-# ==============================================================================
-
-def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
-    if not os.path.exists(dosya_yolu):
-        st.error(f"⚠️ PDF Dosyası ({dosya_yolu}) bulunamadı!")
-        return
-    try:
-        doc = fitz.open(dosya_yolu)
-        if sayfa_numarasi > len(doc): return
-        page = doc.load_page(sayfa_numarasi - 1)
-        pix = page.get_pixmap(dpi=150)
-        st.image(pix.tobytes(), caption=f"Sayfa {sayfa_numarasi}", use_container_width=True)
-    except Exception as e:
-        st.error(f"PDF Hatası: {e}")
-
-def dosya_yukle(dosya_adi):
-    if not os.path.exists(dosya_adi): return {}
-    try:
-        with open(dosya_adi, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            if dosya_adi == TYT_JSON_ADI:
-                return {int(k): v for k, v in data.items()}
-            return data
-    except: return {}
 
 # ==============================================================================
 # EKRAN VE DEĞİŞKENLER
@@ -539,11 +473,6 @@ if 'karne' not in st.session_state: st.session_state.karne = []
 if 'dogru_sayisi' not in st.session_state: st.session_state.dogru_sayisi = 0
 if 'yanlis_sayisi' not in st.session_state: st.session_state.yanlis_sayisi = 0
 if 'bos_sayisi' not in st.session_state: st.session_state.bos_sayisi = 0
-
-# VERİLERİ YÜKLE
-TYT_VERI = dosya_yukle(TYT_JSON_ADI)
-MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
-KONU_VERI = dosya_yukle(KONU_JSON_ADI)
 
 # --- 1. GİRİŞ EKRANI ---
 if st.session_state.ekran == 'giris':
