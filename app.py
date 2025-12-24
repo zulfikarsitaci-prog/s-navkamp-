@@ -56,7 +56,7 @@ SCENARIOS_DATA = [
         "text": "Ayakkabı 3.000 TL idi. İndirim gününde önce 5.000 yapıp üzerini çizmişler, 'İndirimle 3.500 TL' yazmışlar. Stok bitiyor görünüyor (FOMO).<br><br>İhtiyacın var ama kandırıldığını biliyorsun. Alır mısın, protesto mu edersin?",
         "data": ["Gerçek: 3.000", "Etiket: 3.500", "Algı: İndirim"],
         "hint": "Çapalama Etkisi (Anchoring) tuzağına dikkat.",
-        "doc": "📌 **HAP BİLGİ: Fiyat Algısı ve FOMO**<br><br>• **Çapalama:** Beyin ilk gördüğü yüksek sayıya (5.000) odaklanır, 3.500'ü ucuz sanır. Oysa gerçek fiyat 3.000'dir.<br>• **FOMO (Kaçırma Korkusu):** 'Son 3 ürün' sayaçları panik yaptırmak içindir. İhtiyacın yoksa 'ucuz' diye alınan her şey pahalıdır. En büyük tasarruf almamaktır."
+        "doc": "📌 **HAP BİLGİ: Fiyat Algısı ve FOMO**<br><br>• **Çapalama:** Beynimiz ilk gördüğü yüksek sayıya (5.000) odaklanır, 3.500'ü ucuz sanır. Oysa gerçek fiyat 3.000'dir.<br>• **FOMO (Kaçırma Korkusu):** 'Son 3 ürün' sayaçları panik yaptırmak içindir. İhtiyacın yoksa 'ucuz' diye alınan her şey pahalıdır. En büyük tasarruf almamaktır."
     },
     {
         "category": "Muhasebe",
@@ -87,8 +87,7 @@ SCENARIOS_DATA = [
 # JSON Verisini Hazırla
 SCENARIOS_JSON = json.dumps(SCENARIOS_DATA, ensure_ascii=False)
 
-# --- LIFE-SIM HTML ŞABLONU (DÜZ METİN OLARAK - F-STRING YOK) ---
-# Buradaki __SCENARIOS_PLACEHOLDER__ kısmını replace ile değiştireceğiz.
+# --- LIFE-SIM HTML ŞABLONU (TABLO YAPILI V5.1) ---
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -102,7 +101,7 @@ HTML_TEMPLATE = """
         tailwind.config = { theme: { extend: { colors: { bg: '#0f172a', surface: '#1e293b', primary: '#38bdf8', accent: '#f472b6', success: '#34d399', warning: '#fbbf24' } } } }
     </script>
     <style>
-        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; flex-direction: column; height: 100vh; padding: 10px; }
         .glass { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
         .glow-border:focus-within { box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
         
@@ -111,13 +110,15 @@ HTML_TEMPLATE = """
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         
-        /* Layout */
-        .main-container { height: 100vh; display: flex; flex-direction: column; gap: 1rem; padding: 0.5rem; }
-        @media (min-width: 768px) { .main-container { flex-direction: row; } }
-        .panel { display: flex; flex-direction: column; gap: 1rem; height: 100%; overflow-y: auto; }
-        .left-panel { flex: 4; }
-        .right-panel { flex: 5; position: relative; }
+        /* Tab Yapısı */
+        .tab-btn { transition: all 0.3s ease; border-bottom: 3px solid transparent; opacity: 0.6; }
+        .tab-btn.active { border-bottom-color: #38bdf8; opacity: 1; color: white; background: rgba(56, 189, 248, 0.1); }
         
+        .tab-content { display: none; height: 100%; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: flex; flex-direction: column; gap: 1rem; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
         /* Bilgi Kartı Animasyonu */
         .info-card { 
             position: absolute; top: 0; right: 0; bottom: 0; left: 0; 
@@ -129,14 +130,23 @@ HTML_TEMPLATE = """
         }
         .info-card.show { transform: translateX(0); }
         
-        /* Buton Efektleri */
         .btn-analyze { background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%); }
         .btn-analyze:hover { filter: brightness(1.1); }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <div class="panel left-panel">
+    <div class="flex gap-4 mb-2 shrink-0">
+        <button onclick="switchTab('scenario')" id="tab-btn-scenario" class="tab-btn active flex-1 py-3 glass rounded-lg font-bold text-lg flex items-center justify-center gap-2">
+            <i data-lucide="book-open"></i> GÖREV & SENARYO
+        </button>
+        <button onclick="switchTab('answer')" id="tab-btn-answer" class="tab-btn flex-1 py-3 glass rounded-lg font-bold text-lg flex items-center justify-center gap-2">
+            <i data-lucide="edit-3"></i> ÇÖZÜM & ANALİZ
+        </button>
+    </div>
+
+    <div class="flex-1 overflow-hidden relative">
+        
+        <div id="tab-scenario" class="tab-content active">
             <div class="glass p-4 rounded-xl border-l-4 border-accent shrink-0">
                 <label class="text-xs text-slate-400 uppercase font-bold flex items-center gap-2">
                     <i data-lucide="map"></i> Hayat Senaryosu Seç
@@ -144,27 +154,32 @@ HTML_TEMPLATE = """
                 <select id="scenarioSelect" onchange="loadScenario()" class="w-full mt-2 bg-slate-900 text-white p-3 rounded border border-slate-700 outline-none focus:border-accent cursor-pointer hover:bg-slate-800 transition"></select>
             </div>
             
-            <div class="glass p-6 rounded-xl flex-1 flex flex-col relative overflow-hidden">
-                <div class="flex justify-between items-start mb-4">
-                    <span id="categoryBadge" class="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-full">YÜKLENİYOR</span>
+            <div class="glass p-8 rounded-xl flex-1 flex flex-col relative overflow-hidden">
+                <div class="flex justify-between items-start mb-6">
+                    <span id="categoryBadge" class="px-4 py-1 bg-blue-500/20 text-blue-400 text-sm font-bold rounded-full border border-blue-500/30">YÜKLENİYOR</span>
                 </div>
-                <h2 id="scenarioTitle" class="text-2xl font-bold text-white mb-4 leading-tight">...</h2>
-                <div class="prose prose-invert text-base text-slate-300 overflow-y-auto pr-3 flex-1 leading-relaxed" id="scenarioText"></div>
+                <h2 id="scenarioTitle" class="text-3xl font-bold text-white mb-6 leading-tight">...</h2>
+                <div class="prose prose-invert text-lg text-slate-300 overflow-y-auto pr-3 flex-1 leading-relaxed" id="scenarioText"></div>
                 
-                <div class="mt-6 pt-4 border-t border-slate-700/50">
-                    <button onclick="toggleHint()" id="hintBtn" class="text-xs text-warning hover:text-white transition-colors flex items-center gap-1">
-                        <i data-lucide="key"></i> Ufak bir ipucu ister misin?
-                    </button>
-                    <div id="hintBox" class="hidden p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg text-sm text-yellow-200/90 italic"></div>
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-700/50 pt-6">
+                    <div>
+                        <button onclick="toggleHint()" id="hintBtn" class="text-sm text-warning hover:text-white transition-colors flex items-center gap-2 bg-yellow-900/20 px-4 py-2 rounded-lg border border-yellow-700/30 w-full justify-center">
+                            <i data-lucide="key"></i> İpucu Göster
+                        </button>
+                        <div id="hintBox" class="hidden p-4 bg-yellow-900/20 border border-yellow-600/30 rounded-lg text-base text-yellow-200/90 italic"></div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 justify-end items-center" id="scenarioDataTags"></div>
                 </div>
                 
-                <div class="mt-4 flex flex-wrap gap-2" id="scenarioDataTags"></div>
+                <button onclick="switchTab('answer')" class="mt-4 w-full py-4 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition md:hidden">
+                    Çözüme Başla <i data-lucide="arrow-right"></i>
+                </button>
             </div>
         </div>
 
-        <div class="panel right-panel">
+        <div id="tab-answer" class="tab-content relative">
             
-            <div id="knowledgeCard" class="info-card border-l-4 border-success shadow-2xl">
+            <div id="knowledgeCard" class="info-card border-l-4 border-success shadow-2xl rounded-xl">
                 <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
                     <h3 class="text-xl font-bold text-success flex items-center gap-2">
                         <i data-lucide="book-open-check"></i> UZMAN GÖRÜŞÜ & DERS NOTU
@@ -173,40 +188,49 @@ HTML_TEMPLATE = """
                         <i data-lucide="x" class="w-6 h-6 text-slate-400"></i>
                     </button>
                 </div>
-                <div id="knowledgeContent" class="p-8 text-slate-200 text-base leading-7 space-y-4 overflow-y-auto flex-1">
+                <div id="knowledgeContent" class="p-8 text-slate-200 text-lg leading-8 space-y-6 overflow-y-auto flex-1">
                     </div>
                 <div class="p-4 bg-slate-800/50 border-t border-slate-700 text-center">
                     <button onclick="downloadReport()" class="px-6 py-3 bg-success/20 hover:bg-success/30 text-success border border-success/50 rounded-lg font-bold flex items-center justify-center gap-2 mx-auto transition-all w-full md:w-auto">
-                        <i data-lucide="download"></i> Bu Analizi Rapor Olarak İndir
+                        <i data-lucide="download"></i> Analiz Raporunu İndir
                     </button>
                 </div>
             </div>
 
-            <div class="glass p-1 rounded-xl flex-1 flex flex-col relative border border-slate-700 glow-border">
-                <div class="bg-slate-800/50 p-2 rounded-t-xl flex justify-between items-center px-4">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Senin Stratejin</span>
-                    <span id="timer" class="font-mono text-primary text-sm">00:00</span>
+            <div class="glass p-2 rounded-lg flex items-center justify-between shrink-0">
+                <div class="flex gap-2">
+                    <button onclick="setMode('text')" id="btn-text" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-slate-900 font-bold text-sm transition-all"><i data-lucide="file-edit" class="w-4 h-4"></i> Yazı</button>
+                    <button onclick="setMode('draw')" id="btn-draw" class="flex items-center gap-2 px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 text-sm transition-all"><i data-lucide="pencil" class="w-4 h-4"></i> Çizim</button>
                 </div>
-                <textarea id="inputText" class="w-full h-full bg-transparent p-6 text-lg text-slate-200 resize-none outline-none font-light leading-relaxed placeholder-slate-600" 
-                placeholder="Bu durumda ne yaparsın? Kararının arkasındaki mantığı, riskleri ve fırsatları detaylıca anlat..."></textarea>
+                <div class="text-right px-4 flex items-center gap-2"><i data-lucide="timer" class="w-4 h-4 text-slate-500"></i><span id="timer" class="text-xl font-mono text-white font-bold">00:00</span></div>
+            </div>
+
+            <div class="glass p-1 rounded-xl flex-1 flex flex-col relative border border-slate-700 glow-border">
+                <textarea id="inputText" class="w-full h-full bg-transparent p-6 text-xl text-slate-200 resize-none outline-none font-light leading-relaxed placeholder-slate-600" 
+                placeholder="Bu durumda ne yaparsın? Kararının arkasındaki mantığı, riskleri ve fırsatları buraya yaz..."></textarea>
+                
+                <div id="drawContainer" class="hidden w-full h-full bg-slate-900 relative rounded-lg overflow-hidden">
+                    <canvas id="drawingCanvas" class="w-full h-full block"></canvas>
+                    <button onclick="clearCanvas()" class="absolute top-4 right-4 bg-slate-700 p-2 rounded hover:bg-red-500 transition text-white z-10" title="Temizle"><i data-lucide="trash" class="w-4 h-4"></i></button>
+                </div>
             </div>
             
-            <div class="glass p-0 rounded-xl overflow-hidden flex flex-col md:flex-row shrink-0 min-h-[120px]">
+            <div class="glass p-0 rounded-xl overflow-hidden flex flex-col md:flex-row shrink-0 min-h-[140px]">
                 <button id="analyzeBtn" onclick="analyzeSubmission()" class="btn-analyze text-white font-bold p-6 flex flex-col items-center justify-center gap-2 md:w-1/4 transition-all active:scale-95">
                     <i data-lucide="sparkles" class="w-8 h-8"></i>
-                    <span>ANALİZ ET</span>
+                    <span class="text-lg">ANALİZ ET</span>
                 </button>
                 
                 <div class="p-6 flex-1 bg-slate-800/80 flex items-center relative">
-                    <div id="aiFeedback" class="text-sm text-slate-300 leading-relaxed w-full">
+                    <div id="aiFeedback" class="text-base text-slate-300 leading-relaxed w-full">
                         <div class="flex items-center gap-3 text-slate-500">
                             <i data-lucide="bot" class="w-8 h-8"></i>
-                            <p>Senaryoyu oku, kararını ver ve 'Analiz Et' butonuna bas. Yapay zeka yaklaşımını değerlendirecek.</p>
+                            <p>Senaryoyu okuduktan sonra kararını yaz ve 'Analiz Et' butonuna bas.</p>
                         </div>
                     </div>
                     
-                    <button id="showDocBtn" onclick="openKnowledgeCard()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 text-xs font-bold transition-all animate-bounce">
-                        <i data-lucide="lightbulb"></i>
+                    <button id="showDocBtn" onclick="openKnowledgeCard()" class="hidden absolute right-6 top-1/2 -translate-y-1/2 bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 text-sm font-bold transition-all animate-bounce">
+                        <i data-lucide="lightbulb" class="w-5 h-5"></i>
                         UZMAN GÖRÜŞÜNÜ GÖR
                     </button>
                 </div>
@@ -216,10 +240,7 @@ HTML_TEMPLATE = """
     
     <script>
         lucide.createIcons();
-        
-        // VERİ ENJEKSİYONU BURADA YAPILIYOR
         const scenarios = __SCENARIOS_PLACEHOLDER__;
-        
         let selectedScenarioIndex = 0;
         let startTime = Date.now();
 
@@ -231,8 +252,7 @@ HTML_TEMPLATE = """
                 categories[s.category].push({ ...s, idx: index });
             });
             for (const [cat, items] of Object.entries(categories)) {
-                let group = document.createElement('optgroup'); 
-                group.label = cat.toUpperCase();
+                let group = document.createElement('optgroup'); group.label = cat.toUpperCase();
                 items.forEach(item => { 
                     let opt = document.createElement('option'); 
                     opt.value = item.idx; 
@@ -246,11 +266,31 @@ HTML_TEMPLATE = """
                 const d = Math.floor((Date.now() - startTime)/1000); 
                 document.getElementById('timer').innerText = `${Math.floor(d/60).toString().padStart(2,'0')}:${(d%60).toString().padStart(2,'0')}`; 
             }, 1000);
+            
+            setupCanvas();
         };
+
+        // --- TAB GEÇİŞLERİ ---
+        function switchTab(tabName) {
+            // Butonları güncelle
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-btn-' + tabName).classList.add('active');
+            
+            // İçerikleri güncelle
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            if(tabName === 'answer') {
+                resizeCanvas(); // Canvas bozulmasın diye
+            }
+        }
 
         function loadScenario() {
             selectedScenarioIndex = document.getElementById('scenarioSelect').value;
             const s = scenarios[selectedScenarioIndex];
+            
+            // İlk sekmeye dön
+            switchTab('scenario');
             
             document.getElementById('categoryBadge').innerText = s.category;
             document.getElementById('scenarioTitle').innerText = s.title;
@@ -259,7 +299,7 @@ HTML_TEMPLATE = """
             const tags = document.getElementById('scenarioDataTags');
             tags.innerHTML = "";
             s.data.forEach(d => {
-                tags.innerHTML += `<span class="px-2 py-1 bg-slate-700 rounded text-xs text-primary border border-slate-600">${d}</span>`;
+                tags.innerHTML += `<span class="px-3 py-1 bg-slate-700 rounded-full text-sm text-primary border border-slate-600 font-mono">${d}</span>`;
             });
 
             // Reset
@@ -271,7 +311,7 @@ HTML_TEMPLATE = """
             document.getElementById('knowledgeCard').classList.remove('show');
             
             const btn = document.getElementById('analyzeBtn');
-            btn.innerHTML = '<i data-lucide="sparkles" class="w-8 h-8"></i><span>ANALİZ ET</span>';
+            btn.innerHTML = '<i data-lucide="sparkles" class="w-8 h-8"></i><span class="text-lg">ANALİZ ET</span>';
             btn.disabled = false;
             btn.classList.remove('opacity-50');
         }
@@ -294,7 +334,6 @@ HTML_TEMPLATE = """
             feedback.innerHTML = "<span class='text-primary animate-pulse'>Yapay zeka stratejini inceliyor... Riskler hesaplanıyor...</span>";
 
             setTimeout(() => {
-                // SORGULAYICI GERİ BİLDİRİM MANTIĞI
                 let msg = "";
                 
                 if (text.includes("nakit") || text.includes("peşin")) {
@@ -312,7 +351,6 @@ HTML_TEMPLATE = """
                 feedback.innerHTML = msg;
                 btn.innerHTML = '<i data-lucide="check" class="w-8 h-8"></i><span>BİTTİ</span>';
                 
-                // Hap Bilgi Butonunu Göster
                 document.getElementById('showDocBtn').classList.remove('hidden');
                 lucide.createIcons();
 
@@ -348,6 +386,37 @@ HTML_TEMPLATE = """
             a.download = 'Analiz_Raporu.txt';
             a.click();
         }
+
+        // Çizim ve Yazı Modu
+        function setMode(mode) {
+            if(mode === 'text') {
+                document.getElementById('inputText').style.display = 'block';
+                document.getElementById('drawContainer').classList.add('hidden');
+            } else {
+                document.getElementById('inputText').style.display = 'none';
+                document.getElementById('drawContainer').classList.remove('hidden');
+                resizeCanvas();
+            }
+        }
+
+        let isDrawing = false; let ctx;
+        function setupCanvas() { 
+            const c = document.getElementById('drawingCanvas'); 
+            ctx = c.getContext('2d'); 
+            ['mousedown','touchstart'].forEach(e=>c.addEventListener(e,ev=>{ev.preventDefault();startDraw(ev.touches?ev.touches[0]:ev)})); 
+            ['mousemove','touchmove'].forEach(e=>c.addEventListener(e,ev=>{ev.preventDefault();draw(ev.touches?ev.touches[0]:ev)})); 
+            ['mouseup','touchend'].forEach(e=>c.addEventListener(e,()=>isDrawing=false)); 
+        }
+        function resizeCanvas() { 
+            const c=document.getElementById('drawingCanvas'); 
+            const p=document.getElementById('drawContainer'); 
+            if(c.width!==p.offsetWidth){c.width=p.offsetWidth;c.height=p.offsetHeight;ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;} 
+        }
+        function startDraw(e) { isDrawing=true; const r=e.target.getBoundingClientRect(); ctx.beginPath(); ctx.moveTo(e.clientX-r.left, e.clientY-r.top); }
+        function draw(e) { if(!isDrawing)return; const r=e.target.getBoundingClientRect(); ctx.lineTo(e.clientX-r.left, e.clientY-r.top); ctx.stroke(); }
+        function clearCanvas() { ctx.clearRect(0,0,document.getElementById('drawingCanvas').width, document.getElementById('drawingCanvas').height); }
+        
+        window.addEventListener('resize', () => { resizeCanvas(); });
     </script>
 </body>
 </html>
