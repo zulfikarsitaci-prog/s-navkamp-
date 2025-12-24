@@ -8,7 +8,7 @@ import time
 import pandas as pd
 
 # --- 1. SAYFA AYARLARI ---
-st.set_page_config(page_title="Bağarası Hibrit Yaşam Merkezi", page_icon="🎓", layout="wide")
+st.set_page_config(page_title="Dijital Gelişim Programı", page_icon="🎓", layout="wide")
 
 # --- 2. SESSION STATE BAŞLATMA ---
 if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
@@ -39,48 +39,23 @@ SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=cs
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
-    
-    /* Genel Sayfa */
     .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); font-family: 'Roboto', sans-serif; }
     h1, h2, h3 { color: #1e3a8a !important; }
     p, label { color: #374151 !important; font-size: 16px; }
-    
-    /* Giriş Kartı */
-    .giris-kart {
-        background-color: white; padding: 40px; border-radius: 20px;
-        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); text-align: center;
-        border-top: 6px solid #FF7043; margin-top: 30px; margin-bottom: 20px;
-    }
-    
-    /* Butonlar */
-    .stButton>button {
-        background-color: #FF7043 !important; color: white !important; border-radius: 10px;
-        font-weight: bold; border: none !important; padding: 10px 20px; transition: all 0.2s;
-        box-shadow: 0 4px 6px rgba(255, 112, 67, 0.3);
-    }
+    .giris-kart { background-color: white; padding: 50px; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); text-align: center; border-top: 6px solid #FF7043; margin-top: 50px; margin-bottom: 20px; }
+    .secim-karti { background-color: white; padding: 25px; border-radius: 15px; border: 2px solid #e5e7eb; text-align: center; transition: all 0.3s ease; height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .secim-karti:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #FF7043; }
+    .stButton>button { background-color: #FF7043 !important; color: white !important; border-radius: 10px; font-weight: bold; border: none !important; padding: 10px 20px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(255, 112, 67, 0.3); }
     .stButton>button:hover { background-color: #F4511E !important; transform: scale(1.02); }
     .stTextInput>div>div>input { border-radius: 10px; border: 2px solid #e5e7eb; padding: 10px; }
+    .footer-text { text-align: center; font-size: 11px; color: #9ca3af; margin-top: 30px; font-family: monospace; }
+    footer {visibility: hidden;} #MainMenu {visibility: hidden;}
     
-    /* Seçim Kartları */
-    .secim-karti {
-        background-color: white; padding: 25px; border-radius: 15px; border: 2px solid #e5e7eb;
-        text-align: center; transition: all 0.3s ease; height: 160px; display: flex; flex-direction: column;
-        justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    }
-    .secim-karti:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #FF7043; }
-    
-    /* Alt Bilgi */
-    .footer-text {
-        text-align: center; font-size: 10px; color: #9ca3af; margin-top: 50px; font-family: monospace; opacity: 0.7;
-    }
-    
-    /* Diğer Stiller */
+    /* Kart Stilleri */
     .konu-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 6px solid #2196F3; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .soru-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 5px solid #FF7043; font-size: 18px; margin-bottom: 20px; color: #000 !important; }
     .stat-card { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; border: 2px solid #FF7043; }
     .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
-    
-    footer {visibility: hidden;} #MainMenu {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
@@ -112,25 +87,18 @@ def pdf_sayfa_getir(yol, sayfa):
         st.image(pix.tobytes(), use_container_width=True)
     except: pass
 
-@st.cache_data(ttl=10) # 10 saniyede bir veriyi yeniler
+@st.cache_data(ttl=15)
 def get_leaderboard_data():
     try:
         df = pd.read_csv(SHEET_URL)
-        
-        # Sütun İsimlerini Temizle (Büyük/Küçük harf ve Türkçe karakter karmaşasını önler)
-        # Örn: "İSİM" -> "ISIM", "Puan " -> "PUAN"
         df.columns = [str(c).strip().upper().replace('İ','I').replace('Ş','S').replace('Ğ','G').replace('Ü','U').replace('Ö','O').replace('Ç','C') for c in df.columns]
         
-        # Olası Sütun İsimleri (Garantili Eşleşme)
         name_col = next((c for c in df.columns if c in ['ISIM', 'AD', 'AD SOYAD', 'NAME']), None)
         score_col = next((c for c in df.columns if c in ['PUAN', 'SKOR', 'SCORE', 'MONEY']), None)
         
         if name_col and score_col:
-            # Puanları sayıya çevir (Hata varsa 0 yap)
             df[score_col] = pd.to_numeric(df[score_col], errors='coerce').fillna(0)
-            # Sırala ve ilk 10'u al
             df = df.sort_values(by=score_col, ascending=False).head(10)
-            
             data = []
             for _, row in df.iterrows():
                 data.append({"name": str(row[name_col]), "score": int(row[score_col])})
@@ -153,7 +121,7 @@ LIFE_SIM_TEMPLATE = """
 """
 LIFE_SIM_HTML = LIFE_SIM_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON_STRING)
 
-# B) OYUN HTML
+# B) OYUN HTML (V5.0 - HARDCORE EKONOMİ)
 GAME_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -212,7 +180,9 @@ GAME_HTML_TEMPLATE = """
         let playerName = "__USER_NAME__";
         let cloudResponse = '__LEADERBOARD_JSON__';
         let cloudLeaderboard = [];
-        const INFLATION_RATE = 1.15; 
+        
+        // ZORLAŞTIRILMIŞ EKONOMİ AYARLARI
+        const INFLATION_RATE = 1.25; // %25 Artış (Eskisi 1.15)
         
         try {
             if(cloudResponse.startsWith("ERROR_COLUMNS")) { console.error("Sütun Hatası"); } 
@@ -220,7 +190,20 @@ GAME_HTML_TEMPLATE = """
             else { cloudLeaderboard = JSON.parse(cloudResponse); }
         } catch(e) { cloudLeaderboard = []; }
 
-        const defaultData = { money: 0, startTime: Date.now(), buildings: [{ id: 0, name: "Limonata Tezgahı", baseCost: 15, income: 1, count: 0, icon: "citrus", color: "text-yellow-400", bg: "bg-yellow-400/20" }, { id: 1, name: "Simit Arabası", baseCost: 100, income: 5, count: 0, icon: "bike", color: "text-orange-400", bg: "bg-orange-400/20" }, { id: 2, name: "YouTube Kanalı", baseCost: 1100, income: 32, count: 0, icon: "youtube", color: "text-red-500", bg: "bg-red-500/20" }, { id: 3, name: "E-Ticaret Sitesi", baseCost: 12000, income: 150, count: 0, icon: "shopping-bag", color: "text-blue-400", bg: "bg-blue-400/20" }, { id: 4, name: "Yazılım Şirketi", baseCost: 130000, income: 800, count: 0, icon: "code", color: "text-cyan-400", bg: "bg-cyan-400/20" }, { id: 5, name: "Fabrika", baseCost: 1400000, income: 5000, count: 0, icon: "factory", color: "text-slate-400", bg: "bg-slate-400/20" }, { id: 6, name: "Kripto Borsası", baseCost: 20000000, income: 45000, count: 0, icon: "bitcoin", color: "text-yellow-500", bg: "bg-yellow-500/20" }, { id: 7, name: "Uzay Madenciliği", baseCost: 330000000, income: 150000, count: 0, icon: "rocket", color: "text-purple-500", bg: "bg-purple-500/20" }] };
+        const defaultData = { 
+            money: 0, 
+            startTime: Date.now(), 
+            buildings: [
+                { id: 0, name: "Limonata Tezgahı", baseCost: 25, income: 1, count: 0, icon: "citrus", color: "text-yellow-400", bg: "bg-yellow-400/20" },
+                { id: 1, name: "Simit Arabası", baseCost: 250, income: 4, count: 0, icon: "bike", color: "text-orange-400", bg: "bg-orange-400/20" },
+                { id: 2, name: "YouTube Kanalı", baseCost: 3500, income: 20, count: 0, icon: "youtube", color: "text-red-500", bg: "bg-red-500/20" },
+                { id: 3, name: "E-Ticaret Sitesi", baseCost: 45000, income: 90, count: 0, icon: "shopping-bag", color: "text-blue-400", bg: "bg-blue-400/20" },
+                { id: 4, name: "Yazılım Şirketi", baseCost: 600000, income: 500, count: 0, icon: "code", color: "text-cyan-400", bg: "bg-cyan-400/20" },
+                { id: 5, name: "Fabrika", baseCost: 8500000, income: 3500, count: 0, icon: "factory", color: "text-slate-400", bg: "bg-slate-400/20" },
+                { id: 6, name: "Kripto Borsası", baseCost: 120000000, income: 25000, count: 0, icon: "bitcoin", color: "text-yellow-500", bg: "bg-yellow-500/20" },
+                { id: 7, name: "Uzay Madenciliği", baseCost: 1500000000, income: 100000, count: 0, icon: "rocket", color: "text-purple-500", bg: "bg-purple-500/20" }
+            ] 
+        };
         let game = { ...defaultData };
 
         window.onload = function() {
@@ -233,13 +216,10 @@ GAME_HTML_TEMPLATE = """
         function renderLeaderboard() {
             let dataToShow = cloudLeaderboard;
             if(!dataToShow || dataToShow.length === 0) {
-                // Veri yoksa veya yüklenemediyse sadece oyuncuyu göster
                 dataToShow = [{name: playerName, score: game.money}];
             } else {
                 let meFound = false;
-                // Veri geldiyse oyuncunun en güncel skorunu güncelle
                 dataToShow.forEach(p => { if(p.name === playerName) { p.score = Math.max(p.score, game.money); p.isMe = true; meFound = true; }});
-                // Oyuncu listede yoksa ekle
                 if(!meFound) dataToShow.push({name: playerName, score: game.money, isMe: true});
             }
             dataToShow.sort((a, b) => b.score - a.score);
@@ -255,7 +235,8 @@ GAME_HTML_TEMPLATE = """
         }
 
         function claimReward() { game.money += incomingReward; incomingReward = 0; document.getElementById('rewardPopup').classList.add('hidden'); updateUI(); saveGame(); }
-        function handleClick(e) { const cps = calculateCPS(); const power = Math.max(1, Math.floor(cps * 0.05)); game.money += power; showFloatingText(e.clientX, e.clientY, `+${formatNumber(power)}`); animateButton(); updateUI(); renderLeaderboard(); }
+        // TIKLAMA GÜCÜ DÜŞÜRÜLDÜ: CPS * 0.01 (Eskisi 0.05)
+        function handleClick(e) { const cps = calculateCPS(); const power = Math.max(1, Math.floor(cps * 0.01)); game.money += power; showFloatingText(e.clientX, e.clientY, `+${formatNumber(power)}`); animateButton(); updateUI(); renderLeaderboard(); }
         function buyItem(id) { const item = game.buildings[id]; const currentCost = calculateCost(item.baseCost, item.count); if (game.money >= currentCost) { game.money -= currentCost; item.count++; updateUI(); saveGame(); } }
         function passiveIncomeLoop() { const cps = calculateCPS(); if (cps > 0) game.money += cps; }
         function uiLoop() { updateUI(); }
@@ -265,7 +246,8 @@ GAME_HTML_TEMPLATE = """
             document.getElementById('moneyDisplay').innerText = formatNumber(game.money);
             const cps = calculateCPS();
             document.getElementById('cpsDisplay').innerText = formatNumber(cps);
-            document.getElementById('clickPowerDisplay').innerText = formatNumber(Math.max(1, Math.floor(cps * 0.05)));
+            // GÖSTERİM DE GÜNCELLENDİ (0.01)
+            document.getElementById('clickPowerDisplay').innerText = formatNumber(Math.max(1, Math.floor(cps * 0.01)));
             const list = document.getElementById('marketList');
             if (list.children.length === 0) {
                 game.buildings.forEach((item, index) => {
@@ -302,11 +284,10 @@ if st.session_state.ekran == 'giris':
     with col2:
         st.markdown("""
         <div class='giris-kart'>
-            <h1>🎓 Bağarası ÇPAL</h1>
-            <h2>Finans & Eğitim Ekosistemi</h2>
+            <h1>Muhasebe ve Finansman Dijital Gelişim Programı</h1>
             <hr>
             <p style="font-size:18px; font-weight:bold; color:#D84315;">
-                Muhasebe ve Finansman Alanı Dijital Dönüşüm Projesi
+                Geleceğe Hazırlık Simülasyonu
             </p>
             <br>
             <p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p>
@@ -321,7 +302,8 @@ if st.session_state.ekran == 'giris':
                 st.session_state.ad_soyad = ad_soyad_input
                 st.session_state.ekran = 'sinav'
                 st.rerun()
-            else: st.error("Lütfen adınızı giriniz!")
+            else:
+                st.error("Lütfen adınızı giriniz!")
         
         st.markdown("<div class='footer-text'>Geliştirici: Zülfikar SITACI</div>", unsafe_allow_html=True)
 
