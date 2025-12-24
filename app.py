@@ -209,7 +209,7 @@ GAME_HTML_TEMPLATE = """
                 document.getElementById('rewardAmountDisplay').innerText = formatNumber(incomingReward);
                 document.getElementById('rewardPopup').classList.remove('hidden');
             }
-            setInterval(passiveIncomeLoop, 1000); setInterval(uiLoop, 100); setInterval(saveGame, 5000);
+            setInterval(passiveIncomeLoop, 100); setInterval(uiLoop, 100); setInterval(saveGame, 300);
         };
 
         function claimReward() {
