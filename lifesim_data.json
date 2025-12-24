@@ -1,4 +1,36 @@
-[
+import streamlit as st
+import streamlit.components.v1 as components
+import random
+import os
+import time
+import json
+import fitz  # PyMuPDF
+
+# --- 1. SAYFA AYARLARI ---
+st.set_page_config(page_title="Bağarası Hibrit Yaşam Merkezi", page_icon="🎓", layout="wide")
+
+# --- 2. KRİTİK DÜZELTME: SESSION STATE BAŞLATMA (EN ÜSTTE OLMALI) ---
+# Bu blok aşağıda kaldığı için hata veriyordu, en tepeye aldık.
+if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
+if 'oturum' not in st.session_state: st.session_state.oturum = False
+if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
+if 'mod' not in st.session_state: st.session_state.mod = "" 
+if 'secilen_liste' not in st.session_state: st.session_state.secilen_liste = []
+if 'aktif_index' not in st.session_state: st.session_state.aktif_index = 0
+if 'secim_turu' not in st.session_state: st.session_state.secim_turu = None 
+if 'karne' not in st.session_state: st.session_state.karne = []
+if 'dogru_sayisi' not in st.session_state: st.session_state.dogru_sayisi = 0
+if 'yanlis_sayisi' not in st.session_state: st.session_state.yanlis_sayisi = 0
+if 'bos_sayisi' not in st.session_state: st.session_state.bos_sayisi = 0
+
+# --- 3. DOSYA İSİMLERİ ---
+TYT_PDF_ADI = "tytson8.pdf"
+TYT_JSON_ADI = "tyt_data.json"
+MESLEK_JSON_ADI = "sorular.json"
+KONU_JSON_ADI = "konular.json"
+
+# --- 4. SENARYO VERİTABANI ---
+SCENARIOS_DATA = [
     {
         "category": "Güncel Ekonomi",
         "title": "1. Kredi Kartı Asgari Ödeme Tuzağı",
