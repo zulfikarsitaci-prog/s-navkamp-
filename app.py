@@ -282,7 +282,9 @@ elif st.session_state.ekran == 'ana_menu':
             
             col1, col2 = st.columns(2)
             for i, opt in enumerate(st.session_state[f"q_{st.session_state.soru_index}"]):
-                if (i % 2 == 0 ? col1 : col2).button(opt, key=f"opt_{i}", use_container_width=True):
+                # HATA BURADAYDI, DÜZELTİLDİ:
+                button_container = col1 if i % 2 == 0 else col2
+                if button_container.button(opt, key=f"opt_{i}", use_container_width=True):
                     if opt == soru["cevap"]:
                         st.toast("Doğru! 🎉")
                         st.session_state.dogru += 1
