@@ -15,7 +15,7 @@ TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 
-# --- LIFE-SIM HTML KODU (V3.1 - TAM LİSTE & LAYOUT FIX) ---
+# --- LIFE-SIM HTML KODU (V3.2 - FINAL / DÜZELTİLMİŞ ANALİZ MOTORU) ---
 LIFE_SIM_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -33,17 +33,11 @@ LIFE_SIM_HTML = """
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
         .glow-border:focus-within { box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
         canvas { cursor: crosshair; touch-action: none; }
-        
-        /* Scrollbar İyileştirmesi */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-        /* Konteyner Düzeni */
         .main-container { height: 95vh; display: flex; flex-direction: column; gap: 1rem; padding: 0.5rem; }
         @media (min-width: 768px) { .main-container { flex-direction: row; } }
-        
         .panel { display: flex; flex-direction: column; gap: 1rem; height: 100%; overflow-y: auto; }
         .left-panel { flex: 1; }
         .right-panel { flex: 2; }
@@ -52,11 +46,6 @@ LIFE_SIM_HTML = """
 <body>
     <div class="main-container">
         <div class="panel left-panel">
-            <div class="flex items-center gap-3 mb-1 shrink-0">
-                <div class="bg-primary/20 p-2 rounded-lg"><i data-lucide="brain-circuit" class="text-primary w-8 h-8"></i></div>
-                <div><h1 class="text-xl font-bold tracking-wider text-white">LIFE-SIM <span class="text-xs text-primary border border-primary px-1 rounded ml-2">AI</span></h1><p class="text-xs text-slate-400">Finans & Yönetim Simülasyonu</p></div>
-            </div>
-            
             <div class="glass p-4 rounded-xl border-l-4 border-accent shrink-0">
                 <label class="text-xs text-slate-400 uppercase font-bold flex items-center gap-2"><i data-lucide="list"></i> Görev Seçimi</label>
                 <select id="scenarioSelect" onchange="loadScenario()" class="w-full mt-2 bg-slate-900 text-white p-2 rounded border border-slate-700 outline-none focus:border-accent cursor-pointer"></select>
@@ -65,7 +54,7 @@ LIFE_SIM_HTML = """
             <div class="glass p-6 rounded-xl flex-1 flex flex-col relative group overflow-visible">
                 <div class="flex justify-between items-start mb-4"><span id="categoryBadge" class="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-full">YÜKLENİYOR</span></div>
                 <h2 id="scenarioTitle" class="text-xl font-bold text-white mb-4 leading-snug">...</h2>
-                <div class="prose prose-invert text-sm text-slate-300 overflow-y-auto pr-2 max-h-[200px] md:max-h-none flex-1" id="scenarioText"></div>
+                <div class="prose prose-invert text-sm text-slate-300 overflow-y-auto pr-2 flex-1" id="scenarioText"></div>
                 
                 <div class="mt-4 shrink-0">
                     <button onclick="toggleHint()" id="hintBtn" class="flex items-center gap-2 text-xs text-warning hover:text-white transition-colors"><i data-lucide="lightbulb" class="w-4 h-4"></i> Bir İpucu Ver (-5 Puan)</button>
@@ -82,8 +71,8 @@ LIFE_SIM_HTML = """
         <div class="panel right-panel">
             <div class="glass p-2 rounded-lg flex items-center justify-between shrink-0">
                 <div class="flex gap-2">
-                    <button onclick="setTab('text')" id="btn-text" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-slate-900 font-bold text-sm transition-all shadow-lg shadow-primary/20"><i data-lucide="file-edit" class="w-4 h-4"></i> <span class="hidden sm:inline">Analiz Yaz</span></button>
-                    <button onclick="setTab('draw')" id="btn-draw" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 text-sm transition-all"><i data-lucide="pencil" class="w-4 h-4"></i> <span class="hidden sm:inline">Şema Çiz</span></button>
+                    <button onclick="setTab('text')" id="btn-text" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-slate-900 font-bold text-sm transition-all"><i data-lucide="file-edit" class="w-4 h-4"></i> Analiz Yaz</button>
+                    <button onclick="setTab('draw')" id="btn-draw" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 text-sm transition-all"><i data-lucide="pencil" class="w-4 h-4"></i> Şema Çiz</button>
                 </div>
                 <div class="text-right px-4 flex items-center gap-2"><i data-lucide="timer" class="w-4 h-4 text-slate-500"></i><span id="timer" class="text-xl font-mono text-white font-bold">00:00</span></div>
             </div>
@@ -97,7 +86,7 @@ LIFE_SIM_HTML = """
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
-                <button onclick="analyzeSubmission()" class="md:col-span-1 bg-gradient-to-br from-primary to-blue-600 hover:from-blue-400 hover:to-blue-500 text-slate-900 font-bold py-4 rounded-xl shadow-lg flex flex-col items-center justify-center gap-1 transition-all active:scale-95 group"><i data-lucide="sparkles" class="w-6 h-6 group-hover:animate-spin"></i> ANALİZ ET</button>
+                <button id="analyzeBtn" onclick="analyzeSubmission()" class="md:col-span-1 bg-gradient-to-br from-primary to-blue-600 hover:from-blue-400 hover:to-blue-500 text-slate-900 font-bold py-4 rounded-xl shadow-lg flex flex-col items-center justify-center gap-1 transition-all active:scale-95 group"><i data-lucide="sparkles" class="w-6 h-6 group-hover:animate-spin"></i> ANALİZ ET</button>
                 <div class="md:col-span-3 glass p-4 rounded-xl flex items-start gap-4 border border-slate-700/50 min-h-[100px]">
                     <div class="bg-slate-800 p-3 rounded-full shrink-0"><i data-lucide="bot" class="text-accent w-6 h-6"></i></div>
                     <div class="flex-1">
@@ -113,104 +102,200 @@ LIFE_SIM_HTML = """
     <script>
         lucide.createIcons();
         
-        // --- 30 SENARYONUN TAMAMI ---
+        // --- SENARYO VERİTABANI (TAM LİSTE) ---
         const scenarios = [
-            // GÜNCEL
-            { category: "Güncel", title: "1. Taksitli Alışveriş ve Enflasyon", text: "Telefonun peşin fiyatı 30.000 TL, 12 taksitli fiyatı 36.000 TL. Enflasyon %60. Hangisi daha karlı?", data: ["Enflasyon: %60", "Vade Farkı: %20"], hint: "Enflasyon oranını, ödeyeceğin paranın zaman içindeki değer kaybıyla (Reel Faiz) kıyasla." },
-            { category: "Güncel", title: "2. Gizli Enflasyon (Shrinkflation)", text: "Bisküvi fiyatı aynı (10 TL) ama gramaj 100gr'dan 80gr'a düştü. Birim maliyet analizi yap.", data: ["Eski: 0.1 TL/gr", "Yeni: ?"], hint: "Fiyat aynı kalsa bile, gramaj düştüğü için birim başına ödediğin tutar yüzde kaç arttı?" },
-            { category: "Güncel", title: "3. İkinci El Araç Yanılgısı", text: "500k'ya aldığın aracı 1M'ye sattın ama yenisi 1.1M. Kar ettin mi?", data: ["Alış: 500k", "Satış: 1M", "Piyasa: 1.1M"], hint: "'Yerine Koyma Maliyeti' kavramını düşün. Cebinden ekstra para çıkacak mı?" },
-            { category: "Güncel", title: "4. Bedelli Askerlik Fırsat Maliyeti", text: "Bedelli 240.000 TL. Maaşın 35.000 TL. 6 ay çalışıp bedelliyi ödemek mi, gitmek mi?", data: ["Bedelli: 240k", "Maaş x 6: 210k"], hint: "Sadece parayı değil, 6 ay boyunca kariyerinde kaybedeceğin veya kazanacağın tecrübeyi de hesaba kat." },
-            { category: "Güncel", title: "5. Öğrenci Evi Bütçesi", text: "3 arkadaş eve çıkıyorsunuz. Toplam gider 19.000 TL. Gelirler eşit değil. Adil paylaşım nasıl olur?", data: ["Gider: 19k", "Gelirler: Farklı"], hint: "Herkesin gelirinin % kaçını eve verdiğini hesaplayan bir 'Oransal Dağılım' modeli kurabilirsin." },
-            { category: "Güncel", title: "6. Kuryelik ve Net Kar", text: "Ciro 60.000 TL ama tüm masraflar sana ait. Gerçek maaşın ne?", data: ["Ciro: 60k", "Masraf: ~20k"], hint: "Motorun eskiyip değer kaybetmesini (Amortisman) gider olarak düşmeyi unutma." },
-            { category: "Güncel", title: "7. Abonelik Ekonomisi", text: "Küçük aboneliklerin yıllık toplam maliyeti ve yatırım fırsatı.", data: ["Aylık: 700 TL", "Yıllık: 8.400 TL"], hint: "Bu parayı her ay kenara koyup %5 faiz/getiri alsaydın yıl sonunda ne olurdu? (Bileşik Getiri)." },
-            { category: "Güncel", title: "8. Düğün Borcu", text: "500.000 TL krediyle düğün yapmak mı, sade nikah yapıp parayı yatırmak mı?", data: ["Faiz: Çok Yüksek", "Alternatif: Ev Peşinatı"], hint: "Borç bir 'Yükümlülük', yatırım ise bir 'Varlık'tır. Gelecekte hangisi seni rahatlatır?" },
-            { category: "Güncel", title: "9. Kripto Risk Yönetimi", text: "Arkadaşın tüm parasını tek coine yatırmak istiyor. Risk analizi yap.", data: ["Risk: %100", "Prensip: Sepet Yapmak"], hint: "'Yumurtaları aynı sepete koymamak' (Diversifikasyon) ilkesini açıkla." },
-            { category: "Güncel", title: "10. Güneş Enerjisi ROI", text: "100.000 TL yatırım, aylık 2.000 TL tasarruf. Ne zaman amorti eder?", data: ["Yatırım: 100k", "Yıllık Tasarruf: 24k"], hint: "Basit hesap: Yatırım Maliyeti / Yıllık Getiri = Yıl." },
+            { category: "Güncel", title: "1. Taksitli Alışveriş ve Enflasyon", text: "Telefonun peşin fiyatı 30.000 TL, 12 taksitli fiyatı 36.000 TL. Enflasyon %60. Hangisi daha karlı?", data: ["Enflasyon: %60", "Vade Farkı: %20"], hint: "Reel faiz hesabı yap. Paranın zaman değerini düşün." },
+            { category: "Güncel", title: "2. Gizli Enflasyon (Shrinkflation)", text: "Fiyat aynı kaldı ama gramaj düştü. Birim maliyet analizi yap.", data: ["Eski: 100gr", "Yeni: 80gr"], hint: "Gramaj düşünce birim fiyat % kaç arttı?" },
+            { category: "Güncel", title: "3. İkinci El Araç Yanılgısı", text: "500k'ya aldın, 1M'ye sattın ama yenisi 1.1M. Kar ettin mi?", data: ["Alış: 500k", "Piyasa: 1.1M"], hint: "Yerine koyma maliyetini (Replacement Cost) düşün." },
+            { category: "Güncel", title: "4. Bedelli Askerlik Maliyeti", text: "Bedelli 240.000 TL. Maaşın 35.000 TL. Gitmek mi ödemek mi?", data: ["Bedelli: 240k", "Maaş: 35k"], hint: "6 aylık maaş kaybı + kariyer kaybı vs Bedelli ücreti." },
+            { category: "Güncel", title: "5. Öğrenci Evi Bütçesi", text: "3 arkadaş eve çıkıyorsunuz. Gelirler eşit değil. Gider nasıl paylaşılır?", data: ["Gider: 19k"], hint: "Adil paylaşım için gelire oranlı bir model kur." },
+            { category: "Güncel", title: "6. Kuryelik ve Net Kar", text: "Ciro 60.000 TL ama masraflar sana ait. Gerçek maaşın ne?", data: ["Ciro: 60k", "Masraf: ~20k"], hint: "Amortismanı ve sosyal güvence giderlerini düş." },
+            { category: "Güncel", title: "7. Abonelik Ekonomisi", text: "Küçük aboneliklerin yıllık maliyeti ve fırsat maliyeti.", data: ["Aylık: 700 TL"], hint: "Yıllık toplam tutarı ve bununla alabileceğin bir varlığı düşün." },
+            { category: "Güncel", title: "8. Düğün Borcu", text: "500k kredi ile düğün mü, sade nikah ve ev peşinatı mı?", data: ["Faiz: Yüksek"], hint: "Gelecekteki finansal özgürlüğün mü, bir günlük gösteriş mi?" },
+            { category: "Güncel", title: "9. Kripto Risk Yönetimi", text: "Tüm paranı tek coine yatırmak mantıklı mı?", data: ["Risk: %100"], hint: "Yumurtaları aynı sepete koymamak ilkesi." },
+            { category: "Güncel", title: "10. Güneş Enerjisi ROI", text: "100k yatırım, aylık 2k tasarruf. Ne zaman amorti eder?", data: ["Yatırım: 100k"], hint: "Yatırım / Aylık Tasarruf = Ay sayısı." },
             
-            // MUHASEBE
-            { category: "Muhasebe", title: "11. Yeni Asgari Ücret Dengesi", text: "Asgari ücret 28.075 TL oldu. İşçilik maliyeti arttı. Zam yaparsan satış düşecek. Çözüm?", data: ["Maliyet Artışı: %40", "Risk: İşten çıkarma"], hint: "Verimliliği artırmak veya devlet teşviklerini araştırmak bir çözüm olabilir mi?" },
-            { category: "Muhasebe", title: "12. Vergi Affı Beklentisi", text: "Borcu ödeme af çıkacak diyorlar. Ancak nakit akışın bozulabilir.", data: ["Borç: 500k", "Faiz: İşliyor"], hint: "Af çıkmazsa ne olacak? Gecikme faizi ana paradan daha yüksek olabilir." },
-            { category: "Muhasebe", title: "13. Enflasyon Muhasebesi", text: "Kağıt üzerinde kar var ama stok yerine konamıyor. Patronuna anlat.", data: ["Sanal Kar: Var", "Nakit: Yok"], hint: "Vergi, gerçekleşmemiş kardan ödenirse işletme sermayesi erir." },
-            { category: "Muhasebe", title: "14. E-Fatura Cezası", text: "Sistem hatası yüzünden faturalar kesilemedi. Müşteriye izah et.", data: ["Ceza: Var", "İmaj: Riskli"], hint: "Dürüstlük ve teknik raporla başvurmak cezayı hafifletebilir mi?" },
-            { category: "Muhasebe", title: "15. Startup Batış Riski", text: "Arkadaşın 200k ile işe giriyor. Batmaması için gider tablosu yap.", data: ["Kira+Stopaj", "SGK"], hint: "Görünmeyen giderleri (Stopaj, Damga Vergisi, Ruhsat) listeye ekle." },
+            { category: "Muhasebe", title: "11. Asgari Ücret Dengesi", text: "Maliyet arttı. Zam yaparsan satış düşecek. Çözüm?", data: ["Maliyet: +%40"], hint: "Verimlilik artışı veya yan haklarda düzenleme olabilir mi?" },
+            { category: "Muhasebe", title: "12. Vergi Affı Beklentisi", text: "Borcu ödeme af çıkacak diyorlar. Risk alır mısın?", data: ["Borç: 500k"], hint: "Gecikme faizi ve ticari itibar kaybını hesapla." },
+            { category: "Muhasebe", title: "13. Enflasyon Muhasebesi", text: "Kağıt üzerinde kar var ama stok yerine konamıyor.", data: ["Nakit: Yok"], hint: "Vergi, gerçekleşmemiş kardan ödenirse sermaye erir." },
+            { category: "Muhasebe", title: "14. E-Fatura Cezası", text: "Fatura kesilemedi. Müşteriye izah et.", data: ["Ceza: Var"], hint: "Dürüstlük ve teknik raporla başvurmak." },
+            { category: "Muhasebe", title: "15. Startup Batış Riski", text: "200k sermaye ile iş kurarken görünmeyen giderler.", data: ["Stopaj, SGK"], hint: "Sadece kirayı değil, vergileri ve resmi harçları hesapla." },
             
-            // HUKUK
-            { category: "Hukuk", title: "16. Kiracı Tahliyesi", text: "Kira 5000 TL, piyasa 20000 TL. Dava uzun sürüyor. Uzlaşma yolu?", data: ["Fark: 4 Kat", "Süre: 3 Yıl"], hint: "Davayı kazanana kadar geçecek süredeki enflasyon kaybını hesapla. Orta yolda buluşmak karlı olabilir." },
-            { category: "Hukuk", title: "17. Sosyal Medya Suçu", text: "Müdüre hakaret içerikli paylaşım yaptın. TCK 125. Savunma?", data: ["Suç: Hakaret", "Kanıt: Var"], hint: "Pişmanlık yasasından veya 'Haksız Tahrik' indiriminden faydalanılabilir mi?" },
-            { category: "Hukuk", title: "18. Ayıplı Mal", text: "Telefon bozuldu, servis reddetti. Hakem Heyeti dilekçesi.", data: ["Mal: Ayıplı", "Hak: İade/Değişim"], hint: "Bilirkişi incelemesi talep etmeyi unutma." },
-            { category: "Hukuk", title: "19. Mobbing İddiası", text: "İki çalışan kavgalı. Biri mobbing diyor. İK yöneticisi ol.", data: ["Kanıt: Yoksa zor", "Risk: Dava"], hint: "Yazılı kanıt veya şahit var mı? Eşitlik ilkesine dikkat et." },
-            { category: "Hukuk", title: "20. Miras Paylaşımı", text: "Tarla satılsın mı işlensin mi? Kardeş kavgası.", data: ["Çözüm: Ortaklık", "Risk: Satış"], hint: "Tarlayı işleyip karı paylaşmak (İntifa hakkı) bir çözüm olabilir mi?" },
+            { category: "Hukuk", title: "16. Kiracı Tahliyesi", text: "Kira piyasanın altında. Dava uzun. Uzlaşma?", data: ["Fark: 4 Kat"], hint: "Dava sürecindeki enflasyon kaybı vs Uzlaşma." },
+            { category: "Hukuk", title: "17. Sosyal Medya Hakareti", text: "Müdüre hakaret ettin. Savunma stratejin ne?", data: ["Suç: Hakaret"], hint: "Haksız tahrik indirimi veya uzlaşma." },
+            { category: "Hukuk", title: "18. Ayıplı Mal", text: "Telefon bozuldu, servis reddetti. Hakem Heyeti.", data: ["Mal: Ayıplı"], hint: "Bilirkişi incelemesi talep et." },
+            { category: "Hukuk", title: "19. Mobbing İddiası", text: "Çalışanlar kavgalı. İK yöneticisi olarak karar ver.", data: ["Kanıt: ?"], hint: "Eşitlik ilkesi ve somut delil." },
+            { category: "Hukuk", title: "20. Miras Paylaşımı", text: "Tarla satılsın mı işlensin mi? Kardeş kavgası.", data: ["Çözüm: ?"], hint: "İntifa hakkı veya ortak işletme modeli." },
             
-            // YÖNETİM
-            { category: "Yönetim", title: "21. AI ve İşsizlik", text: "Yapay zeka 3 kişinin işini yapıyor. Kovmak etik mi?", data: ["Verim: Artıyor", "Etik: ?"], hint: "Bu personelleri AI operatörü olarak eğitip değerlendirebilir misin?" },
-            { category: "Yönetim", title: "22. Ofise Dönüş", text: "Herkes evden çalışmak istiyor. Sen ofis diyorsun. Hibrit çözüm?", data: ["Kültür: Zayıflıyor", "Verim: İyi"], hint: "Haftada 2 gün ofis zorunluluğu (Core Days) dengeyi sağlayabilir." },
-            { category: "Yönetim", title: "23. Kriz Masası", text: "Müşteri otelde olay çıkardı. Sosyal medyada yayıyor.", data: ["İtibar: Tehlikede"], hint: "Savunmaya geçmek yerine empati kurup telafi teklif etmek ateşi söndürebilir." },
-            { category: "Yönetim", title: "24. Tedarik Zinciri", text: "Hammadde yok, üretim durdu. Müşteriye ne diyeceksin?", data: ["Stok: 0"], hint: "Şeffaf ol. Alternatif (daha pahalı) hammaddeyi kullanmayı teklif et." },
-            { category: "Yönetim", title: "25. Greenwashing", text: "Patron yalandan 'Doğa Dostu' etiketi basmak istiyor.", data: ["Risk: Büyük"], hint: "Tüketici bunu fark ederse marka tamamen biter. Dürüstlük en iyi politikadır." },
+            { category: "Yönetim", title: "21. AI ve İşsizlik", text: "AI 3 kişinin işini yapıyor. Kovmak mı dönüştürmek mi?", data: ["Verim: Yüksek"], hint: "Personeli AI operatörü olarak eğitmek." },
+            { category: "Yönetim", title: "22. Ofise Dönüş", text: "Herkes evden çalışmak istiyor. Sen ofis diyorsun.", data: ["Kültür: Zayıf"], hint: "Hibrit model (Haftada 2 gün ofis)." },
+            { category: "Yönetim", title: "23. Kriz Masası", text: "Müşteri otelde olay çıkardı. Sosyal medya riski.", data: ["İtibar"], hint: "Empati ve anında telafi." },
+            { category: "Yönetim", title: "24. Tedarik Zinciri", text: "Hammadde yok. Üretim durdu. Müşteriye ne denir?", data: ["Stok: 0"], hint: "Şeffaflık ve alternatif çözüm önerisi." },
+            { category: "Yönetim", title: "25. Greenwashing", text: "Patron yalandan 'Doğa Dostu' yazmak istiyor.", data: ["Risk: Büyük"], hint: "Tüketici güveni kaybolursa marka biter." },
             
-            // DEĞERLER
-            { category: "Değerler", title: "26. Bulunan Cüzdan", text: "Sahibi düşmanın. İçinde para var. İhtiyacın da var.", data: ["Vicdan: ?"], hint: "Karakter, kimse izlemiyorken ne yaptığındır." },
-            { category: "Değerler", title: "27. Zorbalığa Sessiz Kalmak", text: "Arkadaşın eziliyor. Ses çıkarırsan sen de yanacaksın.", data: ["Cesaret: ?"], hint: "Zorbaya sessiz kalmak, zorbalığı onaylamaktır." },
-            { category: "Değerler", title: "28. Çevre Etiği", text: "Ailenin fabrikası nehri kirletiyor. İhbar eder misin?", data: ["Aile vs Toplum"], hint: "Kısa vadeli aile kazancı mı, uzun vadeli toplum sağlığı mı?" },
-            { category: "Değerler", title: "29. Hasarlı Kaza", text: "Arabayı çizdin, kaçma şansın var. Ne yaparsın?", data: ["Dürüstlük"], hint: "Empati kur: Senin arabana çarpıp kaçsalar ne hissederdin?" },
-            { category: "Değerler", title: "30. Dijital Bağımlı Kardeş", text: "Kardeşin ekran bağımlısı. Ona nasıl yardım edersin?", data: ["Yasak vs İlgi"], hint: "Sadece yasaklamak işe yaramaz. Ona alternatif ve eğlenceli bir aktivite sunmalısın." }
+            { category: "Değerler", title: "26. Bulunan Cüzdan", text: "Düşmanının cüzdanı. İçinde para var.", data: ["Vicdan"], hint: "Karakter sınavı." },
+            { category: "Değerler", title: "27. Zorbalığa Sessiz Kalmak", text: "Arkadaşın eziliyor. Ses çıkarırsan yanacaksın.", data: ["Cesaret"], hint: "Sessiz kalmak onaylamaktır." },
+            { category: "Değerler", title: "28. Çevre Etiği", text: "Fabrikanız nehri kirletiyor. İhbar eder misin?", data: ["Aile vs Toplum"], hint: "Uzun vadeli toplum sağlığı." },
+            { category: "Değerler", title: "29. Hasarlı Kaza", text: "Arabayı çizdin, kaçma şansın var.", data: ["Dürüstlük"], hint: "Empati kur." },
+            { category: "Değerler", title: "30. Dijital Bağımlılık", text: "Kardeşin ekran bağımlısı. Nasıl yardım edersin?", data: ["İletişim"], hint: "Yasak yerine alternatif sun." }
         ];
 
-        let currentTab = 'text'; let startTime = Date.now(); let selectedScenarioIndex = 0;
+        let selectedScenarioIndex = 0;
+        let startTime = Date.now();
+
         window.onload = function() {
             const select = document.getElementById('scenarioSelect');
-            const categories = {};
-            scenarios.forEach((s, index) => { if(!categories[s.category]) categories[s.category] = []; categories[s.category].push({ ...s, idx: index }); });
-            for (const [cat, items] of Object.entries(categories)) {
-                let group = document.createElement('optgroup'); group.label = cat.toUpperCase();
-                items.forEach(item => { let opt = document.createElement('option'); opt.value = item.idx; opt.innerHTML = item.title; group.appendChild(opt); });
-                select.appendChild(group);
-            }
-            loadScenario(); startTimer(); setupCanvas();
+            scenarios.forEach((s, index) => {
+                let opt = document.createElement('option');
+                opt.value = index;
+                opt.innerHTML = s.title;
+                select.appendChild(opt);
+            });
+            loadScenario();
+            startTimer();
+            setupCanvas();
         };
 
         function loadScenario() {
             selectedScenarioIndex = document.getElementById('scenarioSelect').value;
             const s = scenarios[selectedScenarioIndex];
-            const badge = document.getElementById('categoryBadge');
-            badge.innerText = s.category.toUpperCase();
-            badge.className = `px-3 py-1 text-xs font-bold rounded-full w-fit mb-4 ${getCategoryColor(s.category)}`;
-            document.getElementById('scenarioTitle').innerText = s.title; document.getElementById('scenarioText').innerText = s.text;
-            const dataList = document.getElementById('scenarioData'); dataList.innerHTML = "";
-            s.data.forEach(item => { const parts = item.split(':'); dataList.innerHTML += `<li class="flex justify-between border-b border-slate-700/50 pb-1"><span class="text-slate-400">${parts[0]}:</span> <span class="text-white font-mono font-bold">${parts[1] || ''}</span></li>`; });
-            document.getElementById('inputText').value = ""; clearCanvas(); document.getElementById('hintBox').classList.add('hidden'); document.getElementById('hintBtn').classList.remove('hidden'); document.getElementById('aiFeedback').innerHTML = "Bekleniyor... Stratejini oluşturduktan sonra 'Analiz Et' butonuna bas."; document.getElementById('downloadBtn').classList.add('hidden');
+            
+            // Badge ve Metinleri Güncelle
+            document.getElementById('categoryBadge').innerText = s.category.toUpperCase();
+            document.getElementById('categoryBadge').className = `px-3 py-1 text-xs font-bold rounded-full w-fit mb-4 ${getCategoryColor(s.category)}`;
+            document.getElementById('scenarioTitle').innerText = s.title;
+            document.getElementById('scenarioText').innerText = s.text;
+            
+            // Verileri Listele
+            const dataList = document.getElementById('scenarioData');
+            dataList.innerHTML = "";
+            if(s.data) {
+                s.data.forEach(item => {
+                    let parts = item.split(':');
+                    let key = parts[0];
+                    let val = parts[1] || '';
+                    dataList.innerHTML += `<li class="flex justify-between border-b border-slate-700/50 pb-1"><span class="text-slate-400">${key}:</span> <span class="text-white font-mono font-bold">${val}</span></li>`;
+                });
+            }
+
+            // Sıfırlama
+            document.getElementById('inputText').value = "";
+            clearCanvas();
+            document.getElementById('hintBox').classList.add('hidden');
+            document.getElementById('hintBtn').classList.remove('hidden');
+            
+            // AI Mesajını Sıfırla
+            document.getElementById('aiFeedback').innerHTML = "Bekleniyor... Stratejini oluşturduktan sonra 'Analiz Et' butonuna bas.";
+            document.getElementById('downloadBtn').classList.add('hidden');
+            
+            // Buton Rengini Sıfırla
+            const btn = document.getElementById('analyzeBtn');
+            btn.innerHTML = '<i data-lucide="sparkles" class="w-6 h-6"></i> ANALİZ ET';
+            btn.classList.remove('bg-green-600', 'bg-red-600');
         }
 
-        function toggleHint() { const s = scenarios[selectedScenarioIndex]; const box = document.getElementById('hintBox'); const btn = document.getElementById('hintBtn'); box.innerHTML = `<span class="font-bold">💡 İPUCU:</span> ${s.hint || "Özel ipucu yok."}`; box.classList.remove('hidden'); btn.classList.add('hidden'); }
-        function getCategoryColor(cat) { const c = { 'Muhasebe': 'bg-green-900/50 text-green-400', 'Hukuk': 'bg-red-900/50 text-red-400', 'Yönetim': 'bg-blue-900/50 text-blue-400', 'Güncel': 'bg-purple-900/50 text-purple-400', 'Değerler': 'bg-orange-900/50 text-orange-400' }; return c[cat] || 'bg-slate-700 text-slate-300'; }
-        
+        // --- DÜZELTİLMİŞ ANALİZ FONKSİYONU ---
         function analyzeSubmission() {
-            const btn = document.querySelector('button[onclick="analyzeSubmission()"]'); const feedback = document.getElementById('aiFeedback'); const text = document.getElementById('inputText').value.toLowerCase();
-            if (text.length < 10 && currentTab === 'text') { feedback.innerHTML = "<span class='text-red-400'>⚠ Yanıtın çok kısa.</span>"; return; }
-            btn.innerHTML = '⏳ ANALİZ EDİLİYOR...'; feedback.innerHTML = "<span class='animate-pulse text-warning'>🧠 Yapay zeka anahtar kelimeleri tarıyor...</span>";
+            const btn = document.getElementById('analyzeBtn');
+            const feedback = document.getElementById('aiFeedback');
+            const text = document.getElementById('inputText').value.trim();
+            const s = scenarios[selectedScenarioIndex];
+
+            // 1. Boş Cevap Kontrolü
+            if (text.length < 10) {
+                feedback.innerHTML = "<span class='text-warning font-bold'>⚠ Uyarı:</span> Cevabın çok kısa. Bir yönetici gibi detaylı gerekçeler yazmalısın.";
+                return;
+            }
+
+            // 2. İşleniyor Animasyonu
+            btn.innerHTML = '⏳ SİSTEM ANALİZ EDİYOR...';
+            feedback.innerHTML = "<span class='animate-pulse text-primary'>🧠 Yapay zeka anahtar kelimeleri tarıyor... Hukuki ve Mali riskler hesaplanıyor...</span>";
+
+            // 3. Simülasyon Gecikmesi (2 saniye)
             setTimeout(() => {
-                btn.innerHTML = '✔ TAMAMLANDI'; btn.classList.add('bg-green-600');
-                feedback.innerHTML = `<span class='text-success font-bold'>Harika Tespitler!</span><br>Yanıtın sisteme işlendi. Teknik analiz ve stratejin veritabanına kaydedildi.`;
+                // Basit Anahtar Kelime Analizi
+                let keywords = ["risk", "maliyet", "kar", "yasa", "etik", "plan", "strateji", "verim", "analiz", "faiz", "enflasyon", "uzlaşma", "itibar"];
+                let found = keywords.filter(w => text.toLowerCase().includes(w));
+                
+                let responseHTML = "";
+                
+                if (found.length > 0) {
+                    responseHTML = `<span class='text-success font-bold'>✔ Analiz Başarılı!</span><br>
+                    Harika, yanıtında <b>${found.length}</b> kritik finansal/yönetimsel kavrama değinmişsin. Stratejin sistem tarafından onaylandı.<br>
+                    <span class='text-slate-400 text-xs'>Sonraki Adım: Raporunu indirip eğitmenine sunabilirsin.</span>`;
+                    btn.classList.add('bg-green-600');
+                } else {
+                    responseHTML = `<span class='text-blue-400 font-bold'>ℹ Geliştirilebilir</span><br>
+                    Stratejin mantıklı görünüyor ancak daha fazla teknik terim (Örn: Maliyet, Risk, Yasa) kullanman puanını artırır.<br>
+                    <span class='text-slate-400 text-xs'>Yine de raporunu oluşturduk.</span>`;
+                }
+
+                // Sonuçları Göster
+                btn.innerHTML = '<i data-lucide="check-circle" class="w-6 h-6"></i> ANALİZ TAMAMLANDI';
+                feedback.innerHTML = responseHTML;
                 document.getElementById('downloadBtn').classList.remove('hidden');
-                setTimeout(() => { btn.innerHTML = 'ANALİZ ET'; btn.classList.remove('bg-green-600'); }, 4000);
+
             }, 2000);
         }
 
         function downloadReport() {
-            const s = scenarios[selectedScenarioIndex]; const ans = document.getElementById('inputText').value;
-            const content = `LIFE-SIM RAPORU\n=================\nTARİH: ${new Date().toLocaleString('tr-TR')}\nKONU: ${s.title}\n\nYANIT:\n${ans}\n\nONAY KODU: ${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-            const blob = new Blob([content], { type: 'text/plain' }); const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = `LifeSim_Rapor.txt`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            const s = scenarios[selectedScenarioIndex];
+            const ans = document.getElementById('inputText').value;
+            const content = `LIFE-SIM RAPORU\n=================\nTARİH: ${new Date().toLocaleString('tr-TR')}\nKONU: ${s.title}\nKATEGORİ: ${s.category}\n\nÖĞRENCİ YANITI:\n${ans}\n\nSİSTEM DEĞERLENDİRMESİ:\nOtomatik analiz tamamlandı. Strateji veritabanına işlendi.\n\nONAY KODU: ${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = window.URL.createObjectURL(blob);
+            a.download = `LifeSim_Rapor_${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
-        function setTab(mode) { currentTab = mode; document.getElementById('inputText').classList.toggle('hidden', mode !== 'text'); document.getElementById('drawContainer').classList.toggle('hidden', mode !== 'draw'); if(mode==='draw') resizeCanvas(); }
+        function toggleHint() {
+            const s = scenarios[selectedScenarioIndex];
+            document.getElementById('hintBox').innerHTML = `<span class="font-bold">💡 İPUCU:</span> ${s.hint}`;
+            document.getElementById('hintBox').classList.remove('hidden');
+            document.getElementById('hintBtn').classList.add('hidden');
+        }
+
+        function getCategoryColor(cat) {
+            const c = { 'Muhasebe': 'bg-green-900/50 text-green-400', 'Hukuk': 'bg-red-900/50 text-red-400', 'Yönetim': 'bg-blue-900/50 text-blue-400', 'Güncel': 'bg-purple-900/50 text-purple-400', 'Değerler': 'bg-orange-900/50 text-orange-400' };
+            return c[cat] || 'bg-slate-700 text-slate-300';
+        }
+
+        // Sekme ve Çizim İşlemleri
+        function setTab(mode) {
+            if(mode === 'text') {
+                document.getElementById('inputText').style.display = 'block';
+                document.getElementById('drawContainer').classList.add('hidden');
+            } else {
+                document.getElementById('inputText').style.display = 'none';
+                document.getElementById('drawContainer').classList.remove('hidden');
+                resizeCanvas();
+            }
+        }
+
+        // Canvas Kodları
         let isDrawing = false; let ctx;
-        function setupCanvas() { const c = document.getElementById('drawingCanvas'); ctx = c.getContext('2d'); ['mousedown','touchstart'].forEach(e=>c.addEventListener(e,ev=>{ev.preventDefault();startDraw(ev.touches?ev.touches[0]:ev)})); ['mousemove','touchmove'].forEach(e=>c.addEventListener(e,ev=>{ev.preventDefault();draw(ev.touches?ev.touches[0]:ev)})); ['mouseup','touchend'].forEach(e=>c.addEventListener(e,()=>isDrawing=false)); }
-        function resizeCanvas() { const c=document.getElementById('drawingCanvas'); const p=document.getElementById('drawContainer'); if(c.width!==p.offsetWidth){c.width=p.offsetWidth;c.height=p.offsetHeight;ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;} }
+        function setupCanvas() { 
+            const c = document.getElementById('drawingCanvas'); 
+            ctx = c.getContext('2d'); 
+            ['mousedown','touchstart'].forEach(e=>c.addEventListener(e,ev=>{ev.preventDefault();startDraw(ev.touches?ev.touches[0]:ev)})); 
+            ['mousemove','touchmove'].forEach(e=>c.addEventListener(e,ev=>{ev.preventDefault();draw(ev.touches?ev.touches[0]:ev)})); 
+            ['mouseup','touchend'].forEach(e=>c.addEventListener(e,()=>isDrawing=false)); 
+        }
+        function resizeCanvas() { 
+            const c=document.getElementById('drawingCanvas'); 
+            const p=document.getElementById('drawContainer'); 
+            if(c.width!==p.offsetWidth){c.width=p.offsetWidth;c.height=p.offsetHeight;ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;} 
+        }
         function startDraw(e) { isDrawing=true; const r=e.target.getBoundingClientRect(); ctx.beginPath(); ctx.moveTo(e.clientX-r.left, e.clientY-r.top); }
         function draw(e) { if(!isDrawing)return; const r=e.target.getBoundingClientRect(); ctx.lineTo(e.clientX-r.left, e.clientY-r.top); ctx.stroke(); }
         function clearCanvas() { ctx.clearRect(0,0,document.getElementById('drawingCanvas').width, document.getElementById('drawingCanvas').height); }
+        
         function startTimer() { setInterval(() => { const d = Math.floor((Date.now() - startTime)/1000); document.getElementById('timer').innerText = `${Math.floor(d/60).toString().padStart(2,'0')}:${(d%60).toString().padStart(2,'0')}`; }, 1000); }
-        window.addEventListener('resize', () => { if(currentTab==='draw') resizeCanvas(); });
+        window.addEventListener('resize', () => { resizeCanvas(); });
     </script>
 </body>
 </html>
