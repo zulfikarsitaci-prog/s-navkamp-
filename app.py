@@ -37,33 +37,20 @@ def load_lifesim_data():
     if os.path.exists(LIFESIM_JSON_ADI):
         try:
             with open(LIFESIM_JSON_ADI, "r", encoding="utf-8") as f:
-                # JSON dosyasını oku ama string olarak (HTML'e gömmek için)
                 raw_data = f.read()
-                # Geçerli bir JSON olup olmadığını kontrol et
-                json.loads(raw_data) 
+                json.loads(raw_data) # Validasyon
                 return raw_data
         except Exception as e:
             st.error(f"Senaryo dosyası hatası: {e}")
             return "[]"
     else:
-        # Dosya yoksa varsayılan boş bir senaryo döndür (Hata vermemesi için)
-        fallback = [
-            {
-                "category": "Sistem",
-                "title": "Veri Dosyası Bulunamadı",
-                "text": "Lütfen lifesim_data.json dosyasını yükleyin.",
-                "data": ["Hata"],
-                "hint": "Yöneticiye başvurun.",
-                "doc": "Dosya eksik."
-            }
-        ]
-        return json.dumps(fallback, ensure_ascii=False)
+        return "[]"
 
 # VERİLERİ YÜKLE
 TYT_VERI = dosya_yukle(TYT_JSON_ADI)
 MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
 KONU_VERI = dosya_yukle(KONU_JSON_ADI)
-SCENARIOS_JSON_STRING = load_lifesim_data() # JSON dosyasından okunan veri
+SCENARIOS_JSON_STRING = load_lifesim_data()
 
 # --- LIFE-SIM HTML ŞABLONU ---
 HTML_TEMPLATE = """
@@ -82,19 +69,14 @@ HTML_TEMPLATE = """
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; flex-direction: column; height: 100vh; padding: 10px; }
         .glass { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
         .glow-border:focus-within { box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
-        
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        
         .tab-btn { transition: all 0.3s ease; border-bottom: 3px solid transparent; opacity: 0.6; }
         .tab-btn.active { border-bottom-color: #38bdf8; opacity: 1; color: white; background: rgba(56, 189, 248, 0.1); }
-        
         .tab-content { display: none; height: 100%; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: flex; flex-direction: column; gap: 1rem; }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
         .info-card { 
             position: absolute; top: 0; right: 0; bottom: 0; left: 0; 
             background: rgba(15, 23, 42, 0.98); 
@@ -104,7 +86,6 @@ HTML_TEMPLATE = """
             display: flex; flex-direction: column;
         }
         .info-card.show { transform: translateX(0); }
-        
         .btn-analyze { background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%); }
         .btn-analyze:hover { filter: brightness(1.1); }
     </style>
@@ -144,7 +125,6 @@ HTML_TEMPLATE = """
                     </div>
                     <div class="flex flex-wrap gap-2 justify-end items-center" id="scenarioDataTags"></div>
                 </div>
-                
                 <button onclick="switchTab('answer')" class="mt-4 w-full py-4 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition md:hidden">
                     Çözüme Başla <i data-lucide="arrow-right"></i>
                 </button>
@@ -209,10 +189,7 @@ HTML_TEMPLATE = """
     
     <script>
         lucide.createIcons();
-        
-        // --- VERİ ENJEKSİYONU (DIŞARIDAN GELEN JSON) ---
         const scenarios = __SCENARIOS_PLACEHOLDER__;
-        
         let selectedScenarioIndex = 0;
         let startTime = Date.now();
 
@@ -255,7 +232,6 @@ HTML_TEMPLATE = """
             const s = scenarios[selectedScenarioIndex];
             
             switchTab('scenario');
-            
             document.getElementById('categoryBadge').innerText = s.category;
             document.getElementById('scenarioTitle').innerText = s.title;
             document.getElementById('scenarioText').innerHTML = s.text;
@@ -373,6 +349,7 @@ HTML_TEMPLATE = """
         function startDraw(e) { isDrawing=true; const r=e.target.getBoundingClientRect(); ctx.beginPath(); ctx.moveTo(e.clientX-r.left, e.clientY-r.top); }
         function draw(e) { if(!isDrawing)return; const r=e.target.getBoundingClientRect(); ctx.lineTo(e.clientX-r.left, e.clientY-r.top); ctx.stroke(); }
         function clearCanvas() { ctx.clearRect(0,0,document.getElementById('drawingCanvas').width, document.getElementById('drawingCanvas').height); }
+        
         window.addEventListener('resize', () => { resizeCanvas(); });
     </script>
 </body>
@@ -425,6 +402,7 @@ st.markdown("""
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        cursor: pointer;
     }
     .secim-karti:hover {
         transform: scale(1.02);
@@ -534,7 +512,10 @@ elif st.session_state.ekran == 'sinav':
         
         st.markdown(f"<h2 style='text-align:center;'>Hoşgeldin {st.session_state.ad_soyad}, Bugün Ne Yapmak İstersin? 👇</h2><br>", unsafe_allow_html=True)
         
-        col_a, col_b, col_c = st.columns(3)
+        # --- 1. GRUP: SORU ÇÖZÜM MERKEZİ ---
+        st.header("1. Bölüm: 📝 Soru Çözüm Merkezi")
+        col_a, col_b = st.columns(2)
+        
         with col_a:
             st.markdown("""<div class='secim-karti'><h3>📘 TYT Kampı</h3><p>Çıkmış Sorular & Denemeler</p></div>""", unsafe_allow_html=True)
             if st.button("TYT Başlat ➡️", key="btn_tyt"): st.session_state.secim_turu = "TYT"
@@ -543,11 +524,14 @@ elif st.session_state.ekran == 'sinav':
             st.markdown("""<div class='secim-karti'><h3>💼 Meslek Lisesi</h3><p>Alan Dersleri & Konu Testleri</p></div>""", unsafe_allow_html=True)
             if st.button("Meslek Çöz ➡️", key="btn_meslek"): st.session_state.secim_turu = "MESLEK"
 
-        with col_c:
-            st.markdown("""<div class='secim-karti' style='border-color:#38bdf8;'><h3>🧠 Life-Sim</h3><p>Finans & Kriz Yönetim Senaryoları</p></div>""", unsafe_allow_html=True)
-            if st.button("Simülasyonu Aç 🚀", key="btn_life"): 
-                st.session_state.secim_turu = "LIFESIM"
-                st.rerun()
+        st.markdown("---")
+
+        # --- 2. GRUP: SİMÜLASYON ---
+        st.header("2. Bölüm: 🎮 Gerçek Hayat Simülasyonu")
+        st.markdown("""<div class='secim-karti' style='border-color:#38bdf8; height:120px;'><h3>🧠 Life-Sim</h3><p>Ekonomi, Hukuk ve Yönetim Senaryoları ile Kendini Dene!</p></div>""", unsafe_allow_html=True)
+        if st.button("Simülasyonu Başlat 🚀", key="btn_life", use_container_width=True): 
+            st.session_state.secim_turu = "LIFESIM"
+            st.rerun()
         
         st.divider()
         
