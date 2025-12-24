@@ -9,7 +9,7 @@ import pandas as pd
 # --- 1. SAYFA AYARLARI ---
 st.set_page_config(page_title="Dijital Gelişim Programı", page_icon="🟣", layout="wide")
 
-# --- 2. CSS TASARIMI (GETİR KONSEPTİ) ---
+# --- 2. CSS TASARIMI (GETİR KONSEPTİ - DÜZELTİLMİŞ) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
@@ -23,61 +23,54 @@ st.markdown("""
     /* BAŞLIKLAR (MOR) */
     h1, h2, h3, h4 { color: #5D3EBC !important; font-weight: 800 !important; }
     
-    /* KART TASARIMLARI */
-    .giris-kart {
-        background-color: white; padding: 40px; border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(93, 62, 188, 0.15); text-align: center;
-        border-bottom: 6px solid #FFD300; margin-top: 30px;
-    }
-    
-    /* SEÇİM KARTLARI (BUTON YERİNE KART) */
+    /* KART TASARIMLARI (SADECE GÖRSEL) */
     .kategori-karti {
-        background-color: white; padding: 30px; border-radius: 16px;
-        border: 2px solid #eee; text-align: center; transition: all 0.3s ease;
-        height: 200px; display: flex; flex-direction: column;
-        justify-content: center; align-items: center; cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: relative; overflow: hidden;
+        background-color: white; padding: 20px; border-radius: 16px 16px 0 0;
+        border: 2px solid #eee; border-bottom: none;
+        text-align: center; height: 160px; 
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
     }
-    .kategori-karti:hover {
-        border-color: #5D3EBC; transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(93, 62, 188, 0.2);
-    }
-    .karti-ikon { font-size: 40px; margin-bottom: 10px; }
-    .karti-baslik { font-size: 18px; font-weight: bold; color: #5D3EBC; }
+    .karti-ikon { font-size: 50px; margin-bottom: 10px; }
+    .karti-baslik { font-size: 20px; font-weight: bold; color: #5D3EBC; }
     .karti-aciklama { font-size: 12px; color: #888; }
     
-    /* BUTONLAR (GETİR STİLİ) */
-    .stButton>button {
+    /* BUTONLAR (KARTIN ALTINA YAPIŞIK) */
+    div.stButton > button {
         background-color: #5D3EBC !important; 
         color: #FFD300 !important; /* Sarı Yazı */
         border: none !important;
-        border-radius: 12px !important;
-        font-weight: bold !important;
-        padding: 12px 24px !important;
+        border-radius: 0 0 16px 16px !important; /* Üst köşeler düz */
+        font-weight: 800 !important;
+        padding: 15px 24px !important;
         width: 100% !important;
         transition: all 0.2s !important;
         box-shadow: 0 4px 10px rgba(93, 62, 188, 0.3) !important;
+        font-size: 18px !important;
+        text-transform: uppercase !important;
     }
-    .stButton>button:hover {
+    div.stButton > button:hover {
         background-color: #4c329e !important;
         transform: scale(1.02) !important;
+        color: white !important;
     }
     
+    /* GERİ DÖN BUTONU */
+    .back-btn div.stButton > button {
+        background-color: #e0e0e0 !important;
+        color: #333 !important;
+        border-radius: 12px !important;
+        margin-top: 20px !important;
+    }
+
     /* INPUT ALANLARI */
     .stTextInput>div>div>input {
         border-radius: 12px !important; border: 2px solid #e0e0e0 !important;
         padding: 12px !important; color: #333 !important;
     }
-    .stTextInput>div>div>input:focus { border-color: #5D3EBC !important; }
-    
-    /* FOOTER */
-    .footer-text { text-align: center; font-size: 11px; color: #aaa; margin-top: 60px; font-family: monospace; }
     
     /* GİZLEMELER */
     footer {visibility: hidden;} #MainMenu {visibility: hidden;} header {visibility: hidden;}
-    
-    /* Geri Dön Butonu Stili (Özel) */
-    .back-btn button { background-color: #e0e0e0 !important; color: #333 !important; box-shadow: none !important; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -165,7 +158,7 @@ if st.session_state.ekran == 'giris':
         </div>
         """, unsafe_allow_html=True)
         ad = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet")
-        if st.button("SİSTEME GİRİŞ YAP 🚀", use_container_width=True):
+        if st.button("SİSTEME GİRİŞ YAP 🚀"):
             if ad:
                 st.session_state.ad_soyad = ad
                 st.session_state.ekran = 'ana_menu'
@@ -193,37 +186,19 @@ elif st.session_state.ekran == 'ana_menu':
     
     st.markdown(f"<h2 style='text-align:center;'>Hoşgeldin {st.session_state.ad_soyad} 👋</h2><br>", unsafe_allow_html=True)
     
-    # 3 ANA KART
+    # 3 ANA KART (GÖRSEL KART + BUTON)
     c1, c2, c3 = st.columns(3)
     
     with c1:
-        st.markdown("""
-        <div class='kategori-karti' onclick="document.getElementById('b_study').click()">
-            <div class='karti-ikon'>📚</div>
-            <div class='karti-baslik'>Etüt Merkezi</div>
-            <div class='karti-aciklama'>TYT Kampı ve Meslek Soruları ile kendini geliştir.</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div class='kategori-karti'><div class='karti-ikon'>📚</div><div class='karti-baslik'>Etüt Merkezi</div><div class='karti-aciklama'>TYT Kampı ve Meslek Soruları</div></div>""", unsafe_allow_html=True)
         if st.button("Giriş Yap", key="b_study"): st.session_state.aktif_mod = "STUDY_MENU"; st.rerun()
 
     with c2:
-        st.markdown("""
-        <div class='kategori-karti'>
-            <div class='karti-ikon'>🧠</div>
-            <div class='karti-baslik'>Simülasyon</div>
-            <div class='karti-aciklama'>Gerçek hayat senaryoları ile finansal okuryazarlığını artır.</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div class='kategori-karti'><div class='karti-ikon'>🧠</div><div class='karti-baslik'>Simülasyon</div><div class='karti-aciklama'>Finansal Okuryazarlık</div></div>""", unsafe_allow_html=True)
         if st.button("Başlat", key="b_sim"): st.session_state.aktif_mod = "LIFESIM"; st.rerun()
 
     with c3:
-        st.markdown("""
-        <div class='kategori-karti'>
-            <div class='karti-ikon'>🎮</div>
-            <div class='karti-baslik'>Eğlence Modu</div>
-            <div class='karti-aciklama'>Finans İmparatoru ve Asset Matrix ile stres at, para kazan.</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""<div class='kategori-karti'><div class='karti-ikon'>🎮</div><div class='karti-baslik'>Eğlence Modu</div><div class='karti-aciklama'>Oyun Oyna & Para Kazan</div></div>""", unsafe_allow_html=True)
         if st.button("Oyna", key="b_fun"): st.session_state.aktif_mod = "FUN_MENU"; st.rerun()
 
 # 3. ALT MENÜLER VE MODLAR
@@ -308,7 +283,7 @@ elif st.session_state.aktif_mod in ["TYT_COZ", "MESLEK_COZ"]:
         st.balloons()
         st.success(f"🏁 Test Bitti! Doğru: {st.session_state.dogru} | Yanlış: {st.session_state.yanlis}")
         odul = st.session_state.dogru * 150
-        if st.button(f"💰 {odul} ₺ Ödülü Al ve Şirketine Git", type="primary"):
+        if st.button(f"💰 {odul} ₺ Ödülü Al ve Şirketine Git"):
             st.session_state.bekleyen_odul += odul; st.session_state.aktif_mod = "GAME"; st.rerun()
 
 # LIFE SIM
@@ -322,7 +297,7 @@ elif st.session_state.aktif_mod == "LIFESIM":
     btn_disabled = len(analiz_text) < 50
     col_btn1, col_btn2 = st.columns(2)
     with col_btn1:
-        if st.button("✅ Tamamla ve Ödülü Al (250 ₺)", disabled=btn_disabled, type="primary"):
+        if st.button("✅ Tamamla ve Ödülü Al (250 ₺)", disabled=btn_disabled):
             st.session_state.bekleyen_odul += 250; st.session_state.aktif_mod = "GAME"; st.rerun()
     with col_btn2:
         if st.button("Sonraki Senaryo ➡️"):
