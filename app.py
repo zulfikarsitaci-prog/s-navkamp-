@@ -284,6 +284,7 @@ if st.session_state.ekran == 'giris':
     with col2:
         st.markdown("""
         <div class='giris-kart'>
+        <h1>🎓 Bağarası ÇPAL</h1>
             <h1>Muhasebe ve Finansman Alanı Dijital Dönüşüm Projesi</h1>
             <hr>
             <p style="font-size:18px; font-weight:bold; color:#D84315;">
