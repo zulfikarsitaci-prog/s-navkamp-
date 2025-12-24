@@ -327,7 +327,7 @@ st.markdown("""
 if st.session_state.ekran == 'giris':
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("""<div class='giris-kart'><h1>🎓 Bağarası ÇPAL</h1><h2>Hibrit Yaşam & Eğitim Merkezi</h2><hr><p style="font-size:18px; font-weight:bold; color:#D84315;">Muhasebe ve Finansman Alanı Digital Eğitim Merkezi </p><br><p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p></div>""", unsafe_allow_html=True)
+        st.markdown("""<div class='giris-kart'><h1>🎓 Bağarası ÇPAL</h1><h2>Hibrit Yaşam & Eğitim Merkezi</h2><hr><p style="font-size:18px; font-weight:bold; color:#D84315;">Muhasebe ve Finansman Alanı Digital Dönüşüm Projesi </p><br><p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p></div>""", unsafe_allow_html=True)
         ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet Karaduman")
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
