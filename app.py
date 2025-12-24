@@ -24,50 +24,41 @@ if 'bos_sayisi' not in st.session_state: st.session_state.bos_sayisi = 0
 if 'mod' not in st.session_state: st.session_state.mod = ""
 if 'bekleyen_odul' not in st.session_state: st.session_state.bekleyen_odul = 0
 
-# --- 3. DOSYA VE LİNK AYARLARI ---
+# --- 3. DOSYA İSİMLERİ ---
 TYT_PDF_ADI = "tytson8.pdf"
 TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 LIFESIM_JSON_ADI = "lifesim_data.json"
 
-# GOOGLE SHEETS AYARLARI
+# GOOGLE SHEETS LİNKİ
 SHEET_ID = "1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo"
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
-# --- 4. TASARIM (CSS) ---
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
-    .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); font-family: 'Roboto', sans-serif; }
-    h1, h2, h3 { color: #1e3a8a !important; }
-    p, label { color: #374151 !important; font-size: 16px; }
-    .giris-kart { background-color: white; padding: 50px; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); text-align: center; border-top: 6px solid #FF7043; margin-top: 50px; margin-bottom: 20px; }
-    .secim-karti { background-color: white; padding: 25px; border-radius: 15px; border: 2px solid #e5e7eb; text-align: center; transition: all 0.3s ease; height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    .secim-karti:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #FF7043; }
-    .stButton>button { background-color: #FF7043 !important; color: white !important; border-radius: 10px; font-weight: bold; border: none !important; padding: 10px 20px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(255, 112, 67, 0.3); }
-    .stButton>button:hover { background-color: #F4511E !important; transform: scale(1.02); }
-    .stTextInput>div>div>input { border-radius: 10px; border: 2px solid #e5e7eb; padding: 10px; }
-    .footer-text { text-align: center; font-size: 11px; color: #9ca3af; margin-top: 30px; font-family: monospace; }
-    footer {visibility: hidden;} #MainMenu {visibility: hidden;}
-    
-    /* Kart Stilleri */
-    .konu-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 6px solid #2196F3; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .soru-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 5px solid #FF7043; font-size: 18px; margin-bottom: 20px; color: #000 !important; }
-    .stat-card { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; border: 2px solid #FF7043; }
-    .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- 5. VERİ YÜKLEME ---
+# --- 4. GÜVENLİ VERİ YÜKLEME (HATALARI GÖSTERİR VE YEDEK VERİ AÇAR) ---
 def dosya_yukle(dosya_adi):
-    if not os.path.exists(dosya_adi): return {}
+    # 1. Dosya Yoksa Uyarı Ver
+    if not os.path.exists(dosya_adi):
+        # Dosya yoksa yedek veri döndür ki sistem çökmesin
+        if dosya_adi == TYT_JSON_ADI:
+            return {1: {"ders": "Yedek Türkçe", "cevaplar": ["A","B","C","D","E"]}}
+        elif dosya_adi == MESLEK_JSON_ADI:
+            return {"KONU_TARAMA": {"9. Sınıf": {"Yedek Ders": {"Deneme Testi": [{"soru": "Dosya bulunamadı, bu yedek sorudur.", "secenekler": ["A", "B"], "cevap": "A"}]}}}}
+        return {}
+
+    # 2. Dosya Varsa Okumayı Dene
     try:
         with open(dosya_adi, "r", encoding="utf-8") as f:
             data = json.load(f)
-            if dosya_adi == TYT_JSON_ADI: return {int(k): v for k, v in data.items()}
+            if dosya_adi == TYT_JSON_ADI:
+                return {int(k): v for k, v in data.items()}
             return data
-    except: return {}
+    except json.JSONDecodeError as e:
+        st.error(f"⚠️ DİKKAT: '{dosya_adi}' dosyasının içindeki kodlarda hata var! (Virgül veya parantez hatası). Hata: {e}")
+        return {} # Hata varsa boş dön
+    except Exception as e:
+        st.error(f"⚠️ HATA: '{dosya_adi}' okunurken sorun oluştu: {e}")
+        return {}
 
 def load_lifesim_data():
     if os.path.exists(LIFESIM_JSON_ADI):
@@ -79,7 +70,9 @@ def load_lifesim_data():
     return "[]"
 
 def pdf_sayfa_getir(yol, sayfa):
-    if not os.path.exists(yol): st.error("PDF yok"); return
+    if not os.path.exists(yol): 
+        st.warning(f"⚠️ PDF Dosyası ({yol}) GitHub'da bulunamadı. Lütfen yükleyin.")
+        return
     try:
         doc = fitz.open(yol)
         if sayfa > len(doc): return
@@ -104,14 +97,37 @@ def get_leaderboard_data():
                 data.append({"name": str(row[name_col]), "score": int(row[score_col])})
             return json.dumps(data, ensure_ascii=False)
         else:
-            return f"ERROR_COLUMNS|{', '.join(df.columns)}"
-    except Exception as e:
-        return f"ERROR_CONNECTION|{str(e)}"
+            return "ERROR_COLUMNS"
+    except:
+        return "ERROR_CONNECTION"
 
+# VERİLERİ YÜKLE (Hata Toleranslı)
 TYT_VERI = dosya_yukle(TYT_JSON_ADI)
 MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
 KONU_VERI = dosya_yukle(KONU_JSON_ADI)
 SCENARIOS_JSON_STRING = load_lifesim_data()
+
+# --- CSS TASARIMI ---
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
+    .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); font-family: 'Roboto', sans-serif; }
+    h1, h2, h3 { color: #1e3a8a !important; }
+    p, label { color: #374151 !important; font-size: 16px; }
+    .giris-kart { background-color: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; border-top: 6px solid #FF7043; margin-top: 30px; margin-bottom: 20px; }
+    .secim-karti { background-color: white; padding: 25px; border-radius: 15px; border: 2px solid #e5e7eb; text-align: center; transition: all 0.3s ease; height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .secim-karti:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #FF7043; }
+    .stButton>button { background-color: #FF7043 !important; color: white !important; border-radius: 10px; font-weight: bold; border: none !important; padding: 10px 20px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(255, 112, 67, 0.3); }
+    .stButton>button:hover { background-color: #F4511E !important; transform: scale(1.02); }
+    .stTextInput>div>div>input { border-radius: 10px; border: 2px solid #e5e7eb; padding: 10px; }
+    .footer-text { text-align: center; font-size: 10px; color: #9ca3af; margin-top: 50px; font-family: monospace; opacity: 0.7; }
+    .konu-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 6px solid #2196F3; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .soru-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 5px solid #FF7043; font-size: 18px; margin-bottom: 20px; color: #000 !important; }
+    .stat-card { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; border: 2px solid #FF7043; }
+    .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
+    footer {visibility: hidden;} #MainMenu {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
 
 # --- 6. HTML ŞABLONLARI ---
 
@@ -121,7 +137,7 @@ LIFE_SIM_TEMPLATE = """
 """
 LIFE_SIM_HTML = LIFE_SIM_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON_STRING)
 
-# B) OYUN HTML (V5.0 - HARDCORE EKONOMİ)
+# B) OYUN HTML
 GAME_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -180,9 +196,7 @@ GAME_HTML_TEMPLATE = """
         let playerName = "__USER_NAME__";
         let cloudResponse = '__LEADERBOARD_JSON__';
         let cloudLeaderboard = [];
-        
-        // ZORLAŞTIRILMIŞ EKONOMİ AYARLARI
-        const INFLATION_RATE = 1.25; // %25 Artış (Eskisi 1.15)
+        const INFLATION_RATE = 1.25; 
         
         try {
             if(cloudResponse.startsWith("ERROR_COLUMNS")) { console.error("Sütun Hatası"); } 
@@ -190,20 +204,7 @@ GAME_HTML_TEMPLATE = """
             else { cloudLeaderboard = JSON.parse(cloudResponse); }
         } catch(e) { cloudLeaderboard = []; }
 
-        const defaultData = { 
-            money: 0, 
-            startTime: Date.now(), 
-            buildings: [
-                { id: 0, name: "Limonata Tezgahı", baseCost: 25, income: 1, count: 0, icon: "citrus", color: "text-yellow-400", bg: "bg-yellow-400/20" },
-                { id: 1, name: "Simit Arabası", baseCost: 250, income: 4, count: 0, icon: "bike", color: "text-orange-400", bg: "bg-orange-400/20" },
-                { id: 2, name: "YouTube Kanalı", baseCost: 3500, income: 20, count: 0, icon: "youtube", color: "text-red-500", bg: "bg-red-500/20" },
-                { id: 3, name: "E-Ticaret Sitesi", baseCost: 45000, income: 90, count: 0, icon: "shopping-bag", color: "text-blue-400", bg: "bg-blue-400/20" },
-                { id: 4, name: "Yazılım Şirketi", baseCost: 600000, income: 500, count: 0, icon: "code", color: "text-cyan-400", bg: "bg-cyan-400/20" },
-                { id: 5, name: "Fabrika", baseCost: 8500000, income: 3500, count: 0, icon: "factory", color: "text-slate-400", bg: "bg-slate-400/20" },
-                { id: 6, name: "Kripto Borsası", baseCost: 120000000, income: 25000, count: 0, icon: "bitcoin", color: "text-yellow-500", bg: "bg-yellow-500/20" },
-                { id: 7, name: "Uzay Madenciliği", baseCost: 1500000000, income: 100000, count: 0, icon: "rocket", color: "text-purple-500", bg: "bg-purple-500/20" }
-            ] 
-        };
+        const defaultData = { money: 0, startTime: Date.now(), buildings: [{ id: 0, name: "Limonata Tezgahı", baseCost: 25, income: 1, count: 0, icon: "citrus", color: "text-yellow-400", bg: "bg-yellow-400/20" }, { id: 1, name: "Simit Arabası", baseCost: 250, income: 4, count: 0, icon: "bike", color: "text-orange-400", bg: "bg-orange-400/20" }, { id: 2, name: "YouTube Kanalı", baseCost: 3500, income: 20, count: 0, icon: "youtube", color: "text-red-500", bg: "bg-red-500/20" }, { id: 3, name: "E-Ticaret Sitesi", baseCost: 45000, income: 90, count: 0, icon: "shopping-bag", color: "text-blue-400", bg: "bg-blue-400/20" }, { id: 4, name: "Yazılım Şirketi", baseCost: 600000, income: 500, count: 0, icon: "code", color: "text-cyan-400", bg: "bg-cyan-400/20" }, { id: 5, name: "Fabrika", baseCost: 8500000, income: 3500, count: 0, icon: "factory", color: "text-slate-400", bg: "bg-slate-400/20" }, { id: 6, name: "Kripto Borsası", baseCost: 120000000, income: 25000, count: 0, icon: "bitcoin", color: "text-yellow-500", bg: "bg-yellow-500/20" }, { id: 7, name: "Uzay Madenciliği", baseCost: 1500000000, income: 100000, count: 0, icon: "rocket", color: "text-purple-500", bg: "bg-purple-500/20" }] };
         let game = { ...defaultData };
 
         window.onload = function() {
@@ -235,7 +236,6 @@ GAME_HTML_TEMPLATE = """
         }
 
         function claimReward() { game.money += incomingReward; incomingReward = 0; document.getElementById('rewardPopup').classList.add('hidden'); updateUI(); saveGame(); }
-        // TIKLAMA GÜCÜ DÜŞÜRÜLDÜ: CPS * 0.01 (Eskisi 0.05)
         function handleClick(e) { const cps = calculateCPS(); const power = Math.max(1, Math.floor(cps * 0.01)); game.money += power; showFloatingText(e.clientX, e.clientY, `+${formatNumber(power)}`); animateButton(); updateUI(); renderLeaderboard(); }
         function buyItem(id) { const item = game.buildings[id]; const currentCost = calculateCost(item.baseCost, item.count); if (game.money >= currentCost) { game.money -= currentCost; item.count++; updateUI(); saveGame(); } }
         function passiveIncomeLoop() { const cps = calculateCPS(); if (cps > 0) game.money += cps; }
@@ -246,7 +246,6 @@ GAME_HTML_TEMPLATE = """
             document.getElementById('moneyDisplay').innerText = formatNumber(game.money);
             const cps = calculateCPS();
             document.getElementById('cpsDisplay').innerText = formatNumber(cps);
-            // GÖSTERİM DE GÜNCELLENDİ (0.01)
             document.getElementById('clickPowerDisplay').innerText = formatNumber(Math.max(1, Math.floor(cps * 0.01)));
             const list = document.getElementById('marketList');
             if (list.children.length === 0) {
@@ -284,11 +283,11 @@ if st.session_state.ekran == 'giris':
     with col2:
         st.markdown("""
         <div class='giris-kart'>
-        <h1>🎓 Bağarası ÇPAL</h1>
-            <h1>Muhasebe ve Finansman Alanı Dijital Dönüşüm Projesi</h1>
+            <h1>🎓 Bağarası ÇPAL</h1>
+            <h2>Finans & Eğitim Ekosistemi</h2>
             <hr>
             <p style="font-size:18px; font-weight:bold; color:#D84315;">
-                Finans & Eğitim Ekosistemi
+                Muhasebe ve Finansman Alanı Dijital Dönüşüm Projesi
             </p>
             <br>
             <p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p>
@@ -296,15 +295,13 @@ if st.session_state.ekran == 'giris':
         """, unsafe_allow_html=True)
         
         ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet Karaduman")
-        
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
             if ad_soyad_input.strip():
                 st.session_state.ad_soyad = ad_soyad_input
                 st.session_state.ekran = 'sinav'
                 st.rerun()
-            else:
-                st.error("Lütfen adınızı giriniz!")
+            else: st.error("Lütfen adınızı giriniz!")
         
         st.markdown("<div class='footer-text'>Geliştirici: Zülfikar SITACI</div>", unsafe_allow_html=True)
 
