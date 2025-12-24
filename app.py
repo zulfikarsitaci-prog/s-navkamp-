@@ -170,7 +170,7 @@ if st.session_state.ekran == 'giris':
             <p style="font-size:18px; font-weight:bold; color:#D84315;">Muhasebe ve Finansman Dijital Gelişim Programı</p>
         </div>
         """, unsafe_allow_html=True)
-        ad = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet")
+        ad = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet Karaduman")
         if st.button("SİSTEME GİRİŞ YAP 🚀", use_container_width=True):
             if ad:
                 st.session_state.ad_soyad = ad
