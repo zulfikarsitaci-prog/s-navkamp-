@@ -9,7 +9,7 @@ import fitz  # PyMuPDF
 # --- 1. SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası Hibrit Yaşam Merkezi", page_icon="🎓", layout="wide")
 
-# --- 2. KRİTİK DÜZELTME: SESSION STATE BAŞLATMA (EN ÜSTTE OLMALI) ---
+# --- 2. SESSION STATE BAŞLATMA (EN ÜSTTE) ---
 if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
 if 'oturum' not in st.session_state: st.session_state.oturum = False
 if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
@@ -27,12 +27,9 @@ TYT_PDF_ADI = "tytson8.pdf"
 TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
-LIFESIM_JSON_ADI = "lifesim_data.json" # Yeni dosya
+LIFESIM_JSON_ADI = "lifesim_data.json"
 
-# ==============================================================================
-# VERİ YÜKLEME FONKSİYONLARI
-# ==============================================================================
-
+# --- 4. VERİ YÜKLEME FONKSİYONLARI ---
 def dosya_yukle(dosya_adi):
     if not os.path.exists(dosya_adi): return {}
     try:
@@ -78,7 +75,7 @@ MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
 KONU_VERI = dosya_yukle(KONU_JSON_ADI)
 SCENARIOS_JSON_STRING = load_lifesim_data()
 
-# --- LIFE-SIM HTML ŞABLONU (V6.0 - SOKRATES MODU) ---
+# --- LIFE-SIM HTML ŞABLONU ---
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -301,6 +298,7 @@ HTML_TEMPLATE = """
 
 LIFE_SIM_HTML = HTML_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON_STRING)
 
+# --- TASARIM VE CSS ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
@@ -362,6 +360,8 @@ elif st.session_state.ekran == 'sinav':
 
     if not st.session_state.oturum and st.session_state.secim_turu != "LIFESIM":
         st.markdown(f"<h2 style='text-align:center;'>Hoşgeldin {st.session_state.ad_soyad}, Bugün Ne Yapmak İstersin? 👇</h2><br>", unsafe_allow_html=True)
+        
+        # 2 GRUPLU YENİ MENÜ DÜZENİ
         st.header("1. Bölüm: 📝 Soru Çözüm Merkezi")
         col_a, col_b = st.columns(2)
         with col_a:
@@ -370,12 +370,15 @@ elif st.session_state.ekran == 'sinav':
         with col_b:
             st.markdown("""<div class='secim-karti'><h3>💼 Meslek Lisesi</h3><p>Alan Dersleri & Konu Testleri</p></div>""", unsafe_allow_html=True)
             if st.button("Meslek Çöz ➡️", key="btn_meslek"): st.session_state.secim_turu = "MESLEK"
+        
         st.markdown("---")
+        
         st.header("2. Bölüm: 🎮 Gerçek Hayat Simülasyonu")
-        st.markdown("""<div class='secim-karti' style='border-color:#38bdf8; height:120px;'><h3>🧠 Life-Sim</h3><p>İnteraktif Yaşam Koçluğu ve Karar Verme Simülasyonu</p></div>""", unsafe_allow_html=True)
+        st.markdown("""<div class='secim-karti' style='border-color:#38bdf8; height:120px;'><h3>🧠 Life-Sim</h3><p>Sokratik Yöntemle İnteraktif Yaşam Koçluğu</p></div>""", unsafe_allow_html=True)
         if st.button("Simülasyonu Başlat 🚀", key="btn_life", use_container_width=True): 
             st.session_state.secim_turu = "LIFESIM"
             st.rerun()
+        
         st.divider()
         
         if st.session_state.secim_turu == "TYT":
