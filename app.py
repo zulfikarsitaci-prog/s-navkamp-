@@ -8,7 +8,7 @@ import time
 import pandas as pd
 
 # --- 1. SAYFA AYARLARI ---
-st.set_page_config(page_title="Bağarası Hibrit Yaşam Merkezi", page_icon="🎓", layout="wide")
+st.set_page_config(page_title="Dijital Gelişim Programı", page_icon="🎓", layout="wide")
 
 # --- 2. SESSION STATE BAŞLATMA ---
 if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
@@ -35,7 +35,94 @@ LIFESIM_JSON_ADI = "lifesim_data.json"
 SHEET_ID = "1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo"
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
-# --- 4. VERİ YÜKLEME VE LİDERLİK TABLOSU ---
+# --- 4. CSS TASARIMI (RENKLER BURADA) ---
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
+    
+    /* Genel Sayfa Arka Planı */
+    .stApp {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: 'Roboto', sans-serif;
+    }
+    
+    /* Başlıklar ve Yazılar */
+    h1, h2, h3 { color: #1e3a8a !important; }
+    p, label { color: #374151 !important; font-size: 16px; }
+    
+    /* Giriş Kartı */
+    .giris-kart {
+        background-color: white;
+        padding: 50px;
+        border-radius: 20px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        text-align: center;
+        border-top: 6px solid #FF7043;
+        margin-top: 50px;
+        margin-bottom: 20px;
+    }
+    
+    /* Seçim Kartları (Butonlar Gibi) */
+    .secim-karti {
+        background-color: white;
+        padding: 25px;
+        border-radius: 15px;
+        border: 2px solid #e5e7eb;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 160px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .secim-karti:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border-color: #FF7043;
+    }
+    
+    /* Standart Butonlar */
+    .stButton>button {
+        background-color: #FF7043 !important;
+        color: white !important;
+        border-radius: 10px;
+        font-weight: bold;
+        border: none !important;
+        padding: 10px 20px;
+        transition: all 0.2s;
+        box-shadow: 0 4px 6px rgba(255, 112, 67, 0.3);
+    }
+    .stButton>button:hover {
+        background-color: #F4511E !important;
+        transform: scale(1.02);
+    }
+
+    /* Input Alanları */
+    .stTextInput>div>div>input {
+        border-radius: 10px;
+        border: 2px solid #e5e7eb;
+        padding: 10px;
+    }
+    
+    /* Alt Bilgi (Footer) */
+    .footer-text {
+        text-align: center;
+        font-size: 11px;
+        color: #9ca3af;
+        margin-top: 30px;
+        font-family: monospace;
+    }
+    
+    /* Streamlit varsayılan footer gizle */
+    footer {visibility: hidden;}
+    #MainMenu {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
+
+# --- 5. VERİ YÜKLEME ---
 def dosya_yukle(dosya_adi):
     if not os.path.exists(dosya_adi): return {}
     try:
@@ -64,48 +151,32 @@ def pdf_sayfa_getir(yol, sayfa):
         st.image(pix.tobytes(), use_container_width=True)
     except: pass
 
-@st.cache_data(ttl=15) # 15 saniyede bir veriyi yeniler
+@st.cache_data(ttl=15)
 def get_leaderboard_data():
-    """Hata toleranslı veri çekme fonksiyonu"""
     try:
-        # Pandas ile CSV okumaya çalış
         df = pd.read_csv(SHEET_URL)
-        
-        # Sütun isimlerindeki boşlukları temizle (Örn: "Puan " -> "Puan")
         df.columns = [str(c).strip() for c in df.columns]
-        
-        # Olası sütun isimlerini ara (Büyük/Küçük harf duyarsız)
-        name_col = next((c for c in df.columns if c.lower() in ['isim', 'İsim', 'ad', 'name', 'ad soyad']), None)
+        name_col = next((c for c in df.columns if c.lower() in ['isim', 'ad', 'name', 'ad soyad']), None)
         score_col = next((c for c in df.columns if c.lower() in ['puan', 'score', 'skor', 'money']), None)
         
         if name_col and score_col:
-            # Puana göre sırala ve ilk 10'u al
-            df[score_col] = pd.to_numeric(df[score_col], errors='coerce').fillna(0) # Puanları sayıya çevir
+            df[score_col] = pd.to_numeric(df[score_col], errors='coerce').fillna(0)
             df = df.sort_values(by=score_col, ascending=False).head(10)
-            
             data = []
             for _, row in df.iterrows():
-                data.append({
-                    "name": str(row[name_col]),
-                    "score": int(row[score_col])
-                })
+                data.append({"name": str(row[name_col]), "score": int(row[score_col])})
             return json.dumps(data, ensure_ascii=False)
         else:
-            # Sütunlar bulunamadıysa ne bulduğunu döndür (Hata ayıklama için)
-            found_cols = ", ".join(df.columns.tolist())
-            return f"ERROR_COLUMNS|{found_cols}"
-            
+            return "ERROR_COLUMNS"
     except Exception as e:
-        # Genellikle Web'de Yayınla yapılmadıysa HTML döner ve bu hatayı verir
-        return f"ERROR_CONNECTION|{str(e)}"
+        return "ERROR_CONNECTION"
 
-# Verileri Yükle
 TYT_VERI = dosya_yukle(TYT_JSON_ADI)
 MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
 KONU_VERI = dosya_yukle(KONU_JSON_ADI)
 SCENARIOS_JSON_STRING = load_lifesim_data()
 
-# --- 5. HTML ŞABLONLARI ---
+# --- 6. HTML ŞABLONLARI ---
 
 # A) LIFE-SIM ŞABLONU
 LIFE_SIM_TEMPLATE = """
@@ -113,7 +184,7 @@ LIFE_SIM_TEMPLATE = """
 """
 LIFE_SIM_HTML = LIFE_SIM_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON_STRING)
 
-# B) OYUN HTML (V4.1 - GÜÇLENDİRİLMİŞ)
+# B) OYUN HTML
 GAME_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -174,15 +245,10 @@ GAME_HTML_TEMPLATE = """
         let cloudLeaderboard = [];
         const INFLATION_RATE = 1.15; 
         
-        // HATA YÖNETİMİ
         try {
-            if(cloudResponse.startsWith("ERROR_COLUMNS")) { 
-                console.error("Sütun Hatası"); 
-            } else if(cloudResponse.startsWith("ERROR_CONNECTION")) { 
-                console.error("Bağlantı Hatası"); 
-            } else { 
-                cloudLeaderboard = JSON.parse(cloudResponse); 
-            }
+            if(cloudResponse.startsWith("ERROR_COLUMNS")) { console.error("Sütun Hatası"); } 
+            else if(cloudResponse.startsWith("ERROR_CONNECTION")) { console.error("Bağlantı Hatası"); } 
+            else { cloudLeaderboard = JSON.parse(cloudResponse); }
         } catch(e) { cloudLeaderboard = []; }
 
         const defaultData = { money: 0, startTime: Date.now(), buildings: [{ id: 0, name: "Limonata Tezgahı", baseCost: 15, income: 1, count: 0, icon: "citrus", color: "text-yellow-400", bg: "bg-yellow-400/20" }, { id: 1, name: "Simit Arabası", baseCost: 100, income: 5, count: 0, icon: "bike", color: "text-orange-400", bg: "bg-orange-400/20" }, { id: 2, name: "YouTube Kanalı", baseCost: 1100, income: 32, count: 0, icon: "youtube", color: "text-red-500", bg: "bg-red-500/20" }, { id: 3, name: "E-Ticaret Sitesi", baseCost: 12000, income: 150, count: 0, icon: "shopping-bag", color: "text-blue-400", bg: "bg-blue-400/20" }, { id: 4, name: "Yazılım Şirketi", baseCost: 130000, income: 800, count: 0, icon: "code", color: "text-cyan-400", bg: "bg-cyan-400/20" }, { id: 5, name: "Fabrika", baseCost: 1400000, income: 5000, count: 0, icon: "factory", color: "text-slate-400", bg: "bg-slate-400/20" }, { id: 6, name: "Kripto Borsası", baseCost: 20000000, income: 45000, count: 0, icon: "bitcoin", color: "text-yellow-500", bg: "bg-yellow-500/20" }, { id: 7, name: "Uzay Madenciliği", baseCost: 330000000, income: 150000, count: 0, icon: "rocket", color: "text-purple-500", bg: "bg-purple-500/20" }] };
@@ -198,7 +264,6 @@ GAME_HTML_TEMPLATE = """
         function renderLeaderboard() {
             let dataToShow = cloudLeaderboard;
             if(!dataToShow || dataToShow.length === 0) {
-                // Eğer cloud boşsa oyuncunun kendisini göster
                 dataToShow = [{name: playerName, score: game.money}];
             } else {
                 let meFound = false;
@@ -263,16 +328,30 @@ GAME_HTML_TEMPLATE = """
 if st.session_state.ekran == 'giris':
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("""<div class='giris-kart'><h1>🎓 Bağarası ÇPAL</h1><h2>Hibrit Yaşam & Eğitim Merkezi</h2><hr><p style="font-size:18px; font-weight:bold; color:#D84315;">Muhasebe ve Finansman Alanı Digital Gelişim Programı</p><br><p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p></div>""", unsafe_allow_html=True)
+        st.markdown("""
+        <div class='giris-kart'>
+            <h1>Muhasebe ve Finansman Dijital Gelişim Programı</h1>
+            <hr>
+            <p style="font-size:18px; font-weight:bold; color:#D84315;">
+                Geleceğe Hazırlık Simülasyonu
+            </p>
+            <br>
+            <p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
         ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet Karaduman")
+        
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
             if ad_soyad_input.strip():
                 st.session_state.ad_soyad = ad_soyad_input
                 st.session_state.ekran = 'sinav'
                 st.rerun()
-            else: st.error("Lütfen adınızı giriniz!")
-        st.markdown("""<div class='imza-container'><div class='imza'>Zülfikar SITACI & Mustafa BAĞCIK</div></div>""", unsafe_allow_html=True)
+            else:
+                st.error("Lütfen adınızı giriniz!")
+        
+        st.markdown("<div class='footer-text'>Geliştirici: Zülfikar SITACI</div>", unsafe_allow_html=True)
 
 elif st.session_state.ekran == 'sinav':
     with st.sidebar:
@@ -287,6 +366,7 @@ elif st.session_state.ekran == 'sinav':
             st.session_state.ekran = 'giris'
             st.session_state.oturum = False
             st.rerun()
+        st.markdown("<div class='footer-text'>Geliştirici: Zülfikar SITACI</div>", unsafe_allow_html=True)
 
     # ANA MENÜ
     if not st.session_state.oturum and st.session_state.secim_turu not in ["LIFESIM", "GAME"]:
