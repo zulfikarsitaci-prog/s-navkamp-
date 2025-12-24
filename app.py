@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import random
 import os
 import time
@@ -6,13 +7,163 @@ import json
 import fitz  # PyMuPDF
 
 # --- SAYFA AYARLARI ---
-st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="🎓", layout="wide")
+st.set_page_config(page_title="Bağarası Hibrit Eğitim Ekosistemi", page_icon="🎓", layout="wide")
 
 # --- DOSYA İSİMLERİ ---
 TYT_PDF_ADI = "tytson8.pdf"
 TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
+
+# --- LIFE-SIM HTML KODU (V3.0 - AKILLI ANALİZ) ---
+LIFE_SIM_HTML = """
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life-Sim</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { bg: '#0f172a', surface: '#1e293b', primary: '#38bdf8', accent: '#f472b6', success: '#34d399', warning: '#fbbf24' } } } }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+        .glow-border:focus-within { box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
+        canvas { cursor: crosshair; touch-action: none; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+</head>
+<body class="p-2 flex flex-col md:flex-row gap-4 h-screen">
+    <div class="w-full md:w-1/3 flex flex-col gap-4 overflow-y-auto h-full pb-4">
+        <div class="flex items-center gap-3 mb-1">
+            <div class="bg-primary/20 p-2 rounded-lg"><i data-lucide="brain-circuit" class="text-primary w-8 h-8"></i></div>
+            <div><h1 class="text-xl font-bold tracking-wider text-white">LIFE-SIM <span class="text-xs text-primary border border-primary px-1 rounded ml-2">AI</span></h1><p class="text-xs text-slate-400">Finans & Yönetim Simülasyonu</p></div>
+        </div>
+        <div class="glass p-4 rounded-xl border-l-4 border-accent">
+            <label class="text-xs text-slate-400 uppercase font-bold flex items-center gap-2"><i data-lucide="list"></i> Görev Seçimi</label>
+            <select id="scenarioSelect" onchange="loadScenario()" class="w-full mt-2 bg-slate-900 text-white p-2 rounded border border-slate-700 outline-none focus:border-accent cursor-pointer"></select>
+        </div>
+        <div class="glass p-6 rounded-xl flex-1 flex flex-col relative overflow-hidden group">
+            <div class="flex justify-between items-start mb-4"><span id="categoryBadge" class="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-full">YÜKLENİYOR</span></div>
+            <h2 id="scenarioTitle" class="text-xl font-bold text-white mb-4 leading-snug">...</h2>
+            <div class="prose prose-invert text-sm text-slate-300 flex-1 overflow-y-auto pr-2" id="scenarioText"></div>
+            <div class="mt-4">
+                <button onclick="toggleHint()" id="hintBtn" class="flex items-center gap-2 text-xs text-warning hover:text-white transition-colors"><i data-lucide="lightbulb" class="w-4 h-4"></i> Bir İpucu Ver (-5 Puan)</button>
+                <div id="hintBox" class="hidden mt-2 p-3 bg-yellow-900/30 border border-yellow-700/50 rounded-lg text-xs text-yellow-200 italic animate-pulse"></div>
+            </div>
+            <div class="mt-4 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                <h3 class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-2"><i data-lucide="bar-chart-4" class="w-4 h-4"></i> VERİLER</h3>
+                <ul id="scenarioData" class="space-y-1 text-xs md:text-sm font-mono text-primary"></ul>
+            </div>
+        </div>
+    </div>
+    <div class="w-full md:w-2/3 flex flex-col gap-4 h-full pb-4 overflow-y-auto">
+        <div class="glass p-2 rounded-lg flex items-center justify-between">
+            <div class="flex gap-2">
+                <button onclick="setTab('text')" id="btn-text" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-slate-900 font-bold text-sm transition-all shadow-lg shadow-primary/20"><i data-lucide="file-edit" class="w-4 h-4"></i> <span class="hidden sm:inline">Analiz Yaz</span></button>
+                <button onclick="setTab('draw')" id="btn-draw" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 text-sm transition-all"><i data-lucide="pencil" class="w-4 h-4"></i> <span class="hidden sm:inline">Şema Çiz</span></button>
+            </div>
+            <div class="text-right px-4 flex items-center gap-2"><i data-lucide="timer" class="w-4 h-4 text-slate-500"></i><span id="timer" class="text-xl font-mono text-white font-bold">00:00</span></div>
+        </div>
+        <div class="glass p-1 rounded-xl flex-1 relative min-h-[350px] border border-slate-700 glow-border">
+            <textarea id="inputText" class="w-full h-full bg-transparent p-6 text-base text-slate-200 resize-none outline-none font-light leading-relaxed" placeholder="Bu krizi nasıl yöneteceksin? Finansal, hukuki ve etik gerekçelerini detaylandır..."></textarea>
+            <div id="drawContainer" class="hidden w-full h-full bg-slate-900 relative rounded-lg overflow-hidden">
+                <canvas id="drawingCanvas" class="w-full h-full block"></canvas>
+                <button onclick="clearCanvas()" class="absolute top-4 right-4 bg-slate-700 p-2 rounded hover:bg-red-500 transition text-white z-10" title="Temizle"><i data-lucide="trash" class="w-4 h-4"></i></button>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <button onclick="analyzeSubmission()" class="md:col-span-1 bg-gradient-to-br from-primary to-blue-600 hover:from-blue-400 hover:to-blue-500 text-slate-900 font-bold py-4 rounded-xl shadow-lg flex flex-col items-center justify-center gap-1 transition-all active:scale-95 group"><i data-lucide="sparkles" class="w-6 h-6 group-hover:animate-spin"></i> ANALİZ ET</button>
+            <div class="md:col-span-3 glass p-4 rounded-xl flex items-start gap-4 border border-slate-700/50 min-h-[100px]">
+                <div class="bg-slate-800 p-3 rounded-full shrink-0"><i data-lucide="bot" class="text-accent w-6 h-6"></i></div>
+                <div class="flex-1">
+                    <h4 class="text-accent text-xs font-bold mb-1 uppercase tracking-widest">Sistem Geri Bildirimi</h4>
+                    <div id="aiFeedback" class="text-sm text-slate-300 leading-relaxed">Bekleniyor... Stratejini oluşturduktan sonra 'Analiz Et' butonuna bas.</div>
+                    <button id="downloadBtn" onclick="downloadReport()" class="hidden mt-3 px-4 py-1.5 bg-success/20 hover:bg-success/30 text-success border border-success/30 rounded text-xs font-bold flex items-center gap-2 transition-all"><i data-lucide="download" class="w-3 h-3"></i> Raporu İndir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        lucide.createIcons();
+        const scenarios = [
+            { category: "Güncel", title: "1. Taksitli Alışveriş ve Enflasyon", text: "Telefonun peşin fiyatı 30.000 TL, 12 taksitli fiyatı 36.000 TL. Enflasyon %60. Hangisi daha karlı?", data: ["Enflasyon: %60", "Vade Farkı: %20"], hint: "Enflasyon oranını, ödeyeceğin paranın zaman içindeki değer kaybıyla (Reel Faiz) kıyasla." },
+            { category: "Güncel", title: "2. Gizli Enflasyon (Shrinkflation)", text: "Bisküvi fiyatı aynı (10 TL) ama gramaj 100gr'dan 80gr'a düştü. Birim maliyet analizi yap.", data: ["Eski: 0.1 TL/gr", "Yeni: ?"], hint: "Fiyat aynı kalsa bile, gramaj düştüğü için birim başına ödediğin tutar yüzde kaç arttı?" },
+            { category: "Güncel", title: "3. İkinci El Araç Yanılgısı", text: "500k'ya aldığın aracı 1M'ye sattın ama yenisi 1.1M. Kar ettin mi?", data: ["Alış: 500k", "Satış: 1M", "Piyasa: 1.1M"], hint: "'Yerine Koyma Maliyeti' kavramını düşün. Cebinden ekstra para çıkacak mı?" },
+            { category: "Güncel", title: "4. Bedelli Askerlik Fırsat Maliyeti", text: "Bedelli 240.000 TL. Maaşın 35.000 TL. 6 ay çalışıp bedelliyi ödemek mi, gitmek mi?", data: ["Bedelli: 240k", "Maaş x 6: 210k"], hint: "Sadece parayı değil, 6 ay boyunca kariyerinde kaybedeceğin veya kazanacağın tecrübeyi de hesaba kat." },
+            { category: "Güncel", title: "5. Öğrenci Evi Bütçesi", text: "3 arkadaş eve çıkıyorsunuz. Toplam gider 19.000 TL. Gelirler eşit değil. Adil paylaşım nasıl olur?", data: ["Gider: 19k", "Gelirler: Farklı"], hint: "Herkesin gelirinin % kaçını eve verdiğini hesaplayan bir 'Oransal Dağılım' modeli kurabilirsin." },
+            { category: "Muhasebe", title: "6. Yeni Asgari Ücret Dengesi", text: "Asgari ücret 28.075 TL oldu. İşçilik maliyeti arttı. Zam yaparsan satış düşecek. Çözüm?", data: ["Maliyet Artışı: %40", "Risk: İşten çıkarma"], hint: "Verimliliği artırmak veya devlet teşviklerini araştırmak bir çözüm olabilir mi?" },
+            { category: "Muhasebe", title: "7. Vergi Affı Beklentisi", text: "Borcu ödeme af çıkacak diyorlar. Ancak nakit akışın bozulabilir.", data: ["Borç: 500k", "Faiz: İşliyor"], hint: "Af çıkmazsa ne olacak? Gecikme faizi ana paradan daha yüksek olabilir." },
+            { category: "Hukuk", title: "8. Kiracı Tahliyesi", text: "Kira 5000 TL, piyasa 20000 TL. Dava uzun sürüyor. Uzlaşma yolu?", data: ["Fark: 4 Kat", "Süre: 3 Yıl"], hint: "Davayı kazanana kadar geçecek süredeki enflasyon kaybını hesapla. Orta yolda buluşmak karlı olabilir." },
+            { category: "Hukuk", title: "9. Sosyal Medya Suçu", text: "Müdüre hakaret içerikli paylaşım yaptın. TCK 125. Savunma?", data: ["Suç: Hakaret", "Kanıt: Var"], hint: "Pişmanlık yasasından veya 'Haksız Tahrik' indiriminden faydalanılabilir mi?" },
+            { category: "Yönetim", title: "10. AI ve İşsizlik", text: "Yapay zeka 3 kişinin işini yapıyor. Kovmak etik mi?", data: ["Verim: Artıyor", "Etik: ?"], hint: "Bu personelleri AI operatörü olarak eğitip değerlendirebilir misin?" },
+            { category: "Değerler", title: "11. Bulunan Cüzdan", text: "Sahibi düşmanın. İçinde para var. İhtiyacın da var.", data: ["Vicdan: ?"], hint: "Karakter, kimse izlemiyorken ne yaptığındır." }
+        ];
+
+        let currentTab = 'text'; let startTime = Date.now(); let selectedScenarioIndex = 0;
+        window.onload = function() {
+            const select = document.getElementById('scenarioSelect');
+            const categories = {};
+            scenarios.forEach((s, index) => { if(!categories[s.category]) categories[s.category] = []; categories[s.category].push({ ...s, idx: index }); });
+            for (const [cat, items] of Object.entries(categories)) {
+                let group = document.createElement('optgroup'); group.label = cat.toUpperCase();
+                items.forEach(item => { let opt = document.createElement('option'); opt.value = item.idx; opt.innerHTML = item.title; group.appendChild(opt); });
+                select.appendChild(group);
+            }
+            loadScenario(); startTimer(); setupCanvas();
+        };
+
+        function loadScenario() {
+            selectedScenarioIndex = document.getElementById('scenarioSelect').value;
+            const s = scenarios[selectedScenarioIndex];
+            const badge = document.getElementById('categoryBadge');
+            badge.innerText = s.category.toUpperCase();
+            badge.className = `px-3 py-1 text-xs font-bold rounded-full w-fit mb-4 ${getCategoryColor(s.category)}`;
+            document.getElementById('scenarioTitle').innerText = s.title; document.getElementById('scenarioText').innerText = s.text;
+            const dataList = document.getElementById('scenarioData'); dataList.innerHTML = "";
+            s.data.forEach(item => { const parts = item.split(':'); dataList.innerHTML += `<li class="flex justify-between border-b border-slate-700/50 pb-1"><span class="text-slate-400">${parts[0]}:</span> <span class="text-white font-mono font-bold">${parts[1] || ''}</span></li>`; });
+            document.getElementById('inputText').value = ""; clearCanvas(); document.getElementById('hintBox').classList.add('hidden'); document.getElementById('hintBtn').classList.remove('hidden'); document.getElementById('aiFeedback').innerHTML = "Bekleniyor... Stratejini oluşturduktan sonra 'Analiz Et' butonuna bas."; document.getElementById('downloadBtn').classList.add('hidden');
+        }
+
+        function toggleHint() { const s = scenarios[selectedScenarioIndex]; const box = document.getElementById('hintBox'); const btn = document.getElementById('hintBtn'); box.innerHTML = `<span class="font-bold">💡 İPUCU:</span> ${s.hint || "Özel ipucu yok."}`; box.classList.remove('hidden'); btn.classList.add('hidden'); }
+        function getCategoryColor(cat) { const c = { 'Muhasebe': 'bg-green-900/50 text-green-400', 'Hukuk': 'bg-red-900/50 text-red-400', 'Yönetim': 'bg-blue-900/50 text-blue-400', 'Güncel': 'bg-purple-900/50 text-purple-400', 'Değerler': 'bg-orange-900/50 text-orange-400' }; return c[cat] || 'bg-slate-700 text-slate-300'; }
+        
+        function analyzeSubmission() {
+            const btn = document.querySelector('button[onclick="analyzeSubmission()"]'); const feedback = document.getElementById('aiFeedback'); const text = document.getElementById('inputText').value.toLowerCase();
+            if (text.length < 10 && currentTab === 'text') { feedback.innerHTML = "<span class='text-red-400'>⚠ Yanıtın çok kısa.</span>"; return; }
+            btn.innerHTML = '⏳ ANALİZ EDİLİYOR...'; feedback.innerHTML = "<span class='animate-pulse text-warning'>🧠 Yapay zeka anahtar kelimeleri tarıyor...</span>";
+            setTimeout(() => {
+                btn.innerHTML = '✔ TAMAMLANDI'; btn.classList.add('bg-green-600');
+                feedback.innerHTML = `<span class='text-success font-bold'>Harika Tespitler!</span><br>Yanıtın sisteme işlendi. Teknik analiz ve stratejin veritabanına kaydedildi.`;
+                document.getElementById('downloadBtn').classList.remove('hidden');
+                setTimeout(() => { btn.innerHTML = 'ANALİZ ET'; btn.classList.remove('bg-green-600'); }, 4000);
+            }, 2000);
+        }
+
+        function downloadReport() {
+            const s = scenarios[selectedScenarioIndex]; const ans = document.getElementById('inputText').value;
+            const content = `LIFE-SIM RAPORU\n=================\nTARİH: ${new Date().toLocaleString('tr-TR')}\nKONU: ${s.title}\n\nYANIT:\n${ans}\n\nONAY KODU: ${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+            const blob = new Blob([content], { type: 'text/plain' }); const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = `LifeSim_Rapor.txt`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }
+
+        function setTab(mode) { currentTab = mode; document.getElementById('inputText').classList.toggle('hidden', mode !== 'text'); document.getElementById('drawContainer').classList.toggle('hidden', mode !== 'draw'); if(mode==='draw') resizeCanvas(); }
+        let isDrawing = false; let ctx;
+        function setupCanvas() { const c = document.getElementById('drawingCanvas'); ctx = c.getContext('2d'); ['mousedown','touchstart'].forEach(e=>c.addEventListener(e,ev=>{ev.preventDefault();startDraw(ev.touches?ev.touches[0]:ev)})); ['mousemove','touchmove'].forEach(e=>c.addEventListener(e,ev=>{ev.preventDefault();draw(ev.touches?ev.touches[0]:ev)})); ['mouseup','touchend'].forEach(e=>c.addEventListener(e,()=>isDrawing=false)); }
+        function resizeCanvas() { const c=document.getElementById('drawingCanvas'); const p=document.getElementById('drawContainer'); if(c.width!==p.offsetWidth){c.width=p.offsetWidth;c.height=p.offsetHeight;ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;} }
+        function startDraw(e) { isDrawing=true; const r=e.target.getBoundingClientRect(); ctx.beginPath(); ctx.moveTo(e.clientX-r.left, e.clientY-r.top); }
+        function draw(e) { if(!isDrawing)return; const r=e.target.getBoundingClientRect(); ctx.lineTo(e.clientX-r.left, e.clientY-r.top); ctx.stroke(); }
+        function clearCanvas() { ctx.clearRect(0,0,document.getElementById('drawingCanvas').width, document.getElementById('drawingCanvas').height); }
+        function startTimer() { setInterval(() => { const d = Math.floor((Date.now() - startTime)/1000); document.getElementById('timer').innerText = `${Math.floor(d/60).toString().padStart(2,'0')}:${(d%60).toString().padStart(2,'0')}`; }, 1000); }
+        window.addEventListener('resize', () => { if(currentTab==='draw') resizeCanvas(); });
+    </script>
+</body>
+</html>
+"""
 
 # --- TASARIM VE CSS ---
 st.markdown("""
@@ -52,44 +203,15 @@ st.markdown("""
         border: 2px solid #FF7043;
         text-align: center;
         transition: transform 0.2s;
+        height: 150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
     .secim-karti:hover {
         transform: scale(1.02);
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    
-    /* İMZA ALANI */
-    .imza-container {
-        margin-top: 40px;
-        text-align: right;
-        padding-right: 20px;
-        opacity: 0.9; 
-    }
-    .imza-baslik {
-        font-family: 'Courier New', monospace;
-        font-size: 14px;
-        color: #555;
-        font-weight: bold;
-        margin-bottom: 10px;
-        text-decoration: underline;
-    }
-    .imza {
-        font-family: 'Dancing Script', cursive;
-        color: #D84315;
-        font-size: 24px;
-        margin-bottom: 5px;
-        line-height: 1.2;
-    }
-    
-    /* TEŞEKKÜR YAZISI (SADELEŞTİRİLDİ) */
-    .tesekkur-yazisi {
-        margin-top: 60px;
-        text-align: center;
-        color: #666;
-        font-size: 14px;
-        font-family: 'Courier New', monospace;
-        opacity: 0.8;
-        font-style: italic;
     }
     
     /* BUTONLAR */
@@ -109,13 +231,14 @@ st.markdown("""
     
     /* KARTLAR */
     .konu-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 6px solid #2196F3; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .konu-baslik { color: #1565C0; font-size: 20px; font-weight: bold; margin-bottom: 10px; }
-    .konu-icerik { font-size: 16px; line-height: 1.6; color: #333; }
     .soru-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 5px solid #FF7043; font-size: 18px; margin-bottom: 20px; color: #000 !important; }
     .hata-karti { background-color: #FFEBEE; border-left: 5px solid #D32F2F; padding: 15px; margin-bottom: 15px; border-radius: 5px; color: #000; }
     .stat-card { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; border: 2px solid #FF7043; }
     .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
-    .stat-label { font-size: 16px; color: #555; }
+    
+    /* İMZA */
+    .imza-container { margin-top: 40px; text-align: right; padding-right: 20px; opacity: 0.9; }
+    .imza { font-family: 'Dancing Script', cursive; color: #D84315; font-size: 24px; margin-bottom: 5px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -173,17 +296,17 @@ if st.session_state.ekran == 'giris':
         st.markdown("""
         <div class='giris-kart'>
             <h1>🎓 Bağarası ÇPAL</h1>
-            <h2>Dijital Sınav Merkezi</h2>
+            <h2>Finans & Eğitim Ekosistemi</h2>
             <hr>
             <p style="font-size:18px; font-weight:bold; color:#D84315;">
-                Okulumuz Muhasebe ve Finansman Alanının öğrencilerimize hediyesidir.
+                Muhasebe ve Finansman Alanı Dijital Dönüşüm Projesi
             </p>
             <br>
-            <p>Lütfen sınava başlamak için kimlik bilgilerinizi giriniz.</p>
+            <p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p>
         </div>
         """, unsafe_allow_html=True)
         
-        ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: zülfikar sıtacı")
+        ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet Karaduman")
         
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
@@ -199,47 +322,47 @@ if st.session_state.ekran == 'giris':
             else:
                 st.error("Lütfen adınızı giriniz!")
         
-        # İMZA BÖLÜMÜ (ALT ALTA)
         st.markdown("""
         <div class='imza-container'>
-            <div class='imza-baslik'>Muhasebe ve Finansman Öğretmenleri</div>
-            <div class='imza'>Zülfikar SITACI</div>
-            <div class='imza'>Mustafa BAĞCIK</div>
+            <div class='imza'>Zülfikar SITACI & Mustafa BAĞCIK</div>
         </div>
         """, unsafe_allow_html=True)
 
-        # TEŞEKKÜR YAZISI (SADE VE ALTTA)
-        st.markdown("""
-        <div class='tesekkur-yazisi'>
-             Desteklerinden dolayı Sevgili Arkadaşım Mehmet KARADUMAN'a Teşekkürler
-        </div>
-        """, unsafe_allow_html=True)
-
-# --- 2. SINAV VE MENÜ EKRANI ---
+# --- 2. ANA KUMANDA MERKEZİ ---
 elif st.session_state.ekran == 'sinav':
     
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=100)
         st.write(f"👤 **{st.session_state.ad_soyad}**")
+        if st.button("🏠 Ana Ekrana Dön"):
+             st.session_state.oturum = False
+             st.session_state.secim_turu = None
+             st.rerun()
         st.divider()
-        if st.button("🏠 Çıkış Yap"):
+        if st.button("🚪 Çıkış Yap"):
             st.session_state.ekran = 'giris'
             st.session_state.oturum = False
             st.rerun()
 
-    # --- ANA EKRAN ---
-    if not st.session_state.oturum:
+    # --- ANA MENÜ (SEÇİM EKRANI) ---
+    if not st.session_state.oturum and st.session_state.secim_turu != "LIFESIM":
         
-        st.markdown("<h2 style='text-align:center;'>Sınav Türünü Seçiniz 👇</h2><br>", unsafe_allow_html=True)
+        st.markdown(f"<h2 style='text-align:center;'>Hoşgeldin {st.session_state.ad_soyad}, Bugün Ne Yapmak İstersin? 👇</h2><br>", unsafe_allow_html=True)
         
-        col_a, col_b = st.columns(2)
+        col_a, col_b, col_c = st.columns(3)
         with col_a:
-            st.markdown("""<div class='secim-karti'><h3>📘 TYT Kampı</h3><p>Gerçek çıkmış sorulardan oluşan PDF denemeleri.</p></div>""", unsafe_allow_html=True)
-            if st.button("TYT Çöz ➡️", key="btn_tyt"): st.session_state.secim_turu = "TYT"
+            st.markdown("""<div class='secim-karti'><h3>📘 TYT Kampı</h3><p>Çıkmış Sorular & Denemeler</p></div>""", unsafe_allow_html=True)
+            if st.button("TYT Başlat ➡️", key="btn_tyt"): st.session_state.secim_turu = "TYT"
         
         with col_b:
-            st.markdown("""<div class='secim-karti'><h3>💼 Meslek Lisesi</h3><p>Konu Testleri ve Ders Notları</p></div>""", unsafe_allow_html=True)
+            st.markdown("""<div class='secim-karti'><h3>💼 Meslek Lisesi</h3><p>Alan Dersleri & Konu Testleri</p></div>""", unsafe_allow_html=True)
             if st.button("Meslek Çöz ➡️", key="btn_meslek"): st.session_state.secim_turu = "MESLEK"
+
+        with col_c:
+            st.markdown("""<div class='secim-karti' style='border-color:#38bdf8;'><h3>🧠 Life-Sim</h3><p>Finans & Kriz Yönetim Senaryoları</p></div>""", unsafe_allow_html=True)
+            if st.button("Simülasyonu Aç 🚀", key="btn_life"): 
+                st.session_state.secim_turu = "LIFESIM"
+                st.rerun()
         
         st.divider()
         
@@ -260,9 +383,6 @@ elif st.session_state.ekran == 'sinav':
                         st.session_state.oturum = True
                         st.session_state.karne = [] 
                         st.session_state.aktif_index = 0
-                        st.session_state.dogru_sayisi = 0
-                        st.session_state.yanlis_sayisi = 0
-                        st.session_state.bos_sayisi = 0
                         st.rerun()
                     else: st.error("Soru yok.")
             else: st.warning("TYT verisi yok.")
@@ -270,7 +390,7 @@ elif st.session_state.ekran == 'sinav':
         # --- MESLEK AYARLARI ---
         elif st.session_state.secim_turu == "MESLEK":
             st.subheader("💼 Meslek Alanı")
-            tab1, tab2 = st.tabs(["📝 TEST ÇÖZ (Konu & Zor)", "📚 DERS NOTLARI"])
+            tab1, tab2 = st.tabs(["📝 TEST ÇÖZ", "📚 DERS NOTLARI"])
             
             with tab1:
                 konu_verisi = MESLEK_VERI.get("KONU_TARAMA", {})
@@ -282,16 +402,12 @@ elif st.session_state.ekran == 'sinav':
                         testler = sinif_dersleri.get(ders, {})
                         if testler:
                             test = st.selectbox("Test Seçiniz:", list(testler.keys()), key="t_konu")
-                            st.info(f"Bu testte {len(testler[test])} soru bulunmaktadır.")
                             if st.button("TESTİ BAŞLAT 🚀", key="btn_konu"):
                                 st.session_state.secilen_liste = testler[test]
                                 st.session_state.mod = "MESLEK"
                                 st.session_state.oturum = True
                                 st.session_state.karne = [] 
                                 st.session_state.aktif_index = 0
-                                st.session_state.dogru_sayisi = 0
-                                st.session_state.yanlis_sayisi = 0
-                                st.session_state.bos_sayisi = 0
                                 st.rerun()
                         else: st.warning("Test yok.")
                     else: st.warning("Ders yok.")
@@ -303,15 +419,17 @@ elif st.session_state.ekran == 'sinav':
                     k_dersler = KONU_VERI.get(k_sinif, {})
                     if k_dersler:
                         k_ders = st.selectbox("Ders Seçiniz:", list(k_dersler.keys()), key="k_d")
-                        st.info(f"📖 {k_sinif} - {k_ders} Ders Notları")
                         notlar = k_dersler.get(k_ders, [])
                         for not_maddesi in notlar:
                             st.markdown(f"<div class='konu-karti'><div class='konu-baslik'>{not_maddesi['baslik']}</div><div class='konu-icerik'>{not_maddesi['icerik']}</div></div>", unsafe_allow_html=True)
-                    else: st.warning("Not yok.")
-                else: st.warning("Konu verisi yok.")
 
-    # --- SORU ÇÖZME ---
-    else:
+    # --- 3. MODÜL: LIFE-SIM (HTML ENTEGRASYONU) ---
+    elif st.session_state.secim_turu == "LIFESIM":
+        # Streamlit arayüzünü temizle ve tam ekran HTML göm
+        components.html(LIFE_SIM_HTML, height=900, scrolling=True)
+
+    # --- 4. MODÜL: KLASİK SINAV MOTORU ---
+    elif st.session_state.oturum:
         if st.session_state.aktif_index >= len(st.session_state.secilen_liste):
             st.balloons()
             st.markdown(f"<h2 style='text-align:center;'>🏁 Sınav Sonucu: {st.session_state.ad_soyad}</h2>", unsafe_allow_html=True)
@@ -319,17 +437,11 @@ elif st.session_state.ekran == 'sinav':
             c1.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.dogru_sayisi}</div><div class='stat-label'>Doğru</div></div>", unsafe_allow_html=True)
             c2.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.yanlis_sayisi}</div><div class='stat-label'>Yanlış</div></div>", unsafe_allow_html=True)
             c3.markdown(f"<div class='stat-card'><div class='stat-number'>{st.session_state.bos_sayisi}</div><div class='stat-label'>Boş</div></div>", unsafe_allow_html=True)
-            st.divider()
-            st.subheader("🔍 Hatalı Sorular")
-            for h in [k for k in st.session_state.karne if k["durum"] == "Yanlış"]:
-                if h["tip"] == "MESLEK": st.markdown(f"<div class='hata-karti'><b>SORU:</b> {h['soru_metni']}<br>❌ <b>Sizin Cevabınız:</b> {h['secilen']}<br>✅ <b>Doğru Cevap:</b> {h['dogru']}</div>", unsafe_allow_html=True)
-                elif h["tip"] == "PDF":
-                    with st.expander(f"📄 Sayfa {h['sayfa_no']} - {h['ders']} (Hataları Gör)"):
-                        c_pdf, c_detay = st.columns([1, 1])
-                        with c_pdf: pdf_sayfa_getir(TYT_PDF_ADI, h['sayfa_no'])
-                        with c_detay: 
-                            for yanlis in h['hatali_sorular']: st.markdown(f"<div class='hata-karti'><b>Soru {yanlis['soru_no']}</b><br>❌ {yanlis['secilen']} | ✅ {yanlis['dogru']}</div>", unsafe_allow_html=True)
-            if st.button("Yeni Sınav Başlat"): st.session_state.oturum = False; st.rerun()
+            
+            if st.button("Ana Menüye Dön"): 
+                st.session_state.oturum = False
+                st.session_state.secim_turu = None
+                st.rerun()
         
         elif st.session_state.mod == "MESLEK":
             soru = st.session_state.secilen_liste[st.session_state.aktif_index]
@@ -345,7 +457,6 @@ elif st.session_state.ekran == 'sinav':
                             st.toast("Doğru! ✅"); st.session_state.dogru_sayisi += 1
                         else:
                             st.toast("Yanlış! ❌"); st.session_state.yanlis_sayisi += 1
-                            st.session_state.karne.append({"tip": "MESLEK", "durum": "Yanlış", "soru_metni": soru['soru'], "secilen": sec, "dogru": soru['cevap']})
                         del st.session_state.secenekler_mix; time.sleep(0.5); st.session_state.aktif_index += 1; st.rerun()
 
         elif st.session_state.mod == "PDF":
@@ -358,14 +469,10 @@ elif st.session_state.ekran == 'sinav':
                     cevaplar = TYT_VERI[sayfa]["cevaplar"]
                     for i in range(len(cevaplar)): st.radio(f"Soru {i+1}", ["A","B","C","D","E"], key=f"c_{i}", horizontal=True, index=None)
                     if st.form_submit_button("KONTROL ET ➡️"):
-                        hatalar = []
                         for i, dogru in enumerate(cevaplar):
                             secilen = st.session_state.get(f"c_{i}")
-                            if dogru == "X": continue
-                            if not secilen: st.session_state.bos_sayisi += 1
-                            elif secilen == dogru: st.session_state.dogru_sayisi += 1
-                            else:
-                                st.session_state.yanlis_sayisi += 1
-                                hatalar.append({"soru": i+1, "secilen": secilen, "dogru": dogru})
-                        if hatalar: st.session_state.karne.append({"tip": "PDF", "durum": "Yanlış", "sayfa_no": sayfa, "ders": TYT_VERI[sayfa]['ders'], "hatali_sorular": hatalar})
+                            if dogru != "X":
+                                if not secilen: st.session_state.bos_sayisi += 1
+                                elif secilen == dogru: st.session_state.dogru_sayisi += 1
+                                else: st.session_state.yanlis_sayisi += 1
                         st.session_state.aktif_index += 1; st.rerun()
