@@ -13,14 +13,14 @@ st.set_page_config(page_title="Bağarası Hibrit Yaşam Merkezi", page_icon="�
 if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
 if 'oturum' not in st.session_state: st.session_state.oturum = False
 if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
-if 'secim_turu' not in st.session_state: st.session_state.secim_turu = None 
+if 'mod' not in st.session_state: st.session_state.mod = "" 
 if 'secilen_liste' not in st.session_state: st.session_state.secilen_liste = []
 if 'aktif_index' not in st.session_state: st.session_state.aktif_index = 0
+if 'secim_turu' not in st.session_state: st.session_state.secim_turu = None 
 if 'karne' not in st.session_state: st.session_state.karne = []
 if 'dogru_sayisi' not in st.session_state: st.session_state.dogru_sayisi = 0
 if 'yanlis_sayisi' not in st.session_state: st.session_state.yanlis_sayisi = 0
 if 'bos_sayisi' not in st.session_state: st.session_state.bos_sayisi = 0
-if 'mod' not in st.session_state: st.session_state.mod = ""
 
 # --- 3. DOSYA İSİMLERİ ---
 TYT_PDF_ADI = "tytson8.pdf"
@@ -28,6 +28,7 @@ TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 LIFESIM_JSON_ADI = "lifesim_data.json"
+GAME_HTML_ADI = "game.html" # Yeni dosya
 
 # --- 4. VERİ YÜKLEME FONKSİYONLARI ---
 def dosya_yukle(dosya_adi):
@@ -42,17 +43,16 @@ def dosya_yukle(dosya_adi):
         st.error(f"Dosya okuma hatası ({dosya_adi}): {e}")
         return {}
 
-def load_lifesim_data():
-    if os.path.exists(LIFESIM_JSON_ADI):
+def load_file_content(file_path, default_content=""):
+    """Dosya içeriğini okur, yoksa default döndürür"""
+    if os.path.exists(file_path):
         try:
-            with open(LIFESIM_JSON_ADI, "r", encoding="utf-8") as f:
-                raw_data = f.read()
-                json.loads(raw_data) 
-                return raw_data
+            with open(file_path, "r", encoding="utf-8") as f:
+                return f.read()
         except Exception as e:
-            st.error(f"Senaryo dosyası hatası: {e}")
-            return "[]"
-    else: return "[]"
+            st.error(f"Dosya hatası ({file_path}): {e}")
+            return default_content
+    return default_content
 
 def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
     if not os.path.exists(dosya_yolu):
@@ -71,12 +71,14 @@ def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
 TYT_VERI = dosya_yukle(TYT_JSON_ADI)
 MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
 KONU_VERI = dosya_yukle(KONU_JSON_ADI)
-SCENARIOS_JSON_STRING = load_lifesim_data()
 
-# --- HTML ŞABLONLARI ---
+# HTML İÇERİKLERİNİ DOSYADAN OKU (TEMİZ KOD)
+SCENARIOS_JSON_STRING = load_file_content(LIFESIM_JSON_ADI, "[]")
+GAME_HTML = load_file_content(GAME_HTML_ADI, "<h1>Oyun Yüklenemedi (game.html eksik)</h1>")
 
-# 1. LIFE-SIM (ANALİZ MODÜLÜ)
-LIFE_SIM_TEMPLATE = """
+# --- LIFE-SIM HTML ŞABLONU ---
+# Bu şablon dinamik veri (JSON) gerektirdiği için burada tutuyoruz
+HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -298,128 +300,7 @@ LIFE_SIM_TEMPLATE = """
 
 LIFE_SIM_HTML = LIFE_SIM_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON_STRING)
 
-# 2. FINANS OYUNU (HTML)
-GAME_HTML = """
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finans İmparatoru</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap');
-        body { background-color: #111827; color: white; font-family: 'Roboto', sans-serif; overflow: hidden; user-select: none; }
-        .pixel-font { font-family: 'Press Start 2P', cursive; }
-        .neon-box { background: rgba(31, 41, 55, 0.8); border: 2px solid #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); backdrop-filter: blur(5px); }
-        .coin-anim { position: absolute; animation: floatUp 1s ease-out forwards; pointer-events: none; color: #fbbf24; font-weight: bold; }
-        @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-50px); opacity: 0; } }
-        .click-btn { transition: all 0.1s; background: radial-gradient(circle, #3b82f6 0%, #1d4ed8 100%); box-shadow: 0 0 20px #2563eb; }
-        .click-btn:active { transform: scale(0.95); box-shadow: 0 0 5px #2563eb; }
-        .upgrade-item { transition: all 0.2s; cursor: pointer; }
-        .upgrade-item:hover { background-color: rgba(59, 130, 246, 0.2); transform: translateX(5px); }
-        .upgrade-item.disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #111827; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
-    </style>
-</head>
-<body class="flex flex-col h-screen p-2 md:p-4">
-    <div class="flex justify-between items-center bg-gray-900 p-4 rounded-xl border-b-4 border-yellow-500 mb-4 shadow-lg shrink-0">
-        <div><h1 class="text-xs text-gray-400 pixel-font mb-2">TOPLAM VARLIK</h1><div class="text-3xl md:text-4xl font-bold text-yellow-400 flex items-center gap-2">₺ <span id="moneyDisplay">0</span></div></div>
-        <div class="text-right"><h1 class="text-xs text-gray-400 pixel-font mb-2">PASİF GELİR / SN</h1><div class="text-xl md:text-2xl font-bold text-green-400 flex items-center gap-2 justify-end">+ <span id="cpsDisplay">0</span> ₺</div></div>
-    </div>
-    <div class="flex flex-col md:flex-row gap-4 flex-1 overflow-hidden">
-        <div class="w-full md:w-1/3 flex flex-col gap-4">
-            <div class="neon-box rounded-xl p-6 flex-1 flex flex-col items-center justify-center relative overflow-hidden group">
-                <div class="absolute inset-0 bg-blue-900/20 group-hover:bg-blue-900/30 transition"></div>
-                <button id="mainBtn" onclick="clickAction(event)" class="click-btn w-48 h-48 rounded-full border-4 border-white/20 flex flex-col items-center justify-center z-10">
-                    <i data-lucide="briefcase" class="w-16 h-16 text-white mb-2"></i><span class="pixel-font text-xs text-blue-100">ÇALIŞ</span>
-                </button>
-                <p class="mt-6 text-sm text-blue-300 font-mono text-center">Her tıkla nakit akışı sağla!</p>
-            </div>
-            <div class="bg-gray-800 rounded-xl p-4 border border-gray-700 shrink-0">
-                <h3 class="text-white font-bold mb-3 flex items-center gap-2"><i data-lucide="bar-chart"></i> Şirket Durumu</h3>
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div class="bg-gray-900 p-2 rounded"><p class="text-gray-500 text-xs">Tıklama Gücü</p><p class="text-white font-bold" id="clickPowerDisplay">1 ₺</p></div>
-                    <div class="bg-gray-900 p-2 rounded"><p class="text-gray-500 text-xs">Toplam Kazanç</p><p class="text-white font-bold" id="lifetimeDisplay">0 ₺</p></div>
-                </div>
-                <button onclick="resetGame()" class="mt-3 w-full py-1 text-xs text-red-400 hover:text-red-300 border border-red-900 rounded bg-red-900/20">İflas Et (Sıfırla)</button>
-            </div>
-        </div>
-        <div class="w-full md:w-2/3 neon-box rounded-xl flex flex-col overflow-hidden">
-            <div class="p-4 bg-gray-800 border-b border-gray-700 flex justify-between items-center">
-                <h2 class="pixel-font text-sm text-blue-400 flex items-center gap-2"><i data-lucide="shopping-cart"></i> YATIRIM FIRSATLARI</h2><span class="text-xs text-gray-500">Otomatik kazanç sağlar</span>
-            </div>
-            <div id="marketList" class="overflow-y-auto p-2 flex-1 space-y-2"></div>
-        </div>
-    </div>
-    <script>
-        lucide.createIcons();
-        let gameData = {
-            money: 0, lifetime: 0, clickCount: 0,
-            buildings: [
-                { id: 0, name: "Limonata Tezgahı", cost: 15, income: 1, count: 0 },
-                { id: 1, name: "Simit Arabası", cost: 100, income: 5, count: 0 },
-                { id: 2, name: "E-Ticaret Sitesi", cost: 1100, income: 32, count: 0 },
-                { id: 3, name: "Yazılım Ofisi", cost: 12000, income: 150, count: 0 },
-                { id: 4, name: "Fabrika", cost: 130000, income: 800, count: 0 },
-                { id: 5, name: "Banka", cost: 1400000, income: 5000, count: 0 },
-                { id: 6, name: "Uzay Madenciliği", cost: 20000000, income: 45000, count: 0 }
-            ]
-        };
-        if(localStorage.getItem('finansImparatoruSave')) {
-            try {
-                let saved = JSON.parse(localStorage.getItem('finansImparatoruSave'));
-                gameData.money = saved.money || 0; gameData.lifetime = saved.lifetime || 0;
-                saved.buildings.forEach((b, i) => { if(gameData.buildings[i]) gameData.buildings[i].count = b.count; });
-            } catch(e) {}
-        }
-        function updateDisplay() {
-            document.getElementById('moneyDisplay').innerText = formatNumber(gameData.money);
-            document.getElementById('lifetimeDisplay').innerText = formatNumber(gameData.lifetime);
-            let cps = 0; gameData.buildings.forEach(b => cps += b.count * b.income);
-            document.getElementById('cpsDisplay').innerText = formatNumber(cps);
-            document.getElementById('clickPowerDisplay').innerText = formatNumber(1 + (cps * 0.1));
-            const list = document.getElementById('marketList'); list.innerHTML = "";
-            gameData.buildings.forEach((b, index) => {
-                const canBuy = gameData.money >= b.cost;
-                const div = document.createElement('div');
-                div.className = `upgrade-item bg-gray-800 p-3 rounded-lg flex justify-between items-center border border-gray-700 ${canBuy?'border-green-900':'disabled'}`;
-                div.onclick = () => buyBuilding(index);
-                div.innerHTML = `<div class="flex items-center gap-4"><div class="bg-gray-700 w-12 h-12 rounded flex items-center justify-center text-2xl">${getEmoji(index)}</div><div><h4 class="font-bold text-gray-200">${b.name}</h4><p class="text-xs text-green-400">+${formatNumber(b.income)} ₺/sn</p></div></div><div class="text-right"><p class="text-sm font-bold ${canBuy?'text-yellow-400':'text-gray-500'}">${formatNumber(b.cost)} ₺</p><p class="text-xs text-gray-400">Adet: ${b.count}</p></div>`;
-                list.appendChild(div);
-            });
-        }
-        function clickAction(e) {
-            let cps = 0; gameData.buildings.forEach(b => cps += b.count * b.income);
-            const power = 1 + (cps * 0.1);
-            addMoney(power);
-            createParticle(e.clientX, e.clientY, "+" + formatNumber(power));
-            const btn = document.getElementById('mainBtn'); btn.style.transform = "scale(0.95)"; setTimeout(() => btn.style.transform = "scale(1)", 50);
-        }
-        function buyBuilding(index) {
-            const b = gameData.buildings[index];
-            if(gameData.money >= b.cost) {
-                gameData.money -= b.cost; b.count++; b.cost = Math.ceil(b.cost * 1.15); updateDisplay(); saveGame();
-            }
-        }
-        function addMoney(amount) { gameData.money += amount; gameData.lifetime += amount; updateDisplay(); }
-        setInterval(() => { let cps = 0; gameData.buildings.forEach(b => cps += b.count * b.income); if(cps > 0) addMoney(cps / 10); }, 100);
-        setInterval(saveGame, 5000);
-        function saveGame() { localStorage.setItem('finansImparatoruSave', JSON.stringify(gameData)); }
-        function resetGame() { if(confirm("Sıfırlamak istediğine emin misin?")) { localStorage.removeItem('finansImparatoruSave'); location.reload(); } }
-        function formatNumber(num) { if(num >= 1000000) return (num/1000000).toFixed(2) + "M"; if(num >= 1000) return (num/1000).toFixed(1) + "k"; return Math.floor(num); }
-        function getEmoji(idx) { const emojis = ["🍋", "🚲", "💻", "🏢", "🏭", "🏦", "🚀"]; return emojis[idx] || "📦"; }
-        function createParticle(x, y, text) { const el = document.createElement('div'); el.className = 'coin-anim'; el.style.left = x + 'px'; el.style.top = y + 'px'; el.innerText = text; document.body.appendChild(el); setTimeout(() => el.remove(), 1000); }
-        updateDisplay();
-    </script>
-</body>
-</html>
-"""
-
-# --- CSS VE TASARIM ---
+# --- TASARIM VE CSS ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
