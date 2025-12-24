@@ -287,7 +287,7 @@ if st.session_state.ekran == 'giris':
             <h1>Muhasebe ve Finansman Dijital Gelişim Programı</h1>
             <hr>
             <p style="font-size:18px; font-weight:bold; color:#D84315;">
-                Geleceğe Hazırlık Simülasyonu
+                Finans & Eğitim Ekosistemi
             </p>
             <br>
             <p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p>
