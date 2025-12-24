@@ -15,7 +15,7 @@ TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 
-# --- LIFE-SIM HTML KODU (V4.0 - DERS NOTU MODÜLÜ EKLENDİ) ---
+# --- LIFE-SIM HTML KODU (V4.1 - FIX: JS SYNTAX HATASI DÜZELTİLDİ) ---
 LIFE_SIM_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -118,88 +118,237 @@ LIFE_SIM_HTML = """
     <script>
         lucide.createIcons();
         
-        // --- SENARYO VERİTABANI (DERS NOTU EKLENDİ) ---
+        // --- SENARYO VERİTABANI (BACKTICK KULLANILDI - HATASIZ) ---
         const scenarios = [
             // GÜNCEL
             { 
                 category: "Güncel", 
                 title: "1. Taksitli Alışveriş ve Enflasyon", 
-                text: "Telefonun peşin fiyatı 30.000 TL, 12 taksitli fiyatı 36.000 TL. Enflasyon %60. Hangisi daha karlı?", 
+                text: `Telefonun peşin fiyatı 30.000 TL, 12 taksitli fiyatı 36.000 TL. Enflasyon %60. Hangisi daha karlı?`, 
                 data: ["Enflasyon: %60", "Vade Farkı: %20"], 
-                hint: "Reel faiz hesabı yap. Paranın zaman değerini düşün.",
-                doc: "📌 **DERS NOTU: Enflasyon ve Borçlanma**<br><br>• **Nominal Faiz:** Bankanın veya satıcının belirlediği faiz oranıdır.<br>• **Reel Faiz:** Enflasyondan arındırılmış gerçek kazanç/maliyet oranıdır.<br><br>💡 **Kural:** Eğer Enflasyon Oranı > Kredi/Vade Faizi ise, borçlanmak karlıdır. Çünkü paranın alım gücü düşerken, borcunuzun reel değeri de düşer. Bu durumda taksitli almak, nakit parayı başka bir yatırım aracında (altın, döviz, fon) değerlendirme fırsatı sunar."
+                hint: `Reel faiz hesabı yap. Paranın zaman değerini düşün.`,
+                doc: `📌 **DERS NOTU: Enflasyon ve Borçlanma**<br><br>• **Nominal Faiz:** Bankanın veya satıcının belirlediği faiz oranıdır.<br>• **Reel Faiz:** Enflasyondan arındırılmış gerçek kazanç/maliyet oranıdır.<br><br>💡 **Kural:** Eğer Enflasyon Oranı > Kredi/Vade Faizi ise, borçlanmak karlıdır. Çünkü paranın alım gücü düşerken, borcunuzun reel değeri de düşer. Bu durumda taksitli almak, nakit parayı başka bir yatırım aracında (altın, döviz, fon) değerlendirme fırsatı sunar.`
             },
             { 
                 category: "Güncel", 
                 title: "2. Gizli Enflasyon (Shrinkflation)", 
-                text: "Fiyat aynı kaldı ama gramaj 100gr'dan 80gr'a düştü. Birim maliyet analizi yap.", 
+                text: `Fiyat aynı kaldı ama gramaj 100gr'dan 80gr'a düştü. Birim maliyet analizi yap.`, 
                 data: ["Eski: 100gr", "Yeni: 80gr"], 
-                hint: "Gramaj düşünce birim fiyat % kaç arttı?",
-                doc: "📌 **DERS NOTU: Shrinkflation (Küçülflasyon)**<br><br>• Üreticilerin maliyet artışını doğrudan fiyata yansıtmak yerine, ürünün gramajını düşürerek gizli zam yapmasıdır.<br><br>⚠ **Tüketici Dikkat:** Her zaman ürünün paket fiyatına değil, **Birim Fiyatına (TL/kg veya TL/lt)** bakılmalıdır. Bu örnekte gramaj %20 düşerse, ürüne gizlice %25 zam yapılmış demektir."
+                hint: `Gramaj düşünce birim fiyat % kaç arttı?`,
+                doc: `📌 **DERS NOTU: Shrinkflation (Küçülflasyon)**<br><br>• Üreticilerin maliyet artışını doğrudan fiyata yansıtmak yerine, ürünün gramajını düşürerek gizli zam yapmasıdır.<br><br>⚠ **Tüketici Dikkat:** Her zaman ürünün paket fiyatına değil, **Birim Fiyatına (TL/kg veya TL/lt)** bakılmalıdır. Bu örnekte gramaj %20 düşerse, ürüne gizlice %25 zam yapılmış demektir.`
             },
-            { category: "Güncel", title: "3. İkinci El Araç Yanılgısı", text: "500k'ya aldın, 1M'ye sattın ama yenisi 1.1M. Kar ettin mi?", data: ["Alış: 500k", "Piyasa: 1.1M"], hint: "Yerine koyma maliyetini düşün.", doc: "📌 **DERS NOTU: Yerine Koyma Maliyeti**<br><br>• **Nominal Kar:** Kağıt üzerindeki kar (Satış - Alış).<br>• **Yerine Koyma Maliyeti:** Sattığınız malı tekrar almak için ödemeniz gereken bedel.<br><br>💡 Eğer sattığınız malı yerine koymak için üzerine para eklemeniz gerekiyorsa, teknik olarak **Sermaye Kaybı** yaşıyorsunuz demektir. Ticarette esas olan malın adedini korumaktır, TL değerini değil." },
-            { category: "Güncel", title: "4. Bedelli Askerlik Maliyeti", text: "Bedelli 240.000 TL. Maaşın 35.000 TL. Gitmek mi ödemek mi?", data: ["Bedelli: 240k", "Maaş: 35k"], hint: "Fırsat maliyeti hesabı yap.", doc: "📌 **DERS NOTU: Fırsat Maliyeti (Opportunity Cost)**<br><br>• Bir kararı uygularken vazgeçtiğiniz en iyi ikinci alternatifin değeridir.<br><br>🧮 **Hesaplama:** (6 Ay x Maaş) + (Kariyer Kaybı/Terfi Gecikmesi) + (Sosyal Hak Kaybı). Eğer bu toplam Bedelli ücretinden yüksekse, bedelli yapmak finansal olarak mantıklıdır." },
-            { category: "Güncel", title: "5. Öğrenci Evi Bütçesi", text: "Gelirler eşit değil. Gider nasıl paylaşılır?", data: ["Gider: 19k"], hint: "Oransal dağılım.", doc: "📌 **DERS NOTU: Adil Bütçe Yönetimi**<br><br>• **Eşit Paylaşım:** Herkes aynı tutarı öder. (Gelir farkı varsa adaletsiz olabilir)<br>• **Oransal Paylaşım:** Herkes gelirinin belirli bir yüzdesini (örn. %30) havuza koyar. Geliri çok olan çok, az olan az öder. Bu yöntem sosyal adalete daha uygundur." },
+            { 
+                category: "Güncel", 
+                title: "3. İkinci El Araç Yanılgısı", 
+                text: `500k'ya aldın, 1M'ye sattın ama yenisi 1.1M. Kar ettin mi?`, 
+                data: ["Alış: 500k", "Piyasa: 1.1M"], 
+                hint: `Yerine koyma maliyetini düşün.`, 
+                doc: `📌 **DERS NOTU: Yerine Koyma Maliyeti**<br><br>• **Nominal Kar:** Kağıt üzerindeki kar (Satış - Alış).<br>• **Yerine Koyma Maliyeti:** Sattığınız malı tekrar almak için ödemeniz gereken bedel.<br><br>💡 Eğer sattığınız malı yerine koymak için üzerine para eklemeniz gerekiyorsa, teknik olarak **Sermaye Kaybı** yaşıyorsunuz demektir. Ticarette esas olan malın adedini korumaktır, TL değerini değil.` 
+            },
+            { 
+                category: "Güncel", 
+                title: "4. Bedelli Askerlik Maliyeti", 
+                text: `Bedelli 240.000 TL. Maaşın 35.000 TL. Gitmek mi ödemek mi?`, 
+                data: ["Bedelli: 240k", "Maaş: 35k"], 
+                hint: `Fırsat maliyeti hesabı yap.`, 
+                doc: `📌 **DERS NOTU: Fırsat Maliyeti (Opportunity Cost)**<br><br>• Bir kararı uygularken vazgeçtiğiniz en iyi ikinci alternatifin değeridir.<br><br>🧮 **Hesaplama:** (6 Ay x Maaş) + (Kariyer Kaybı/Terfi Gecikmesi) + (Sosyal Hak Kaybı). Eğer bu toplam Bedelli ücretinden yüksekse, bedelli yapmak finansal olarak mantıklıdır.` 
+            },
+            { 
+                category: "Güncel", 
+                title: "5. Öğrenci Evi Bütçesi", 
+                text: `Gelirler eşit değil. Gider nasıl paylaşılır?`, 
+                data: ["Gider: 19k"], 
+                hint: `Oransal dağılım.`, 
+                doc: `📌 **DERS NOTU: Adil Bütçe Yönetimi**<br><br>• **Eşit Paylaşım:** Herkes aynı tutarı öder. (Gelir farkı varsa adaletsiz olabilir)<br>• **Oransal Paylaşım:** Herkes gelirinin belirli bir yüzdesini (örn. %30) havuza koyar. Geliri çok olan çok, az olan az öder. Bu yöntem sosyal adalete daha uygundur.` 
+            },
             
             // MUHASEBE
             { 
                 category: "Muhasebe", 
                 title: "6. Asgari Ücret Dengesi", 
-                text: "Maliyet %40 arttı. Zam yaparsan satış düşecek. Çözüm?", 
+                text: `Maliyet %40 arttı. Zam yaparsan satış düşecek. Çözüm?`, 
                 data: ["Maliyet: +%40"], 
-                hint: "Verimlilik artışı.", 
-                doc: "📌 **DERS NOTU: Maliyet Yönetimi**<br><br>• İşçilik maliyeti artınca sadece zam yapmak kısır döngüdür.<br>✅ **Çözüm:** Verimliliği artırmak (aynı sürede daha çok iş), israfı önlemek (yalın üretim) veya devlet teşviklerini kullanmaktır. Fiyat artışı en son çare olmalıdır." 
+                hint: `Verimlilik artışı.`, 
+                doc: `📌 **DERS NOTU: Maliyet Yönetimi**<br><br>• İşçilik maliyeti artınca sadece zam yapmak kısır döngüdür.<br>✅ **Çözüm:** Verimliliği artırmak (aynı sürede daha çok iş), israfı önlemek (yalın üretim) veya devlet teşviklerini kullanmaktır. Fiyat artışı en son çare olmalıdır.` 
             },
-            { category: "Muhasebe", title: "7. Vergi Affı Beklentisi", text: "Af çıkacak diye borcu ödememek mantıklı mı?", data: ["Borç: 500k"], hint: "Risk analizi.", doc: "📌 **DERS NOTU: Vergi Ahlakı ve Risk**<br><br>• Vergi affı beklentisiyle ödeme yapmamak 'Ahlaki Riziko' (Moral Hazard) yaratır.<br>• Ancak af çıkmazsa; Gecikme Zammı + E-Haciz riski + Ticari İtibar Kaybı oluşur. Bu maliyetler, faizden elde edilecek gelirden genelde daha yüksektir." },
-            { category: "Muhasebe", title: "13. Enflasyon Muhasebesi", text: "Kağıt üzerinde kar var ama stok yerine konamıyor.", data: ["Nakit: Yok"], hint: "Sermaye erimesi.", doc: "📌 **DERS NOTU: Enflasyon Muhasebesi**<br><br>• Enflasyonist ortamda mali tablolar gerçeği yansıtmaz. Düşük maliyetli eski stoklar satılınca kar yüksek görünür, bu yüzden yüksek vergi çıkar.<br>• Bu durum **'Sermaye Erimesi'ne** yol açar. İşletmeler stok değerleme yöntemlerini (LIFO/FIFO) ve vergi planlamasını buna göre yapmalıdır." },
-            
+            { 
+                category: "Muhasebe", 
+                title: "7. Vergi Affı Beklentisi", 
+                text: `Af çıkacak diye borcu ödememek mantıklı mı?`, 
+                data: ["Borç: 500k"], 
+                hint: `Risk analizi.`, 
+                doc: `📌 **DERS NOTU: Vergi Ahlakı ve Risk**<br><br>• Vergi affı beklentisiyle ödeme yapmamak 'Ahlaki Riziko' (Moral Hazard) yaratır.<br>• Ancak af çıkmazsa; Gecikme Zammı + E-Haciz riski + Ticari İtibar Kaybı oluşur. Bu maliyetler, faizden elde edilecek gelirden genelde daha yüksektir.` 
+            },
+            { 
+                category: "Muhasebe", 
+                title: "8. Enflasyon Muhasebesi", 
+                text: `Kağıt üzerinde kar var ama stok yerine konamıyor.`, 
+                data: ["Nakit: Yok"], 
+                hint: `Sermaye erimesi.`, 
+                doc: `📌 **DERS NOTU: Enflasyon Muhasebesi**<br><br>• Enflasyonist ortamda mali tablolar gerçeği yansıtmaz. Düşük maliyetli eski stoklar satılınca kar yüksek görünür, bu yüzden yüksek vergi çıkar.<br>• Bu durum **'Sermaye Erimesi'ne** yol açar. İşletmeler stok değerleme yöntemlerini (LIFO/FIFO) ve vergi planlamasını buna göre yapmalıdır.` 
+            },
+            { 
+                category: "Muhasebe", 
+                title: "9. E-Fatura Cezası", 
+                text: `Fatura kesilemedi. Müşteriye izah et.`, 
+                data: ["Ceza: Var"], 
+                hint: `Dürüstlük ve teknik raporla başvurmak.`, 
+                doc: `📌 **DERS NOTU: Vergi Usul Kanunu ve Mücbir Sebep**<br><br>• E-Fatura/E-Arşiv kesilmemesi Özel Usulsüzlük cezası gerektirir.<br>• Ancak sistemsel arızalar 'Mücbir Sebep' sayılabilir. Durumu ispatlayan teknik raporla Gelir İdaresi'ne başvurulursa ceza iptal edilebilir. Müşteriye şeffaf olmak güveni korur.` 
+            },
+            { 
+                category: "Muhasebe", 
+                title: "10. Startup Batış Riski", 
+                text: `200k sermaye ile iş kurarken görünmeyen giderler.`, 
+                data: ["Stopaj, SGK"], 
+                hint: `Sadece kirayı değil, vergileri ve resmi harçları hesapla.`, 
+                doc: `📌 **DERS NOTU: Görünmeyen Giderler (Overhead)**<br><br>• Girişimciler genelde sadece Kira ve Malzeme maliyetini hesaplar.<br>• **Unutulanlar:** Stopaj (%20), SGK Primi, Damga Vergileri, Ruhsat Harçları, Muhasebe Ücreti. Bunlar bütçenin %30'unu oluşturur ve nakit akışını bozar.` 
+            },
+
             // HUKUK
             { 
                 category: "Hukuk", 
-                title: "8. Kiracı Tahliyesi", 
-                text: "Kira piyasanın altında. Dava uzun. Uzlaşma?", 
+                title: "11. Kiracı Tahliyesi", 
+                text: `Kira piyasanın altında. Dava uzun. Uzlaşma?`, 
                 data: ["Fark: 4 Kat"], 
-                hint: "Zamanın maliyeti.", 
-                doc: "📌 **DERS NOTU: Sulh ve Uzlaşma Kültürü**<br><br>• Hukukta 'En kötü sulh, en iyi davadan iyidir' sözü vardır.<br>• Dava süreçleri (3-4 yıl) hem masraflıdır hem de enflasyonist ortamda alacağın değerini eritir. Kiracıya taşınma yardımı yapıp orta yolda anlaşmak, yılları mahkemede geçirmekten daha karlı olabilir." 
+                hint: `Zamanın maliyeti.`, 
+                doc: `📌 **DERS NOTU: Sulh ve Uzlaşma Kültürü**<br><br>• Hukukta 'En kötü sulh, en iyi davadan iyidir' sözü vardır.<br>• Dava süreçleri (3-4 yıl) hem masraflıdır hem de enflasyonist ortamda alacağın değerini eritir. Kiracıya taşınma yardımı yapıp orta yolda anlaşmak, yılları mahkemede geçirmekten daha karlı olabilir.` 
             },
-            { category: "Hukuk", title: "9. Sosyal Medya Hakareti", text: "Müdüre hakaret. TCK 125.", data: ["Suç: Hakaret"], hint: "Uzlaşma.", doc: "📌 **DERS NOTU: Bilişim Suçları ve Hakaret**<br><br>• Sosyal medya 'kamuya açık alan' sayılır, bu yüzden ceza artırımı uygulanır (TCK 125/4).<br>• Hakaret suçu 'Uzlaşmaya Tabi' suçlardandır. Savcılık dava açmadan önce tarafları uzlaştırmacıya gönderir. Özür dilemek ve pişmanlık, sicilin bozulmasını engelleyebilir." },
-            
+            { 
+                category: "Hukuk", 
+                title: "12. Sosyal Medya Hakareti", 
+                text: `Müdüre hakaret. TCK 125.`, 
+                data: ["Suç: Hakaret"], 
+                hint: `Uzlaşma.`, 
+                doc: `📌 **DERS NOTU: Bilişim Suçları ve Hakaret**<br><br>• Sosyal medya 'kamuya açık alan' sayılır, bu yüzden ceza artırımı uygulanır (TCK 125/4).<br>• Hakaret suçu 'Uzlaşmaya Tabi' suçlardandır. Savcılık dava açmadan önce tarafları uzlaştırmacıya gönderir. Özür dilemek ve pişmanlık, sicilin bozulmasını engelleyebilir.` 
+            },
+            { 
+                category: "Hukuk", 
+                title: "13. Ayıplı Mal", 
+                text: `Telefon bozuldu, servis reddetti. Hakem Heyeti.`, 
+                data: ["Mal: Ayıplı"], 
+                hint: `Bilirkişi incelemesi talep et.`, 
+                doc: `📌 **DERS NOTU: Tüketici Hakları**<br><br>• Malın ayıplı çıkması durumunda tüketicinin 4 hakkı vardır: İade, Değişim, İndirim, Ücretsiz Onarım.<br>• Servis 'kullanıcı hatası' dese bile, Tüketici Hakem Heyeti'ne (E-Devlet üzerinden) başvurup bilirkişi talep edebilirsiniz. Karar mahkeme hükmündedir.` 
+            },
+            { 
+                category: "Hukuk", 
+                title: "14. Mobbing İddiası", 
+                text: `Çalışanlar kavgalı. İK yöneticisi olarak karar ver.`, 
+                data: ["Kanıt: ?"], 
+                hint: `Eşitlik ilkesi ve somut delil.`, 
+                doc: `📌 **DERS NOTU: İş Hukuku ve Mobbing**<br><br>• Mobbing (Psikolojik Taciz) ispatı zor bir durumdur.<br>• Yöneticinin görevi 'Eşit İşlem Borcu'na uymaktır. İddialar somut delile (e-posta, şahit, kamera) dayanmıyorsa, tek taraflı işlem yapmak şirketi tazminat yükü altına sokar.` 
+            },
+            { 
+                category: "Hukuk", 
+                title: "15. Miras Paylaşımı", 
+                text: `Tarla satılsın mı işlensin mi? Kardeş kavgası.`, 
+                data: ["Çözüm: ?"], 
+                hint: `İntifa hakkı veya ortak işletme modeli.`, 
+                doc: `📌 **DERS NOTU: Ortaklığın Giderilmesi (İzale-i Şuyu)**<br><br>• Mirasçılar anlaşamazsa mahkeme malı açık artırmayla satar, bu da malın değerinin altında gitmesine neden olur.<br>• **Çözüm:** 'Aile Anayasası' oluşturmak veya toprağı işleyip gelirini paylaşmak (İntifa Hakkı) hem malı korur hem de aile bağlarını.` 
+            },
+
             // YÖNETİM
             { 
                 category: "Yönetim", 
-                title: "10. AI ve İşsizlik", 
-                text: "AI 3 kişinin işini yapıyor. Kovmak mı?", 
+                title: "16. AI ve İşsizlik", 
+                text: `AI 3 kişinin işini yapıyor. Kovmak mı?`, 
                 data: ["Verim: Yüksek"], 
-                hint: "Dönüştürmek.", 
-                doc: "📌 **DERS NOTU: İnsan Kaynakları Dönüşümü**<br><br>• Teknolojik işsizlik kaçınılmazdır ama çözüm kovmak değil, 'Upskilling' (Beceri Geliştirme) yapmaktır.<br>• O personelleri AI operatörü olarak eğitmek, kurumsal hafızayı korur ve şirketin teknolojiye adaptasyonunu hızlandırır." 
+                hint: `Dönüştürmek.`, 
+                doc: `📌 **DERS NOTU: İnsan Kaynakları Dönüşümü**<br><br>• Teknolojik işsizlik kaçınılmazdır ama çözüm kovmak değil, 'Upskilling' (Beceri Geliştirme) yapmaktır.<br>• O personelleri AI operatörü olarak eğitmek, kurumsal hafızayı korur ve şirketin teknolojiye adaptasyonunu hızlandırır.` 
             },
-            { category: "Yönetim", title: "23. Kriz Masası", text: "Müşteri otelde olay çıkardı. İtibar yönetimi.", data: ["Risk: Viral"], hint: "Empati.", doc: "📌 **DERS NOTU: Kriz İletişimi**<br><br>• Kriz anında savunmaya geçmek (inkar etmek, suçlamak) yangını körükler.<br>• Doğru Strateji: 1. Kabul et, 2. Özür dile (gerekirse), 3. Telafi et. Müşterinin sesinin duyulduğunu hissetmesi öfkeyi %80 azaltır." },
-            
+            { 
+                category: "Yönetim", 
+                title: "17. Kriz Masası", 
+                text: `Müşteri otelde olay çıkardı. İtibar yönetimi.`, 
+                data: ["Risk: Viral"], 
+                hint: `Empati.`, 
+                doc: `📌 **DERS NOTU: Kriz İletişimi**<br><br>• Kriz anında savunmaya geçmek (inkar etmek, suçlamak) yangını körükler.<br>• Doğru Strateji: 1. Kabul et, 2. Özür dile (gerekirse), 3. Telafi et. Müşterinin sesinin duyulduğunu hissetmesi öfkeyi %80 azaltır.` 
+            },
+            { 
+                category: "Yönetim", 
+                title: "18. Ofise Dönüş", 
+                text: `Herkes evden çalışmak istiyor. Sen ofis diyorsun.`, 
+                data: ["Kültür: Zayıf"], 
+                hint: `Hibrit model (Haftada 2 gün ofis).`, 
+                doc: `📌 **DERS NOTU: Kurum Kültürü ve Hibrit Çalışma**<br><br>• Tamamen uzaktan çalışma 'Kurum Aidiyetini' zayıflatır. Tamamen ofis ise verimi düşürebilir.<br>• **Altın Oran:** Hibrit modeldir. Haftanın belirli günlerini (Core Days) sosyalleşme ve beyin fırtınası için ofise ayırmak en verimli yöntemdir.` 
+            },
+            { 
+                category: "Yönetim", 
+                title: "19. Tedarik Zinciri", 
+                text: `Hammadde yok. Üretim durdu. Müşteriye ne denir?`, 
+                data: ["Stok: 0"], 
+                hint: `Şeffaflık ve alternatif çözüm önerisi.`, 
+                doc: `📌 **DERS NOTU: Tedarik Zinciri Yönetimi**<br><br>• 'Just in Time' (Tam Zamanında) üretim modeli stok maliyetini düşürür ama krizlere kırılgandır.<br>• Kriz anında müşteriye yalan söylemek (oyalamak) en büyük hatadır. Şeffaf olup, gerekirse rakip firmadan ürün temin edip müşteriyi mağdur etmemek uzun vadeli güven sağlar.` 
+            },
+            { 
+                category: "Yönetim", 
+                title: "20. Greenwashing", 
+                text: `Patron yalandan 'Doğa Dostu' yazmak istiyor.`, 
+                data: ["Risk: Büyük"], 
+                hint: `Tüketici güveni kaybolursa marka biter.`, 
+                doc: `📌 **DERS NOTU: İş Etiği ve Greenwashing**<br><br>• Tüketiciyi çevreci gibi görünerek kandırmaya 'Yeşil Aklama' (Greenwashing) denir.<br>• Bu ortaya çıktığında marka değeri sıfırlanır. Etik olmayan kar, en büyük zarardır. Dürüstlük en sürdürülebilir pazarlama stratejisidir.` 
+            },
+
             // DEĞERLER
             { 
                 category: "Değerler", 
-                title: "11. Bulunan Cüzdan", 
-                text: "Düşmanının cüzdanı. İçinde para var.", 
+                title: "21. Bulunan Cüzdan", 
+                text: `Düşmanının cüzdanı. İçinde para var.`, 
                 data: ["Vicdan"], 
-                hint: "Karakter.", 
-                doc: "📌 **DERS NOTU: Etik ve Karakter**<br><br>• Etik, yasaların bittiği yerde başlar.<br>• 'Karakter, kimse izlemiyorken ne yaptığındır.' Düşmanının malını korumak, sadece ona değil, kendi onuruna duyduğun saygının göstergesidir. Bu davranış toplumsal güven sermayesini artırır." 
+                hint: `Karakter.`, 
+                doc: `📌 **DERS NOTU: Etik ve Karakter**<br><br>• Etik, yasaların bittiği yerde başlar.<br>• 'Karakter, kimse izlemiyorken ne yaptığındır.' Düşmanının malını korumak, sadece ona değil, kendi onuruna duyduğun saygının göstergesidir. Bu davranış toplumsal güven sermayesini artırır.` 
+            },
+            { 
+                category: "Değerler", 
+                title: "22. Zorbalığa Sessiz Kalmak", 
+                text: `Arkadaşın eziliyor. Ses çıkarırsan yanacaksın.`, 
+                data: ["Cesaret"], 
+                hint: `Sessiz kalmak onaylamaktır.`, 
+                doc: `📌 **DERS NOTU: Aktif Vatandaşlık**<br><br>• Zorbalık karşısında sessiz kalanlar, zorbalığın devam etmesine zemin hazırlar.<br>• 'Bana dokunmayan yılan bin yaşasın' zihniyeti toplumu çürütür. Doğruyu savunmak kısa vadede riskli olsa da, uzun vadede saygınlık kazandırır.` 
+            },
+            { 
+                category: "Değerler", 
+                title: "23. Çevre Etiği", 
+                text: `Fabrikanız nehri kirletiyor. İhbar eder misin?`, 
+                data: ["Aile vs Toplum"], 
+                hint: `Uzun vadeli toplum sağlığı.`, 
+                doc: `📌 **DERS NOTU: Kurumsal Sosyal Sorumluluk**<br><br>• Kısa vadeli kar uğruna doğayı kirletmek, gelecek nesillerden çalmaktır.<br>• Gerçek vatanseverlik toprağına, suyuna sahip çıkmaktır. Aile şirketi bile olsa, yanlışa dur demek en büyük sadakattir.` 
+            },
+            { 
+                category: "Değerler", 
+                title: "24. Hasarlı Kaza", 
+                text: `Arabayı çizdin, kaçma şansın var.`, 
+                data: ["Dürüstlük"], 
+                hint: `Empati kur.`, 
+                doc: `📌 **DERS NOTU: Empati ve Sorumluluk**<br><br>• 'Kendine yapılmasını istemediğin şeyi başkasına yapma.'<br>• Kaçmak anlık olarak 5-10 bin TL kurtarabilir ama vicdan yükü ömür boyu sürer. Sorumluluk almak olgunluktur.` 
+            },
+            { 
+                category: "Değerler", 
+                title: "25. Dijital Bağımlılık", 
+                text: `Kardeşin ekran bağımlısı. Nasıl yardım edersin?`, 
+                data: ["İletişim"], 
+                hint: `Yasak yerine alternatif sun.`, 
+                doc: `📌 **DERS NOTU: Dijital Denge**<br><br>• Teknoloji iyi bir hizmetçi ama kötü bir efendidir.<br>• Bağımlılıkla mücadelede yasaklar ters teper. Çözüm, boşluğu spor, sanat veya sohbet ile doldurmaktır. İlgi göstermek, tabletten daha güçlü bir bağlayıcıdır.` 
             }
         ];
         
         // Diğer senaryolar için varsayılan not
-        const defaultDoc = "📌 **DERS NOTU: Genel Analiz**<br><br>• Bu konuda karar verirken şu 3 filtreyi kullan:<br>1. **Hukuki mi?** (Yasalara uygun mu?)<br>2. **Ekonomik mi?** (Verimli ve sürdürülebilir mi?)<br>3. **Etik mi?** (Vicdana ve toplumsal değerlere uygun mu?)<br><br>💡 İyi bir yönetici bu üç dengeyi kurabilen kişidir.";
+        const defaultDoc = `📌 **DERS NOTU: Genel Analiz**<br><br>• Bu konuda karar verirken şu 3 filtreyi kullan:<br>1. **Hukuki mi?** (Yasalara uygun mu?)<br>2. **Ekonomik mi?** (Verimli ve sürdürülebilir mi?)<br>3. **Etik mi?** (Vicdana ve toplumsal değerlere uygun mu?)<br><br>💡 İyi bir yönetici bu üç dengeyi kurabilen kişidir.`;
 
         let selectedScenarioIndex = 0;
         let startTime = Date.now();
 
         window.onload = function() {
             const select = document.getElementById('scenarioSelect');
-            scenarios.forEach((s, index) => {
-                let opt = document.createElement('option');
-                opt.value = index;
-                opt.innerHTML = s.title;
-                select.appendChild(opt);
+            const categories = {};
+            scenarios.forEach((s, index) => { 
+                if(!categories[s.category]) categories[s.category] = []; 
+                categories[s.category].push({ ...s, idx: index }); 
             });
+            for (const [cat, items] of Object.entries(categories)) {
+                let group = document.createElement('optgroup'); group.label = cat.toUpperCase();
+                items.forEach(item => { let opt = document.createElement('option'); opt.value = item.idx; opt.innerHTML = item.title; group.appendChild(opt); });
+                select.appendChild(group);
+            }
             loadScenario();
             startTimer();
             setupCanvas();
@@ -273,7 +422,6 @@ LIFE_SIM_HTML = """
                 content.innerHTML = s.doc || defaultDoc;
                 
                 card.classList.remove('hidden');
-                // Animasyon için küçük bir gecikme
                 setTimeout(() => card.classList.add('show'), 50);
 
             }, 2000);
