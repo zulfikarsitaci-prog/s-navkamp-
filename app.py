@@ -28,7 +28,6 @@ TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 LIFESIM_JSON_ADI = "lifesim_data.json"
-GAME_HTML_ADI = "game.html" # Opsiyonel, biz içine gömdük
 
 # --- 4. VERİ YÜKLEME FONKSİYONLARI ---
 def dosya_yukle(dosya_adi):
@@ -76,9 +75,8 @@ SCENARIOS_JSON_STRING = load_lifesim_data()
 
 # --- HTML ŞABLONLARI ---
 
-# 1. LIFE-SIM (ANALİZ MODÜLÜ)
-# İsim düzeltildi: HTML_TEMPLATE
-HTML_TEMPLATE = """
+# 1. LIFE-SIM ŞABLONU
+LIFE_SIM_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -245,7 +243,7 @@ HTML_TEMPLATE = """
                 const lowerText = text.toLowerCase();
                 if (currentStep === 1) {
                     if(lowerText.length < 50) { aiResponse = "Kararın net, ancak gerekçelerin biraz zayıf görünüyor. Bu kararın finansal veya hukuki uzun vadeli sonuçlarını hesaba kattın mı? Riskleri biraz daha açabilir misin?"; } 
-                    else { aiResponse = "Güzel bir başlangıç. Peki bu kararı verirken senaryodaki verileri nasıl değerlendirdin? Alternatif maliyeti düşündün mü? Biraz daha detaylandır."; }
+                    else { aiResponse = "Güzel bir başlangıç. Peki bu kararı verirken senaryodaki verileri (Örn: " + s.data[0] + ") nasıl değerlendirdin? Alternatif maliyeti düşündün mü? Biraz daha detaylandır."; }
                     currentStep++;
                     document.getElementById('stepIndicator').innerText = "Aşama 2/3: Derinleşme";
                     btn.disabled = false;
@@ -298,8 +296,7 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# HATA OLAN SATIR BUYDU: LIFE_SIM_TEMPLATE yerine HTML_TEMPLATE kullanıyoruz
-LIFE_SIM_HTML = HTML_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON_STRING)
+LIFE_SIM_HTML = LIFE_SIM_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON_STRING)
 
 # 2. FINANS OYUNU (HTML)
 GAME_HTML = """
@@ -312,110 +309,305 @@ GAME_HTML = """
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap');
-        body { background-color: #111827; color: white; font-family: 'Roboto', sans-serif; overflow: hidden; user-select: none; }
-        .pixel-font { font-family: 'Press Start 2P', cursive; }
-        .neon-box { background: rgba(31, 41, 55, 0.8); border: 2px solid #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); backdrop-filter: blur(5px); }
-        .coin-anim { position: absolute; animation: floatUp 1s ease-out forwards; pointer-events: none; color: #fbbf24; font-weight: bold; }
-        @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-50px); opacity: 0; } }
-        .click-btn { transition: all 0.1s; background: radial-gradient(circle, #3b82f6 0%, #1d4ed8 100%); box-shadow: 0 0 20px #2563eb; }
-        .click-btn:active { transform: scale(0.95); box-shadow: 0 0 5px #2563eb; }
-        .upgrade-item { transition: all 0.2s; cursor: pointer; }
-        .upgrade-item.hover { background-color: rgba(59, 130, 246, 0.2); transform: translateX(5px); }
-        .upgrade-item.disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&family=Press+Start+2P&display=swap');
+        
+        body { 
+            background: radial-gradient(circle at top left, #1e1b4b, #0f172a);
+            color: white; 
+            font-family: 'Outfit', sans-serif; 
+            overflow: hidden; 
+            user-select: none; 
+        }
+        
+        /* Modern Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #111827; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
+
+        /* Cam Efekti (Glassmorphism) */
+        .glass {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Neon Parlama */
+        .glow-text { text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+        
+        /* Animasyonlar */
+        .click-anim { position: absolute; animation: flyUp 0.8s ease-out forwards; pointer-events: none; font-weight: 800; z-index: 50; }
+        @keyframes flyUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(1.5); opacity: 0; } }
+
+        .pulse-btn { animation: pulse-glow 2s infinite; }
+        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
+
+        /* Yatırım Kartları */
+        .card-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-bottom: 2px solid transparent; }
+        .card-item:hover { transform: translateY(-2px); background: rgba(255,255,255,0.05); }
+        .card-item.affordable { border-bottom-color: #22c55e; border-color: rgba(34, 197, 94, 0.3); }
+        .card-item.expensive { opacity: 0.6; filter: grayscale(0.8); }
+        
+        .main-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.6);
+            transition: transform 0.1s;
+        }
+        .main-btn:active { transform: scale(0.95); }
     </style>
 </head>
-<body class="flex flex-col h-screen p-2 md:p-4">
-    <div class="flex justify-between items-center bg-gray-900 p-4 rounded-xl border-b-4 border-yellow-500 mb-4 shadow-lg shrink-0">
-        <div><h1 class="text-xs text-gray-400 pixel-font mb-2">TOPLAM VARLIK</h1><div class="text-3xl md:text-4xl font-bold text-yellow-400 flex items-center gap-2">₺ <span id="moneyDisplay">0</span></div></div>
-        <div class="text-right"><h1 class="text-xs text-gray-400 pixel-font mb-2">PASİF GELİR / SN</h1><div class="text-xl md:text-2xl font-bold text-green-400 flex items-center gap-2 justify-end">+ <span id="cpsDisplay">0</span> ₺</div></div>
-    </div>
-    <div class="flex flex-col md:flex-row gap-4 flex-1 overflow-hidden">
-        <div class="w-full md:w-1/3 flex flex-col gap-4">
-            <div class="neon-box rounded-xl p-6 flex-1 flex flex-col items-center justify-center relative overflow-hidden group">
-                <div class="absolute inset-0 bg-blue-900/20 group-hover:bg-blue-900/30 transition"></div>
-                <button id="mainBtn" onclick="clickAction(event)" class="click-btn w-48 h-48 rounded-full border-4 border-white/20 flex flex-col items-center justify-center z-10">
-                    <i data-lucide="briefcase" class="w-16 h-16 text-white mb-2"></i><span class="pixel-font text-xs text-blue-100">ÇALIŞ</span>
-                </button>
-                <p class="mt-6 text-sm text-blue-300 font-mono text-center">Her tıkla nakit akışı sağla!</p>
+<body class="flex flex-col h-screen p-2 md:p-4 gap-4">
+
+    <div class="glass rounded-2xl p-4 flex justify-between items-center shrink-0 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+        
+        <div class="flex items-center gap-4">
+            <div class="bg-blue-500/20 p-3 rounded-xl border border-blue-500/30">
+                <i data-lucide="wallet" class="w-8 h-8 text-blue-400"></i>
             </div>
-            <div class="bg-gray-800 rounded-xl p-4 border border-gray-700 shrink-0">
-                <h3 class="text-white font-bold mb-3 flex items-center gap-2"><i data-lucide="bar-chart"></i> Şirket Durumu</h3>
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div class="bg-gray-900 p-2 rounded"><p class="text-gray-500 text-xs">Tıklama Gücü</p><p class="text-white font-bold" id="clickPowerDisplay">1 ₺</p></div>
-                    <div class="bg-gray-900 p-2 rounded"><p class="text-gray-500 text-xs">Toplam Kazanç</p><p class="text-white font-bold" id="lifetimeDisplay">0 ₺</p></div>
+            <div>
+                <p class="text-xs text-blue-300 font-bold tracking-widest uppercase">Toplam Varlık</p>
+                <div class="text-4xl font-extrabold text-white glow-text tracking-tight">
+                    ₺ <span id="moneyDisplay">0</span>
                 </div>
-                <button onclick="resetGame()" class="mt-3 w-full py-1 text-xs text-red-400 hover:text-red-300 border border-red-900 rounded bg-red-900/20">İflas Et (Sıfırla)</button>
             </div>
         </div>
-        <div class="w-full md:w-2/3 neon-box rounded-xl flex flex-col overflow-hidden">
-            <div class="p-4 bg-gray-800 border-b border-gray-700 flex justify-between items-center">
-                <h2 class="pixel-font text-sm text-blue-400 flex items-center gap-2"><i data-lucide="shopping-cart"></i> YATIRIM FIRSATLARI</h2><span class="text-xs text-gray-500">Otomatik kazanç sağlar</span>
+
+        <div class="hidden md:flex flex-col items-center">
+            <span class="text-xs text-purple-300 font-bold uppercase mb-1">Mevcut Rütbe</span>
+            <div id="rankBadge" class="px-4 py-1 bg-purple-600 rounded-full text-xs font-bold shadow-lg shadow-purple-500/30">
+                BAŞLANGIÇ
             </div>
-            <div id="marketList" class="overflow-y-auto p-2 flex-1 space-y-2"></div>
+        </div>
+
+        <div class="text-right">
+            <p class="text-xs text-green-400 font-bold tracking-widest uppercase">Pasif Gelir</p>
+            <div class="text-2xl font-bold text-green-300 flex items-center justify-end gap-1">
+                +<span id="cpsDisplay">0</span> <span class="text-sm opacity-70">/sn</span>
+            </div>
         </div>
     </div>
+
+    <div class="flex flex-col md:flex-row gap-4 flex-1 overflow-hidden">
+        
+        <div class="w-full md:w-1/3 flex flex-col gap-4">
+            
+            <div class="glass rounded-2xl flex-1 flex flex-col items-center justify-center relative p-6">
+                <div class="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent rounded-2xl pointer-events-none"></div>
+                
+                <button id="mainBtn" onclick="clickAction(event)" class="main-btn w-56 h-56 rounded-full flex flex-col items-center justify-center z-10 pulse-btn border-4 border-white/10">
+                    <i data-lucide="zap" class="w-20 h-20 text-white mb-2"></i>
+                    <span class="font-black text-xl tracking-widest">ÇALIŞ</span>
+                </button>
+                
+                <p class="mt-8 text-center text-blue-200/60 text-sm font-medium">
+                    Her tıklama <span id="clickPowerDisplay" class="text-white font-bold">1</span> ₺ kazandırır
+                </p>
+            </div>
+
+            <div class="glass rounded-2xl p-4 shrink-0">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-800/50 p-3 rounded-xl border border-white/5">
+                        <div class="text-xs text-slate-400 mb-1">Toplam Kazanç</div>
+                        <div class="font-mono text-yellow-400 font-bold text-sm" id="lifetimeDisplay">0 ₺</div>
+                    </div>
+                    <button onclick="resetGame()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 p-3 rounded-xl text-xs font-bold transition">
+                        İFLAS ET (Sıfırla)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-2/3 glass rounded-2xl flex flex-col overflow-hidden">
+            <div class="p-5 border-b border-white/10 bg-slate-800/30 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shopping-bag" class="text-pink-400"></i>
+                    <h2 class="font-bold text-lg tracking-wide">YATIRIM MARKETİ</h2>
+                </div>
+                <span class="text-xs px-2 py-1 bg-white/10 rounded text-slate-300">Otomatik Kazanç</span>
+            </div>
+            
+            <div id="marketList" class="flex-1 overflow-y-auto p-4 grid grid-cols-1 lg:grid-cols-2 gap-3 content-start">
+                </div>
+        </div>
+    </div>
+
     <script>
         lucide.createIcons();
+
+        // OYUN VERİSİ
         let gameData = {
-            money: 0, lifetime: 0, clickCount: 0,
+            money: 0,
+            lifetime: 0,
             buildings: [
-                { id: 0, name: "Limonata Tezgahı", cost: 15, income: 1, count: 0 },
-                { id: 1, name: "Simit Arabası", cost: 100, income: 5, count: 0 },
-                { id: 2, name: "E-Ticaret Sitesi", cost: 1100, income: 32, count: 0 },
-                { id: 3, name: "Yazılım Ofisi", cost: 12000, income: 150, count: 0 },
-                { id: 4, name: "Fabrika", cost: 130000, income: 800, count: 0 },
-                { id: 5, name: "Banka", cost: 1400000, income: 5000, count: 0 },
-                { id: 6, name: "Uzay Madenciliği", cost: 20000000, income: 45000, count: 0 }
+                { id: 0, name: "Limonata Tezgahı", cost: 15, income: 1, count: 0, icon: "citrus", color: "from-yellow-400 to-orange-500" },
+                { id: 1, name: "Simit Arabası", cost: 100, income: 5, count: 0, icon: "bike", color: "from-red-400 to-red-600" },
+                { id: 2, name: "YouTube Kanalı", cost: 1100, income: 32, count: 0, icon: "youtube", color: "from-red-500 to-pink-600" },
+                { id: 3, name: "E-Ticaret Sitesi", cost: 12000, income: 150, count: 0, icon: "shopping-cart", color: "from-blue-400 to-indigo-600" },
+                { id: 4, name: "Yazılım Şirketi", cost: 130000, income: 800, count: 0, icon: "code-2", color: "from-cyan-400 to-blue-500" },
+                { id: 5, name: "Fabrika", cost: 1400000, income: 5000, count: 0, icon: "factory", color: "from-slate-400 to-slate-600" },
+                { id: 6, name: "Banka", cost: 20000000, income: 45000, count: 0, icon: "landmark", color: "from-emerald-400 to-green-600" },
+                { id: 7, name: "Uzay Madenciliği", cost: 330000000, income: 150000, count: 0, icon: "rocket", color: "from-violet-500 to-purple-800" }
             ]
         };
-        if(localStorage.getItem('finansImparatoruSave')) {
+
+        // LOAD
+        if(localStorage.getItem('finansV2Save')) {
             try {
-                let saved = JSON.parse(localStorage.getItem('finansImparatoruSave'));
-                gameData.money = saved.money || 0; gameData.lifetime = saved.lifetime || 0;
-                saved.buildings.forEach((b, i) => { if(gameData.buildings[i]) gameData.buildings[i].count = b.count; });
-            } catch(e) {}
+                let saved = JSON.parse(localStorage.getItem('finansV2Save'));
+                gameData.money = saved.money || 0;
+                gameData.lifetime = saved.lifetime || 0;
+                saved.buildings.forEach((b, i) => {
+                    if(gameData.buildings[i]) gameData.buildings[i].count = b.count;
+                    // Maliyet hesabını güncelle (Enflasyon)
+                    gameData.buildings[i].cost = Math.ceil(gameData.buildings[i].cost * Math.pow(1.15, b.count));
+                });
+            } catch(e) { console.log('Save hatası'); }
+        } else {
+            // İlk kez açılıyorsa maliyetleri resetle
+             gameData.buildings = [
+                { id: 0, name: "Limonata Tezgahı", cost: 15, income: 1, count: 0, icon: "citrus", color: "from-yellow-400 to-orange-500" },
+                { id: 1, name: "Simit Arabası", cost: 100, income: 5, count: 0, icon: "bike", color: "from-red-400 to-red-600" },
+                { id: 2, name: "YouTube Kanalı", cost: 1100, income: 32, count: 0, icon: "youtube", color: "from-red-500 to-pink-600" },
+                { id: 3, name: "E-Ticaret Sitesi", cost: 12000, income: 150, count: 0, icon: "shopping-cart", color: "from-blue-400 to-indigo-600" },
+                { id: 4, name: "Yazılım Şirketi", cost: 130000, income: 800, count: 0, icon: "code-2", color: "from-cyan-400 to-blue-500" },
+                { id: 5, name: "Fabrika", cost: 1400000, income: 5000, count: 0, icon: "factory", color: "from-slate-400 to-slate-600" },
+                { id: 6, name: "Banka", cost: 20000000, income: 45000, count: 0, icon: "landmark", color: "from-emerald-400 to-green-600" },
+                { id: 7, name: "Uzay Madenciliği", cost: 330000000, income: 150000, count: 0, icon: "rocket", color: "from-violet-500 to-purple-800" }
+            ];
         }
+
         function updateDisplay() {
             document.getElementById('moneyDisplay').innerText = formatNumber(gameData.money);
-            document.getElementById('lifetimeDisplay').innerText = formatNumber(gameData.lifetime);
-            let cps = 0; gameData.buildings.forEach(b => cps += b.count * b.income);
+            document.getElementById('lifetimeDisplay').innerText = formatNumber(gameData.lifetime) + " ₺";
+            
+            let cps = 0;
+            gameData.buildings.forEach(b => cps += b.count * b.income);
             document.getElementById('cpsDisplay').innerText = formatNumber(cps);
-            document.getElementById('clickPowerDisplay').innerText = formatNumber(1 + (cps * 0.1));
-            const list = document.getElementById('marketList'); list.innerHTML = "";
+            
+            // Tık gücü: Base 1 + CPS'in %5'i
+            let clickPower = 1 + (cps * 0.05);
+            document.getElementById('clickPowerDisplay').innerText = formatNumber(clickPower);
+
+            // Rütbe Sistemi
+            updateRank(gameData.lifetime);
+
+            // Market Render
+            const list = document.getElementById('marketList');
+            list.innerHTML = "";
+            
             gameData.buildings.forEach((b, index) => {
                 const canBuy = gameData.money >= b.cost;
                 const div = document.createElement('div');
-                div.className = `upgrade-item bg-gray-800 p-3 rounded-lg flex justify-between items-center border border-gray-700 ${canBuy?'border-green-900':'disabled'}`;
+                div.className = `card-item glass p-3 rounded-xl flex items-center gap-4 cursor-pointer select-none ${canBuy ? 'affordable bg-white/5' : 'expensive'}`;
                 div.onclick = () => buyBuilding(index);
-                div.innerHTML = `<div class="flex items-center gap-4"><div class="bg-gray-700 w-12 h-12 rounded flex items-center justify-center text-2xl">${getEmoji(index)}</div><div><h4 class="font-bold text-gray-200">${b.name}</h4><p class="text-xs text-green-400">+${formatNumber(b.income)} ₺/sn</p></div></div><div class="text-right"><p class="text-sm font-bold ${canBuy?'text-yellow-400':'text-gray-500'}">${formatNumber(b.cost)} ₺</p><p class="text-xs text-gray-400">Adet: ${b.count}</p></div>`;
+                
+                div.innerHTML = `
+                    <div class="w-14 h-14 rounded-lg bg-gradient-to-br ${b.color} flex items-center justify-center shadow-lg shrink-0">
+                        <i data-lucide="${b.icon}" class="text-white w-7 h-7"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-center mb-1">
+                            <h4 class="font-bold text-white truncate">${b.name}</h4>
+                            <span class="text-xs bg-black/30 px-2 py-0.5 rounded text-white/70">${b.count} Adet</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <p class="text-xs text-green-400 font-medium">+${formatNumber(b.income)} /sn</p>
+                            <p class="text-sm font-extrabold ${canBuy ? 'text-yellow-400' : 'text-slate-500'}">${formatNumber(b.cost)} ₺</p>
+                        </div>
+                        ${canBuy ? '<div class="mt-2 h-1 w-full bg-green-500/20 rounded-full overflow-hidden"><div class="h-full bg-green-500 animate-pulse"></div></div>' : ''}
+                    </div>
+                `;
                 list.appendChild(div);
             });
+            lucide.createIcons();
         }
+
         function clickAction(e) {
-            let cps = 0; gameData.buildings.forEach(b => cps += b.count * b.income);
-            const power = 1 + (cps * 0.1);
+            let cps = 0;
+            gameData.buildings.forEach(b => cps += b.count * b.income);
+            const power = 1 + (cps * 0.05);
+            
             addMoney(power);
             createParticle(e.clientX, e.clientY, "+" + formatNumber(power));
-            const btn = document.getElementById('mainBtn'); btn.style.transform = "scale(0.95)"; setTimeout(() => btn.style.transform = "scale(1)", 50);
+            
+            // Efekt
+            const btn = document.getElementById('mainBtn');
+            btn.style.transform = "scale(0.90)";
+            setTimeout(() => btn.style.transform = "scale(1)", 50);
         }
+
         function buyBuilding(index) {
             const b = gameData.buildings[index];
             if(gameData.money >= b.cost) {
-                gameData.money -= b.cost; b.count++; b.cost = Math.ceil(b.cost * 1.15); updateDisplay(); saveGame();
+                gameData.money -= b.cost;
+                b.count++;
+                b.cost = Math.ceil(b.cost * 1.15); // Enflasyon %15
+                updateDisplay();
+                saveGame();
             }
         }
-        function addMoney(amount) { gameData.money += amount; gameData.lifetime += amount; updateDisplay(); }
-        setInterval(() => { let cps = 0; gameData.buildings.forEach(b => cps += b.count * b.income); if(cps > 0) addMoney(cps / 10); }, 100);
-        setInterval(saveGame, 5000);
-        function saveGame() { localStorage.setItem('finansImparatoruSave', JSON.stringify(gameData)); }
-        function resetGame() { if(confirm("Sıfırlamak istediğine emin misin?")) { localStorage.removeItem('finansImparatoruSave'); location.reload(); } }
-        function formatNumber(num) { if(num >= 1000000) return (num/1000000).toFixed(2) + "M"; if(num >= 1000) return (num/1000).toFixed(1) + "k"; return Math.floor(num); }
-        function getEmoji(idx) { const emojis = ["🍋", "🚲", "💻", "🏢", "🏭", "🏦", "🚀"]; return emojis[idx] || "📦"; }
-        function createParticle(x, y, text) { const el = document.createElement('div'); el.className = 'coin-anim'; el.style.left = x + 'px'; el.style.top = y + 'px'; el.innerText = text; document.body.appendChild(el); setTimeout(() => el.remove(), 1000); }
+
+        function addMoney(amount) {
+            gameData.money += amount;
+            gameData.lifetime += amount;
+            updateDisplay();
+        }
+
+        // OTOMATİK DÖNGÜLER
+        setInterval(() => {
+            let cps = 0;
+            gameData.buildings.forEach(b => cps += b.count * b.income);
+            if(cps > 0) addMoney(cps / 10);
+        }, 100);
+
+        setInterval(saveGame, 3000);
+
+        function saveGame() {
+            localStorage.setItem('finansV2Save', JSON.stringify(gameData));
+        }
+
+        function resetGame() {
+            if(confirm("Tüm imparatorluğunu yakıp sıfırdan başlamak istediğine emin misin?")) {
+                localStorage.removeItem('finansV2Save');
+                location.reload();
+            }
+        }
+
+        // YARDIMCILAR
+        function formatNumber(num) {
+            if(num >= 1000000000) return (num/1000000000).toFixed(2) + " Mr";
+            if(num >= 1000000) return (num/1000000).toFixed(2) + " M";
+            if(num >= 1000) return (num/1000).toFixed(1) + " K";
+            return Math.floor(num).toLocaleString('tr-TR');
+        }
+
+        function createParticle(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'click-anim text-2xl text-green-400 drop-shadow-md';
+            el.style.left = (x - 20) + 'px';
+            el.style.top = (y - 50) + 'px';
+            el.innerText = text;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        function updateRank(lifetime) {
+            const badge = document.getElementById('rankBadge');
+            let rank = "BAŞLANGIÇ";
+            let color = "bg-slate-600";
+
+            if (lifetime > 1000) { rank = "STAJYER"; color = "bg-blue-600"; }
+            if (lifetime > 50000) { rank = "GİRİŞİMCİ"; color = "bg-green-600"; }
+            if (lifetime > 1000000) { rank = "PATRON"; color = "bg-purple-600"; }
+            if (lifetime > 100000000) { rank = "İMPARATOR"; color = "bg-yellow-600"; }
+
+            badge.innerText = rank;
+            badge.className = `px-4 py-1 rounded-full text-xs font-bold shadow-lg ${color}`;
+        }
+
+        // BAŞLAT
         updateDisplay();
     </script>
 </body>
@@ -571,7 +763,7 @@ elif st.session_state.ekran == 'sinav':
             st.rerun()
 
     # --- ANA MENÜ (SEÇİM EKRANI) ---
-    if not st.session_state.oturum and st.session_state.secim_turu != "LIFESIM":
+    if not st.session_state.oturum and st.session_state.secim_turu not in ["LIFESIM", "GAME"]:
         
         st.markdown(f"<h2 style='text-align:center;'>Hoşgeldin {st.session_state.ad_soyad}, Bugün Ne Yapmak İstersin? 👇</h2><br>", unsafe_allow_html=True)
         
@@ -692,30 +884,28 @@ elif st.session_state.ekran == 'sinav':
             st.markdown(f"<div class='soru-karti'>{soru['soru']}</div>", unsafe_allow_html=True)
             if "secenekler_mix" not in st.session_state:
                 s = soru["secenekler"].copy(); random.shuffle(s); st.session_state.secenekler_mix = s
-            c1, c2 = st.columns(2)
             for idx, sec in enumerate(st.session_state.secenekler_mix):
-                with (c1 if idx % 2 == 0 else c2):
-                    if st.button(sec, key=f"btn_{idx}", use_container_width=True):
-                        if sec.strip() == soru["cevap"].strip():
-                            st.toast("Doğru! ✅"); st.session_state.dogru_sayisi += 1
-                        else:
-                            st.toast("Yanlış! ❌"); st.session_state.yanlis_sayisi += 1
-                        del st.session_state.secenekler_mix; time.sleep(0.5); st.session_state.aktif_index += 1; st.rerun()
+                if st.button(sec, key=f"btn_{idx}", use_container_width=True):
+                    if sec.strip() == soru["cevap"].strip():
+                        st.toast("Doğru! ✅"); st.session_state.dogru_sayisi += 1
+                    else:
+                        st.toast("Yanlış! ❌"); st.session_state.yanlis_sayisi += 1
+                    del st.session_state.secenekler_mix; time.sleep(0.5); st.session_state.aktif_index += 1; st.rerun()
 
         elif st.session_state.mod == "PDF":
-            sayfa = st.session_state.secilen_liste[st.session_state.aktif_index]
-            st.subheader(f"📄 {TYT_VERI[sayfa]['ders']} - Sayfa {sayfa}")
-            t1, t2 = st.tabs(["📄 KİTAPÇIK", "📝 CEVAP FORMU"])
-            with t1: pdf_sayfa_getir(TYT_PDF_ADI, sayfa)
-            with t2:
-                with st.form(f"f_{sayfa}"):
-                    cevaplar = TYT_VERI[sayfa]["cevaplar"]
+            s = st.session_state.secilen_liste[st.session_state.aktif_index]
+            st.subheader(f"📄 {TYT_VERI[s]['ders']} - Sayfa {s}")
+            c1, c2 = st.columns([1, 1])
+            with c1: pdf_sayfa_getir(TYT_PDF_ADI, s)
+            with c2:
+                with st.form(f"f_{s}"):
+                    cevaplar = TYT_VERI[s]["cevaplar"]
                     for i in range(len(cevaplar)): st.radio(f"Soru {i+1}", ["A","B","C","D","E"], key=f"c_{i}", horizontal=True, index=None)
-                    if st.form_submit_button("KONTROL ET ➡️"):
-                        for i, dogru in enumerate(cevaplar):
-                            secilen = st.session_state.get(f"c_{i}")
-                            if dogru != "X":
-                                if not secilen: st.session_state.bos_sayisi += 1
-                                elif secilen == dogru: st.session_state.dogru_sayisi += 1
+                    if st.form_submit_button("Kontrol Et"):
+                        for i, d in enumerate(cevaplar):
+                            sec = st.session_state.get(f"c_{i}")
+                            if d != "X":
+                                if not sec: st.session_state.bos_sayisi += 1
+                                elif sec == d: st.session_state.dogru_sayisi += 1
                                 else: st.session_state.yanlis_sayisi += 1
                         st.session_state.aktif_index += 1; st.rerun()
