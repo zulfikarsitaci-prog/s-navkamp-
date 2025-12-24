@@ -8,7 +8,7 @@ import time
 import pandas as pd
 
 # --- 1. SAYFA AYARLARI ---
-st.set_page_config(page_title="Dijital Gelişim Programı", page_icon="🎓", layout="wide")
+st.set_page_config(page_title="Bağarası Hibrit Yaşam Merkezi", page_icon="🎓", layout="wide")
 
 # --- 2. SESSION STATE BAŞLATMA ---
 if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
@@ -31,8 +31,7 @@ MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 LIFESIM_JSON_ADI = "lifesim_data.json"
 
-# --- GÜNCELLENEN GOOGLE SHEETS LİNKİ ---
-# Verdiğin linkten ID'yi çektim: 1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo
+# GOOGLE SHEETS AYARLARI
 SHEET_ID = "1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo"
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
@@ -40,23 +39,48 @@ SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=cs
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
+    
+    /* Genel Sayfa */
     .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); font-family: 'Roboto', sans-serif; }
     h1, h2, h3 { color: #1e3a8a !important; }
     p, label { color: #374151 !important; font-size: 16px; }
-    .giris-kart { background-color: white; padding: 50px; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); text-align: center; border-top: 6px solid #FF7043; margin-top: 50px; margin-bottom: 20px; }
-    .secim-karti { background-color: white; padding: 25px; border-radius: 15px; border: 2px solid #e5e7eb; text-align: center; transition: all 0.3s ease; height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    .secim-karti:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #FF7043; }
-    .stButton>button { background-color: #FF7043 !important; color: white !important; border-radius: 10px; font-weight: bold; border: none !important; padding: 10px 20px; transition: all 0.2s; box-shadow: 0 4px 6px rgba(255, 112, 67, 0.3); }
+    
+    /* Giriş Kartı */
+    .giris-kart {
+        background-color: white; padding: 40px; border-radius: 20px;
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); text-align: center;
+        border-top: 6px solid #FF7043; margin-top: 30px; margin-bottom: 20px;
+    }
+    
+    /* Butonlar */
+    .stButton>button {
+        background-color: #FF7043 !important; color: white !important; border-radius: 10px;
+        font-weight: bold; border: none !important; padding: 10px 20px; transition: all 0.2s;
+        box-shadow: 0 4px 6px rgba(255, 112, 67, 0.3);
+    }
     .stButton>button:hover { background-color: #F4511E !important; transform: scale(1.02); }
     .stTextInput>div>div>input { border-radius: 10px; border: 2px solid #e5e7eb; padding: 10px; }
-    .footer-text { text-align: center; font-size: 11px; color: #9ca3af; margin-top: 30px; font-family: monospace; }
-    footer {visibility: hidden;} #MainMenu {visibility: hidden;}
     
-    /* Kart Stilleri */
+    /* Seçim Kartları */
+    .secim-karti {
+        background-color: white; padding: 25px; border-radius: 15px; border: 2px solid #e5e7eb;
+        text-align: center; transition: all 0.3s ease; height: 160px; display: flex; flex-direction: column;
+        justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    .secim-karti:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #FF7043; }
+    
+    /* Alt Bilgi */
+    .footer-text {
+        text-align: center; font-size: 10px; color: #9ca3af; margin-top: 50px; font-family: monospace; opacity: 0.7;
+    }
+    
+    /* Diğer Stiller */
     .konu-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 6px solid #2196F3; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .soru-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 5px solid #FF7043; font-size: 18px; margin-bottom: 20px; color: #000 !important; }
     .stat-card { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; border: 2px solid #FF7043; }
     .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
+    
+    footer {visibility: hidden;} #MainMenu {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
@@ -88,25 +112,30 @@ def pdf_sayfa_getir(yol, sayfa):
         st.image(pix.tobytes(), use_container_width=True)
     except: pass
 
-@st.cache_data(ttl=15)
+@st.cache_data(ttl=10) # 10 saniyede bir veriyi yeniler
 def get_leaderboard_data():
     try:
         df = pd.read_csv(SHEET_URL)
-        df.columns = [str(c).strip() for c in df.columns]
         
-        # Esnek sütun arama
-        name_col = next((c for c in df.columns if c.lower() in ['isim', 'ad', 'name', 'ad soyad']), None)
-        score_col = next((c for c in df.columns if c.lower() in ['puan', 'score', 'skor', 'money']), None)
+        # Sütun İsimlerini Temizle (Büyük/Küçük harf ve Türkçe karakter karmaşasını önler)
+        # Örn: "İSİM" -> "ISIM", "Puan " -> "PUAN"
+        df.columns = [str(c).strip().upper().replace('İ','I').replace('Ş','S').replace('Ğ','G').replace('Ü','U').replace('Ö','O').replace('Ç','C') for c in df.columns]
+        
+        # Olası Sütun İsimleri (Garantili Eşleşme)
+        name_col = next((c for c in df.columns if c in ['ISIM', 'AD', 'AD SOYAD', 'NAME']), None)
+        score_col = next((c for c in df.columns if c in ['PUAN', 'SKOR', 'SCORE', 'MONEY']), None)
         
         if name_col and score_col:
+            # Puanları sayıya çevir (Hata varsa 0 yap)
             df[score_col] = pd.to_numeric(df[score_col], errors='coerce').fillna(0)
+            # Sırala ve ilk 10'u al
             df = df.sort_values(by=score_col, ascending=False).head(10)
+            
             data = []
             for _, row in df.iterrows():
                 data.append({"name": str(row[name_col]), "score": int(row[score_col])})
             return json.dumps(data, ensure_ascii=False)
         else:
-            # Hata durumunda sütun isimlerini döndür
             return f"ERROR_COLUMNS|{', '.join(df.columns)}"
     except Exception as e:
         return f"ERROR_CONNECTION|{str(e)}"
@@ -118,7 +147,7 @@ SCENARIOS_JSON_STRING = load_lifesim_data()
 
 # --- 6. HTML ŞABLONLARI ---
 
-# A) LIFE-SIM ŞABLONU
+# A) LIFE-SIM HTML
 LIFE_SIM_TEMPLATE = """
 <!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><script src="https://cdn.tailwindcss.com"></script><script src="https://unpkg.com/lucide@latest"></script><script>tailwind.config={theme:{extend:{colors:{bg:'#0f172a',surface:'#1e293b',primary:'#38bdf8',accent:'#f472b6',success:'#34d399',warning:'#fbbf24'}}}}</script><style>body{background-color:#0f172a;color:#e2e8f0;font-family:'Segoe UI',sans-serif;overflow:hidden;display:flex;flex-direction:column;height:100vh;padding:10px}.glass{background:rgba(30,41,59,0.95);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08)}::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#0f172a}::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}.tab-btn{transition:all .3s ease;border-bottom:3px solid transparent;opacity:.6}.tab-btn.active{border-bottom-color:#38bdf8;opacity:1;color:#fff;background:rgba(56,189,248,.1)}.tab-content{display:none;height:100%;animation:fadeIn .4s ease}.tab-content.active{display:flex;flex-direction:column;gap:1rem}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}.info-card{position:absolute;top:0;right:0;bottom:0;left:0;background:rgba(15,23,42,.98);z-index:50;transform:translateX(100%);transition:transform .4s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column}.info-card.show{transform:translateX(0)}.btn-analyze{background:linear-gradient(135deg,#38bdf8 0,#2563eb 100%);transition:all .3s}.btn-analyze:hover{filter:brightness(1.1);transform:translateY(-1px)}.btn-finish{background:linear-gradient(135deg,#34d399 0,#059669 100%)}.msg{padding:12px 16px;border-radius:12px;max-width:85%;margin-bottom:10px}.msg-ai{background:rgba(56,189,248,.15);border-left:4px solid #38bdf8;align-self:flex-start;color:#e0f2fe}.msg-user{background:rgba(30,41,59,.8);border:1px solid rgba(255,255,255,.1);align-self:flex-end;color:#cbd5e1}</style></head><body><div class="flex gap-4 mb-2 shrink-0"><button onclick="switchTab('scenario')"id="tab-btn-scenario"class="tab-btn active flex-1 py-3 glass rounded-lg font-bold text-lg flex items-center justify-center gap-2"><i data-lucide="book-open"></i> GÖREV</button> <button onclick="switchTab('answer')"id="tab-btn-answer"class="tab-btn flex-1 py-3 glass rounded-lg font-bold text-lg flex items-center justify-center gap-2"><i data-lucide="message-circle"></i> İNTERAKTİF ANALİZ</button></div><div class="flex-1 overflow-hidden relative"><div id="tab-scenario"class="tab-content active"><div class="glass p-4 rounded-xl border-l-4 border-accent shrink-0"><select id="scenarioSelect"onchange="loadScenario()"class="w-full bg-slate-900 text-white p-3 rounded border border-slate-700 outline-none"></select></div><div class="glass p-8 rounded-xl flex-1 flex flex-col relative overflow-hidden"><div class="flex justify-between items-start mb-6"><span id="categoryBadge"class="px-4 py-1 bg-blue-500/20 text-blue-400 text-sm font-bold rounded-full border border-blue-500/30">...</span></div><h2 id="scenarioTitle"class="text-3xl font-bold text-white mb-6 leading-tight">...</h2><div class="prose prose-invert text-lg text-slate-300 overflow-y-auto pr-3 flex-1 leading-relaxed"id="scenarioText"></div><div class="mt-8 flex justify-between"><button onclick="toggleHint()"class="text-sm text-warning hover:text-white transition-colors bg-yellow-900/20 px-4 py-2 rounded-lg border border-yellow-700/30">İpucu</button><div id="hintBox"class="hidden p-2 bg-yellow-900/20 text-yellow-200/90 italic"></div><button onclick="switchTab('answer')"class="bg-slate-700 hover:bg-slate-600 text-white rounded-xl px-6 py-3 font-bold">Analize Başla</button></div></div></div><div id="tab-answer"class="tab-content relative"><div id="knowledgeCard"class="info-card border-l-4 border-success shadow-2xl rounded-xl"><div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50"><h3 class="text-xl font-bold text-success flex items-center gap-2">UZMAN GÖRÜŞÜ</h3><button onclick="closeKnowledgeCard()"class="p-2 hover:bg-slate-700 rounded-full"><i data-lucide="x"></i></button></div><div id="knowledgeContent"class="p-8 text-slate-200 text-lg leading-8 space-y-6 overflow-y-auto flex-1"></div></div><div id="chatContainer"class="flex flex-col flex-1 overflow-y-auto glass rounded-xl p-4 mb-2"></div><div class="glass p-1 rounded-xl shrink-0 border border-slate-700 glow-border flex flex-col"><textarea id="inputText"class="w-full h-24 bg-transparent p-4 text-lg text-slate-200 resize-none outline-none font-light placeholder-slate-600"placeholder="Stratejini buraya yaz..."></textarea><div class="flex justify-between items-center bg-slate-800/50 p-2 rounded-b-xl"><span class="text-xs text-slate-500 ml-2"id="stepIndicator">Aşama 1/3</span><button id="analyzeBtn"onclick="analyzeSubmission()"class="btn-analyze text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2 shadow-lg"><span>GÖNDER</span> <i data-lucide="send"class="w-4 h-4"></i></button></div></div><div id="expertBtnContainer"class="hidden absolute top-4 right-4 z-40"><button onclick="openKnowledgeCard()"class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-bold animate-bounce">UZMAN GÖRÜŞÜNÜ GÖR</button></div></div></div><script>lucide.createIcons();const scenarios=__SCENARIOS_PLACEHOLDER__;let selectedScenarioIndex=0;let currentStep=1;window.onload=function(){const select=document.getElementById('scenarioSelect');const categories={};scenarios.forEach((s,index)=>{if(!categories[s.category])categories[s.category]=[];categories[s.category].push({...s,idx:index})});for(const[cat,items]of Object.entries(categories)){let group=document.createElement('optgroup');group.label=cat.toUpperCase();items.forEach(item=>{let opt=document.createElement('option');opt.value=item.idx;opt.innerHTML=item.title;group.appendChild(opt)});select.appendChild(group)}loadScenario()};function switchTab(tabName){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-btn-'+tabName).classList.add('active');document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));document.getElementById('tab-'+tabName).classList.add('active')}function loadScenario(){selectedScenarioIndex=document.getElementById('scenarioSelect').value;const s=scenarios[selectedScenarioIndex];switchTab('scenario');document.getElementById('categoryBadge').innerText=s.category;document.getElementById('scenarioTitle').innerText=s.title;document.getElementById('scenarioText').innerHTML=s.text;currentStep=1;document.getElementById('inputText').value="";document.getElementById('inputText').disabled=false;document.getElementById('hintBox').classList.add('hidden');document.getElementById('expertBtnContainer').classList.add('hidden');document.getElementById('knowledgeCard').classList.remove('show');document.getElementById('stepIndicator').innerText="Aşama 1/3";document.getElementById('chatContainer').innerHTML=`<div class="msg msg-ai">Merhaba! Bu senaryoyu dikkatlice okuduysan, ilk kararını ve gerekçeni aşağıya yaz.</div>`;const btn=document.getElementById('analyzeBtn');btn.innerHTML='<span>GÖNDER</span>';btn.className="btn-analyze text-white font-bold py-2 px-6 rounded-lg flex items-center gap-2 shadow-lg";btn.disabled=false}function addMessage(text,type){const chat=document.getElementById('chatContainer');const div=document.createElement('div');div.className=`msg ${type==='user'?'msg-user':'msg-ai'}`;div.innerHTML=text;chat.appendChild(div);chat.scrollTop=chat.scrollHeight}function analyzeSubmission(){const input=document.getElementById('inputText');const text=input.value.trim();const btn=document.getElementById('analyzeBtn');if(text.length<10){addMessage("Lütfen biraz daha detaylı yaz.","msg-ai");return}addMessage(text,"msg-user");input.value="";btn.disabled=true;btn.innerHTML='⏳...';setTimeout(()=>{let aiResponse="";if(currentStep===1){aiResponse="Güzel bir başlangıç. Peki riskleri ve alternatif maliyetleri düşündün mü? Biraz daha detaylandır.";currentStep++;document.getElementById('stepIndicator').innerText="Aşama 2/3";btn.disabled=false;btn.innerHTML='DEVAM ET'}else if(currentStep===2){aiResponse="Analizlerin kayda alındı. Şimdi uzman görüşünü inceleyip raporunu alabilirsin.";currentStep++;document.getElementById('stepIndicator').innerText="Tamamlandı";input.disabled=true;input.placeholder="Bitti.";btn.className="btn-finish text-white font-bold py-2 px-6 rounded-lg opacity-50";btn.innerHTML='BİTTİ';document.getElementById('expertBtnContainer').classList.remove('hidden')}addMessage(aiResponse,"msg-ai")},800)}function openKnowledgeCard(){document.getElementById('knowledgeContent').innerHTML=scenarios[selectedScenarioIndex].doc;document.getElementById('knowledgeCard').classList.remove('hidden');requestAnimationFrame(()=>document.getElementById('knowledgeCard').classList.add('show'))}function closeKnowledgeCard(){document.getElementById('knowledgeCard').classList.remove('show');setTimeout(()=>document.getElementById('knowledgeCard').classList.add('hidden'),400)}function toggleHint(){document.getElementById('hintBox').innerHTML=scenarios[selectedScenarioIndex].hint;document.getElementById('hintBox').classList.remove('hidden')}</script></body></html>
 """
@@ -204,10 +233,13 @@ GAME_HTML_TEMPLATE = """
         function renderLeaderboard() {
             let dataToShow = cloudLeaderboard;
             if(!dataToShow || dataToShow.length === 0) {
+                // Veri yoksa veya yüklenemediyse sadece oyuncuyu göster
                 dataToShow = [{name: playerName, score: game.money}];
             } else {
                 let meFound = false;
+                // Veri geldiyse oyuncunun en güncel skorunu güncelle
                 dataToShow.forEach(p => { if(p.name === playerName) { p.score = Math.max(p.score, game.money); p.isMe = true; meFound = true; }});
+                // Oyuncu listede yoksa ekle
                 if(!meFound) dataToShow.push({name: playerName, score: game.money, isMe: true});
             }
             dataToShow.sort((a, b) => b.score - a.score);
@@ -268,8 +300,21 @@ GAME_HTML_TEMPLATE = """
 if st.session_state.ekran == 'giris':
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("""<div class='giris-kart'><h1>🎓 Bağarası ÇPAL</h1><h2>Finans & Eğitim Ekosistemi</h2><hr><p style="font-size:18px; font-weight:bold; color:#D84315;">Muhasebe ve Finansman Alanı Dijital Dönüşüm Projesi</p><br><p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p></div>""", unsafe_allow_html=True)
+        st.markdown("""
+        <div class='giris-kart'>
+            <h1>🎓 Bağarası ÇPAL</h1>
+            <h2>Finans & Eğitim Ekosistemi</h2>
+            <hr>
+            <p style="font-size:18px; font-weight:bold; color:#D84315;">
+                Muhasebe ve Finansman Alanı Dijital Dönüşüm Projesi
+            </p>
+            <br>
+            <p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
         ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet Karaduman")
+        
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
             if ad_soyad_input.strip():
@@ -277,7 +322,8 @@ if st.session_state.ekran == 'giris':
                 st.session_state.ekran = 'sinav'
                 st.rerun()
             else: st.error("Lütfen adınızı giriniz!")
-        st.markdown("""<div class='imza-container'><div class='imza'></div></div>""", unsafe_allow_html=True)
+        
+        st.markdown("<div class='footer-text'>Geliştirici: Zülfikar SITACI</div>", unsafe_allow_html=True)
 
 elif st.session_state.ekran == 'sinav':
     with st.sidebar:
@@ -292,6 +338,7 @@ elif st.session_state.ekran == 'sinav':
             st.session_state.ekran = 'giris'
             st.session_state.oturum = False
             st.rerun()
+        st.markdown("<div class='footer-text'>Geliştirici: Zülfikar SITACI</div>", unsafe_allow_html=True)
 
     # ANA MENÜ
     if not st.session_state.oturum and st.session_state.secim_turu not in ["LIFESIM", "GAME"]:
