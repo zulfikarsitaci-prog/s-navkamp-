@@ -36,7 +36,7 @@ SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=cs
 
 # --- 4. GÜVENLİ VERİ YÜKLEME ---
 def dosya_yukle(dosya_adi):
-    # Dosya yoksa veya bozuksa programın çökmemesi için YEDEK VERİ döndürür
+    # Dosya yoksa YEDEK VERİ döndür (Sistem çökmesin diye)
     if not os.path.exists(dosya_adi):
         if dosya_adi == MESLEK_JSON_ADI:
             return {"KONU_TARAMA": {"9. Sınıf": {"Yedek Ders": {"Örnek Test": [{"soru": "Dosya okunamadı, bu örnek sorudur. 2+2?", "secenekler": ["3","4","5"], "cevap": "4"}]}}}}
@@ -51,22 +51,35 @@ def dosya_yukle(dosya_adi):
                 return {int(k): v for k, v in data.items()}
             return data
     except:
-        # JSON bozuksa da yedek döndür
-        if dosya_adi == MESLEK_JSON_ADI:
-            return {"KONU_TARAMA": {"9. Sınıf": {"Hata Dersi": {"Hata Testi": [{"soru": "JSON Format Hatası", "secenekler": ["A"], "cevap": "A"}]}}}}
         return {}
 
 def load_lifesim_data():
+    # Buradaki senaryolar HTML formatlıdır (<br> ve <b> içerir)
+    default_scenarios = """[
+        {
+            "id": 1, 
+            "category": "Girişimcilik", 
+            "title": "Okul Kantini İhalesi", 
+            "text": "Okulun kantin ihalesi açıldı. İhaleye girmek için 5.000 TL teminat yatırman gerekiyor. İhaleyi kazanırsan günlük cirodan %20 kar elde edeceksin ama kira ve personel giderleri var.<br><br><b>Karar:</b> Risk alıp ihaleye girecek misin, yoksa paranı bankada mı tutacaksın?", 
+            "hint": "Ticarette risk almadan büyüme olmaz, ancak giderleri iyi hesaplamalısın.", 
+            "doc": "<h3>Ticari Risk Analizi</h3><p>Bir işletmeye yatırım yaparken sadece ciroya (kasaya giren paraya) bakılmaz. <b>Net Kar = Ciro - (Kira + Personel + Malzeme)</b> formülü kullanılır.</p>"
+        },
+        {
+            "id": 2, 
+            "category": "Yatırım", 
+            "title": "Staj Maaşı Değerlendirme", 
+            "text": "Stajdan kazandığın ilk toplu paranla (10.000 TL) ne yapacaksın? Arkadaşların son model bir telefon almanı söylüyor. Ancak bir abin, bu parayla küçük bir e-ticaret sitesi kurup ürün satabileceğini söylüyor.<br><br><b>Karar:</b> Telefon mu alırsın, iş mi kurarsın?", 
+            "hint": "Telefon bir giderdir ve değeri düşer. İş kurmak ise bir yatırımdır.", 
+            "doc": "<h3>Aktif vs Pasif Harcama</h3><p><b>Aktif Harcama:</b> Cebinize para koyan harcamadır (Örn: İş kurmak, hisse almak). <br><b>Pasif Harcama:</b> Cebinizden para çıkaran harcamadır.</p>"
+        }
+    ]"""
+    
     if os.path.exists(LIFESIM_JSON_ADI):
         try:
             with open(LIFESIM_JSON_ADI, "r", encoding="utf-8") as f:
                 return f.read()
         except: pass
-    # Dosya yoksa varsayılan senaryoları döndür
-    return """[
-        {"id":1, "category":"Girişimcilik", "title":"Kantin İhalesi", "text":"Okul kantini ihalesine girmek için 5000 TL gerekiyor. Risk alacak mısın?", "hint":"Sabit giderleri hesapla.", "doc":"<h3>Ticari Risk</h3><p>Net Kar analizi yapılmalıdır.</p>"},
-        {"id":2, "category":"Yatırım", "title":"Altın mı Dolar mı?", "text":"Eline geçen 10.000 TL'yi nasıl değerlendireceksin?", "hint":"Uzun vade düşün.", "doc":"<h3>Yatırım Araçları</h3><p>Altın güvenli limandır.</p>"}
-    ]"""
+    return default_scenarios
 
 def pdf_sayfa_getir(yol, sayfa):
     if not os.path.exists(yol): 
@@ -83,7 +96,8 @@ def pdf_sayfa_getir(yol, sayfa):
 def get_hybrid_leaderboard(current_user, current_score):
     try:
         df = pd.read_csv(SHEET_URL)
-        df.columns = [str(c).strip().upper().replace('İ','I').replace('Ş','S') for c in df.columns]
+        # Sütun isimlerini temizle ve büyük harf yap
+        df.columns = [str(c).strip().upper().replace('İ','I').replace('Ş','S').replace('Ğ','G').replace('Ü','U').replace('Ö','O').replace('Ç','C') for c in df.columns]
         
         name_col = next((c for c in df.columns if c in ['ISIM', 'AD', 'AD SOYAD', 'NAME']), None)
         score_col = next((c for c in df.columns if c in ['PUAN', 'SKOR', 'SCORE', 'MONEY']), None)
