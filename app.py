@@ -14,6 +14,7 @@ st.set_page_config(page_title="Dijital Gelişim Programı", page_icon="🎓", la
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
+    
     .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); font-family: 'Roboto', sans-serif; }
     h1, h2, h3 { color: #1e3a8a !important; }
     
@@ -87,8 +88,10 @@ def get_hybrid_leaderboard(current_user, current_score):
     try:
         df = pd.read_csv(SHEET_URL)
         df.columns = [str(c).strip().upper().replace('İ','I') for c in df.columns]
+        
         name_col = next((c for c in df.columns if 'ISIM' in c or 'AD' in c), None)
         score_col = next((c for c in df.columns if 'PUAN' in c or 'SKOR' in c), None)
+        
         data = []
         if name_col and score_col:
             for _, row in df.iterrows():
@@ -96,6 +99,7 @@ def get_hybrid_leaderboard(current_user, current_score):
                     p = int(pd.to_numeric(row[score_col], errors='coerce'))
                     if p > 0: data.append({"name": str(row[name_col]), "score": p})
                 except: continue
+        
         user_found = False
         for p in data:
             if p["name"].strip().lower() == current_user.strip().lower():
@@ -103,7 +107,10 @@ def get_hybrid_leaderboard(current_user, current_score):
                 p["isMe"] = True
                 user_found = True
                 break
-        if not user_found: data.append({"name": current_user, "score": current_score, "isMe": True})
+        
+        if not user_found:
+            data.append({"name": current_user, "score": current_score, "isMe": True})
+            
         data.sort(key=lambda x: x["score"], reverse=True)
         return json.dumps(data[:15], ensure_ascii=False)
     except:
@@ -115,6 +122,11 @@ MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
 SCENARIOS_JSON_STRING = load_lifesim_data()
 
 # --- 6. HTML ŞABLONLARI ---
+
+# ASSET MATRIX (YENİ EKLENEN OYUN)
+ASSET_MATRIX_HTML = """
+<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>Black Asset Matrix</title><style>@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');body{margin:0;overflow:hidden;background-color:#050505;font-family:'Montserrat',sans-serif;color:#fff;touch-action:none}#game-container{position:relative;width:100vw;height:100vh;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;background:radial-gradient(circle at center,#1a1a1a 0%,#000000 100%);padding-top:20px;box-sizing:border-box}.header{text-align:center;margin-bottom:20px;z-index:2}.score-label{font-size:12px;color:#FFD700;letter-spacing:1px;text-transform:uppercase;opacity:0.8}#score{font-size:36px;font-weight:900;color:#fff;text-shadow:0 0 15px rgba(255,215,0,0.5)}canvas{box-shadow:0 0 30px rgba(0,0,0,0.9);border-radius:8px;border:1px solid #333;background:#0a0a0a;touch-action:none}.menu-screen{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:10;transition:opacity 0.3s}.hidden{opacity:0;pointer-events:none}h1{font-size:2.5rem;text-transform:uppercase;letter-spacing:-1px;margin-bottom:10px}h1 span{color:#FFD700}p{color:#aaa;margin-bottom:30px;font-size:1rem;text-align:center;max-width:80%}.btn{background:linear-gradient(45deg,#FFD700,#C5A028);border:none;padding:15px 40px;font-size:18px;font-weight:800;color:#000;text-transform:uppercase;cursor:pointer;border-radius:30px;box-shadow:0 0 20px rgba(255,215,0,0.3);font-family:'Montserrat',sans-serif}.btn:hover{transform:scale(1.05);box-shadow:0 0 30px rgba(255,215,0,0.5)}</style></head><body><div id="game-container"><div class="header"><div class="score-label">Toplam Portföy Değeri</div><div id="score">$0</div></div><canvas id="gameCanvas"></canvas><div id="startScreen" class="menu-screen"><h1>Asset <span>Matrix</span></h1><p>Varlık bloklarını 8x8 matrise yerleştir. Satır ve sütunları tamamlayarak likidite sağla.</p><button class="btn" onclick="initGame()">Piyasaya Gir</button></div><div id="gameOverScreen" class="menu-screen hidden"><h1 style="color:#ff4444;">Piyasa Kilitlendi</h1><p>Hamle kalmadı. Toplam Varlık: <br><span id="finalScore" style="color:#FFD700;font-size:1.5em;">$0</span></p><button class="btn" onclick="initGame()">Portföyü Sıfırla</button></div></div><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const scoreEl=document.getElementById('score');const finalScoreEl=document.getElementById('finalScore');const startScreen=document.getElementById('startScreen');const gameOverScreen=document.getElementById('gameOverScreen');const GRID_SIZE=8;let CELL_SIZE=40;let BOARD_OFFSET_X=0;let BOARD_OFFSET_Y=0;const GRID_COLOR='#1a1a1a';const GRID_LINE_COLOR='#333';const BLOCK_COLOR_Start='#FFD700';const BLOCK_COLOR_End='#C5A028';let grid=Array(GRID_SIZE).fill(0).map(()=>Array(GRID_SIZE).fill(0));let score=0;let availablePieces=[];let draggingPiece=null;let isGameOver=false;const SHAPES=[[[1]],[[1,1]],[[1],[1]],[[1,1,1]],[[1],[1],[1]],[[1,1],[1,1]],[[1,1,1],[0,1,0]],[[1,1,0],[0,1,1]],[[0,1,1],[1,1,0]],[[1,0],[1,0],[1,1]],[[1,1,1],[1,0,0]],[[1,1,1,1]]];function resize(){const maxWidth=window.innerWidth*0.95;const maxHeight=window.innerHeight*0.80;let size=Math.min(maxWidth,maxHeight*0.7);CELL_SIZE=Math.floor(size/GRID_SIZE);canvas.width=CELL_SIZE*GRID_SIZE+40;canvas.height=CELL_SIZE*GRID_SIZE+150;BOARD_OFFSET_X=20;BOARD_OFFSET_Y=20;if(!isGameOver&&availablePieces.length>0)draw()}window.addEventListener('resize',resize);function initGame(){grid=Array(GRID_SIZE).fill(0).map(()=>Array(GRID_SIZE).fill(0));score=0;isGameOver=false;updateScore(0);startScreen.classList.add('hidden');gameOverScreen.classList.add('hidden');generateNewPieces();resize();draw()}function generateNewPieces(){availablePieces=[];for(let i=0;i<3;i++){const shapeMatrix=SHAPES[Math.floor(Math.random()*SHAPES.length)];const spawnY=BOARD_OFFSET_Y+GRID_SIZE*CELL_SIZE+30;const spawnX=BOARD_OFFSET_X+(i*(canvas.width/3));availablePieces.push({matrix:shapeMatrix,x:spawnX,y:spawnY,baseX:spawnX,baseY:spawnY,width:shapeMatrix[0].length*CELL_SIZE,height:shapeMatrix.length*CELL_SIZE,isDragging:false})}if(checkGameOverState()){gameOver()}}function updateScore(points){score+=points;scoreEl.innerText="$"+(score*100).toLocaleString()}function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);drawGrid();drawPlacedBlocks();drawAvailablePieces()}function drawGrid(){ctx.strokeStyle=GRID_LINE_COLOR;ctx.lineWidth=0.5;ctx.beginPath();for(let i=0;i<=GRID_SIZE;i++){ctx.moveTo(BOARD_OFFSET_X,BOARD_OFFSET_Y+i*CELL_SIZE);ctx.lineTo(BOARD_OFFSET_X+GRID_SIZE*CELL_SIZE,BOARD_OFFSET_Y+i*CELL_SIZE);ctx.moveTo(BOARD_OFFSET_X+i*CELL_SIZE,BOARD_OFFSET_Y);ctx.lineTo(BOARD_OFFSET_X+i*CELL_SIZE,BOARD_OFFSET_Y+GRID_SIZE*CELL_SIZE)}ctx.stroke()}function drawCell(x,y,size,isPreview=false){const gradient=ctx.createLinearGradient(x,y,x+size,y+size);if(isPreview){gradient.addColorStop(0,'rgba(255, 215, 0, 0.5)');gradient.addColorStop(1,'rgba(197, 160, 40, 0.5)')}else{gradient.addColorStop(0,BLOCK_COLOR_Start);gradient.addColorStop(1,BLOCK_COLOR_End)}ctx.fillStyle=gradient;ctx.fillRect(x+1,y+1,size-2,size-2);ctx.strokeStyle=isPreview?"rgba(255,255,255,0.3)":"rgba(255,255,255,0.5)";ctx.lineWidth=1;ctx.strokeRect(x+2,y+2,size-4,size-4)}function drawPlacedBlocks(){for(let row=0;row<GRID_SIZE;row++){for(let col=0;col<GRID_SIZE;col++){if(grid[row][col]===1){drawCell(BOARD_OFFSET_X+col*CELL_SIZE,BOARD_OFFSET_Y+row*CELL_SIZE,CELL_SIZE)}}}}function drawAvailablePieces(){availablePieces.forEach(piece=>{if(piece.isDragging)return;drawShape(piece.matrix,piece.x,piece.y,CELL_SIZE*0.6)});if(draggingPiece){drawShape(draggingPiece.matrix,draggingPiece.x,draggingPiece.y,CELL_SIZE);const{gridX,gridY}=getGridCoordsFromMouse(draggingPiece.x,draggingPiece.y,draggingPiece.matrix);if(canPlace(draggingPiece.matrix,gridX,gridY)){drawShape(draggingPiece.matrix,BOARD_OFFSET_X+gridX*CELL_SIZE,BOARD_OFFSET_Y+gridY*CELL_SIZE,CELL_SIZE,true)}}}function drawShape(matrix,startX,startY,cellSize,isPreview=false){for(let row=0;row<matrix.length;row++){for(let col=0;col<matrix[row].length;col++){if(matrix[row][col]===1){drawCell(startX+col*cellSize,startY+row*cellSize,cellSize,isPreview)}}}}function canPlace(matrix,gridX,gridY){for(let row=0;row<matrix.length;row++){for(let col=0;col<matrix[row].length;col++){if(matrix[row][col]===1){let targetX=gridX+col;let targetY=gridY+row;if(targetX<0||targetX>=GRID_SIZE||targetY<0||targetY>=GRID_SIZE||grid[targetY][targetX]===1){return false}}}}return true}function placePiece(matrix,gridX,gridY){for(let row=0;row<matrix.length;row++){for(let col=0;col<matrix[row].length;col++){if(matrix[row][col]===1){grid[gridY+row][gridX+col]=1}}}updateScore(matrix.length*matrix[0].length);checkAndClearLines()}function checkAndClearLines(){let linesCleared=0;let rowsToClear=[];let colsToClear=[];for(let row=0;row<GRID_SIZE;row++){if(grid[row].every(cell=>cell===1)){rowsToClear.push(row)}}for(let col=0;col<GRID_SIZE;col++){let full=true;for(let row=0;row<GRID_SIZE;row++){if(grid[row][col]===0){full=false;break}}if(full)colsToClear.push(col)}rowsToClear.forEach(row=>{for(let col=0;col<GRID_SIZE;col++)grid[row][col]=0;linesCleared++});colsToClear.forEach(col=>{for(let row=0;row<GRID_SIZE;row++)grid[row][col]=0;linesCleared++});if(linesCleared>0){updateScore(linesCleared*200*linesCleared);canvas.style.transform='scale(1.02)';setTimeout(()=>canvas.style.transform='scale(1)',100)}}let dragOffsetX=0;let dragOffsetY=0;function getEventPos(e){const rect=canvas.getBoundingClientRect();let clientX=e.clientX;let clientY=e.clientY;if(e.touches&&e.touches.length>0){clientX=e.touches[0].clientX;clientY=e.touches[0].clientY}return{x:clientX-rect.left,y:clientY-rect.top}}function getGridCoordsFromMouse(pieceX,pieceY,matrix){let rawGridX=Math.round((pieceX-BOARD_OFFSET_X)/CELL_SIZE);let rawGridY=Math.round((pieceY-BOARD_OFFSET_Y)/CELL_SIZE);return{gridX:rawGridX,gridY:rawGridY}}function handleStart(e){if(isGameOver)return;e.preventDefault();const pos=getEventPos(e);for(let i=availablePieces.length-1;i>=0;i--){const p=availablePieces[i];const renderSize=CELL_SIZE*0.6;const pWidth=p.matrix[0].length*renderSize;const pHeight=p.matrix.length*renderSize;if(pos.x>p.x&&pos.x<p.x+pWidth&&pos.y>p.y&&pos.y<p.y+pHeight){draggingPiece=p;p.isDragging=true;dragOffsetX=pos.x-p.x;dragOffsetY=pos.y-p.y;dragOffsetX=(dragOffsetX/renderSize)*CELL_SIZE;dragOffsetY=(dragOffsetY/renderSize)*CELL_SIZE;draw();return}}}function handleMove(e){if(!draggingPiece)return;e.preventDefault();const pos=getEventPos(e);draggingPiece.x=pos.x-dragOffsetX;draggingPiece.y=pos.y-dragOffsetY;draw()}function handleEnd(e){if(!draggingPiece)return;e.preventDefault();const{gridX,gridY}=getGridCoordsFromMouse(draggingPiece.x,draggingPiece.y,draggingPiece.matrix);if(canPlace(draggingPiece.matrix,gridX,gridY)){placePiece(draggingPiece.matrix,gridX,gridY);availablePieces=availablePieces.filter(p=>p!==draggingPiece);if(availablePieces.length===0){generateNewPieces()}else{if(checkGameOverState())gameOver()}}else{draggingPiece.x=draggingPiece.baseX;draggingPiece.y=draggingPiece.baseY;draggingPiece.isDragging=false}draggingPiece=null;draw()}function checkGameOverState(){if(availablePieces.length===0)return false;for(let i=0;i<availablePieces.length;i++){const matrix=availablePieces[i].matrix;for(let row=0;row<GRID_SIZE;row++){for(let col=0;col<GRID_SIZE;col++){if(canPlace(matrix,col,row)){return false}}}}return true}function gameOver(){isGameOver=true;finalScoreEl.innerText=scoreEl.innerText;gameOverScreen.classList.remove('hidden')}canvas.addEventListener('mousedown',handleStart);canvas.addEventListener('mousemove',handleMove);canvas.addEventListener('mouseup',handleEnd);canvas.addEventListener('mouseleave',handleEnd);canvas.addEventListener('touchstart',handleStart,{passive:false});canvas.addEventListener('touchmove',handleMove,{passive:false});canvas.addEventListener('touchend',handleEnd,{passive:false});resize();</script></body></html>
+"""
 
 LIFE_SIM_DISPLAY_HTML = """
 <!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><script src="https://cdn.tailwindcss.com"></script><script src="https://unpkg.com/lucide@latest"></script><style>body{background:transparent;color:#e2e8f0;font-family:sans-serif;padding:10px}.glass{background:rgba(30,41,59,0.95);border-radius:16px;padding:24px;border:1px solid rgba(255,255,255,0.1);box-shadow:0 10px 30px rgba(0,0,0,0.2)}.badge{background:rgba(56,189,248,0.2);color:#38bdf8;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:bold;border:1px solid rgba(56,189,248,0.3)}</style></head>
@@ -142,299 +154,6 @@ function claim(){g.m+=r; document.getElementById('pop').classList.add('hidden');
 function rst(){if(confirm("Sıfırla?")){localStorage.removeItem('f7'); location.reload();}}
 function renderLB(){let l=document.getElementById('lb'); l.innerHTML=""; ld.sort((a,b)=>b.score-a.score).slice(0,10).forEach((p,i)=>{let c=i===0?"text-yellow-400":(i===1?"text-slate-300":"text-slate-500"); l.innerHTML+=`<div class="flex justify-between p-1 rounded ${p.isMe?'bg-blue-600/30':''}"><div class="flex gap-2"><span class="font-black ${c}">${i+1}</span><span class="truncate font-bold text-slate-200">${p.name}</span></div><span class="font-mono text-green-400">${Math.floor(p.score).toLocaleString()}</span></div>`;});}
 </script></body></html>
-"""
-
-# --- BLOCK BLAST HTML (FİNANS TEMALI) ---
-BLOCK_BLAST_HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<style>
-body { background: #0f172a; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; touch-action: none; overflow: hidden; }
-#game-container { width: 95vw; max-width: 400px; display: flex; flex-direction: column; gap: 10px; }
-#stats { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
-.stat-box { text-align: center; }
-.stat-label { font-size: 10px; color: #94a3b8; letter-spacing: 1px; }
-.stat-val { font-size: 20px; font-weight: bold; color: #4ade80; }
-#grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px; aspect-ratio: 1; }
-.cell { background: rgba(255,255,255,0.05); border-radius: 4px; transition: background 0.2s; }
-.cell.filled { box-shadow: inset 0 0 10px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); }
-#pieces { display: flex; justify-content: space-around; height: 100px; align-items: center; margin-top: 10px; }
-.piece-container { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
-.piece-preview { display: grid; gap: 2px; transform: scale(0.6); touch-action: none; }
-.block { width: 20px; height: 20px; border-radius: 2px; border: 1px solid rgba(255,255,255,0.3); }
-.dragging { position: fixed; pointer-events: none; z-index: 1000; transform: scale(1.0); opacity: 0.9; }
-.color-1 { background: #22c55e; } /* Dolar Yeşili */
-.color-2 { background: #eab308; } /* Altın */
-.color-3 { background: #3b82f6; } /* Borsa Mavisi */
-.color-4 { background: #a855f7; } /* Kripto Moru */
-#msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 30px; border-radius: 16px; text-align: center; display: none; border: 2px solid #eab308; z-index: 2000; }
-</style>
-</head>
-<body>
-<div id="game-container">
-    <div id="stats">
-        <div class="stat-box"><div class="stat-label">TEMETTÜ</div><div class="stat-val" id="score">0 ₺</div></div>
-        <div class="stat-box"><div class="stat-label">PORTFÖY</div><div class="stat-val" id="best">0 ₺</div></div>
-    </div>
-    <div id="grid"></div>
-    <div id="pieces"></div>
-</div>
-<div id="msg">
-    <h2 style="color:#eab308; margin-bottom:10px">PİYASA ÇÖKTÜ!</h2>
-    <p style="color:#cbd5e1; margin-bottom:20px">Hamle yapacak yer kalmadı.</p>
-    <button onclick="resetGame()" style="background:#eab308; border:none; padding:12px 24px; border-radius:8px; font-weight:bold; cursor:pointer">YENİDEN BAŞLA</button>
-</div>
-
-<script>
-const G=8; let grid=[], score=0, best=localStorage.getItem('bb_best')||0;
-const SHAPES=[
-    [[1]], [[1,1]], [[1,1,1]], [[1,1,1,1]], // Lines
-    [[1,1],[1,1]], // Square
-    [[1,0],[1,1]], [[0,1],[1,1]], // L small
-    [[1,1,1],[0,1,0]], [[0,1,0],[1,1,1]], // T
-    [[1,1,0],[0,1,1]], [[0,1,1],[1,1,0]] // Z
-];
-const COLORS=['color-1','color-2','color-3','color-4'];
-
-function init(){
-    grid=Array(G).fill().map(()=>Array(G).fill(0));
-    document.getElementById('grid').innerHTML = '';
-    for(let i=0; i<G*G; i++) {
-        let d=document.createElement('div'); d.className='cell'; d.id='c-'+i;
-        document.getElementById('grid').appendChild(d);
-    }
-    updateStats(); spawnPieces();
-    document.getElementById('msg').style.display='none';
-}
-
-function updateStats(){
-    document.getElementById('score').innerText=score+" ₺";
-    document.getElementById('best').innerText=best+" ₺";
-}
-
-function spawnPieces(){
-    let p=document.getElementById('pieces'); p.innerHTML='';
-    for(let i=0; i<3; i++){
-        let sh=SHAPES[Math.floor(Math.random()*SHAPES.length)];
-        let cl=COLORS[Math.floor(Math.random()*COLORS.length)];
-        let c=document.createElement('div'); c.className='piece-container';
-        let pre=createPreview(sh, cl);
-        c.appendChild(pre); p.appendChild(c);
-        
-        // Touch/Mouse Logic
-        pre.onmousedown = pre.ontouchstart = startDrag;
-    }
-}
-
-function createPreview(shape, color){
-    let d=document.createElement('div'); d.className='piece-preview';
-    d.style.gridTemplateColumns=`repeat(${shape[0].length}, 20px)`;
-    d.dataset.shape=JSON.stringify(shape); d.dataset.color=color;
-    shape.forEach(row=>{
-        row.forEach(cell=>{
-            let b=document.createElement('div');
-            if(cell) b.className='block '+color;
-            d.appendChild(b);
-        });
-    });
-    return d;
-}
-
-let dragEl=null, startX, startY, currentShape, currentColor;
-
-function startDrag(e){
-    e.preventDefault();
-    let touch = e.touches ? e.touches[0] : e;
-    let target = e.target.closest('.piece-preview');
-    if(!target) return;
-
-    currentShape = JSON.parse(target.dataset.shape);
-    currentColor = target.dataset.color;
-    
-    dragEl = target.cloneNode(true);
-    dragEl.className += ' dragging';
-    dragEl.style.width = target.offsetWidth + 'px';
-    document.body.appendChild(dragEl);
-    
-    moveDrag(touch);
-    
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('touchmove', onMove, {passive: false});
-    document.addEventListener('mouseup', onEnd);
-    document.addEventListener('touchend', onEnd);
-    
-    target.style.opacity = '0'; // Hide original
-}
-
-function onMove(e){
-    e.preventDefault();
-    let touch = e.touches ? e.touches[0] : e;
-    moveDrag(touch);
-    highlightGrid(touch.clientX, touch.clientY);
-}
-
-function moveDrag(touch){
-    if(dragEl){
-        dragEl.style.left = (touch.clientX - dragEl.offsetWidth/2) + 'px';
-        dragEl.style.top = (touch.clientY - dragEl.offsetHeight) + 'px'; // Offset above finger
-    }
-}
-
-function onEnd(e){
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('touchmove', onMove);
-    document.removeEventListener('mouseup', onEnd);
-    document.removeEventListener('touchend', onEnd);
-    
-    let touch = e.changedTouches ? e.changedTouches[0] : e;
-    let placed = tryPlace(touch.clientX, touch.clientY);
-    
-    if(placed){
-        // Remove from container
-        let originals = document.querySelectorAll('.piece-preview');
-        for(let o of originals){
-            if(o.style.opacity === '0') o.parentElement.remove();
-        }
-        score += currentShape.flat().reduce((a,b)=>a+b,0) * 10;
-        checkLines();
-        if(document.getElementById('pieces').children.length === 0) spawnPieces();
-        checkGameOver();
-    } else {
-        // Return animation could go here
-        let originals = document.querySelectorAll('.piece-preview');
-        for(let o of originals) o.style.opacity = '1';
-    }
-    
-    if(dragEl) dragEl.remove();
-    dragEl = null; clearHighlight(); updateStats();
-}
-
-function getGridPos(x, y){
-    // Offset because user drags from above finger
-    y = y - 50; 
-    let els = document.elementsFromPoint(x, y);
-    let cell = els.find(e => e.classList.contains('cell'));
-    if(cell){
-        let id = parseInt(cell.id.split('-')[1]);
-        return {r: Math.floor(id/G), c: id%G};
-    }
-    return null;
-}
-
-function tryPlace(x, y){
-    let pos = getGridPos(x, y);
-    if(!pos) return false;
-    
-    // Check boundaries and collision
-    let r = pos.r, c = pos.c;
-    // Adjust logic to center/corner? Let's assume top-left of shape drops on cell
-    
-    for(let i=0; i<currentShape.length; i++){
-        for(let j=0; j<currentShape[0].length; j++){
-            if(currentShape[i][j]){
-                if(r+i >= G || c+j >= G || grid[r+i][c+j]) return false;
-            }
-        }
-    }
-    
-    // Place
-    for(let i=0; i<currentShape.length; i++){
-        for(let j=0; j<currentShape[0].length; j++){
-            if(currentShape[i][j]){
-                grid[r+i][c+j] = 1;
-                let cell = document.getElementById(`c-${(r+i)*G + (c+j)}`);
-                cell.className = 'cell filled ' + currentColor;
-            }
-        }
-    }
-    return true;
-}
-
-function highlightGrid(x, y){
-    clearHighlight();
-    let pos = getGridPos(x, y);
-    if(!pos) return;
-    
-    let r = pos.r, c = pos.c;
-    let valid = true;
-    
-    for(let i=0; i<currentShape.length; i++){
-        for(let j=0; j<currentShape[0].length; j++){
-            if(currentShape[i][j]){
-                if(r+i >= G || c+j >= G || grid[r+i][c+j]) valid = false;
-            }
-        }
-    }
-    
-    if(valid){
-        for(let i=0; i<currentShape.length; i++){
-            for(let j=0; j<currentShape[0].length; j++){
-                if(currentShape[i][j]){
-                    let cell = document.getElementById(`c-${(r+i)*G + (c+j)}`);
-                    if(cell) cell.style.background = 'rgba(255,255,255,0.2)';
-                }
-            }
-        }
-    }
-}
-
-function clearHighlight(){
-    document.querySelectorAll('.cell').forEach(c => {
-        if(!c.classList.contains('filled')) c.style.background = '';
-    });
-}
-
-function checkLines(){
-    let rows=[], cols=[];
-    // Check rows
-    for(let r=0; r<G; r++){
-        if(grid[r].every(v=>v===1)) rows.push(r);
-    }
-    // Check cols
-    for(let c=0; c<G; c++){
-        let full=true;
-        for(let r=0; r<G; r++) if(grid[r][c]===0) full=false;
-        if(full) cols.push(c);
-    }
-    
-    if(rows.length + cols.length > 0){
-        // Clear logic
-        rows.forEach(r => {
-            grid[r].fill(0);
-            for(let c=0; c<G; c++) animateClear(r,c);
-        });
-        cols.forEach(c => {
-            for(let r=0; r<G; r++) { grid[r][c]=0; animateClear(r,c); }
-        });
-        score += (rows.length + cols.length) * 100;
-        if(score > best) { best = score; localStorage.setItem('bb_best', best); }
-    }
-}
-
-function animateClear(r, c){
-    let cell = document.getElementById(`c-${r*G + c}`);
-    cell.className = 'cell'; // Reset class
-    cell.style.transform = 'scale(0)';
-    setTimeout(()=>cell.style.transform='scale(1)', 200);
-}
-
-function checkGameOver(){
-    // Simple check: can any piece fit?
-    // This is computationally expensive, simplified here:
-    // If board is very full, maybe check. For this demo, we assume loose check.
-}
-
-function resetGame(){
-    score = 0;
-    init();
-}
-
-init();
-</script>
-</body>
-</html>
 """
 
 # --- 7. UYGULAMA MANTIĞI ---
@@ -642,6 +361,6 @@ elif st.session_state.ekran == 'ana_menu':
         html = GAME_HTML.replace("__REW__", str(reward)).replace("__USR__", st.session_state.ad_soyad).replace("__LD__", lb_json)
         components.html(html, height=1000)
 
-    # BLOCK BLAST EĞLENCE MODU
+    # ASSET MATRIX (YENİ OYUN)
     elif st.session_state.aktif_mod == "FUN":
-        components.html(BLOCK_BLAST_HTML, height=800, scrolling=False)
+        components.html(ASSET_MATRIX_HTML, height=800, scrolling=False)
