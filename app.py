@@ -7,7 +7,7 @@ import json
 import fitz  # PyMuPDF
 
 # --- SAYFA AYARLARI ---
-st.set_page_config(page_title="Bağarası Hibrit Eğitim Ekosistemi", page_icon="🎓", layout="wide")
+st.set_page_config(page_title="Bağarası Hibrit Yaşam Merkezi", page_icon="🎓", layout="wide")
 
 # --- DOSYA İSİMLERİ ---
 TYT_PDF_ADI = "tytson8.pdf"
@@ -15,224 +15,56 @@ TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 
-# --- SENARYO VERİTABANI (PYTHON TARAFI - HATASIZ) ---
-# Verileri burada Python listesi olarak tutuyoruz, HTML'e otomatik gömeceğiz.
+# --- SENARYO VERİTABANI (GÜNLÜK HAYAT ODAKLI & UZUN) ---
 SCENARIOS_DATA = [
-    # --- GÜNCEL ---
+    # --- GÜNCEL EKONOMİ ---
     {
-        "category": "Güncel",
-        "title": "1. Taksitli Alışveriş ve Enflasyon",
-        "text": "Telefonun peşin fiyatı 30.000 TL, 12 taksitli fiyatı 36.000 TL. Enflasyon %60. Hangisi daha karlı?",
-        "data": ["Enflasyon: %60", "Vade Farkı: %20"],
-        "hint": "Reel faiz hesabı yap. Paranın zaman değerini düşün.",
-        "doc": "📌 **DERS NOTU: Enflasyon ve Borçlanma**<br><br>• **Nominal Faiz:** Bankanın veya satıcının belirlediği faiz oranıdır.<br>• **Reel Faiz:** Enflasyondan arındırılmış gerçek kazanç/maliyet oranıdır.<br><br>💡 **Kural:** Eğer Enflasyon Oranı > Kredi/Vade Faizi ise, borçlanmak karlıdır. Çünkü paranın alım gücü düşerken, borcunuzun reel değeri de düşer."
+        "category": "Güncel Ekonomi",
+        "title": "1. Teknoloji Alışverişi ve Enflasyon Çıkmazı",
+        "text": "Mevcut telefonun aniden bozuldu ve tamir edilemez durumda. İşlerin ve derslerin için acilen yeni bir telefona ihtiyacın var. İstediğin modelin piyasa fiyatı 40.000 TL. <br><br><b>Mevcut Durumun:</b><br>• Banka hesabında tam 40.000 TL nakit paran var (tüm birikimin bu).<br>• Kredi kartınla 12 taksit yapabilirsin ama banka aylık %4,5 vade farkı koyuyor (Toplam geri ödeme: ~58.000 TL).<br>• Ülkedeki yıllık enflasyon beklentisi %65.<br><br><b>Karar Anı:</b> Tüm nakdini verip 'borçsuz' ama 'parasız' kalmak mı? Yoksa vade farkı ödeyip nakdini 'altın/döviz/fon' gibi araçlarda tutmak mı? Hangi yolu seçersin ve neden?",
+        "data": ["Nakit: 40.000 TL", "Taksitli Tutar: 58.000 TL", "Enflasyon: %65"],
+        "hint": "Paranın Zaman Değeri kavramını düşün. Bugünün 40.000 TL'si ile 1 yıl sonraki 40.000 TL aynı mı?",
+        "doc": "📌 **HAP BİLGİ: Enflasyonist Ortamda Borçlanma**<br><br>• **Nominal vs Reel Maliyet:** Banka size %40 faizle kredi veriyorsa ama ülkede enflasyon %65 ise, aslında reel olarak 'eksi faizle' borçlanıyorsunuz demektir. Yani borcunuz zamanla erir.<br>• **Nakit Kraldır (Cash is King):** Belirsizlik dönemlerinde tüm nakdi bir mala bağlamak risklidir. Acil durumlar için likidite (nakit) bırakmak, vade farkı ödemekten daha değerli olabilir.<br>• **Karar:** Eğer elindeki nakdi, bankanın vade farkından (%45) daha yüksek getiri getirecek bir araca (Örn: Altın, Fon, Döviz - Beklenti %65) yatırabiliyorsan, taksitli almak matematiksel olarak daha karlıdır."
     },
     {
-        "category": "Güncel",
-        "title": "2. Gizli Enflasyon (Shrinkflation)",
-        "text": "Fiyat aynı kaldı ama gramaj 100gr'dan 80gr'a düştü. Birim maliyet analizi yap.",
-        "data": ["Eski: 100gr", "Yeni: 80gr"],
-        "hint": "Gramaj düşünce birim fiyat % kaç arttı?",
-        "doc": "📌 **DERS NOTU: Shrinkflation (Küçülflasyon)**<br><br>• Üreticilerin maliyet artışını doğrudan fiyata yansıtmak yerine, ürünün gramajını düşürerek gizli zam yapmasıdır.<br><br>⚠ **Tüketici Dikkat:** Her zaman ürünün paket fiyatına değil, **Birim Fiyatına (TL/kg veya TL/lt)** bakılmalıdır."
+        "category": "Güncel Ekonomi",
+        "title": "2. Kira Artışı ve Ev Sahibi Baskısı",
+        "text": "3 yıldır oturduğun evde kiran 5.000 TL. Bölgedeki emsal kiralar 20.000 TL'ye çıktı. Ev sahibin aradı ve 'Ya kirayı 15.000 TL yap ya da oğlum gelecek evi boşalt' dedi. <br><br>Yasal olarak %25 (veya TÜFE) oranında zam yapma hakkın var. Mahkemeye gitsen tahliye davası en az 3 yıl sürer ve kazanırsın. Ancak ev sahibi kapına gelip huzursuzluk çıkarabilir, apartmanda dedikodu yayabilir.<br><br><b>Karar Anı:</b> Yasaların sana verdiği hakkı sonuna kadar kullanıp (düşük kira) psikolojik baskıyı mı göze alırsın? Yoksa bütçeni zorlayıp 'huzur parası' diyerek orta yolda (12-13 bin) anlaşır mısın?",
+        "data": ["Mevcut Kira: 5.000", "Talep: 15.000", "Yasal Hak: ~8.000"],
+        "hint": "Bu sadece bir hukuk sorusu değil, bir 'Stres Yönetimi' ve 'Maliyet/Fayda' sorusudur.",
+        "doc": "📌 **HAP BİLGİ: Sulh ve Zaman Maliyeti**<br><br>• **Hukuki Hak:** Kiracı, sözleşme süresi bitmeden ve haklı bir neden (ihtiyaç, tadilat, 10 yıl dolumu) ispatlanmadan çıkarılamaz.<br>• **Görünmeyen Maliyet:** Dava süreci masraflıdır (Avukat, Dosya). Daha önemlisi 'Psikolojik Maliyet'tir. Huzursuz bir evde yaşamanın, sürekli gergin olmanın iş ve okul hayatına etkisi, aradaki 3-4 bin TL farktan daha büyük olabilir.<br>• **Strateji:** Genellikle 'Kötü bir sulh, iyi bir davadan iyidir'. Orta yolda anlaşmak (örneğin 10-12 bin TL), hem taşınma masrafından kurtarır hem de huzuru satın alır."
     },
     {
-        "category": "Güncel",
-        "title": "3. İkinci El Araç Yanılgısı",
-        "text": "500k'ya aldın, 1M'ye sattın ama yenisi 1.1M. Kar ettin mi?",
-        "data": ["Alış: 500k", "Piyasa: 1.1M"],
-        "hint": "Yerine koyma maliyetini düşün.",
-        "doc": "📌 **DERS NOTU: Yerine Koyma Maliyeti**<br><br>• **Nominal Kar:** Kağıt üzerindeki kar (Satış - Alış).<br>• **Yerine Koyma Maliyeti:** Sattığınız malı tekrar almak için ödemeniz gereken bedel.<br><br>💡 Eğer sattığınız malı yerine koymak için üzerine para eklemeniz gerekiyorsa, teknik olarak **Sermaye Kaybı** yaşıyorsunuz demektir."
-    },
-    {
-        "category": "Güncel",
-        "title": "4. Bedelli Askerlik Maliyeti",
-        "text": "Bedelli 240.000 TL. Maaşın 35.000 TL. Gitmek mi ödemek mi?",
-        "data": ["Bedelli: 240k", "Maaş: 35k"],
-        "hint": "Fırsat maliyeti hesabı yap.",
-        "doc": "📌 **DERS NOTU: Fırsat Maliyeti (Opportunity Cost)**<br><br>• Bir kararı uygularken vazgeçtiğiniz en iyi ikinci alternatifin değeridir.<br><br>🧮 **Hesaplama:** (6 Ay x Maaş) + (Kariyer Kaybı) + (Sosyal Hak Kaybı). Eğer bu toplam Bedelli ücretinden yüksekse, bedelli yapmak finansal olarak mantıklıdır."
-    },
-    {
-        "category": "Güncel",
-        "title": "5. Öğrenci Evi Bütçesi",
-        "text": "Gelirler eşit değil. Gider nasıl paylaşılır?",
-        "data": ["Gider: 19k"],
-        "hint": "Oransal dağılım.",
-        "doc": "📌 **DERS NOTU: Adil Bütçe Yönetimi**<br><br>• **Eşit Paylaşım:** Herkes aynı tutarı öder. (Gelirsiz olanı zorlar)<br>• **Oransal Paylaşım:** Herkes gelirinin belirli bir yüzdesini (örn. %30) havuza koyar. Geliri çok olan çok, az olan az öder. Bu yöntem sosyal adalete daha uygundur."
+        "category": "Kariyer & Yönetim",
+        "title": "3. Maaş mı, Özgürlük mü? (Freelance İkilemi)",
+        "text": "Üniversiteden yeni mezun oldun. İki yerden teklif aldın:<br><br><b>A Şirketi (Kurumsal):</b> Sabah 9 - Akşam 6 mesai. İstanbul'da plazada. Maaş: 45.000 TL + Yemek + Sigorta. Ancak her gün 3 saat trafikte geçecek ve kıyafet zorunluluğu var.<br><b>B Şirketi (Startup - Uzaktan):</b> Evden çalışma (Home Office). Maaş: 30.000 TL. Sigorta var ama yemek yok. İstediğin şehirden çalışabilirsin.<br><br>İstanbul'da kira ve yaşam maliyeti çok yüksek. Anadolu'da ailenin yanında veya daha ucuz bir şehirde yaşama şansın var. Geleceğini ve yaşam kaliteni düşünerek hangisini seçersin?",
+        "data": ["Kurumsal: 45k (Ofis)", "Startup: 30k (Remote)", "Kira: İstanbul Pahalı"],
+        "hint": "Sadece maaşa bakma. 'Net Ele Geçen' ve 'Yaşam Maliyeti' (Cost of Living) hesabını yap.",
+        "doc": "📌 **HAP BİLGİ: Reel Gelir ve Yaşam Kalitesi**<br><br>• **Nominal Gelir:** Bordroda yazan rakamdır (45.000 TL).<br>• **Reel (Kullanılabilir) Gelir:** Zorunlu giderler düştükten sonra cebe kalan paradır.<br><br>💡 **Hesap:** İstanbul'da kira (20k) + yol + giyim + dışarıda yeme içme düştüğünde cebine 5.000 TL kalıyorsa; Anadolu'da kirasız evde 30.000 TL alıp 20.000 TL biriktirmek finansal olarak daha mantıklıdır. Ayrıca günde 3 saat trafik, haftada 15 saat (yılda neredeyse 1 ay) kayıp demektir. Zaman en değerli sermayedir."
     },
     
-    # --- MUHASEBE ---
+    # --- ETİK & DEĞERLER ---
     {
-        "category": "Muhasebe",
-        "title": "6. Asgari Ücret Dengesi",
-        "text": "Maliyet %40 arttı. Zam yaparsan satış düşecek. Çözüm?",
-        "data": ["Maliyet: +%40"],
-        "hint": "Verimlilik artışı.",
-        "doc": "📌 **DERS NOTU: Maliyet Yönetimi**<br><br>• İşçilik maliyeti artınca sadece zam yapmak kısır döngüdür.<br>✅ **Çözüm:** Verimliliği artırmak (aynı sürede daha çok iş), israfı önlemek (yalın üretim) veya devlet teşviklerini kullanmaktır."
+        "category": "Etik Değerler",
+        "title": "4. Rakibinin Kayıp Cüzdanı",
+        "text": "Okul birinciliği için yarıştığın ve hiç sevmediğin bir sınıf arkadaşın var. Sürekli seni ezikliyor. Okul çıkışı yerde bir cüzdan buldun. İçinde yüklü miktarda para ve o çocuğun kimliği var. Etrafta kamera yok, kimse seni görmedi.<br><br>Ailennin maddi durumu şu an sıkışık, o para evdeki büyük bir deliği kapatabilir. Cüzdanı çöpe atıp parayı alsan kimse bilmeyecek. Arkadaşın ise o parayı kaybederse çok üzülecek ama hayatı kaymayacak.<br><br>Vicdanınla baş başasın. Ne yaparsın? Dürüstçe anlat.",
+        "data": ["Miktar: Yüksek", "Risk: Sıfır", "Vicdan: ?"],
+        "hint": "Karakter, kimse seni izlemiyorken ne yaptığındır.",
+        "doc": "📌 **HAP BİLGİ: Etik Liderlik ve Karakter**<br><br>• **Dürüstlük Testi:** İnsanlar genellikle 'Yakalanma riski varsa' dürüst davranır. Gerçek erdem, ceza korkusu olmadan doğruyu seçmektir.<br>• **Sevgi vs Adalet:** Birine adil davranmak için onu sevmek zorunda değilsiniz. Düşmanınızın bile hakkını korumak, sizi ondan üstün ve güçlü kılar. O parayı harcamak, ömür boyu sürecek bir vicdan yükü (manevi borç) yaratır."
     },
     {
-        "category": "Muhasebe",
-        "title": "7. Vergi Affı Beklentisi",
-        "text": "Af çıkacak diye borcu ödememek mantıklı mı?",
-        "data": ["Borç: 500k"],
-        "hint": "Risk analizi.",
-        "doc": "📌 **DERS NOTU: Vergi Ahlakı ve Risk**<br><br>• Vergi affı beklentisiyle ödeme yapmamak 'Ahlaki Riziko' yaratır.<br>• Ancak af çıkmazsa; Gecikme Zammı + E-Haciz riski + Ticari İtibar Kaybı oluşur. Bu maliyetler genelde daha yüksektir."
-    },
-    {
-        "category": "Muhasebe",
-        "title": "8. Enflasyon Muhasebesi",
-        "text": "Kağıt üzerinde kar var ama stok yerine konamıyor.",
-        "data": ["Nakit: Yok"],
-        "hint": "Sermaye erimesi.",
-        "doc": "📌 **DERS NOTU: Enflasyon Muhasebesi**<br><br>• Enflasyonist ortamda düşük maliyetli eski stoklar satılınca kar yüksek görünür, bu yüzden yüksek vergi çıkar.<br>• Bu durum **'Sermaye Erimesi'ne** yol açar. Stok değerleme yöntemleri (LIFO/FIFO) buna göre seçilmelidir."
-    },
-    {
-        "category": "Muhasebe",
-        "title": "9. E-Fatura Cezası",
-        "text": "Fatura kesilemedi. Müşteriye izah et.",
-        "data": ["Ceza: Var"],
-        "hint": "Dürüstlük ve teknik rapor.",
-        "doc": "📌 **DERS NOTU: VUK ve Mücbir Sebep**<br><br>• Sistemsel arızalar 'Mücbir Sebep' sayılabilir. Durumu ispatlayan teknik raporla Gelir İdaresi'ne başvurulursa ceza iptal edilebilir. Müşteriye şeffaf olmak güveni korur."
-    },
-    {
-        "category": "Muhasebe",
-        "title": "10. Startup Batış Riski",
-        "text": "200k sermaye ile iş kurarken görünmeyen giderler.",
-        "data": ["Stopaj, SGK"],
-        "hint": "Vergileri unutma.",
-        "doc": "📌 **DERS NOTU: Görünmeyen Giderler (Overhead)**<br><br>• Sadece kirayı değil; Stopaj (%20), SGK Primi, Damga Vergileri, Ruhsat Harçları ve Muhasebe Ücretini hesaba katmalısın. Bunlar bütçenin %30'unu oluşturur."
-    },
-
-    # --- HUKUK ---
-    {
-        "category": "Hukuk",
-        "title": "11. Kiracı Tahliyesi",
-        "text": "Kira piyasanın altında. Dava uzun. Uzlaşma?",
-        "data": ["Fark: 4 Kat"],
-        "hint": "Zamanın maliyeti.",
-        "doc": "📌 **DERS NOTU: Sulh Kültürü**<br><br>• 'En kötü sulh, en iyi davadan iyidir'.<br>• Dava süreçleri (3-4 yıl) masraflıdır ve alacağın değerini eritir. Kiracıya taşınma yardımı yapıp anlaşmak, yılları mahkemede geçirmekten karlı olabilir."
-    },
-    {
-        "category": "Hukuk",
-        "title": "12. Sosyal Medya Hakareti",
-        "text": "Müdüre hakaret. TCK 125.",
-        "data": ["Suç: Hakaret"],
-        "hint": "Uzlaşma.",
-        "doc": "📌 **DERS NOTU: Bilişim Suçları**<br><br>• Sosyal medya 'kamuya açık alan' sayılır, ceza artırımı uygulanır (TCK 125/4).<br>• Hakaret 'Uzlaşmaya Tabi' suçtur. Özür dilemek ve pişmanlık, sicilin bozulmasını engelleyebilir."
-    },
-    {
-        "category": "Hukuk",
-        "title": "13. Ayıplı Mal",
-        "text": "Telefon bozuldu, servis reddetti. Hakem Heyeti.",
-        "data": ["Mal: Ayıplı"],
-        "hint": "Bilirkişi talep et.",
-        "doc": "📌 **DERS NOTU: Tüketici Hakları**<br><br>• Mal ayıplıysa 4 hak vardır: İade, Değişim, İndirim, Onarım.<br>• Servis reddetse bile E-Devlet üzerinden Tüketici Hakem Heyeti'ne başvurup bilirkişi isteyebilirsiniz."
-    },
-    {
-        "category": "Hukuk",
-        "title": "14. Mobbing İddiası",
-        "text": "Çalışanlar kavgalı. İK yöneticisi kararı.",
-        "data": ["Kanıt: ?"],
-        "hint": "Somut delil.",
-        "doc": "📌 **DERS NOTU: İş Hukuku ve Mobbing**<br><br>• Mobbing ispatı zordur. İddialar somut delile (e-posta, şahit, kamera) dayanmıyorsa, tek taraflı işlem yapmak şirketi tazminat yükü altına sokar."
-    },
-    {
-        "category": "Hukuk",
-        "title": "15. Miras Paylaşımı",
-        "text": "Tarla satılsın mı işlensin mi?",
-        "data": ["Çözüm: ?"],
-        "hint": "Ortak işletme.",
-        "doc": "📌 **DERS NOTU: İzale-i Şuyu**<br><br>• Anlaşmazlık olursa mahkeme malı ucuza satar.<br>• **Çözüm:** Toprağı işleyip gelirini paylaşmak (İntifa Hakkı) hem malı hem de aile bağlarını korur."
-    },
-
-    # --- YÖNETİM ---
-    {
-        "category": "Yönetim",
-        "title": "16. AI ve İşsizlik",
-        "text": "AI 3 kişinin işini yapıyor. Kovmak mı?",
-        "data": ["Verim: Yüksek"],
-        "hint": "Dönüştürmek.",
-        "doc": "📌 **DERS NOTU: Upskilling (Beceri Geliştirme)**<br><br>• Çözüm kovmak değil, personeli AI operatörü olarak eğiterek dönüştürmektir. Bu kurumsal hafızayı korur."
-    },
-    {
-        "category": "Yönetim",
-        "title": "17. Kriz Masası",
-        "text": "Müşteri otelde olay çıkardı. İtibar yönetimi.",
-        "data": ["Risk: Viral"],
-        "hint": "Empati.",
-        "doc": "📌 **DERS NOTU: Kriz İletişimi**<br><br>• Savunmaya geçmek yangını körükler.<br>• Doğru Strateji: 1. Kabul et, 2. Özür dile, 3. Telafi et. Müşterinin sesinin duyulması öfkeyi azaltır."
-    },
-    {
-        "category": "Yönetim",
-        "title": "18. Ofise Dönüş",
-        "text": "Herkes evden çalışmak istiyor. Sen ofis diyorsun.",
-        "data": ["Kültür: Zayıf"],
-        "hint": "Hibrit model.",
-        "doc": "📌 **DERS NOTU: Hibrit Çalışma**<br><br>• Tamamen evden çalışma kurum kültürünü zayıflatır.<br>• **Altın Oran:** Haftanın belirli günlerini (Core Days) ofise ayırmak en verimli yöntemdir."
-    },
-    {
-        "category": "Yönetim",
-        "title": "19. Tedarik Zinciri",
-        "text": "Hammadde yok. Üretim durdu. Müşteriye ne denir?",
-        "data": ["Stok: 0"],
-        "hint": "Şeffaflık.",
-        "doc": "📌 **DERS NOTU: Şeffaf Yönetim**<br><br>• Müşteriye yalan söylemek (oyalamak) en büyük hatadır. Şeffaf olup, gerekirse rakip firmadan ürün temin edip müşteriyi mağdur etmemek güven sağlar."
-    },
-    {
-        "category": "Yönetim",
-        "title": "20. Greenwashing",
-        "text": "Patron yalandan 'Doğa Dostu' yazmak istiyor.",
-        "data": ["Risk: Büyük"],
-        "hint": "İtibar riski.",
-        "doc": "📌 **DERS NOTU: İş Etiği**<br><br>• Tüketiciyi kandırmaya 'Yeşil Aklama' (Greenwashing) denir. Ortaya çıkarsa marka biter. Dürüstlük en sürdürülebilir stratejidir."
-    },
-
-    # --- DEĞERLER ---
-    {
-        "category": "Değerler",
-        "title": "21. Bulunan Cüzdan",
-        "text": "Düşmanının cüzdanı. İçinde para var.",
-        "data": ["Vicdan"],
-        "hint": "Karakter sınavı.",
-        "doc": "📌 **DERS NOTU: Etik ve Karakter**<br><br>• 'Karakter, kimse izlemiyorken ne yaptığındır.' Düşmanının malını korumak, kendine duyduğun saygının göstergesidir."
-    },
-    {
-        "category": "Değerler",
-        "title": "22. Zorbalığa Sessiz Kalmak",
-        "text": "Arkadaşın eziliyor. Ses çıkarırsan yanacaksın.",
-        "data": ["Cesaret"],
-        "hint": "Sessiz kalmak onaylamaktır.",
-        "doc": "📌 **DERS NOTU: Aktif Vatandaşlık**<br><br>• Zorbalık karşısında sessiz kalanlar, zorbalığın devam etmesine zemin hazırlar. Doğruyu savunmak saygınlık kazandırır."
-    },
-    {
-        "category": "Değerler",
-        "title": "23. Çevre Etiği",
-        "text": "Fabrikanız nehri kirletiyor. İhbar eder misin?",
-        "data": ["Aile vs Toplum"],
-        "hint": "Uzun vadeli düşün.",
-        "doc": "📌 **DERS NOTU: Sosyal Sorumluluk**<br><br>• Kısa vadeli kar uğruna doğayı kirletmek, gelecek nesillerden çalmaktır. Yanlışa dur demek en büyük erdemdir."
-    },
-    {
-        "category": "Değerler",
-        "title": "24. Hasarlı Kaza",
-        "text": "Arabayı çizdin, kaçma şansın var.",
-        "data": ["Dürüstlük"],
-        "hint": "Empati kur.",
-        "doc": "📌 **DERS NOTU: Empati**<br><br>• 'Kendine yapılmasını istemediğin şeyi başkasına yapma.' Kaçmak anlık kurtarır ama vicdan yükü kalır."
-    },
-    {
-        "category": "Değerler",
-        "title": "25. Dijital Bağımlılık",
-        "text": "Kardeşin ekran bağımlısı. Nasıl yardım edersin?",
-        "data": ["İletişim"],
-        "hint": "Alternatif sun.",
-        "doc": "📌 **DERS NOTU: Dijital Denge**<br><br>• Yasaklar ters teper. Çözüm, boşluğu spor, sanat veya sohbet ile doldurmaktır. İlgi göstermek en güçlü bağlayıcıdır."
+        "category": "Güncel Ekonomi",
+        "title": "5. 'Yalancı İndirim' Tuzağı",
+        "text": "Bir e-ticaret sitesinde aylardır takip ettiğin spor ayakkabı 3.000 TL idi. 'Efsane Cuma' indirimlerinde fiyatın üzerinin çizilip '5.000 TL'den 3.500 TL'ye düştü' yazıldığını gördün. Yani aslında eski fiyattan daha pahalıya satıyorlar ama 'Büyük İndirim' algısı var.<br><br>Ayakkabıya ihtiyacın var ve stoklar tükeniyor görünüyor (FOMO - Kaçırma Korkusu). Bu pazarlama tuzağına düşüp alır mısın, yoksa prensip gereği protesto mu edersin?",
+        "data": ["Gerçek Fiyat: 3.000", "Kampanya: 3.500", "Algı: İndirim Var"],
+        "hint": "Çapalama Etkisi (Anchoring Effect) denilen psikolojik tuzağı düşün.",
+        "doc": "📌 **HAP BİLGİ: Davranışsal Ekonomi ve Fiyat Algısı**<br><br>• **Çapalama (Anchoring):** Beynimiz ilk gördüğü sayıya (5.000 TL) odaklanır ve sonraki fiyatı (3.500 TL) buna göre 'ucuz' algılar. Oysa gerçek referans 3.000 TL'dir.<br>• **FOMO (Fear of Missing Out):** 'Son 3 ürün', 'İndirim bitiyor' sayaçları panik yaptırıp mantıklı düşünmeyi engellemek içindir. <br>• **Tavsiye:** Fiyat takip grafikleri kullanın ve ihtiyacınız yoksa 'ucuz' diye hiçbir şeyi almayın. En büyük tasarruf, almamaktır."
     }
 ]
 
-# JSON'a çeviriyoruz (JavaScript içine gömmek için)
 SCENARIOS_JSON = json.dumps(SCENARIOS_DATA, ensure_ascii=False)
 
-# --- LIFE-SIM HTML KODU ---
+# --- LIFE-SIM HTML KODU (V5.0 - SORGULAYICI GERİ BİLDİRİM & GİZLİ BİLGİ KARTI) ---
 LIFE_SIM_HTML = f"""
 <!DOCTYPE html>
 <html lang="tr">
@@ -247,86 +79,112 @@ LIFE_SIM_HTML = f"""
     </script>
     <style>
         body {{ background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }}
-        .glass {{ background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }}
+        .glass {{ background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }}
         .glow-border:focus-within {{ box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); border-color: #38bdf8; }}
-        canvas {{ cursor: crosshair; touch-action: none; }}
-        ::-webkit-scrollbar {{ width: 8px; }}
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {{ width: 6px; }}
         ::-webkit-scrollbar-track {{ background: #0f172a; }}
         ::-webkit-scrollbar-thumb {{ background: #334155; border-radius: 4px; }}
-        .main-container {{ height: 95vh; display: flex; flex-direction: column; gap: 1rem; padding: 0.5rem; }}
+        
+        /* Layout */
+        .main-container {{ height: 100vh; display: flex; flex-direction: column; gap: 1rem; padding: 0.5rem; }}
         @media (min-width: 768px) {{ .main-container {{ flex-direction: row; }} }}
         .panel {{ display: flex; flex-direction: column; gap: 1rem; height: 100%; overflow-y: auto; }}
-        .left-panel {{ flex: 1; }}
-        .right-panel {{ flex: 2; }}
+        .left-panel {{ flex: 4; }}
+        .right-panel {{ flex: 5; position: relative; }}
         
-        /* Ders Notu Animasyonu */
-        .info-card {{ transform: translateX(100%); transition: transform 0.5s ease-out; }}
+        /* Bilgi Kartı Animasyonu */
+        .info-card {{ 
+            position: absolute; top: 0; right: 0; bottom: 0; left: 0; 
+            background: rgba(15, 23, 42, 0.98); 
+            z-index: 50; 
+            transform: translateX(100%); 
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column;
+        }}
         .info-card.show {{ transform: translateX(0); }}
+        
+        /* Buton Efektleri */
+        .btn-analyze {{ background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%); }}
+        .btn-analyze:hover {{ filter: brightness(1.1); }}
     </style>
 </head>
 <body>
     <div class="main-container">
         <div class="panel left-panel">
             <div class="glass p-4 rounded-xl border-l-4 border-accent shrink-0">
-                <label class="text-xs text-slate-400 uppercase font-bold flex items-center gap-2"><i data-lucide="library"></i> Ders & Senaryo Seçimi</label>
-                <select id="scenarioSelect" onchange="loadScenario()" class="w-full mt-2 bg-slate-900 text-white p-2 rounded border border-slate-700 outline-none focus:border-accent cursor-pointer"></select>
+                <label class="text-xs text-slate-400 uppercase font-bold flex items-center gap-2">
+                    <i data-lucide="map"></i> Hayat Senaryosu Seç
+                </label>
+                <select id="scenarioSelect" onchange="loadScenario()" class="w-full mt-2 bg-slate-900 text-white p-3 rounded border border-slate-700 outline-none focus:border-accent cursor-pointer hover:bg-slate-800 transition"></select>
             </div>
             
-            <div class="glass p-6 rounded-xl flex-1 flex flex-col relative group overflow-visible">
-                <div class="flex justify-between items-start mb-4"><span id="categoryBadge" class="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-full">YÜKLENİYOR</span></div>
-                <h2 id="scenarioTitle" class="text-xl font-bold text-white mb-4 leading-snug">...</h2>
-                <div class="prose prose-invert text-sm text-slate-300 overflow-y-auto pr-2 flex-1" id="scenarioText"></div>
+            <div class="glass p-6 rounded-xl flex-1 flex flex-col relative overflow-hidden">
+                <div class="flex justify-between items-start mb-4">
+                    <span id="categoryBadge" class="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-full">YÜKLENİYOR</span>
+                </div>
+                <h2 id="scenarioTitle" class="text-2xl font-bold text-white mb-4 leading-tight">...</h2>
+                <div class="prose prose-invert text-base text-slate-300 overflow-y-auto pr-3 flex-1 leading-relaxed" id="scenarioText"></div>
                 
-                <div class="mt-4 shrink-0">
-                    <button onclick="toggleHint()" id="hintBtn" class="flex items-center gap-2 text-xs text-warning hover:text-white transition-colors"><i data-lucide="lightbulb" class="w-4 h-4"></i> İpucu Göster</button>
-                    <div id="hintBox" class="hidden mt-2 p-3 bg-yellow-900/30 border border-yellow-700/50 rounded-lg text-xs text-yellow-200 italic animate-pulse"></div>
+                <div class="mt-6 pt-4 border-t border-slate-700/50">
+                    <button onclick="toggleHint()" id="hintBtn" class="text-xs text-warning hover:text-white transition-colors flex items-center gap-1">
+                        <i data-lucide="key"></i> Ufak bir ipucu ister misin?
+                    </button>
+                    <div id="hintBox" class="hidden p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg text-sm text-yellow-200/90 italic"></div>
                 </div>
                 
-                <div class="mt-4 bg-slate-800/50 p-4 rounded-lg border border-slate-700 shrink-0">
-                    <h3 class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-2"><i data-lucide="bar-chart-4" class="w-4 h-4"></i> VERİLER</h3>
-                    <ul id="scenarioData" class="space-y-1 text-xs md:text-sm font-mono text-primary"></ul>
-                </div>
+                <div class="mt-4 flex flex-wrap gap-2" id="scenarioDataTags"></div>
             </div>
         </div>
 
-        <div class="panel right-panel relative">
+        <div class="panel right-panel">
             
-            <div id="knowledgeCard" class="absolute inset-0 z-20 bg-slate-900/95 backdrop-blur-xl p-6 flex flex-col gap-4 info-card hidden border-l-4 border-success overflow-y-auto">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold text-success flex items-center gap-2"><i data-lucide="book-open"></i> KONU ÖZETİ & KRİTİK BİLGİLER</h3>
-                    <button onclick="closeKnowledgeCard()" class="p-2 hover:bg-slate-700 rounded-full"><i data-lucide="x" class="w-6 h-6 text-slate-400"></i></button>
+            <div id="knowledgeCard" class="info-card border-l-4 border-success shadow-2xl">
+                <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                    <h3 class="text-xl font-bold text-success flex items-center gap-2">
+                        <i data-lucide="book-open-check"></i> UZMAN GÖRÜŞÜ & DERS NOTU
+                    </h3>
+                    <button onclick="closeKnowledgeCard()" class="p-2 hover:bg-slate-700 rounded-full transition">
+                        <i data-lucide="x" class="w-6 h-6 text-slate-400"></i>
+                    </button>
                 </div>
-                <div id="knowledgeContent" class="text-slate-300 text-sm leading-relaxed space-y-4">
+                <div id="knowledgeContent" class="p-8 text-slate-200 text-base leading-7 space-y-4 overflow-y-auto flex-1">
                     </div>
-                <button onclick="downloadReport()" class="mt-auto w-full py-3 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 rounded-lg font-bold flex items-center justify-center gap-2 transition-all">
-                    <i data-lucide="download"></i> Raporu İndir ve Tamamla
-                </button>
+                <div class="p-4 bg-slate-800/50 border-t border-slate-700 text-center">
+                    <button onclick="downloadReport()" class="px-6 py-3 bg-success/20 hover:bg-success/30 text-success border border-success/50 rounded-lg font-bold flex items-center justify-center gap-2 mx-auto transition-all w-full md:w-auto">
+                        <i data-lucide="download"></i> Bu Analizi Rapor Olarak İndir
+                    </button>
+                </div>
             </div>
 
-            <div class="glass p-2 rounded-lg flex items-center justify-between shrink-0">
-                <div class="flex gap-2">
-                    <button onclick="setTab('text')" id="btn-text" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-slate-900 font-bold text-sm transition-all"><i data-lucide="file-edit" class="w-4 h-4"></i> Analiz Yaz</button>
-                    <button onclick="setTab('draw')" id="btn-draw" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 text-sm transition-all"><i data-lucide="pencil" class="w-4 h-4"></i> Şema Çiz</button>
+            <div class="glass p-1 rounded-xl flex-1 flex flex-col relative border border-slate-700 glow-border">
+                <div class="bg-slate-800/50 p-2 rounded-t-xl flex justify-between items-center px-4">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Senin Stratejin</span>
+                    <span id="timer" class="font-mono text-primary text-sm">00:00</span>
                 </div>
-                <div class="text-right px-4 flex items-center gap-2"><i data-lucide="timer" class="w-4 h-4 text-slate-500"></i><span id="timer" class="text-xl font-mono text-white font-bold">00:00</span></div>
+                <textarea id="inputText" class="w-full h-full bg-transparent p-6 text-lg text-slate-200 resize-none outline-none font-light leading-relaxed placeholder-slate-600" 
+                placeholder="Bu durumda ne yaparsın? Kararının arkasındaki mantığı, riskleri ve fırsatları detaylıca anlat..."></textarea>
             </div>
             
-            <div class="glass p-1 rounded-xl flex-1 relative min-h-[300px] border border-slate-700 glow-border">
-                <textarea id="inputText" class="w-full h-full bg-transparent p-6 text-base text-slate-200 resize-none outline-none font-light leading-relaxed" placeholder="Bu krizi nasıl yöneteceksin? Finansal, hukuki ve etik gerekçelerini detaylandır..."></textarea>
-                <div id="drawContainer" class="hidden w-full h-full bg-slate-900 relative rounded-lg overflow-hidden">
-                    <canvas id="drawingCanvas" class="w-full h-full block"></canvas>
-                    <button onclick="clearCanvas()" class="absolute top-4 right-4 bg-slate-700 p-2 rounded hover:bg-red-500 transition text-white z-10" title="Temizle"><i data-lucide="trash" class="w-4 h-4"></i></button>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
-                <button id="analyzeBtn" onclick="analyzeSubmission()" class="md:col-span-1 bg-gradient-to-br from-primary to-blue-600 hover:from-blue-400 hover:to-blue-500 text-slate-900 font-bold py-4 rounded-xl shadow-lg flex flex-col items-center justify-center gap-1 transition-all active:scale-95 group"><i data-lucide="sparkles" class="w-6 h-6 group-hover:animate-spin"></i> ANALİZ ET</button>
-                <div class="md:col-span-3 glass p-4 rounded-xl flex items-start gap-4 border border-slate-700/50 min-h-[100px]">
-                    <div class="bg-slate-800 p-3 rounded-full shrink-0"><i data-lucide="bot" class="text-accent w-6 h-6"></i></div>
-                    <div class="flex-1">
-                        <h4 class="text-accent text-xs font-bold mb-1 uppercase tracking-widest">Sistem Geri Bildirimi</h4>
-                        <div id="aiFeedback" class="text-sm text-slate-300 leading-relaxed">Bekleniyor... Stratejini oluşturduktan sonra 'Analiz Et' butonuna bas.</div>
+            <div class="glass p-0 rounded-xl overflow-hidden flex flex-col md:flex-row shrink-0 min-h-[120px]">
+                <button id="analyzeBtn" onclick="analyzeSubmission()" class="btn-analyze text-white font-bold p-6 flex flex-col items-center justify-center gap-2 md:w-1/4 transition-all active:scale-95">
+                    <i data-lucide="sparkles" class="w-8 h-8"></i>
+                    <span>ANALİZ ET</span>
+                </button>
+                
+                <div class="p-6 flex-1 bg-slate-800/80 flex items-center relative">
+                    <div id="aiFeedback" class="text-sm text-slate-300 leading-relaxed w-full">
+                        <div class="flex items-center gap-3 text-slate-500">
+                            <i data-lucide="bot" class="w-8 h-8"></i>
+                            <p>Senaryoyu oku, kararını ver ve 'Analiz Et' butonuna bas. Yapay zeka yaklaşımını değerlendirecek.</p>
+                        </div>
                     </div>
+                    
+                    <button id="showDocBtn" onclick="openKnowledgeCard()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 text-xs font-bold transition-all animate-bounce">
+                        <i data-lucide="lightbulb"></i>
+                        UZMAN GÖRÜŞÜNÜ GÖR
+                    </button>
                 </div>
             </div>
         </div>
@@ -334,175 +192,131 @@ LIFE_SIM_HTML = f"""
     
     <script>
         lucide.createIcons();
-        
-        // PYTHON'DAN GELEN JSON VERİSİ BURAYA ENJEKTE EDİLİYOR
         const scenarios = {SCENARIOS_JSON};
-
         let selectedScenarioIndex = 0;
         let startTime = Date.now();
 
         window.onload = function() {{
             const select = document.getElementById('scenarioSelect');
             const categories = {{}};
-            
-            // Kategorilere ayır
             scenarios.forEach((s, index) => {{
                 if(!categories[s.category]) categories[s.category] = [];
                 categories[s.category].push({{ ...s, idx: index }});
             }});
-
-            // Menüyü doldur
             for (const [cat, items] of Object.entries(categories)) {{
-                let group = document.createElement('optgroup'); 
-                group.label = cat.toUpperCase();
-                items.forEach(item => {{ 
-                    let opt = document.createElement('option'); 
-                    opt.value = item.idx; 
-                    opt.innerHTML = item.title; 
-                    group.appendChild(opt); 
-                }});
+                let group = document.createElement('optgroup'); group.label = cat.toUpperCase();
+                items.forEach(item => {{ let opt = document.createElement('option'); opt.value = item.idx; opt.innerHTML = item.title; group.appendChild(opt); }});
                 select.appendChild(group);
             }}
-            
             loadScenario();
-            startTimer();
-            setupCanvas();
+            setInterval(() => {{ 
+                const d = Math.floor((Date.now() - startTime)/1000); 
+                document.getElementById('timer').innerText = `${{Math.floor(d/60).toString().padStart(2,'0')}}:${{(d%60).toString().padStart(2,'0')}}`; 
+            }}, 1000);
         }};
 
         function loadScenario() {{
             selectedScenarioIndex = document.getElementById('scenarioSelect').value;
             const s = scenarios[selectedScenarioIndex];
             
-            document.getElementById('categoryBadge').innerText = s.category.toUpperCase();
-            document.getElementById('categoryBadge').className = `px-3 py-1 text-xs font-bold rounded-full w-fit mb-4 ${{getCategoryColor(s.category)}}`;
+            document.getElementById('categoryBadge').innerText = s.category;
             document.getElementById('scenarioTitle').innerText = s.title;
-            document.getElementById('scenarioText').innerText = s.text;
+            document.getElementById('scenarioText').innerHTML = s.text;
             
-            const dataList = document.getElementById('scenarioData');
-            dataList.innerHTML = "";
-            if(s.data) {{
-                s.data.forEach(item => {{
-                    let parts = item.split(':');
-                    dataList.innerHTML += `<li class="flex justify-between border-b border-slate-700/50 pb-1"><span class="text-slate-400">${{parts[0]}}:</span> <span class="text-white font-mono font-bold">${{parts[1] || ''}}</span></li>`;
-                }});
-            }}
+            const tags = document.getElementById('scenarioDataTags');
+            tags.innerHTML = "";
+            s.data.forEach(d => {{
+                tags.innerHTML += `<span class="px-2 py-1 bg-slate-700 rounded text-xs text-primary border border-slate-600">${{d}}</span>`;
+            }});
 
+            // Reset
             document.getElementById('inputText').value = "";
-            clearCanvas();
             document.getElementById('hintBox').classList.add('hidden');
             document.getElementById('hintBtn').classList.remove('hidden');
-            document.getElementById('aiFeedback').innerHTML = "Bekleniyor... Stratejini oluşturduktan sonra 'Analiz Et' butonuna bas.";
-            
-            const card = document.getElementById('knowledgeCard');
-            card.classList.remove('show');
-            card.classList.add('hidden');
+            document.getElementById('aiFeedback').innerHTML = `<div class="flex items-center gap-3 text-slate-500"><i data-lucide="bot" class="w-8 h-8"></i><p>Bekleniyor...</p></div>`;
+            document.getElementById('showDocBtn').classList.add('hidden');
+            document.getElementById('knowledgeCard').classList.remove('show');
             
             const btn = document.getElementById('analyzeBtn');
-            btn.innerHTML = '<i data-lucide="sparkles" class="w-6 h-6"></i> ANALİZ ET';
-            btn.classList.remove('bg-green-600');
+            btn.innerHTML = '<i data-lucide="sparkles" class="w-8 h-8"></i><span>ANALİZ ET</span>';
+            btn.disabled = false;
+            btn.classList.remove('opacity-50');
         }}
 
         function analyzeSubmission() {{
+            const text = document.getElementById('inputText').value.trim().toLowerCase();
             const btn = document.getElementById('analyzeBtn');
             const feedback = document.getElementById('aiFeedback');
-            const text = document.getElementById('inputText').value.trim();
-            const s = scenarios[selectedScenarioIndex];
-
-            if (text.length < 10) {{
-                feedback.innerHTML = "<span class='text-warning font-bold'>⚠ Uyarı:</span> Cevabın çok kısa.";
+            
+            if (text.length < 15) {{
+                feedback.innerHTML = "<span class='text-warning font-bold flex items-center gap-2'><i data-lucide='alert-triangle'></i> Çok kısa yazdın. Biraz daha detaylandır.</span>";
+                lucide.createIcons();
                 return;
             }}
 
-            btn.innerHTML = '⏳ ANALİZ EDİLİYOR...';
-            feedback.innerHTML = "<span class='animate-pulse text-primary'>🧠 Yapay zeka stratejini inceliyor...</span>";
+            btn.innerHTML = '⏳';
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+            
+            feedback.innerHTML = "<span class='text-primary animate-pulse'>Yapay zeka stratejini inceliyor... Riskler hesaplanıyor...</span>";
 
             setTimeout(() => {{
-                let keywords = ["risk", "maliyet", "kar", "yasa", "etik", "plan", "strateji", "verim", "analiz", "faiz", "enflasyon", "vicdan"];
-                let found = keywords.filter(w => text.toLowerCase().includes(w));
+                // SORGULAYICI GERİ BİLDİRİM MANTIĞI
+                let msg = "";
                 
-                let responseHTML = "";
-                if (found.length > 0) {{
-                    responseHTML = `<span class='text-success font-bold'>✔ Analiz Başarılı!</span><br>Harika noktalar yakaladın. Şimdi sağda açılan <b class='text-white'>Konu Özeti</b> kartını incele.`;
-                    btn.classList.add('bg-green-600');
+                // Anahtar kelime yakalama (Basit Mantık)
+                if (text.includes("nakit") || text.includes("peşin")) {{
+                    msg = "<span class='text-white font-bold'>🤔 Nakit tercih ettin.</span><br>Peki acil durum fonunu tamamen tüketmek, bu belirsiz ekonomide seni savunmasız bırakmaz mı?";
+                }} else if (text.includes("taksit") || text.includes("kredi") || text.includes("borç")) {{
+                    msg = "<span class='text-white font-bold'>🤔 Borçlanmayı seçtin.</span><br>Peki aylık ödeme yükü, gelecekteki nakit akışını kilitlerse ne yapacaksın? Reel faiz hesabını yaptın mı?";
+                }} else if (text.includes("dava") || text.includes("mahkeme")) {{
+                    msg = "<span class='text-white font-bold'>⚖ Hukuki yolu seçtin.</span><br>Haklısın ama davanın yıllarca süreceğini ve bu süreçteki stres maliyetini hesaba kattın mı?";
+                }} else if (text.includes("uzlaş") || text.includes("anlaş")) {{
+                    msg = "<span class='text-success font-bold'>🤝 Uzlaşmayı seçtin.</span><br>Bazen haktan feragat etmek, huzuru satın almaktır. Bu pragmatik bir yaklaşım.";
                 }} else {{
-                    responseHTML = `<span class='text-blue-400 font-bold'>ℹ Tamamlandı</span><br>Stratejin kaydedildi. Konunun teknik detaylarını öğrenmek için sağdaki nota bak.`;
+                    msg = "<span class='text-white font-bold'>Analiz Tamamlandı.</span><br>Yaklaşımın ilginç. Kararın finansal ve etik boyutlarını tam olarak görmek ister misin?";
                 }}
 
-                btn.innerHTML = '<i data-lucide="check-circle" class="w-6 h-6"></i> TAMAMLANDI';
-                feedback.innerHTML = responseHTML;
-
-                // BİLGİ KARTINI AÇ
-                const card = document.getElementById('knowledgeCard');
-                const content = document.getElementById('knowledgeContent');
-                content.innerHTML = s.doc;
+                feedback.innerHTML = msg;
+                btn.innerHTML = '<i data-lucide="check" class="w-8 h-8"></i><span>BİTTİ</span>';
                 
-                card.classList.remove('hidden');
-                setTimeout(() => card.classList.add('show'), 50);
+                // Hap Bilgi Butonunu Göster
+                document.getElementById('showDocBtn').classList.remove('hidden');
+                lucide.createIcons();
 
-            }}, 2000);
+            }}, 1500);
+        }}
+
+        function openKnowledgeCard() {{
+            const s = scenarios[selectedScenarioIndex];
+            document.getElementById('knowledgeContent').innerHTML = s.doc;
+            document.getElementById('knowledgeCard').classList.remove('hidden');
+            // Animasyon için frame atlat
+            requestAnimationFrame(() => document.getElementById('knowledgeCard').classList.add('show'));
         }}
 
         function closeKnowledgeCard() {{
-            const card = document.getElementById('knowledgeCard');
-            card.classList.remove('show');
-            setTimeout(() => card.classList.add('hidden'), 500);
-        }}
-
-        function downloadReport() {{
-            const s = scenarios[selectedScenarioIndex];
-            const ans = document.getElementById('inputText').value;
-            const content = `LIFE-SIM RAPORU\\n=================\\nTARİH: ${{new Date().toLocaleString('tr-TR')}}\\nKONU: ${{s.title}}\\n\\nÖĞRENCİ YANITI:\\n${{ans}}\\n\\nDERS NOTU:\\n${{s.doc.replace(/<br>/g, '\\n').replace(/<[^>]*>/g, '')}}`;
-            
-            const blob = new Blob([content], {{ type: 'text/plain' }});
-            const a = document.createElement('a');
-            a.href = window.URL.createObjectURL(blob);
-            a.download = `LifeSim_Rapor_${{Date.now()}}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            document.getElementById('knowledgeCard').classList.remove('show');
+            setTimeout(() => document.getElementById('knowledgeCard').classList.add('hidden'), 400);
         }}
 
         function toggleHint() {{
             const s = scenarios[selectedScenarioIndex];
-            document.getElementById('hintBox').innerHTML = `<span class="font-bold">💡 İPUCU:</span> ${{s.hint}}`;
+            document.getElementById('hintBox').innerHTML = `💡 ${{s.hint}}`;
             document.getElementById('hintBox').classList.remove('hidden');
             document.getElementById('hintBtn').classList.add('hidden');
         }}
-
-        function getCategoryColor(cat) {{
-            const c = {{ 'Muhasebe': 'bg-green-900/50 text-green-400', 'Hukuk': 'bg-red-900/50 text-red-400', 'Yönetim': 'bg-blue-900/50 text-blue-400', 'Güncel': 'bg-purple-900/50 text-purple-400', 'Değerler': 'bg-orange-900/50 text-orange-400' }};
-            return c[cat] || 'bg-slate-700 text-slate-300';
+        
+        function downloadReport() {{
+            const s = scenarios[selectedScenarioIndex];
+            const ans = document.getElementById('inputText').value;
+            const txt = `KONU: ${{s.title}}\\nCEVAP: ${{ans}}\\n\\nUZMAN NOTU:\\n${{s.doc.replace(/<[^>]*>/g, '')}}`;
+            const blob = new Blob([txt], {{type: 'text/plain'}});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'Analiz_Raporu.txt';
+            a.click();
         }}
-
-        function setTab(mode) {{
-            if(mode === 'text') {{
-                document.getElementById('inputText').style.display = 'block';
-                document.getElementById('drawContainer').classList.add('hidden');
-            }} else {{
-                document.getElementById('inputText').style.display = 'none';
-                document.getElementById('drawContainer').classList.remove('hidden');
-                resizeCanvas();
-            }}
-        }}
-
-        let isDrawing = false; let ctx;
-        function setupCanvas() {{ 
-            const c = document.getElementById('drawingCanvas'); 
-            ctx = c.getContext('2d'); 
-            ['mousedown','touchstart'].forEach(e=>c.addEventListener(e,ev=>{{ev.preventDefault();startDraw(ev.touches?ev.touches[0]:ev)}})); 
-            ['mousemove','touchmove'].forEach(e=>c.addEventListener(e,ev=>{{ev.preventDefault();draw(ev.touches?ev.touches[0]:ev)}})); 
-            ['mouseup','touchend'].forEach(e=>c.addEventListener(e,()=>isDrawing=false)); 
-        }}
-        function resizeCanvas() {{ 
-            const c=document.getElementById('drawingCanvas'); 
-            const p=document.getElementById('drawContainer'); 
-            if(c.width!==p.offsetWidth){{c.width=p.offsetWidth;c.height=p.offsetHeight;ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;}} 
-        }}
-        function startDraw(e) {{ isDrawing=true; const r=e.target.getBoundingClientRect(); ctx.beginPath(); ctx.moveTo(e.clientX-r.left, e.clientY-r.top); }}
-        function draw(e) {{ if(!isDrawing)return; const r=e.target.getBoundingClientRect(); ctx.lineTo(e.clientX-r.left, e.clientY-r.top); ctx.stroke(); }}
-        function clearCanvas() {{ ctx.clearRect(0,0,document.getElementById('drawingCanvas').width, document.getElementById('drawingCanvas').height); }}
-        function startTimer() {{ setInterval(() => {{ const d = Math.floor((Date.now() - startTime)/1000); document.getElementById('timer').innerText = `${{Math.floor(d/60).toString().padStart(2,'0')}}:${{(d%60).toString().padStart(2,'0')}}`; }}, 1000); }}
-        window.addEventListener('resize', () => {{ resizeCanvas(); }});
     </script>
 </body>
 </html>
@@ -516,7 +330,6 @@ st.markdown("""
     .stApp { background-color: #F0F4C3 !important; }
     h1, h2, h3, h4, .stMarkdown, p, label { color: #212121 !important; }
     
-    /* DROPDOWN DÜZELTMESİ */
     .stSelectbox div[data-baseweb="select"] > div {
         background-color: #FFFFFF !important;
         color: #000000 !important;
@@ -527,7 +340,6 @@ st.markdown("""
     footer {visibility: hidden;}
     #MainMenu {visibility: hidden;}
     
-    /* GİRİŞ KARTI */
     .giris-kart {
         background-color: white;
         padding: 40px;
@@ -538,7 +350,6 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* SEÇİM KARTLARI */
     .secim-karti {
         background-color: white;
         padding: 20px;
@@ -551,13 +362,13 @@ st.markdown("""
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        cursor: pointer;
     }
     .secim-karti:hover {
         transform: scale(1.02);
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
     
-    /* BUTONLAR */
     .stButton>button {
         background-color: #FF7043 !important;
         color: white !important;
@@ -572,14 +383,12 @@ st.markdown("""
         background-color: #E64A19 !important;
     }
     
-    /* KARTLAR */
     .konu-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 6px solid #2196F3; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .soru-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 5px solid #FF7043; font-size: 18px; margin-bottom: 20px; color: #000 !important; }
     .hata-karti { background-color: #FFEBEE; border-left: 5px solid #D32F2F; padding: 15px; margin-bottom: 15px; border-radius: 5px; color: #000; }
     .stat-card { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; border: 2px solid #FF7043; }
     .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
     
-    /* İMZA */
     .imza-container { margin-top: 40px; text-align: right; padding-right: 20px; opacity: 0.9; }
     .imza { font-family: 'Dancing Script', cursive; color: #D84315; font-size: 24px; margin-bottom: 5px; }
     </style>
@@ -768,7 +577,6 @@ elif st.session_state.ekran == 'sinav':
 
     # --- 3. MODÜL: LIFE-SIM (HTML ENTEGRASYONU) ---
     elif st.session_state.secim_turu == "LIFESIM":
-        # Yüksekliği 1000px yaptık ki taşma olmasın ve scroll rahat çalışsın
         components.html(LIFE_SIM_HTML, height=1000, scrolling=True)
 
     # --- 4. MODÜL: KLASİK SINAV MOTORU ---
