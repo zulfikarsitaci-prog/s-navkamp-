@@ -4,7 +4,8 @@ import random
 import os
 import json
 import fitz  # PyMuPDF
-import time  # Time modülü eklendi
+import time
+import pandas as pd # Veri okumak için gerekli
 
 # --- 1. SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası Hibrit Yaşam Merkezi", page_icon="🎓", layout="wide")
@@ -23,12 +24,16 @@ if 'bos_sayisi' not in st.session_state: st.session_state.bos_sayisi = 0
 if 'mod' not in st.session_state: st.session_state.mod = ""
 if 'bekleyen_odul' not in st.session_state: st.session_state.bekleyen_odul = 0
 
-# --- 3. DOSYA İSİMLERİ ---
+# --- 3. DOSYA VE LİNK AYARLARI ---
 TYT_PDF_ADI = "tytson8.pdf"
 TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 LIFESIM_JSON_ADI = "lifesim_data.json"
+
+# SENİN GOOGLE SHEETS LİNKİN (Canlı Liderlik Tablosu)
+SHEET_ID = "1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo"
+SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 # --- 4. VERİ YÜKLEME FONKSİYONLARI ---
 def dosya_yukle(dosya_adi):
@@ -58,6 +63,30 @@ def pdf_sayfa_getir(yol, sayfa):
         pix = doc.load_page(sayfa - 1).get_pixmap(dpi=150)
         st.image(pix.tobytes(), use_container_width=True)
     except: pass
+
+@st.cache_data(ttl=60) # 60 saniyede bir veriyi yeniler (API kotasını korumak için)
+def get_leaderboard_data():
+    """Google Sheets'ten veriyi çeker ve JSON formatına çevirir"""
+    try:
+        df = pd.read_csv(SHEET_URL)
+        # Sütun isimlerini kontrol et ve temizle
+        if 'Isim' in df.columns and 'Puan' in df.columns:
+            # Puana göre sırala (Büyükten küçüğe)
+            df = df.sort_values(by='Puan', ascending=False).head(10)
+            
+            # JSON formatına çevir: [{'name': 'Ali', 'score': 5000}, ...]
+            leaderboard_data = []
+            for _, row in df.iterrows():
+                leaderboard_data.append({
+                    "name": str(row['Isim']),
+                    "score": int(row['Puan']) if pd.notnull(row['Puan']) else 0
+                })
+            return json.dumps(leaderboard_data, ensure_ascii=False)
+        else:
+            return "[]" # Sütunlar yoksa boş dön
+    except Exception as e:
+        print(f"Liderlik tablosu hatası: {e}")
+        return "[]" # Hata varsa boş dön
 
 # Verileri Yükle
 TYT_VERI = dosya_yukle(TYT_JSON_ADI)
@@ -132,7 +161,7 @@ function toggleHint() { document.getElementById('hintBox').innerHTML = scenarios
 """
 LIFE_SIM_HTML = LIFE_SIM_TEMPLATE.replace("__SCENARIOS_PLACEHOLDER__", SCENARIOS_JSON_STRING)
 
-# B) OYUN HTML (V3.0 - ÖDÜL DESTEKLİ)
+# B) OYUN HTML (V4.0 - GERÇEK LİDERLİK TABLOSU ENTEGRASYONLU)
 GAME_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -151,6 +180,8 @@ GAME_HTML_TEMPLATE = """
         .market-item.can-buy { background: rgba(34, 197, 94, 0.1); border-left-color: #22c55e; cursor: pointer; }
         .market-item.can-buy:hover { transform: translateX(5px); background: rgba(34, 197, 94, 0.2); }
         .market-item.locked { opacity: 0.6; filter: grayscale(0.8); cursor: not-allowed; }
+        .leader-item { transition: all 0.2s; }
+        .leader-item:hover { background: rgba(255,255,255,0.1); transform: scale(1.02); }
         ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: #0f172a; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 5px; }
     </style>
 </head>
@@ -161,13 +192,20 @@ GAME_HTML_TEMPLATE = """
     </div>
     <div class="flex flex-col md:flex-row gap-4 flex-1 overflow-hidden">
         <div class="w-full md:w-1/3 flex flex-col gap-4">
-            <div class="glass rounded-2xl flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden group">
-                <button id="mainBtn" onclick="handleClick(event)" class="pulse-btn w-64 h-64 rounded-full bg-gradient-to-br from-blue-500 to-indigo-700 flex flex-col items-center justify-center shadow-2xl border-4 border-white/10 active:scale-95 transition-transform z-10"><i data-lucide="zap" class="w-24 h-24 text-white mb-2 fill-yellow-400 stroke-none"></i><span class="text-xl font-bold tracking-widest">ÇALIŞ</span></button>
-                <p class="mt-8 text-center text-slate-400 text-sm">Tıklama Gücü: <strong class="text-white" id="clickPowerDisplay">1</strong> ₺</p>
+            <div class="glass rounded-2xl p-4 flex-1 overflow-hidden flex flex-col border border-yellow-500/20 relative">
+                <div class="flex items-center justify-between mb-3 shrink-0">
+                    <h3 class="font-bold text-yellow-400 flex items-center gap-2"><i data-lucide="trophy" class="w-5 h-5"></i> TOP 10 LİDER</h3>
+                    <span class="text-xs bg-yellow-500/20 text-yellow-200 px-2 py-1 rounded animate-pulse">Canlı</span>
+                </div>
+                <div id="leaderboardList" class="overflow-y-auto space-y-2 pr-1 text-sm flex-1">
+                    <div class="text-center text-slate-500 text-xs py-10">Veriler yükleniyor...</div>
+                </div>
             </div>
-            <div class="glass rounded-2xl p-4 flex justify-between items-center shrink-0">
-                <div class="text-sm font-mono text-white" id="playTimeDisplay">00:00</div>
-                <button onclick="hardReset()" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/30 text-red-400 text-xs font-bold rounded-lg border border-red-500/20">SIFIRLA</button>
+            <div class="glass rounded-2xl p-4 flex flex-col items-center justify-center relative shrink-0">
+                <button id="mainBtn" onclick="handleClick(event)" class="pulse-btn w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-indigo-700 flex flex-col items-center justify-center shadow-2xl border-4 border-white/10 active:scale-95 transition-transform z-10"><i data-lucide="zap" class="w-12 h-12 text-white fill-yellow-400 stroke-none"></i></button>
+                <p class="mt-2 text-center text-slate-400 text-xs">Tık Gücü: <strong class="text-white" id="clickPowerDisplay">1</strong> ₺</p>
+                <div class="text-xs font-mono text-white/50 mt-1" id="playTimeDisplay">00:00</div>
+                <button onclick="hardReset()" class="absolute top-2 right-2 p-1 text-red-400/50 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
             </div>
         </div>
         <div class="w-full md:w-2/3 glass rounded-2xl flex flex-col overflow-hidden">
@@ -177,17 +215,16 @@ GAME_HTML_TEMPLATE = """
     </div>
     <div id="rewardPopup" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
         <div class="bg-gray-900 border-2 border-yellow-500 p-8 rounded-2xl text-center max-w-md mx-4 shadow-2xl shadow-yellow-500/20">
-            <i data-lucide="gift" class="w-16 h-16 text-yellow-400 mx-auto mb-4"></i>
-            <h2 class="text-2xl font-bold text-white mb-2">TEBRİKLER!</h2>
-            <p class="text-gray-300 mb-6">Eğitim çalışmalarından bonus kazandın:</p>
-            <div class="text-4xl font-black text-green-400 mb-8">+ <span id="rewardAmountDisplay">0</span> ₺</div>
-            <button onclick="claimReward()" class="w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl transition transform hover:scale-105">HARİKA!</button>
+            <i data-lucide="gift" class="w-16 h-16 text-yellow-400 mx-auto mb-4"></i><h2 class="text-2xl font-bold text-white mb-2">TEBRİKLER!</h2><p class="text-gray-300 mb-6">Eğitim çalışmalarından bonus kazandın:</p><div class="text-4xl font-black text-green-400 mb-8">+ <span id="rewardAmountDisplay">0</span> ₺</div><button onclick="claimReward()" class="w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl transition transform hover:scale-105">HARİKA!</button>
         </div>
     </div>
-
     <script>
         let incomingReward = __REWARD_AMOUNT__;
+        let playerName = "__USER_NAME__";
+        // PYTHON'DAN GELEN CANLI LİDERLİK VERİSİ
+        let cloudLeaderboard = __LEADERBOARD_JSON__; 
         const INFLATION_RATE = 1.15; 
+        
         const defaultData = {
             money: 0, startTime: Date.now(),
             buildings: [
@@ -205,28 +242,42 @@ GAME_HTML_TEMPLATE = """
 
         window.onload = function() {
             lucide.createIcons(); loadGame();
-            if (incomingReward > 0) {
-                document.getElementById('rewardAmountDisplay').innerText = formatNumber(incomingReward);
-                document.getElementById('rewardPopup').classList.remove('hidden');
-            }
+            if (incomingReward > 0) { document.getElementById('rewardAmountDisplay').innerText = formatNumber(incomingReward); document.getElementById('rewardPopup').classList.remove('hidden'); }
             setInterval(passiveIncomeLoop, 1000); setInterval(uiLoop, 100); setInterval(saveGame, 5000);
+            renderLeaderboard();
         };
 
-        function claimReward() {
-            game.money += incomingReward;
-            incomingReward = 0;
-            document.getElementById('rewardPopup').classList.add('hidden');
-            updateUI(); saveGame();
+        function renderLeaderboard() {
+            // Cloud verisi boşsa veya hata varsa varsayılan göster
+            let dataToShow = cloudLeaderboard;
+            if(!dataToShow || dataToShow.length === 0) {
+                // Eğer cloud boşsa oyuncunun kendisini göster
+                dataToShow = [{name: playerName, score: game.money}];
+            } else {
+                // Oyuncuyu da listeye ekle (eğer listede yoksa görsel olarak ekle)
+                // Not: Gerçek kaydetme için veritabanı yazma işlemi gerekir. Bu sadece görsel.
+                let meFound = false;
+                dataToShow.forEach(p => { if(p.name === playerName) { p.score = Math.max(p.score, game.money); p.isMe = true; meFound = true; }});
+                if(!meFound) dataToShow.push({name: playerName, score: game.money, isMe: true});
+            }
+            
+            // Sırala
+            dataToShow.sort((a, b) => b.score - a.score);
+            let top10 = dataToShow.slice(0, 10);
+            
+            const listEl = document.getElementById('leaderboardList');
+            listEl.innerHTML = "";
+            top10.forEach((p, idx) => {
+                let rankColor = idx === 0 ? "text-yellow-400" : (idx === 1 ? "text-slate-300" : (idx === 2 ? "text-orange-400" : "text-slate-500"));
+                let bgClass = p.isMe ? "bg-blue-600/30 border border-blue-500/50" : "bg-white/5 border border-transparent";
+                let html = `<div class="leader-item flex items-center justify-between p-2 rounded-lg ${bgClass}"><div class="flex items-center gap-3 overflow-hidden"><span class="font-black ${rankColor} w-4 text-center">${idx + 1}</span><div class="flex flex-col min-w-0"><span class="font-bold text-white truncate text-xs">${p.name}</span></div></div><span class="font-mono text-xs text-green-400 font-bold">${formatNumber(p.score)} ₺</span></div>`;
+                listEl.innerHTML += html;
+            });
         }
 
-        function handleClick(e) {
-            const cps = calculateCPS(); const power = Math.max(1, Math.floor(cps * 0.05)); 
-            game.money += power; showFloatingText(e.clientX, e.clientY, `+${formatNumber(power)}`); animateButton(); updateUI();
-        }
-        function buyItem(id) {
-            const item = game.buildings[id]; const currentCost = calculateCost(item.baseCost, item.count);
-            if (game.money >= currentCost) { game.money -= currentCost; item.count++; updateUI(); saveGame(); }
-        }
+        function claimReward() { game.money += incomingReward; incomingReward = 0; document.getElementById('rewardPopup').classList.add('hidden'); updateUI(); saveGame(); }
+        function handleClick(e) { const cps = calculateCPS(); const power = Math.max(1, Math.floor(cps * 0.05)); game.money += power; showFloatingText(e.clientX, e.clientY, `+${formatNumber(power)}`); animateButton(); updateUI(); renderLeaderboard(); } // Tıklandıkça sıralamayı güncelle
+        function buyItem(id) { const item = game.buildings[id]; const currentCost = calculateCost(item.baseCost, item.count); if (game.money >= currentCost) { game.money -= currentCost; item.count++; updateUI(); saveGame(); } }
         function passiveIncomeLoop() { const cps = calculateCPS(); if (cps > 0) game.money += cps; }
         function uiLoop() {
             updateUI();
@@ -271,276 +322,98 @@ GAME_HTML_TEMPLATE = """
 </html>
 """
 
-# --- CSS VE TASARIM ---
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
-    
-    .stApp { background-color: #F0F4C3 !important; }
-    h1, h2, h3, h4, .stMarkdown, p, label { color: #212121 !important; }
-    
-    /* DROPDOWN DÜZELTMESİ */
-    .stSelectbox div[data-baseweb="select"] > div {
-        background-color: #FFFFFF !important;
-        color: #000000 !important;
-        border: 2px solid #FF7043;
-    }
-    
-    .stDeployButton {display:none;}
-    footer {visibility: hidden;}
-    #MainMenu {visibility: hidden;}
-    
-    /* GİRİŞ KARTI */
-    .giris-kart {
-        background-color: white;
-        padding: 40px;
-        border-radius: 20px;
-        border: 3px solid #FF7043;
-        text-align: center;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-    }
-
-    /* SEÇİM KARTLARI */
-    .secim-karti {
-        background-color: white;
-        padding: 20px;
-        border-radius: 15px;
-        border: 2px solid #FF7043;
-        text-align: center;
-        transition: transform 0.2s;
-        height: 150px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-    }
-    .secim-karti:hover {
-        transform: scale(1.02);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    
-    /* BUTONLAR */
-    .stButton>button {
-        background-color: #FF7043 !important;
-        color: white !important;
-        border-radius: 8px;
-        font-weight: bold;
-        width: 100%;
-        border: 2px solid #D84315 !important;
-        min-height: 50px;
-        font-size: 16px !important;
-    }
-    .stButton>button:hover {
-        background-color: #E64A19 !important;
-    }
-    
-    /* KARTLAR */
-    .konu-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 6px solid #2196F3; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .soru-karti { background-color: white; padding: 20px; border-radius: 10px; border-left: 5px solid #FF7043; font-size: 18px; margin-bottom: 20px; color: #000 !important; }
-    .hata-karti { background-color: #FFEBEE; border-left: 5px solid #D32F2F; padding: 15px; margin-bottom: 15px; border-radius: 5px; color: #000; }
-    .stat-card { background-color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; border: 2px solid #FF7043; }
-    .stat-number { font-size: 32px; font-weight: bold; color: #D84315; }
-    
-    /* İMZA */
-    .imza-container { margin-top: 40px; text-align: right; padding-right: 20px; opacity: 0.9; }
-    .imza { font-family: 'Dancing Script', cursive; color: #D84315; font-size: 24px; margin-bottom: 5px; }
-    </style>
-""", unsafe_allow_html=True)
-
-# ==============================================================================
-# EKRAN VE DEĞİŞKENLER
-# ==============================================================================
-if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
-if 'oturum' not in st.session_state: st.session_state.oturum = False
-if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
-if 'mod' not in st.session_state: st.session_state.mod = "" 
-if 'secilen_liste' not in st.session_state: st.session_state.secilen_liste = []
-if 'aktif_index' not in st.session_state: st.session_state.aktif_index = 0
-if 'secim_turu' not in st.session_state: st.session_state.secim_turu = None 
-if 'karne' not in st.session_state: st.session_state.karne = []
-if 'dogru_sayisi' not in st.session_state: st.session_state.dogru_sayisi = 0
-if 'yanlis_sayisi' not in st.session_state: st.session_state.yanlis_sayisi = 0
-if 'bos_sayisi' not in st.session_state: st.session_state.bos_sayisi = 0
-
-# --- 1. GİRİŞ EKRANI ---
+# --- EKRAN YÖNETİMİ ---
 if st.session_state.ekran == 'giris':
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("""
-        <div class='giris-kart'>
-            <h1>🎓 Bağarası ÇPAL</h1>
-            <h2>Finans & Eğitim Ekosistemi</h2>
-            <hr>
-            <p style="font-size:18px; font-weight:bold; color:#D84315;">
-                Muhasebe ve Finansman Alanı Dijital Dönüşüm Projesi
-            </p>
-            <br>
-            <p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
+        st.markdown("""<div class='giris-kart'><h1>🎓 Bağarası ÇPAL</h1><h2>Hibrit Yaşam & Eğitim Merkezi</h2><hr><p style="font-size:18px; font-weight:bold; color:#D84315;">Geleceğe Hazırlık Simülasyonu</p><br><p>Lütfen sisteme giriş yapmak için bilgilerinizi giriniz.</p></div>""", unsafe_allow_html=True)
         ad_soyad_input = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet Karaduman")
-        
         st.write("")
         if st.button("SİSTEME GİRİŞ YAP ➡️"):
             if ad_soyad_input.strip():
                 st.session_state.ad_soyad = ad_soyad_input
                 st.session_state.ekran = 'sinav'
-                st.session_state.karne = []
-                st.session_state.dogru_sayisi = 0
-                st.session_state.yanlis_sayisi = 0
-                st.session_state.bos_sayisi = 0
-                st.session_state.secim_turu = None 
                 st.rerun()
-            else:
-                st.error("Lütfen adınızı giriniz!")
-        
-        st.markdown("""
-        <div class='imza-container'>
-            <div class='imza'></div>
-        </div>
-        """, unsafe_allow_html=True)
+            else: st.error("Lütfen adınızı giriniz!")
+        st.markdown("""<div class='imza-container'><div class='imza'>Zülfikar SITACI & Mustafa BAĞCIK</div></div>""", unsafe_allow_html=True)
 
-# --- 2. ANA KUMANDA MERKEZİ ---
 elif st.session_state.ekran == 'sinav':
-    
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=100)
         st.write(f"👤 **{st.session_state.ad_soyad}**")
-        if st.button("🏠 Ana Ekrana Dön"):
+        if st.button("🏠 Ana Menü"):
              st.session_state.oturum = False
              st.session_state.secim_turu = None
              st.rerun()
         st.divider()
-        if st.button("🚪 Çıkış Yap"):
+        if st.button("🚪 Çıkış"):
             st.session_state.ekran = 'giris'
             st.session_state.oturum = False
             st.rerun()
 
-    # --- ANA MENÜ (SEÇİM EKRANI) ---
+    # ANA MENÜ
     if not st.session_state.oturum and st.session_state.secim_turu not in ["LIFESIM", "GAME"]:
-        
         st.markdown(f"<h2 style='text-align:center;'>Hoşgeldin {st.session_state.ad_soyad}, Bugün Ne Yapmak İstersin? 👇</h2><br>", unsafe_allow_html=True)
         
-        # --- 1. GRUP: SORU ÇÖZÜM MERKEZİ ---
         st.header("1. Bölüm: 📝 Soru Çözüm Merkezi")
-        col_a, col_b = st.columns(2)
-        
-        with col_a:
-            st.markdown("""<div class='secim-karti'><h3>📘 TYT Kampı</h3><p>Çıkmış Sorular & Denemeler</p></div>""", unsafe_allow_html=True)
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown("""<div class='secim-karti'><h3>📘 TYT Kampı</h3><p>Çıkmış Sorular</p></div>""", unsafe_allow_html=True)
             if st.button("TYT Başlat ➡️", key="btn_tyt"): st.session_state.secim_turu = "TYT"
-        
-        with col_b:
-            st.markdown("""<div class='secim-karti'><h3>💼 Meslek Lisesi</h3><p>Alan Dersleri & Konu Testleri</p></div>""", unsafe_allow_html=True)
+        with c2:
+            st.markdown("""<div class='secim-karti'><h3>💼 Meslek Lisesi</h3><p>Alan Dersleri</p></div>""", unsafe_allow_html=True)
             if st.button("Meslek Çöz ➡️", key="btn_meslek"): st.session_state.secim_turu = "MESLEK"
-
+        
         st.markdown("---")
-
-        # --- 2. GRUP: SİMÜLASYON ---
-        st.header("2. Bölüm: 🎮 Gerçek Hayat Simülasyonu")
+        
+        st.header("2. Bölüm: 🎮 Simülasyon & Oyun")
         c3, c4 = st.columns(2)
         with c3:
-            st.markdown("""<div class='secim-karti' style='border-color:#38bdf8;'><h3>🧠 Life-Sim</h3><p>Sokratik Yöntemle Yaşam Senaryoları</p></div>""", unsafe_allow_html=True)
+            st.markdown("""<div class='secim-karti' style='border-color:#38bdf8;'><h3>🧠 Life-Sim</h3><p>Yaşam Senaryoları</p></div>""", unsafe_allow_html=True)
             if st.button("Simülasyonu Başlat 🚀", key="btn_life", use_container_width=True): 
                 st.session_state.secim_turu = "LIFESIM"
                 st.rerun()
-        
         with c4:
-            st.markdown("""<div class='secim-karti' style='border-color:#fbbf24;'><h3>👑 Finans İmparatoru</h3><p>Şirketini Kur, Pasif Gelir Elde Et!</p></div>""", unsafe_allow_html=True)
+            st.markdown("""<div class='secim-karti' style='border-color:#fbbf24;'><h3>👑 Finans İmparatoru</h3><p>Kendi Şirketini Kur!</p></div>""", unsafe_allow_html=True)
             if st.button("Oyunu Başlat 🎮", key="btn_game", use_container_width=True): 
                 st.session_state.secim_turu = "GAME"
                 st.rerun()
-        
+
         st.divider()
+
+    # OYUN SAYFASI (ÖDÜL VE LİDERLİK TABLOSU ENTEGRASYONLU)
+    if st.session_state.secim_turu == "GAME":
+        reward_val = st.session_state.bekleyen_odul
+        st.session_state.bekleyen_odul = 0 
         
-        # --- TYT AYARLARI ---
-        if st.session_state.secim_turu == "TYT":
-            st.subheader("📘 TYT Ayarları")
-            if TYT_VERI:
-                dersler = sorted(list(set(v["ders"] for v in TYT_VERI.values())))
-                ders = st.selectbox("Ders Seçiniz:", ["Karışık Deneme"] + dersler)
-                adet = st.slider("Kaç Sayfa Çözmek İstersiniz?", 1, 10, 3)
-                
-                if st.button("SINAVI BAŞLAT 🚀"):
-                    uygun = [s for s, d in TYT_VERI.items() if ders == "Karışık Deneme" or d["ders"] == ders]
-                    if uygun:
-                        random.shuffle(uygun)
-                        st.session_state.secilen_liste = uygun[:adet]
-                        st.session_state.mod = "PDF"
-                        st.session_state.oturum = True
-                        st.session_state.karne = [] 
-                        st.session_state.aktif_index = 0
-                        st.rerun()
-                    else: st.error("Soru yok.")
-            else: st.warning("TYT verisi yok.")
-                
-        # --- MESLEK AYARLARI ---
-        elif st.session_state.secim_turu == "MESLEK":
-            st.subheader("💼 Meslek Alanı")
-            tab1, tab2 = st.tabs(["📝 TEST ÇÖZ", "📚 DERS NOTLARI"])
-            
-            with tab1:
-                konu_verisi = MESLEK_VERI.get("KONU_TARAMA", {})
-                if konu_verisi:
-                    sinif = st.selectbox("Sınıf Seçiniz:", list(konu_verisi.keys()), key="s_konu")
-                    sinif_dersleri = konu_verisi.get(sinif, {})
-                    if sinif_dersleri:
-                        ders = st.selectbox("Ders Seçiniz:", list(sinif_dersleri.keys()), key="d_konu")
-                        testler = sinif_dersleri.get(ders, {})
-                        if testler:
-                            test = st.selectbox("Test Seçiniz:", list(testler.keys()), key="t_konu")
-                            if st.button("TESTİ BAŞLAT 🚀", key="btn_konu"):
-                                st.session_state.secilen_liste = testler[test]
-                                st.session_state.mod = "MESLEK"
-                                st.session_state.oturum = True
-                                st.session_state.karne = [] 
-                                st.session_state.aktif_index = 0
-                                st.rerun()
-                        else: st.warning("Test yok.")
-                    else: st.warning("Ders yok.")
-                else: st.warning("Veri yok.")
+        # Google Sheet'ten gelen veriyi al
+        leaderboard_json = get_leaderboard_data()
+        
+        # Kullanıcı adını, ödülü ve liderlik verisini JS'e gönder
+        final_game_html = GAME_HTML_TEMPLATE.replace("__REWARD_AMOUNT__", str(reward_val))
+        final_game_html = final_game_html.replace("__USER_NAME__", st.session_state.ad_soyad)
+        final_game_html = final_game_html.replace("__LEADERBOARD_JSON__", leaderboard_json)
+        
+        components.html(final_game_html, height=1000, scrolling=True)
 
-            with tab2:
-                if KONU_VERI:
-                    k_sinif = st.selectbox("Sınıf Seçiniz:", list(KONU_VERI.keys()), key="k_s")
-                    k_dersler = KONU_VERI.get(k_sinif, {})
-                    if k_dersler:
-                        k_ders = st.selectbox("Ders Seçiniz:", list(k_dersler.keys()), key="k_d")
-                        notlar = k_dersler.get(k_ders, [])
-                        for not_maddesi in notlar:
-                            st.markdown(f"<div class='konu-karti'><div class='konu-baslik'>{not_maddesi['baslik']}</div><div class='konu-icerik'>{not_maddesi['icerik']}</div></div>", unsafe_allow_html=True)
-
-    # --- 3. MODÜL: LIFE-SIM (HTML ENTEGRASYONU) ---
+    # LIFE-SIM SAYFASI
     elif st.session_state.secim_turu == "LIFESIM":
-        # Life-Sim için bir bitirme butonu ekleyelim
         col_ls_1, col_ls_2 = st.columns([3, 1])
         with col_ls_1:
             components.html(LIFE_SIM_HTML, height=800, scrolling=True)
         with col_ls_2:
-            st.info("Senaryoyu ve analizi tamamladıysan ödülünü al!")
+            st.info("Senaryoyu tamamladıysan ödülünü al!")
             if st.button("✅ Senaryoyu Bitirdim (+250 ₺)", use_container_width=True):
                 st.session_state.bekleyen_odul += 250
                 st.session_state.secim_turu = "GAME"
                 st.rerun()
-    
-    # --- 4. MODÜL: GAME (HTML ENTEGRASYONU) ---
-    elif st.session_state.secim_turu == "GAME":
-        # Python'daki ödülü JS'e aktar ve Python tarafında sıfırla
-        reward_val = st.session_state.bekleyen_odul
-        st.session_state.bekleyen_odul = 0 # Sıfırla ki tekrar tekrar vermesin
-        final_game_html = GAME_HTML_TEMPLATE.replace("__REWARD_AMOUNT__", str(reward_val))
-        components.html(final_game_html, height=1000, scrolling=True)
 
-    # --- 5. MODÜL: KLASİK SINAV MOTORU ---
+    # SINAV MOTORU
     elif st.session_state.oturum:
-        # A) SINAV BİTTİYSE (SONUÇ EKRANI)
         if st.session_state.aktif_index >= len(st.session_state.secilen_liste):
             st.balloons()
             st.markdown(f"<h2 style='text-align:center;'>🏁 Sınav Tamamlandı!</h2>", unsafe_allow_html=True)
             
-            # İstatistikler
             c1, c2, c3 = st.columns(3)
             c1.markdown(f"<div class='stat-card'><div class='stat-number' style='color:#4caf50'>{st.session_state.dogru_sayisi}</div><div class='stat-label'>Doğru</div></div>", unsafe_allow_html=True)
             c2.markdown(f"<div class='stat-card'><div class='stat-number' style='color:#f44336'>{st.session_state.yanlis_sayisi}</div><div class='stat-label'>Yanlış</div></div>", unsafe_allow_html=True)
@@ -548,17 +421,15 @@ elif st.session_state.ekran == 'sinav':
             
             st.markdown("---")
             
-            # ÖDÜL HESAPLAMA MANTIĞI
             kazanc = st.session_state.dogru_sayisi * 150
             
             if kazanc > 0:
                 st.success(f"🎉 TEBRİKLER! Bu testten şirket sermayen için **{kazanc} ₺** kazandın!")
                 
-                # ÖDÜLÜ AL BUTONU
                 if st.button(f"💰 {kazanc} ₺ Ödülü Al ve Şirketine Git 🚀", type="primary", use_container_width=True): 
                     st.session_state.bekleyen_odul += kazanc
                     st.session_state.oturum = False
-                    st.session_state.secim_turu = "GAME" # Direkt oyuna yönlendir
+                    st.session_state.secim_turu = "GAME"
                     st.rerun()
             else:
                 st.warning("Maalesef hiç doğru yapamadığın için para kazanamadın. Tekrar dene!")
@@ -566,19 +437,16 @@ elif st.session_state.ekran == 'sinav':
                     st.session_state.oturum = False
                     st.rerun()
         
-        # B) SINAV DEVAM EDİYORSA (SORU EKRANI)
         elif st.session_state.mod == "MESLEK":
             soru = st.session_state.secilen_liste[st.session_state.aktif_index]
             st.subheader(f"❓ Soru {st.session_state.aktif_index + 1}")
             st.markdown(f"<div class='soru-karti'>{soru['soru']}</div>", unsafe_allow_html=True)
             
-            # Şıkları karıştır (sadece ilk yüklemede)
             if "secenekler_mix" not in st.session_state:
                 s = soru["secenekler"].copy()
                 random.shuffle(s)
                 st.session_state.secenekler_mix = s
             
-            # Şık Butonları
             for idx, sec in enumerate(st.session_state.secenekler_mix):
                 if st.button(sec, key=f"btn_{idx}", use_container_width=True):
                     if sec.strip() == soru["cevap"].strip():
@@ -588,7 +456,6 @@ elif st.session_state.ekran == 'sinav':
                         st.toast("Yanlış! ❌", icon="❌")
                         st.session_state.yanlis_sayisi += 1
                     
-                    # Sonraki soruya geç
                     if "secenekler_mix" in st.session_state:
                         del st.session_state.secenekler_mix
                     time.sleep(0.5)
