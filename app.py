@@ -15,8 +15,225 @@ TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 KONU_JSON_ADI = "konular.json"
 
-# --- LIFE-SIM HTML KODU (V4.1 - FIX: JS SYNTAX HATASI DÜZELTİLDİ) ---
-LIFE_SIM_HTML = """
+# --- SENARYO VERİTABANI (PYTHON TARAFI - HATASIZ) ---
+# Verileri burada Python listesi olarak tutuyoruz, HTML'e otomatik gömeceğiz.
+SCENARIOS_DATA = [
+    # --- GÜNCEL ---
+    {
+        "category": "Güncel",
+        "title": "1. Taksitli Alışveriş ve Enflasyon",
+        "text": "Telefonun peşin fiyatı 30.000 TL, 12 taksitli fiyatı 36.000 TL. Enflasyon %60. Hangisi daha karlı?",
+        "data": ["Enflasyon: %60", "Vade Farkı: %20"],
+        "hint": "Reel faiz hesabı yap. Paranın zaman değerini düşün.",
+        "doc": "📌 **DERS NOTU: Enflasyon ve Borçlanma**<br><br>• **Nominal Faiz:** Bankanın veya satıcının belirlediği faiz oranıdır.<br>• **Reel Faiz:** Enflasyondan arındırılmış gerçek kazanç/maliyet oranıdır.<br><br>💡 **Kural:** Eğer Enflasyon Oranı > Kredi/Vade Faizi ise, borçlanmak karlıdır. Çünkü paranın alım gücü düşerken, borcunuzun reel değeri de düşer."
+    },
+    {
+        "category": "Güncel",
+        "title": "2. Gizli Enflasyon (Shrinkflation)",
+        "text": "Fiyat aynı kaldı ama gramaj 100gr'dan 80gr'a düştü. Birim maliyet analizi yap.",
+        "data": ["Eski: 100gr", "Yeni: 80gr"],
+        "hint": "Gramaj düşünce birim fiyat % kaç arttı?",
+        "doc": "📌 **DERS NOTU: Shrinkflation (Küçülflasyon)**<br><br>• Üreticilerin maliyet artışını doğrudan fiyata yansıtmak yerine, ürünün gramajını düşürerek gizli zam yapmasıdır.<br><br>⚠ **Tüketici Dikkat:** Her zaman ürünün paket fiyatına değil, **Birim Fiyatına (TL/kg veya TL/lt)** bakılmalıdır."
+    },
+    {
+        "category": "Güncel",
+        "title": "3. İkinci El Araç Yanılgısı",
+        "text": "500k'ya aldın, 1M'ye sattın ama yenisi 1.1M. Kar ettin mi?",
+        "data": ["Alış: 500k", "Piyasa: 1.1M"],
+        "hint": "Yerine koyma maliyetini düşün.",
+        "doc": "📌 **DERS NOTU: Yerine Koyma Maliyeti**<br><br>• **Nominal Kar:** Kağıt üzerindeki kar (Satış - Alış).<br>• **Yerine Koyma Maliyeti:** Sattığınız malı tekrar almak için ödemeniz gereken bedel.<br><br>💡 Eğer sattığınız malı yerine koymak için üzerine para eklemeniz gerekiyorsa, teknik olarak **Sermaye Kaybı** yaşıyorsunuz demektir."
+    },
+    {
+        "category": "Güncel",
+        "title": "4. Bedelli Askerlik Maliyeti",
+        "text": "Bedelli 240.000 TL. Maaşın 35.000 TL. Gitmek mi ödemek mi?",
+        "data": ["Bedelli: 240k", "Maaş: 35k"],
+        "hint": "Fırsat maliyeti hesabı yap.",
+        "doc": "📌 **DERS NOTU: Fırsat Maliyeti (Opportunity Cost)**<br><br>• Bir kararı uygularken vazgeçtiğiniz en iyi ikinci alternatifin değeridir.<br><br>🧮 **Hesaplama:** (6 Ay x Maaş) + (Kariyer Kaybı) + (Sosyal Hak Kaybı). Eğer bu toplam Bedelli ücretinden yüksekse, bedelli yapmak finansal olarak mantıklıdır."
+    },
+    {
+        "category": "Güncel",
+        "title": "5. Öğrenci Evi Bütçesi",
+        "text": "Gelirler eşit değil. Gider nasıl paylaşılır?",
+        "data": ["Gider: 19k"],
+        "hint": "Oransal dağılım.",
+        "doc": "📌 **DERS NOTU: Adil Bütçe Yönetimi**<br><br>• **Eşit Paylaşım:** Herkes aynı tutarı öder. (Gelirsiz olanı zorlar)<br>• **Oransal Paylaşım:** Herkes gelirinin belirli bir yüzdesini (örn. %30) havuza koyar. Geliri çok olan çok, az olan az öder. Bu yöntem sosyal adalete daha uygundur."
+    },
+    
+    # --- MUHASEBE ---
+    {
+        "category": "Muhasebe",
+        "title": "6. Asgari Ücret Dengesi",
+        "text": "Maliyet %40 arttı. Zam yaparsan satış düşecek. Çözüm?",
+        "data": ["Maliyet: +%40"],
+        "hint": "Verimlilik artışı.",
+        "doc": "📌 **DERS NOTU: Maliyet Yönetimi**<br><br>• İşçilik maliyeti artınca sadece zam yapmak kısır döngüdür.<br>✅ **Çözüm:** Verimliliği artırmak (aynı sürede daha çok iş), israfı önlemek (yalın üretim) veya devlet teşviklerini kullanmaktır."
+    },
+    {
+        "category": "Muhasebe",
+        "title": "7. Vergi Affı Beklentisi",
+        "text": "Af çıkacak diye borcu ödememek mantıklı mı?",
+        "data": ["Borç: 500k"],
+        "hint": "Risk analizi.",
+        "doc": "📌 **DERS NOTU: Vergi Ahlakı ve Risk**<br><br>• Vergi affı beklentisiyle ödeme yapmamak 'Ahlaki Riziko' yaratır.<br>• Ancak af çıkmazsa; Gecikme Zammı + E-Haciz riski + Ticari İtibar Kaybı oluşur. Bu maliyetler genelde daha yüksektir."
+    },
+    {
+        "category": "Muhasebe",
+        "title": "8. Enflasyon Muhasebesi",
+        "text": "Kağıt üzerinde kar var ama stok yerine konamıyor.",
+        "data": ["Nakit: Yok"],
+        "hint": "Sermaye erimesi.",
+        "doc": "📌 **DERS NOTU: Enflasyon Muhasebesi**<br><br>• Enflasyonist ortamda düşük maliyetli eski stoklar satılınca kar yüksek görünür, bu yüzden yüksek vergi çıkar.<br>• Bu durum **'Sermaye Erimesi'ne** yol açar. Stok değerleme yöntemleri (LIFO/FIFO) buna göre seçilmelidir."
+    },
+    {
+        "category": "Muhasebe",
+        "title": "9. E-Fatura Cezası",
+        "text": "Fatura kesilemedi. Müşteriye izah et.",
+        "data": ["Ceza: Var"],
+        "hint": "Dürüstlük ve teknik rapor.",
+        "doc": "📌 **DERS NOTU: VUK ve Mücbir Sebep**<br><br>• Sistemsel arızalar 'Mücbir Sebep' sayılabilir. Durumu ispatlayan teknik raporla Gelir İdaresi'ne başvurulursa ceza iptal edilebilir. Müşteriye şeffaf olmak güveni korur."
+    },
+    {
+        "category": "Muhasebe",
+        "title": "10. Startup Batış Riski",
+        "text": "200k sermaye ile iş kurarken görünmeyen giderler.",
+        "data": ["Stopaj, SGK"],
+        "hint": "Vergileri unutma.",
+        "doc": "📌 **DERS NOTU: Görünmeyen Giderler (Overhead)**<br><br>• Sadece kirayı değil; Stopaj (%20), SGK Primi, Damga Vergileri, Ruhsat Harçları ve Muhasebe Ücretini hesaba katmalısın. Bunlar bütçenin %30'unu oluşturur."
+    },
+
+    # --- HUKUK ---
+    {
+        "category": "Hukuk",
+        "title": "11. Kiracı Tahliyesi",
+        "text": "Kira piyasanın altında. Dava uzun. Uzlaşma?",
+        "data": ["Fark: 4 Kat"],
+        "hint": "Zamanın maliyeti.",
+        "doc": "📌 **DERS NOTU: Sulh Kültürü**<br><br>• 'En kötü sulh, en iyi davadan iyidir'.<br>• Dava süreçleri (3-4 yıl) masraflıdır ve alacağın değerini eritir. Kiracıya taşınma yardımı yapıp anlaşmak, yılları mahkemede geçirmekten karlı olabilir."
+    },
+    {
+        "category": "Hukuk",
+        "title": "12. Sosyal Medya Hakareti",
+        "text": "Müdüre hakaret. TCK 125.",
+        "data": ["Suç: Hakaret"],
+        "hint": "Uzlaşma.",
+        "doc": "📌 **DERS NOTU: Bilişim Suçları**<br><br>• Sosyal medya 'kamuya açık alan' sayılır, ceza artırımı uygulanır (TCK 125/4).<br>• Hakaret 'Uzlaşmaya Tabi' suçtur. Özür dilemek ve pişmanlık, sicilin bozulmasını engelleyebilir."
+    },
+    {
+        "category": "Hukuk",
+        "title": "13. Ayıplı Mal",
+        "text": "Telefon bozuldu, servis reddetti. Hakem Heyeti.",
+        "data": ["Mal: Ayıplı"],
+        "hint": "Bilirkişi talep et.",
+        "doc": "📌 **DERS NOTU: Tüketici Hakları**<br><br>• Mal ayıplıysa 4 hak vardır: İade, Değişim, İndirim, Onarım.<br>• Servis reddetse bile E-Devlet üzerinden Tüketici Hakem Heyeti'ne başvurup bilirkişi isteyebilirsiniz."
+    },
+    {
+        "category": "Hukuk",
+        "title": "14. Mobbing İddiası",
+        "text": "Çalışanlar kavgalı. İK yöneticisi kararı.",
+        "data": ["Kanıt: ?"],
+        "hint": "Somut delil.",
+        "doc": "📌 **DERS NOTU: İş Hukuku ve Mobbing**<br><br>• Mobbing ispatı zordur. İddialar somut delile (e-posta, şahit, kamera) dayanmıyorsa, tek taraflı işlem yapmak şirketi tazminat yükü altına sokar."
+    },
+    {
+        "category": "Hukuk",
+        "title": "15. Miras Paylaşımı",
+        "text": "Tarla satılsın mı işlensin mi?",
+        "data": ["Çözüm: ?"],
+        "hint": "Ortak işletme.",
+        "doc": "📌 **DERS NOTU: İzale-i Şuyu**<br><br>• Anlaşmazlık olursa mahkeme malı ucuza satar.<br>• **Çözüm:** Toprağı işleyip gelirini paylaşmak (İntifa Hakkı) hem malı hem de aile bağlarını korur."
+    },
+
+    # --- YÖNETİM ---
+    {
+        "category": "Yönetim",
+        "title": "16. AI ve İşsizlik",
+        "text": "AI 3 kişinin işini yapıyor. Kovmak mı?",
+        "data": ["Verim: Yüksek"],
+        "hint": "Dönüştürmek.",
+        "doc": "📌 **DERS NOTU: Upskilling (Beceri Geliştirme)**<br><br>• Çözüm kovmak değil, personeli AI operatörü olarak eğiterek dönüştürmektir. Bu kurumsal hafızayı korur."
+    },
+    {
+        "category": "Yönetim",
+        "title": "17. Kriz Masası",
+        "text": "Müşteri otelde olay çıkardı. İtibar yönetimi.",
+        "data": ["Risk: Viral"],
+        "hint": "Empati.",
+        "doc": "📌 **DERS NOTU: Kriz İletişimi**<br><br>• Savunmaya geçmek yangını körükler.<br>• Doğru Strateji: 1. Kabul et, 2. Özür dile, 3. Telafi et. Müşterinin sesinin duyulması öfkeyi azaltır."
+    },
+    {
+        "category": "Yönetim",
+        "title": "18. Ofise Dönüş",
+        "text": "Herkes evden çalışmak istiyor. Sen ofis diyorsun.",
+        "data": ["Kültür: Zayıf"],
+        "hint": "Hibrit model.",
+        "doc": "📌 **DERS NOTU: Hibrit Çalışma**<br><br>• Tamamen evden çalışma kurum kültürünü zayıflatır.<br>• **Altın Oran:** Haftanın belirli günlerini (Core Days) ofise ayırmak en verimli yöntemdir."
+    },
+    {
+        "category": "Yönetim",
+        "title": "19. Tedarik Zinciri",
+        "text": "Hammadde yok. Üretim durdu. Müşteriye ne denir?",
+        "data": ["Stok: 0"],
+        "hint": "Şeffaflık.",
+        "doc": "📌 **DERS NOTU: Şeffaf Yönetim**<br><br>• Müşteriye yalan söylemek (oyalamak) en büyük hatadır. Şeffaf olup, gerekirse rakip firmadan ürün temin edip müşteriyi mağdur etmemek güven sağlar."
+    },
+    {
+        "category": "Yönetim",
+        "title": "20. Greenwashing",
+        "text": "Patron yalandan 'Doğa Dostu' yazmak istiyor.",
+        "data": ["Risk: Büyük"],
+        "hint": "İtibar riski.",
+        "doc": "📌 **DERS NOTU: İş Etiği**<br><br>• Tüketiciyi kandırmaya 'Yeşil Aklama' (Greenwashing) denir. Ortaya çıkarsa marka biter. Dürüstlük en sürdürülebilir stratejidir."
+    },
+
+    # --- DEĞERLER ---
+    {
+        "category": "Değerler",
+        "title": "21. Bulunan Cüzdan",
+        "text": "Düşmanının cüzdanı. İçinde para var.",
+        "data": ["Vicdan"],
+        "hint": "Karakter sınavı.",
+        "doc": "📌 **DERS NOTU: Etik ve Karakter**<br><br>• 'Karakter, kimse izlemiyorken ne yaptığındır.' Düşmanının malını korumak, kendine duyduğun saygının göstergesidir."
+    },
+    {
+        "category": "Değerler",
+        "title": "22. Zorbalığa Sessiz Kalmak",
+        "text": "Arkadaşın eziliyor. Ses çıkarırsan yanacaksın.",
+        "data": ["Cesaret"],
+        "hint": "Sessiz kalmak onaylamaktır.",
+        "doc": "📌 **DERS NOTU: Aktif Vatandaşlık**<br><br>• Zorbalık karşısında sessiz kalanlar, zorbalığın devam etmesine zemin hazırlar. Doğruyu savunmak saygınlık kazandırır."
+    },
+    {
+        "category": "Değerler",
+        "title": "23. Çevre Etiği",
+        "text": "Fabrikanız nehri kirletiyor. İhbar eder misin?",
+        "data": ["Aile vs Toplum"],
+        "hint": "Uzun vadeli düşün.",
+        "doc": "📌 **DERS NOTU: Sosyal Sorumluluk**<br><br>• Kısa vadeli kar uğruna doğayı kirletmek, gelecek nesillerden çalmaktır. Yanlışa dur demek en büyük erdemdir."
+    },
+    {
+        "category": "Değerler",
+        "title": "24. Hasarlı Kaza",
+        "text": "Arabayı çizdin, kaçma şansın var.",
+        "data": ["Dürüstlük"],
+        "hint": "Empati kur.",
+        "doc": "📌 **DERS NOTU: Empati**<br><br>• 'Kendine yapılmasını istemediğin şeyi başkasına yapma.' Kaçmak anlık kurtarır ama vicdan yükü kalır."
+    },
+    {
+        "category": "Değerler",
+        "title": "25. Dijital Bağımlılık",
+        "text": "Kardeşin ekran bağımlısı. Nasıl yardım edersin?",
+        "data": ["İletişim"],
+        "hint": "Alternatif sun.",
+        "doc": "📌 **DERS NOTU: Dijital Denge**<br><br>• Yasaklar ters teper. Çözüm, boşluğu spor, sanat veya sohbet ile doldurmaktır. İlgi göstermek en güçlü bağlayıcıdır."
+    }
+]
+
+# JSON'a çeviriyoruz (JavaScript içine gömmek için)
+SCENARIOS_JSON = json.dumps(SCENARIOS_DATA, ensure_ascii=False)
+
+# --- LIFE-SIM HTML KODU ---
+LIFE_SIM_HTML = f"""
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -26,25 +243,25 @@ LIFE_SIM_HTML = """
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
-        tailwind.config = { theme: { extend: { colors: { bg: '#0f172a', surface: '#1e293b', primary: '#38bdf8', accent: '#f472b6', success: '#34d399', warning: '#fbbf24' } } } }
+        tailwind.config = {{ theme: {{ extend: {{ colors: {{ bg: '#0f172a', surface: '#1e293b', primary: '#38bdf8', accent: '#f472b6', success: '#34d399', warning: '#fbbf24' }} }} }} }}
     </script>
     <style>
-        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
-        .glow-border:focus-within { box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
-        canvas { cursor: crosshair; touch-action: none; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        .main-container { height: 95vh; display: flex; flex-direction: column; gap: 1rem; padding: 0.5rem; }
-        @media (min-width: 768px) { .main-container { flex-direction: row; } }
-        .panel { display: flex; flex-direction: column; gap: 1rem; height: 100%; overflow-y: auto; }
-        .left-panel { flex: 1; }
-        .right-panel { flex: 2; }
+        body {{ background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overflow: hidden; }}
+        .glass {{ background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }}
+        .glow-border:focus-within {{ box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); border-color: #38bdf8; }}
+        canvas {{ cursor: crosshair; touch-action: none; }}
+        ::-webkit-scrollbar {{ width: 8px; }}
+        ::-webkit-scrollbar-track {{ background: #0f172a; }}
+        ::-webkit-scrollbar-thumb {{ background: #334155; border-radius: 4px; }}
+        .main-container {{ height: 95vh; display: flex; flex-direction: column; gap: 1rem; padding: 0.5rem; }}
+        @media (min-width: 768px) {{ .main-container {{ flex-direction: row; }} }}
+        .panel {{ display: flex; flex-direction: column; gap: 1rem; height: 100%; overflow-y: auto; }}
+        .left-panel {{ flex: 1; }}
+        .right-panel {{ flex: 2; }}
         
         /* Ders Notu Animasyonu */
-        .info-card { transform: translateX(100%); transition: transform 0.5s ease-out; }
-        .info-card.show { transform: translateX(0); }
+        .info-card {{ transform: translateX(100%); transition: transform 0.5s ease-out; }}
+        .info-card.show {{ transform: translateX(0); }}
     </style>
 </head>
 <body>
@@ -118,259 +335,57 @@ LIFE_SIM_HTML = """
     <script>
         lucide.createIcons();
         
-        // --- SENARYO VERİTABANI (BACKTICK KULLANILDI - HATASIZ) ---
-        const scenarios = [
-            // GÜNCEL
-            { 
-                category: "Güncel", 
-                title: "1. Taksitli Alışveriş ve Enflasyon", 
-                text: `Telefonun peşin fiyatı 30.000 TL, 12 taksitli fiyatı 36.000 TL. Enflasyon %60. Hangisi daha karlı?`, 
-                data: ["Enflasyon: %60", "Vade Farkı: %20"], 
-                hint: `Reel faiz hesabı yap. Paranın zaman değerini düşün.`,
-                doc: `📌 **DERS NOTU: Enflasyon ve Borçlanma**<br><br>• **Nominal Faiz:** Bankanın veya satıcının belirlediği faiz oranıdır.<br>• **Reel Faiz:** Enflasyondan arındırılmış gerçek kazanç/maliyet oranıdır.<br><br>💡 **Kural:** Eğer Enflasyon Oranı > Kredi/Vade Faizi ise, borçlanmak karlıdır. Çünkü paranın alım gücü düşerken, borcunuzun reel değeri de düşer. Bu durumda taksitli almak, nakit parayı başka bir yatırım aracında (altın, döviz, fon) değerlendirme fırsatı sunar.`
-            },
-            { 
-                category: "Güncel", 
-                title: "2. Gizli Enflasyon (Shrinkflation)", 
-                text: `Fiyat aynı kaldı ama gramaj 100gr'dan 80gr'a düştü. Birim maliyet analizi yap.`, 
-                data: ["Eski: 100gr", "Yeni: 80gr"], 
-                hint: `Gramaj düşünce birim fiyat % kaç arttı?`,
-                doc: `📌 **DERS NOTU: Shrinkflation (Küçülflasyon)**<br><br>• Üreticilerin maliyet artışını doğrudan fiyata yansıtmak yerine, ürünün gramajını düşürerek gizli zam yapmasıdır.<br><br>⚠ **Tüketici Dikkat:** Her zaman ürünün paket fiyatına değil, **Birim Fiyatına (TL/kg veya TL/lt)** bakılmalıdır. Bu örnekte gramaj %20 düşerse, ürüne gizlice %25 zam yapılmış demektir.`
-            },
-            { 
-                category: "Güncel", 
-                title: "3. İkinci El Araç Yanılgısı", 
-                text: `500k'ya aldın, 1M'ye sattın ama yenisi 1.1M. Kar ettin mi?`, 
-                data: ["Alış: 500k", "Piyasa: 1.1M"], 
-                hint: `Yerine koyma maliyetini düşün.`, 
-                doc: `📌 **DERS NOTU: Yerine Koyma Maliyeti**<br><br>• **Nominal Kar:** Kağıt üzerindeki kar (Satış - Alış).<br>• **Yerine Koyma Maliyeti:** Sattığınız malı tekrar almak için ödemeniz gereken bedel.<br><br>💡 Eğer sattığınız malı yerine koymak için üzerine para eklemeniz gerekiyorsa, teknik olarak **Sermaye Kaybı** yaşıyorsunuz demektir. Ticarette esas olan malın adedini korumaktır, TL değerini değil.` 
-            },
-            { 
-                category: "Güncel", 
-                title: "4. Bedelli Askerlik Maliyeti", 
-                text: `Bedelli 240.000 TL. Maaşın 35.000 TL. Gitmek mi ödemek mi?`, 
-                data: ["Bedelli: 240k", "Maaş: 35k"], 
-                hint: `Fırsat maliyeti hesabı yap.`, 
-                doc: `📌 **DERS NOTU: Fırsat Maliyeti (Opportunity Cost)**<br><br>• Bir kararı uygularken vazgeçtiğiniz en iyi ikinci alternatifin değeridir.<br><br>🧮 **Hesaplama:** (6 Ay x Maaş) + (Kariyer Kaybı/Terfi Gecikmesi) + (Sosyal Hak Kaybı). Eğer bu toplam Bedelli ücretinden yüksekse, bedelli yapmak finansal olarak mantıklıdır.` 
-            },
-            { 
-                category: "Güncel", 
-                title: "5. Öğrenci Evi Bütçesi", 
-                text: `Gelirler eşit değil. Gider nasıl paylaşılır?`, 
-                data: ["Gider: 19k"], 
-                hint: `Oransal dağılım.`, 
-                doc: `📌 **DERS NOTU: Adil Bütçe Yönetimi**<br><br>• **Eşit Paylaşım:** Herkes aynı tutarı öder. (Gelir farkı varsa adaletsiz olabilir)<br>• **Oransal Paylaşım:** Herkes gelirinin belirli bir yüzdesini (örn. %30) havuza koyar. Geliri çok olan çok, az olan az öder. Bu yöntem sosyal adalete daha uygundur.` 
-            },
-            
-            // MUHASEBE
-            { 
-                category: "Muhasebe", 
-                title: "6. Asgari Ücret Dengesi", 
-                text: `Maliyet %40 arttı. Zam yaparsan satış düşecek. Çözüm?`, 
-                data: ["Maliyet: +%40"], 
-                hint: `Verimlilik artışı.`, 
-                doc: `📌 **DERS NOTU: Maliyet Yönetimi**<br><br>• İşçilik maliyeti artınca sadece zam yapmak kısır döngüdür.<br>✅ **Çözüm:** Verimliliği artırmak (aynı sürede daha çok iş), israfı önlemek (yalın üretim) veya devlet teşviklerini kullanmaktır. Fiyat artışı en son çare olmalıdır.` 
-            },
-            { 
-                category: "Muhasebe", 
-                title: "7. Vergi Affı Beklentisi", 
-                text: `Af çıkacak diye borcu ödememek mantıklı mı?`, 
-                data: ["Borç: 500k"], 
-                hint: `Risk analizi.`, 
-                doc: `📌 **DERS NOTU: Vergi Ahlakı ve Risk**<br><br>• Vergi affı beklentisiyle ödeme yapmamak 'Ahlaki Riziko' (Moral Hazard) yaratır.<br>• Ancak af çıkmazsa; Gecikme Zammı + E-Haciz riski + Ticari İtibar Kaybı oluşur. Bu maliyetler, faizden elde edilecek gelirden genelde daha yüksektir.` 
-            },
-            { 
-                category: "Muhasebe", 
-                title: "8. Enflasyon Muhasebesi", 
-                text: `Kağıt üzerinde kar var ama stok yerine konamıyor.`, 
-                data: ["Nakit: Yok"], 
-                hint: `Sermaye erimesi.`, 
-                doc: `📌 **DERS NOTU: Enflasyon Muhasebesi**<br><br>• Enflasyonist ortamda mali tablolar gerçeği yansıtmaz. Düşük maliyetli eski stoklar satılınca kar yüksek görünür, bu yüzden yüksek vergi çıkar.<br>• Bu durum **'Sermaye Erimesi'ne** yol açar. İşletmeler stok değerleme yöntemlerini (LIFO/FIFO) ve vergi planlamasını buna göre yapmalıdır.` 
-            },
-            { 
-                category: "Muhasebe", 
-                title: "9. E-Fatura Cezası", 
-                text: `Fatura kesilemedi. Müşteriye izah et.`, 
-                data: ["Ceza: Var"], 
-                hint: `Dürüstlük ve teknik raporla başvurmak.`, 
-                doc: `📌 **DERS NOTU: Vergi Usul Kanunu ve Mücbir Sebep**<br><br>• E-Fatura/E-Arşiv kesilmemesi Özel Usulsüzlük cezası gerektirir.<br>• Ancak sistemsel arızalar 'Mücbir Sebep' sayılabilir. Durumu ispatlayan teknik raporla Gelir İdaresi'ne başvurulursa ceza iptal edilebilir. Müşteriye şeffaf olmak güveni korur.` 
-            },
-            { 
-                category: "Muhasebe", 
-                title: "10. Startup Batış Riski", 
-                text: `200k sermaye ile iş kurarken görünmeyen giderler.`, 
-                data: ["Stopaj, SGK"], 
-                hint: `Sadece kirayı değil, vergileri ve resmi harçları hesapla.`, 
-                doc: `📌 **DERS NOTU: Görünmeyen Giderler (Overhead)**<br><br>• Girişimciler genelde sadece Kira ve Malzeme maliyetini hesaplar.<br>• **Unutulanlar:** Stopaj (%20), SGK Primi, Damga Vergileri, Ruhsat Harçları, Muhasebe Ücreti. Bunlar bütçenin %30'unu oluşturur ve nakit akışını bozar.` 
-            },
-
-            // HUKUK
-            { 
-                category: "Hukuk", 
-                title: "11. Kiracı Tahliyesi", 
-                text: `Kira piyasanın altında. Dava uzun. Uzlaşma?`, 
-                data: ["Fark: 4 Kat"], 
-                hint: `Zamanın maliyeti.`, 
-                doc: `📌 **DERS NOTU: Sulh ve Uzlaşma Kültürü**<br><br>• Hukukta 'En kötü sulh, en iyi davadan iyidir' sözü vardır.<br>• Dava süreçleri (3-4 yıl) hem masraflıdır hem de enflasyonist ortamda alacağın değerini eritir. Kiracıya taşınma yardımı yapıp orta yolda anlaşmak, yılları mahkemede geçirmekten daha karlı olabilir.` 
-            },
-            { 
-                category: "Hukuk", 
-                title: "12. Sosyal Medya Hakareti", 
-                text: `Müdüre hakaret. TCK 125.`, 
-                data: ["Suç: Hakaret"], 
-                hint: `Uzlaşma.`, 
-                doc: `📌 **DERS NOTU: Bilişim Suçları ve Hakaret**<br><br>• Sosyal medya 'kamuya açık alan' sayılır, bu yüzden ceza artırımı uygulanır (TCK 125/4).<br>• Hakaret suçu 'Uzlaşmaya Tabi' suçlardandır. Savcılık dava açmadan önce tarafları uzlaştırmacıya gönderir. Özür dilemek ve pişmanlık, sicilin bozulmasını engelleyebilir.` 
-            },
-            { 
-                category: "Hukuk", 
-                title: "13. Ayıplı Mal", 
-                text: `Telefon bozuldu, servis reddetti. Hakem Heyeti.`, 
-                data: ["Mal: Ayıplı"], 
-                hint: `Bilirkişi incelemesi talep et.`, 
-                doc: `📌 **DERS NOTU: Tüketici Hakları**<br><br>• Malın ayıplı çıkması durumunda tüketicinin 4 hakkı vardır: İade, Değişim, İndirim, Ücretsiz Onarım.<br>• Servis 'kullanıcı hatası' dese bile, Tüketici Hakem Heyeti'ne (E-Devlet üzerinden) başvurup bilirkişi talep edebilirsiniz. Karar mahkeme hükmündedir.` 
-            },
-            { 
-                category: "Hukuk", 
-                title: "14. Mobbing İddiası", 
-                text: `Çalışanlar kavgalı. İK yöneticisi olarak karar ver.`, 
-                data: ["Kanıt: ?"], 
-                hint: `Eşitlik ilkesi ve somut delil.`, 
-                doc: `📌 **DERS NOTU: İş Hukuku ve Mobbing**<br><br>• Mobbing (Psikolojik Taciz) ispatı zor bir durumdur.<br>• Yöneticinin görevi 'Eşit İşlem Borcu'na uymaktır. İddialar somut delile (e-posta, şahit, kamera) dayanmıyorsa, tek taraflı işlem yapmak şirketi tazminat yükü altına sokar.` 
-            },
-            { 
-                category: "Hukuk", 
-                title: "15. Miras Paylaşımı", 
-                text: `Tarla satılsın mı işlensin mi? Kardeş kavgası.`, 
-                data: ["Çözüm: ?"], 
-                hint: `İntifa hakkı veya ortak işletme modeli.`, 
-                doc: `📌 **DERS NOTU: Ortaklığın Giderilmesi (İzale-i Şuyu)**<br><br>• Mirasçılar anlaşamazsa mahkeme malı açık artırmayla satar, bu da malın değerinin altında gitmesine neden olur.<br>• **Çözüm:** 'Aile Anayasası' oluşturmak veya toprağı işleyip gelirini paylaşmak (İntifa Hakkı) hem malı korur hem de aile bağlarını.` 
-            },
-
-            // YÖNETİM
-            { 
-                category: "Yönetim", 
-                title: "16. AI ve İşsizlik", 
-                text: `AI 3 kişinin işini yapıyor. Kovmak mı?`, 
-                data: ["Verim: Yüksek"], 
-                hint: `Dönüştürmek.`, 
-                doc: `📌 **DERS NOTU: İnsan Kaynakları Dönüşümü**<br><br>• Teknolojik işsizlik kaçınılmazdır ama çözüm kovmak değil, 'Upskilling' (Beceri Geliştirme) yapmaktır.<br>• O personelleri AI operatörü olarak eğitmek, kurumsal hafızayı korur ve şirketin teknolojiye adaptasyonunu hızlandırır.` 
-            },
-            { 
-                category: "Yönetim", 
-                title: "17. Kriz Masası", 
-                text: `Müşteri otelde olay çıkardı. İtibar yönetimi.`, 
-                data: ["Risk: Viral"], 
-                hint: `Empati.`, 
-                doc: `📌 **DERS NOTU: Kriz İletişimi**<br><br>• Kriz anında savunmaya geçmek (inkar etmek, suçlamak) yangını körükler.<br>• Doğru Strateji: 1. Kabul et, 2. Özür dile (gerekirse), 3. Telafi et. Müşterinin sesinin duyulduğunu hissetmesi öfkeyi %80 azaltır.` 
-            },
-            { 
-                category: "Yönetim", 
-                title: "18. Ofise Dönüş", 
-                text: `Herkes evden çalışmak istiyor. Sen ofis diyorsun.`, 
-                data: ["Kültür: Zayıf"], 
-                hint: `Hibrit model (Haftada 2 gün ofis).`, 
-                doc: `📌 **DERS NOTU: Kurum Kültürü ve Hibrit Çalışma**<br><br>• Tamamen uzaktan çalışma 'Kurum Aidiyetini' zayıflatır. Tamamen ofis ise verimi düşürebilir.<br>• **Altın Oran:** Hibrit modeldir. Haftanın belirli günlerini (Core Days) sosyalleşme ve beyin fırtınası için ofise ayırmak en verimli yöntemdir.` 
-            },
-            { 
-                category: "Yönetim", 
-                title: "19. Tedarik Zinciri", 
-                text: `Hammadde yok. Üretim durdu. Müşteriye ne denir?`, 
-                data: ["Stok: 0"], 
-                hint: `Şeffaflık ve alternatif çözüm önerisi.`, 
-                doc: `📌 **DERS NOTU: Tedarik Zinciri Yönetimi**<br><br>• 'Just in Time' (Tam Zamanında) üretim modeli stok maliyetini düşürür ama krizlere kırılgandır.<br>• Kriz anında müşteriye yalan söylemek (oyalamak) en büyük hatadır. Şeffaf olup, gerekirse rakip firmadan ürün temin edip müşteriyi mağdur etmemek uzun vadeli güven sağlar.` 
-            },
-            { 
-                category: "Yönetim", 
-                title: "20. Greenwashing", 
-                text: `Patron yalandan 'Doğa Dostu' yazmak istiyor.`, 
-                data: ["Risk: Büyük"], 
-                hint: `Tüketici güveni kaybolursa marka biter.`, 
-                doc: `📌 **DERS NOTU: İş Etiği ve Greenwashing**<br><br>• Tüketiciyi çevreci gibi görünerek kandırmaya 'Yeşil Aklama' (Greenwashing) denir.<br>• Bu ortaya çıktığında marka değeri sıfırlanır. Etik olmayan kar, en büyük zarardır. Dürüstlük en sürdürülebilir pazarlama stratejisidir.` 
-            },
-
-            // DEĞERLER
-            { 
-                category: "Değerler", 
-                title: "21. Bulunan Cüzdan", 
-                text: `Düşmanının cüzdanı. İçinde para var.`, 
-                data: ["Vicdan"], 
-                hint: `Karakter.`, 
-                doc: `📌 **DERS NOTU: Etik ve Karakter**<br><br>• Etik, yasaların bittiği yerde başlar.<br>• 'Karakter, kimse izlemiyorken ne yaptığındır.' Düşmanının malını korumak, sadece ona değil, kendi onuruna duyduğun saygının göstergesidir. Bu davranış toplumsal güven sermayesini artırır.` 
-            },
-            { 
-                category: "Değerler", 
-                title: "22. Zorbalığa Sessiz Kalmak", 
-                text: `Arkadaşın eziliyor. Ses çıkarırsan yanacaksın.`, 
-                data: ["Cesaret"], 
-                hint: `Sessiz kalmak onaylamaktır.`, 
-                doc: `📌 **DERS NOTU: Aktif Vatandaşlık**<br><br>• Zorbalık karşısında sessiz kalanlar, zorbalığın devam etmesine zemin hazırlar.<br>• 'Bana dokunmayan yılan bin yaşasın' zihniyeti toplumu çürütür. Doğruyu savunmak kısa vadede riskli olsa da, uzun vadede saygınlık kazandırır.` 
-            },
-            { 
-                category: "Değerler", 
-                title: "23. Çevre Etiği", 
-                text: `Fabrikanız nehri kirletiyor. İhbar eder misin?`, 
-                data: ["Aile vs Toplum"], 
-                hint: `Uzun vadeli toplum sağlığı.`, 
-                doc: `📌 **DERS NOTU: Kurumsal Sosyal Sorumluluk**<br><br>• Kısa vadeli kar uğruna doğayı kirletmek, gelecek nesillerden çalmaktır.<br>• Gerçek vatanseverlik toprağına, suyuna sahip çıkmaktır. Aile şirketi bile olsa, yanlışa dur demek en büyük sadakattir.` 
-            },
-            { 
-                category: "Değerler", 
-                title: "24. Hasarlı Kaza", 
-                text: `Arabayı çizdin, kaçma şansın var.`, 
-                data: ["Dürüstlük"], 
-                hint: `Empati kur.`, 
-                doc: `📌 **DERS NOTU: Empati ve Sorumluluk**<br><br>• 'Kendine yapılmasını istemediğin şeyi başkasına yapma.'<br>• Kaçmak anlık olarak 5-10 bin TL kurtarabilir ama vicdan yükü ömür boyu sürer. Sorumluluk almak olgunluktur.` 
-            },
-            { 
-                category: "Değerler", 
-                title: "25. Dijital Bağımlılık", 
-                text: `Kardeşin ekran bağımlısı. Nasıl yardım edersin?`, 
-                data: ["İletişim"], 
-                hint: `Yasak yerine alternatif sun.`, 
-                doc: `📌 **DERS NOTU: Dijital Denge**<br><br>• Teknoloji iyi bir hizmetçi ama kötü bir efendidir.<br>• Bağımlılıkla mücadelede yasaklar ters teper. Çözüm, boşluğu spor, sanat veya sohbet ile doldurmaktır. İlgi göstermek, tabletten daha güçlü bir bağlayıcıdır.` 
-            }
-        ];
-        
-        // Diğer senaryolar için varsayılan not
-        const defaultDoc = `📌 **DERS NOTU: Genel Analiz**<br><br>• Bu konuda karar verirken şu 3 filtreyi kullan:<br>1. **Hukuki mi?** (Yasalara uygun mu?)<br>2. **Ekonomik mi?** (Verimli ve sürdürülebilir mi?)<br>3. **Etik mi?** (Vicdana ve toplumsal değerlere uygun mu?)<br><br>💡 İyi bir yönetici bu üç dengeyi kurabilen kişidir.`;
+        // PYTHON'DAN GELEN JSON VERİSİ BURAYA ENJEKTE EDİLİYOR
+        const scenarios = {SCENARIOS_JSON};
 
         let selectedScenarioIndex = 0;
         let startTime = Date.now();
 
-        window.onload = function() {
+        window.onload = function() {{
             const select = document.getElementById('scenarioSelect');
-            const categories = {};
-            scenarios.forEach((s, index) => { 
-                if(!categories[s.category]) categories[s.category] = []; 
-                categories[s.category].push({ ...s, idx: index }); 
-            });
-            for (const [cat, items] of Object.entries(categories)) {
-                let group = document.createElement('optgroup'); group.label = cat.toUpperCase();
-                items.forEach(item => { let opt = document.createElement('option'); opt.value = item.idx; opt.innerHTML = item.title; group.appendChild(opt); });
+            const categories = {{}};
+            
+            // Kategorilere ayır
+            scenarios.forEach((s, index) => {{
+                if(!categories[s.category]) categories[s.category] = [];
+                categories[s.category].push({{ ...s, idx: index }});
+            }});
+
+            // Menüyü doldur
+            for (const [cat, items] of Object.entries(categories)) {{
+                let group = document.createElement('optgroup'); 
+                group.label = cat.toUpperCase();
+                items.forEach(item => {{ 
+                    let opt = document.createElement('option'); 
+                    opt.value = item.idx; 
+                    opt.innerHTML = item.title; 
+                    group.appendChild(opt); 
+                }});
                 select.appendChild(group);
-            }
+            }}
+            
             loadScenario();
             startTimer();
             setupCanvas();
-        };
+        }};
 
-        function loadScenario() {
+        function loadScenario() {{
             selectedScenarioIndex = document.getElementById('scenarioSelect').value;
             const s = scenarios[selectedScenarioIndex];
             
             document.getElementById('categoryBadge').innerText = s.category.toUpperCase();
-            document.getElementById('categoryBadge').className = `px-3 py-1 text-xs font-bold rounded-full w-fit mb-4 ${getCategoryColor(s.category)}`;
+            document.getElementById('categoryBadge').className = `px-3 py-1 text-xs font-bold rounded-full w-fit mb-4 ${{getCategoryColor(s.category)}}`;
             document.getElementById('scenarioTitle').innerText = s.title;
             document.getElementById('scenarioText').innerText = s.text;
             
             const dataList = document.getElementById('scenarioData');
             dataList.innerHTML = "";
-            if(s.data) {
-                s.data.forEach(item => {
+            if(s.data) {{
+                s.data.forEach(item => {{
                     let parts = item.split(':');
-                    dataList.innerHTML += `<li class="flex justify-between border-b border-slate-700/50 pb-1"><span class="text-slate-400">${parts[0]}:</span> <span class="text-white font-mono font-bold">${parts[1] || ''}</span></li>`;
-                });
-            }
+                    dataList.innerHTML += `<li class="flex justify-between border-b border-slate-700/50 pb-1"><span class="text-slate-400">${{parts[0]}}:</span> <span class="text-white font-mono font-bold">${{parts[1] || ''}}</span></li>`;
+                }});
+            }}
 
             document.getElementById('inputText').value = "";
             clearCanvas();
@@ -378,116 +393,116 @@ LIFE_SIM_HTML = """
             document.getElementById('hintBtn').classList.remove('hidden');
             document.getElementById('aiFeedback').innerHTML = "Bekleniyor... Stratejini oluşturduktan sonra 'Analiz Et' butonuna bas.";
             
-            // Bilgi kartını kapat
-            document.getElementById('knowledgeCard').classList.remove('show');
-            setTimeout(() => document.getElementById('knowledgeCard').classList.add('hidden'), 500);
+            const card = document.getElementById('knowledgeCard');
+            card.classList.remove('show');
+            card.classList.add('hidden');
             
             const btn = document.getElementById('analyzeBtn');
             btn.innerHTML = '<i data-lucide="sparkles" class="w-6 h-6"></i> ANALİZ ET';
             btn.classList.remove('bg-green-600');
-        }
+        }}
 
-        function analyzeSubmission() {
+        function analyzeSubmission() {{
             const btn = document.getElementById('analyzeBtn');
             const feedback = document.getElementById('aiFeedback');
             const text = document.getElementById('inputText').value.trim();
             const s = scenarios[selectedScenarioIndex];
 
-            if (text.length < 10) {
+            if (text.length < 10) {{
                 feedback.innerHTML = "<span class='text-warning font-bold'>⚠ Uyarı:</span> Cevabın çok kısa.";
                 return;
-            }
+            }}
 
             btn.innerHTML = '⏳ ANALİZ EDİLİYOR...';
             feedback.innerHTML = "<span class='animate-pulse text-primary'>🧠 Yapay zeka stratejini inceliyor...</span>";
 
-            setTimeout(() => {
+            setTimeout(() => {{
                 let keywords = ["risk", "maliyet", "kar", "yasa", "etik", "plan", "strateji", "verim", "analiz", "faiz", "enflasyon", "vicdan"];
                 let found = keywords.filter(w => text.toLowerCase().includes(w));
                 
                 let responseHTML = "";
-                if (found.length > 0) {
+                if (found.length > 0) {{
                     responseHTML = `<span class='text-success font-bold'>✔ Analiz Başarılı!</span><br>Harika noktalar yakaladın. Şimdi sağda açılan <b class='text-white'>Konu Özeti</b> kartını incele.`;
                     btn.classList.add('bg-green-600');
-                } else {
+                }} else {{
                     responseHTML = `<span class='text-blue-400 font-bold'>ℹ Tamamlandı</span><br>Stratejin kaydedildi. Konunun teknik detaylarını öğrenmek için sağdaki nota bak.`;
-                }
+                }}
 
                 btn.innerHTML = '<i data-lucide="check-circle" class="w-6 h-6"></i> TAMAMLANDI';
                 feedback.innerHTML = responseHTML;
 
-                // BİLGİ KARTINI AÇ (DERS NOTU)
+                // BİLGİ KARTINI AÇ
                 const card = document.getElementById('knowledgeCard');
                 const content = document.getElementById('knowledgeContent');
-                content.innerHTML = s.doc || defaultDoc;
+                content.innerHTML = s.doc;
                 
                 card.classList.remove('hidden');
                 setTimeout(() => card.classList.add('show'), 50);
 
-            }, 2000);
-        }
+            }}, 2000);
+        }}
 
-        function closeKnowledgeCard() {
+        function closeKnowledgeCard() {{
             const card = document.getElementById('knowledgeCard');
             card.classList.remove('show');
             setTimeout(() => card.classList.add('hidden'), 500);
-        }
+        }}
 
-        function downloadReport() {
+        function downloadReport() {{
             const s = scenarios[selectedScenarioIndex];
             const ans = document.getElementById('inputText').value;
-            const content = `LIFE-SIM RAPORU\n=================\nTARİH: ${new Date().toLocaleString('tr-TR')}\nKONU: ${s.title}\n\nÖĞRENCİ YANITI:\n${ans}\n\nDERS NOTU / GERİ BİLDİRİM:\n${(s.doc || defaultDoc).replace(/<br>/g, '\n').replace(/<b>/g, '').replace(/<\/b>/g, '')}`;
+            const content = `LIFE-SIM RAPORU\\n=================\\nTARİH: ${{new Date().toLocaleString('tr-TR')}}\\nKONU: ${{s.title}}\\n\\nÖĞRENCİ YANITI:\\n${{ans}}\\n\\nDERS NOTU:\\n${{s.doc.replace(/<br>/g, '\\n').replace(/<[^>]*>/g, '')}}`;
             
-            const blob = new Blob([content], { type: 'text/plain' });
+            const blob = new Blob([content], {{ type: 'text/plain' }});
             const a = document.createElement('a');
             a.href = window.URL.createObjectURL(blob);
-            a.download = `LifeSim_Rapor_${Date.now()}.txt`;
+            a.download = `LifeSim_Rapor_${{Date.now()}}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-        }
+        }}
 
-        function toggleHint() {
+        function toggleHint() {{
             const s = scenarios[selectedScenarioIndex];
-            document.getElementById('hintBox').innerHTML = `<span class="font-bold">💡 İPUCU:</span> ${s.hint}`;
+            document.getElementById('hintBox').innerHTML = `<span class="font-bold">💡 İPUCU:</span> ${{s.hint}}`;
             document.getElementById('hintBox').classList.remove('hidden');
             document.getElementById('hintBtn').classList.add('hidden');
-        }
+        }}
 
-        function getCategoryColor(cat) {
-            const c = { 'Muhasebe': 'bg-green-900/50 text-green-400', 'Hukuk': 'bg-red-900/50 text-red-400', 'Yönetim': 'bg-blue-900/50 text-blue-400', 'Güncel': 'bg-purple-900/50 text-purple-400', 'Değerler': 'bg-orange-900/50 text-orange-400' };
+        function getCategoryColor(cat) {{
+            const c = {{ 'Muhasebe': 'bg-green-900/50 text-green-400', 'Hukuk': 'bg-red-900/50 text-red-400', 'Yönetim': 'bg-blue-900/50 text-blue-400', 'Güncel': 'bg-purple-900/50 text-purple-400', 'Değerler': 'bg-orange-900/50 text-orange-400' }};
             return c[cat] || 'bg-slate-700 text-slate-300';
-        }
+        }}
 
-        function setTab(mode) {
-            if(mode === 'text') {
+        function setTab(mode) {{
+            if(mode === 'text') {{
                 document.getElementById('inputText').style.display = 'block';
                 document.getElementById('drawContainer').classList.add('hidden');
-            } else {
+            }} else {{
                 document.getElementById('inputText').style.display = 'none';
                 document.getElementById('drawContainer').classList.remove('hidden');
                 resizeCanvas();
-            }
-        }
+            }}
+        }}
 
         let isDrawing = false; let ctx;
-        function setupCanvas() { 
+        function setupCanvas() {{ 
             const c = document.getElementById('drawingCanvas'); 
             ctx = c.getContext('2d'); 
-            ['mousedown','touchstart'].forEach(e=>c.addEventListener(e,ev=>{ev.preventDefault();startDraw(ev.touches?ev.touches[0]:ev)})); 
-            ['mousemove','touchmove'].forEach(e=>c.addEventListener(e,ev=>{ev.preventDefault();draw(ev.touches?ev.touches[0]:ev)})); 
+            ['mousedown','touchstart'].forEach(e=>c.addEventListener(e,ev=>{{ev.preventDefault();startDraw(ev.touches?ev.touches[0]:ev)}})); 
+            ['mousemove','touchmove'].forEach(e=>c.addEventListener(e,ev=>{{ev.preventDefault();draw(ev.touches?ev.touches[0]:ev)}})); 
             ['mouseup','touchend'].forEach(e=>c.addEventListener(e,()=>isDrawing=false)); 
-        }
-        function resizeCanvas() { 
+        }}
+        function resizeCanvas() {{ 
             const c=document.getElementById('drawingCanvas'); 
             const p=document.getElementById('drawContainer'); 
-            if(c.width!==p.offsetWidth){c.width=p.offsetWidth;c.height=p.offsetHeight;ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;} 
-        }
-        function startDraw(e) { isDrawing=true; const r=e.target.getBoundingClientRect(); ctx.beginPath(); ctx.moveTo(e.clientX-r.left, e.clientY-r.top); }
-        function draw(e) { if(!isDrawing)return; const r=e.target.getBoundingClientRect(); ctx.lineTo(e.clientX-r.left, e.clientY-r.top); ctx.stroke(); }
-        function clearCanvas() { ctx.clearRect(0,0,document.getElementById('drawingCanvas').width, document.getElementById('drawingCanvas').height); }
-        function startTimer() { setInterval(() => { const d = Math.floor((Date.now() - startTime)/1000); document.getElementById('timer').innerText = `${Math.floor(d/60).toString().padStart(2,'0')}:${(d%60).toString().padStart(2,'0')}`; }, 1000); }
-        window.addEventListener('resize', () => { resizeCanvas(); });
+            if(c.width!==p.offsetWidth){{c.width=p.offsetWidth;c.height=p.offsetHeight;ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;}} 
+        }}
+        function startDraw(e) {{ isDrawing=true; const r=e.target.getBoundingClientRect(); ctx.beginPath(); ctx.moveTo(e.clientX-r.left, e.clientY-r.top); }}
+        function draw(e) {{ if(!isDrawing)return; const r=e.target.getBoundingClientRect(); ctx.lineTo(e.clientX-r.left, e.clientY-r.top); ctx.stroke(); }}
+        function clearCanvas() {{ ctx.clearRect(0,0,document.getElementById('drawingCanvas').width, document.getElementById('drawingCanvas').height); }}
+        function startTimer() {{ setInterval(() => {{ const d = Math.floor((Date.now() - startTime)/1000); document.getElementById('timer').innerText = `${{Math.floor(d/60).toString().padStart(2,'0')}}:${{(d%60).toString().padStart(2,'0')}}`; }}, 1000); }}
+        window.addEventListener('resize', () => {{ resizeCanvas(); }});
     </script>
 </body>
 </html>
