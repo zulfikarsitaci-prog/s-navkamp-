@@ -10,7 +10,70 @@ import pandas as pd
 # --- 1. SAYFA AYARLARI ---
 st.set_page_config(page_title="Dijital Gelişim Programı", page_icon="🎓", layout="wide")
 
-# --- 2. SESSION STATE BAŞLATMA ---
+# --- 2. GÖMÜLÜ VERİ SETLERİ (Dosya okuma hatalarını bitirmek için) ---
+
+# TYT SORULARI
+TYT_DATA = {
+    1: {"ders": "Türkçe (Paragraf)", "cevaplar": ["A", "C", "B", "D", "E"]},
+    2: {"ders": "Matematik (Temel)", "cevaplar": ["E", "E", "A", "C", "B"]},
+    3: {"ders": "Tarih (İlk Çağ)", "cevaplar": ["B", "A", "D", "C", "E"]},
+    4: {"ders": "Coğrafya (İklim)", "cevaplar": ["C", "B", "A", "E", "D"]},
+    5: {"ders": "Felsefe", "cevaplar": ["A", "D", "E", "B", "C"]}
+}
+
+# MESLEK SORULARI
+MESLEK_DATA = {
+    "KONU_TARAMA": {
+        "9. Sınıf": {
+            "Mesleki Gelişim": {
+                "İletişim Testi": [
+                    {"soru": "İletişimde mesajı başlatan kişiye ne denir?", "secenekler": ["Kaynak", "Alıcı", "Kanal", "Dönüt"], "cevap": "Kaynak"},
+                    {"soru": "Aşağıdakilerden hangisi sözsüz iletişimdir?", "secenekler": ["Mektup", "Telefon", "Jest ve Mimikler", "Radyo"], "cevap": "Jest ve Mimikler"},
+                    {"soru": "İletişimin sağlıklı olması için ne gereklidir?", "secenekler": ["Önyargı", "Empati", "Emir vermek", "Suçlamak"], "cevap": "Empati"}
+                ]
+            }
+        },
+        "10. Sınıf": {
+            "Muhasebe": {
+                "Bilanço Testi": [
+                    {"soru": "Kasa hesabı Tek Düzen Hesap Planında hangi kod ile başlar?", "secenekler": ["100", "102", "300", "600"], "cevap": "100"},
+                    {"soru": "Aşağıdakilerden hangisi bir 'Duran Varlık'tır?", "secenekler": ["Ticari Mallar", "Binalar", "Kasa", "Alıcılar"], "cevap": "Binalar"},
+                    {"soru": "Borçlu ve alacaklı tarafın toplamının eşit olmasına ne denir?", "secenekler": ["Mizan", "Bilanço Denkliği", "Envanter", "Yevmiye"], "cevap": "Bilanço Denkliği"}
+                ]
+            }
+        },
+        "11. Sınıf": {
+            "Şirketler Muhasebesi": {
+                "Şirket Türleri": [
+                    {"soru": "Anonim şirket en az kaç sermaye ile kurulur?", "secenekler": ["10.000", "50.000", "100.000", "500.000"], "cevap": "50.000"},
+                    {"soru": "Şahıs şirketlerinde ortakların sorumluluğu nasıldır?", "secenekler": ["Sınırlı", "Sınırsız", "Sermaye kadar", "Yoktur"], "cevap": "Sınırsız"}
+                ]
+            }
+        }
+    }
+}
+
+# LIFE-SIM SENARYOLARI (HTML KODLARIYLA)
+LIFESIM_DATA_JSON = """[
+    {
+        "id": 1, 
+        "category": "Girişimcilik", 
+        "title": "Okul Kantini İhalesi", 
+        "text": "Okulun kantin ihalesi açıldı. İhaleye girmek için <b>5.000 TL</b> teminat yatırman gerekiyor. İhaleyi kazanırsan günlük cirodan <b>%20 kar</b> elde edeceksin ama kira ve personel giderleri var.<br><br><b>Karar:</b> Risk alıp ihaleye girecek misin, yoksa paranı bankada mı tutacaksın?", 
+        "hint": "Ticarette risk almadan büyüme olmaz, ancak giderleri iyi hesaplamalısın.", 
+        "doc": "<h3>Ticari Risk Analizi</h3><p>Bir işletmeye yatırım yaparken sadece ciroya (kasaya giren paraya) bakılmaz. <b>Net Kar = Ciro - (Kira + Personel + Malzeme)</b> formülü kullanılır.</p>"
+    },
+    {
+        "id": 2, 
+        "category": "Yatırım", 
+        "title": "Staj Maaşı Değerlendirme", 
+        "text": "Stajdan kazandığın ilk toplu paranla <b>(10.000 TL)</b> ne yapacaksın? Arkadaşların son model bir telefon almanı söylüyor. Ancak bir abin, bu parayla küçük bir e-ticaret sitesi kurup ürün satabileceğini söylüyor.<br><br><b>Karar:</b> Telefon mu alırsın, iş mi kurarsın?", 
+        "hint": "Telefon bir giderdir ve değeri düşer. İş kurmak ise bir yatırımdır.", 
+        "doc": "<h3>Aktif vs Pasif Harcama</h3><p><b>Aktif Harcama:</b> Cebinize para koyan harcamadır (Örn: İş kurmak, hisse almak). <br><b>Pasif Harcama:</b> Cebinizden para çıkaran harcamadır.</p>"
+    }
+]"""
+
+# --- 3. SESSION STATE ---
 if 'ekran' not in st.session_state: st.session_state.ekran = 'giris'
 if 'oturum' not in st.session_state: st.session_state.oturum = False
 if 'ad_soyad' not in st.session_state: st.session_state.ad_soyad = ""
@@ -24,63 +87,13 @@ if 'bos_sayisi' not in st.session_state: st.session_state.bos_sayisi = 0
 if 'mod' not in st.session_state: st.session_state.mod = ""
 if 'bekleyen_odul' not in st.session_state: st.session_state.bekleyen_odul = 0
 
-# --- 3. DOSYA AYARLARI ---
+# --- 4. DOSYA VE LİNK AYARLARI ---
 TYT_PDF_ADI = "tytson8.pdf"
-TYT_JSON_ADI = "tyt_data.json"
-MESLEK_JSON_ADI = "sorular.json"
-LIFESIM_JSON_ADI = "lifesim_data.json"
-
-# GOOGLE SHEETS AYARLARI
+# GOOGLE SHEETS LİNKİ
 SHEET_ID = "1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo"
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
-# --- 4. GÜVENLİ VERİ YÜKLEME ---
-def dosya_yukle(dosya_adi):
-    # Dosya yoksa YEDEK VERİ döndür (Sistem çökmesin diye)
-    if not os.path.exists(dosya_adi):
-        if dosya_adi == MESLEK_JSON_ADI:
-            return {"KONU_TARAMA": {"9. Sınıf": {"Yedek Ders": {"Örnek Test": [{"soru": "Dosya okunamadı, bu örnek sorudur. 2+2?", "secenekler": ["3","4","5"], "cevap": "4"}]}}}}
-        if dosya_adi == TYT_JSON_ADI:
-            return {1: {"ders": "Örnek Türkçe", "cevaplar": ["A","A","A","A","A"]}}
-        return {}
-    
-    try:
-        with open(dosya_adi, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            if dosya_adi == TYT_JSON_ADI:
-                return {int(k): v for k, v in data.items()}
-            return data
-    except:
-        return {}
-
-def load_lifesim_data():
-    # Buradaki senaryolar HTML formatlıdır (<br> ve <b> içerir)
-    default_scenarios = """[
-        {
-            "id": 1, 
-            "category": "Girişimcilik", 
-            "title": "Okul Kantini İhalesi", 
-            "text": "Okulun kantin ihalesi açıldı. İhaleye girmek için 5.000 TL teminat yatırman gerekiyor. İhaleyi kazanırsan günlük cirodan %20 kar elde edeceksin ama kira ve personel giderleri var.<br><br><b>Karar:</b> Risk alıp ihaleye girecek misin, yoksa paranı bankada mı tutacaksın?", 
-            "hint": "Ticarette risk almadan büyüme olmaz, ancak giderleri iyi hesaplamalısın.", 
-            "doc": "<h3>Ticari Risk Analizi</h3><p>Bir işletmeye yatırım yaparken sadece ciroya (kasaya giren paraya) bakılmaz. <b>Net Kar = Ciro - (Kira + Personel + Malzeme)</b> formülü kullanılır.</p>"
-        },
-        {
-            "id": 2, 
-            "category": "Yatırım", 
-            "title": "Staj Maaşı Değerlendirme", 
-            "text": "Stajdan kazandığın ilk toplu paranla (10.000 TL) ne yapacaksın? Arkadaşların son model bir telefon almanı söylüyor. Ancak bir abin, bu parayla küçük bir e-ticaret sitesi kurup ürün satabileceğini söylüyor.<br><br><b>Karar:</b> Telefon mu alırsın, iş mi kurarsın?", 
-            "hint": "Telefon bir giderdir ve değeri düşer. İş kurmak ise bir yatırımdır.", 
-            "doc": "<h3>Aktif vs Pasif Harcama</h3><p><b>Aktif Harcama:</b> Cebinize para koyan harcamadır (Örn: İş kurmak, hisse almak). <br><b>Pasif Harcama:</b> Cebinizden para çıkaran harcamadır.</p>"
-        }
-    ]"""
-    
-    if os.path.exists(LIFESIM_JSON_ADI):
-        try:
-            with open(LIFESIM_JSON_ADI, "r", encoding="utf-8") as f:
-                return f.read()
-        except: pass
-    return default_scenarios
-
+# --- 5. FONKSİYONLAR ---
 def pdf_sayfa_getir(yol, sayfa):
     if not os.path.exists(yol): 
         st.warning("PDF Dosyası Bulunamadı")
@@ -96,7 +109,6 @@ def pdf_sayfa_getir(yol, sayfa):
 def get_hybrid_leaderboard(current_user, current_score):
     try:
         df = pd.read_csv(SHEET_URL)
-        # Sütun isimlerini temizle ve büyük harf yap
         df.columns = [str(c).strip().upper().replace('İ','I').replace('Ş','S').replace('Ğ','G').replace('Ü','U').replace('Ö','O').replace('Ç','C') for c in df.columns]
         
         name_col = next((c for c in df.columns if c in ['ISIM', 'AD', 'AD SOYAD', 'NAME']), None)
@@ -126,11 +138,6 @@ def get_hybrid_leaderboard(current_user, current_score):
     except:
         return json.dumps([{"name": current_user, "score": current_score, "isMe": True}], ensure_ascii=False)
 
-# VERİLERİ YÜKLE
-TYT_VERI = dosya_yukle(TYT_JSON_ADI)
-MESLEK_VERI = dosya_yukle(MESLEK_JSON_ADI)
-SCENARIOS_JSON_STRING = load_lifesim_data()
-
 # --- CSS TASARIM ---
 st.markdown("""
     <style>
@@ -152,13 +159,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- LIFE-SIM HTML ---
+# --- LIFE-SIM HTML (INNERHTML DÜZELTMESİ YAPILDI) ---
 LIFE_SIM_HTML = """
 <!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><script src="https://cdn.tailwindcss.com"></script><script src="https://unpkg.com/lucide@latest"></script><style>body{background-color:#0f172a;color:#e2e8f0;font-family:sans-serif;padding:20px}.glass{background:rgba(30,41,59,0.9);border-radius:12px;padding:20px;border:1px solid #334155}</style></head>
 <body>
 <div class="glass">
     <h2 id="title" class="text-2xl font-bold text-white mb-4">Senaryo Yükleniyor...</h2>
-    <p id="text" class="text-gray-300 mb-6 leading-relaxed">...</p>
+    <div id="text" class="text-gray-300 mb-6 leading-relaxed">...</div>
     <div class="flex gap-4">
         <button onclick="nextScenario()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-bold transition">Yeni Senaryo</button>
         <button onclick="showDoc()" class="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2 rounded font-bold transition">Uzman Görüşü</button>
@@ -173,7 +180,8 @@ LIFE_SIM_HTML = """
         if(data.length > 0) {
             const item = data[currentIdx];
             document.getElementById('title').innerText = item.title;
-            document.getElementById('text').innerText = item.text;
+            // BURASI DÜZELDİ: innerText -> innerHTML
+            document.getElementById('text').innerHTML = item.text; 
             document.getElementById('docBox').innerHTML = item.doc;
             document.getElementById('docBox').classList.add('hidden');
         }
@@ -188,7 +196,7 @@ LIFE_SIM_HTML = """
     load();
 </script>
 </body></html>
-""".replace("__DATA__", SCENARIOS_JSON_STRING)
+""".replace("__DATA__", LIFESIM_DATA_JSON)
 
 # --- OYUN HTML ---
 GAME_HTML_TEMPLATE = """
@@ -406,8 +414,8 @@ elif st.session_state.ekran == 'sinav':
     elif st.session_state.secim_turu == "TYT":
         if not st.session_state.secilen_liste:
             st.subheader("📘 TYT Test Seçimi")
-            if TYT_VERI:
-                test_secimi = st.selectbox("Bir Test Seçiniz:", list(TYT_VERI.keys()), format_func=lambda x: f"Test {x} - {TYT_VERI[x]['ders']}")
+            if TYT_DATA:
+                test_secimi = st.selectbox("Bir Test Seçiniz:", list(TYT_DATA.keys()), format_func=lambda x: f"Test {x} - {TYT_DATA[x]['ders']}")
                 if st.button("Testi Başlat 🚀"):
                     st.session_state.secilen_liste = [test_secimi]
                     st.session_state.mod = "TYT"
@@ -415,16 +423,16 @@ elif st.session_state.ekran == 'sinav':
                     st.session_state.aktif_index = 0
                     st.rerun()
             else:
-                st.error("TYT Verisi Yüklenemedi! Lütfen tyt_data.json dosyasını kontrol edin.")
+                st.error("TYT Verisi Yüklenemedi!")
         else:
             # TYT SORU EKRANI
             s = st.session_state.secilen_liste[st.session_state.aktif_index]
-            st.subheader(f"📄 {TYT_VERI[s]['ders']}")
+            st.subheader(f"📄 {TYT_DATA[s]['ders']}")
             c1, c2 = st.columns([1, 1])
             with c1: pdf_sayfa_getir(TYT_PDF_ADI, s)
             with c2:
                 with st.form(f"tyt_form_{s}"):
-                    cevaplar = TYT_VERI[s]["cevaplar"]
+                    cevaplar = TYT_DATA[s]["cevaplar"]
                     for i in range(len(cevaplar)):
                         st.radio(f"Soru {i+1}", ["A", "B", "C", "D", "E"], key=f"c_{i}", horizontal=True, index=None)
                     
@@ -444,7 +452,7 @@ elif st.session_state.ekran == 'sinav':
     elif st.session_state.secim_turu == "MESLEK":
         if not st.session_state.secilen_liste:
             st.subheader("💼 Meslek Test Seçimi")
-            konu_data = MESLEK_VERI.get("KONU_TARAMA", {})
+            konu_data = MESLEK_DATA.get("KONU_TARAMA", {})
             if konu_data:
                 sinif = st.selectbox("Sınıf Seç:", list(konu_data.keys()))
                 ders = st.selectbox("Ders Seç:", list(konu_data[sinif].keys()))
@@ -458,7 +466,7 @@ elif st.session_state.ekran == 'sinav':
                     st.session_state.dogru_sayisi = 0
                     st.rerun()
             else:
-                st.error("Meslek Verisi Yüklenemedi! Lütfen sorular.json dosyasını kontrol edin.")
+                st.error("Meslek Verisi Yüklenemedi!")
         
         else:
             # MESLEK SORU EKRANI
