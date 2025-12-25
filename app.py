@@ -12,7 +12,7 @@ import urllib.parse
 st.set_page_config(page_title="Dijital Gelişim Projesi", page_icon="🟣", layout="wide")
 
 # ==============================================================================
-# SİHİRLİ FORM LİNKİ (Parametreli versiyonu buraya sabitledim)
+# SENİN FORM LİNKİN (PRE-FILLED)
 # ==============================================================================
 FORM_LINK_TASLAK = "https://docs.google.com/forms/d/e/1FAIpQLScshsXIM91CDKu8TgaHIelXYf3M9hzoGb7mldQCDAJ-rcuJ3w/viewform?usp=pp_url&entry.1300987443=AD_YOK&entry.598954691=9999"
 # ==============================================================================
@@ -55,12 +55,12 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
     .stApp { background-color: #f4f6f8 !important; font-family: 'Poppins', sans-serif !important; color: #333 !important; }
     h1, h2, h3, h4 { color: #5D3EBC !important; font-weight: 800 !important; }
+    p, label, div, span { color: #333; }
     
     .giris-kart { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(93,62,188,0.15); text-align: center; border-bottom: 6px solid #FFD300; margin: 20px 0 40px 0; }
     .proje-baslik { color: #5D3EBC; font-size: 28px; font-weight: 900; margin-bottom: 10px; }
     .alan-ismi { color: #555; font-size: 16px; font-weight: 600; }
     
-    /* BUTONLAR */
     div.stButton > button { background-color: #5D3EBC !important; color: #FFD300 !important; border: none !important; border-radius: 12px !important; font-weight: 700 !important; padding: 15px 20px !important; text-transform: uppercase; width: 100%; box-shadow: 0 4px 10px rgba(93,62,188,0.2); transition: 0.2s; }
     div.stButton > button:hover { background-color: #4c329e !important; transform: translateY(-2px); }
     
@@ -245,22 +245,25 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # 2. SKOR KAYDETME ALANI (OTOMATİK LİNK OLUŞTURUCU)
-    st.write("💾 **Skoru Kaydet**")
-    st.caption("Puanını listeye göndermek için tıkla:")
+    # 2. LİSTEYİ YENİLE (ZORUNLU BUTON)
+    if st.button("🔄 LİSTEYİ YENİLE"):
+        st.cache_data.clear()
+        st.rerun()
+    st.caption("Formu gönderdikten sonra listeyi güncellemek için bas.")
     
+    # 3. YAN MENÜ GÖRÜNÜR BUTON
     safe_name = urllib.parse.quote(st.session_state.ad_soyad)
     safe_score = str(st.session_state.toplam_puan)
     final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
     
-    # SAF HTML BUTON (KESİN GÖRÜNÜR)
     st.markdown(f"""
-        <a href="{final_form_link}" target="_blank" class="html-save-btn">
-            💾 LİSTEYE KAYDET ({st.session_state.toplam_puan})
-        </a>
+        <div style="margin-bottom:20px;">
+            <a href="{final_form_link}" target="_blank" style="text-decoration:none; display:block; text-align:center; background-color:#27ae60; color:white; padding:10px; border-radius:10px; font-weight:bold; border:1px solid white;">
+                💾 SKORU KAYDET
+            </a>
+        </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("---")
     if st.button("🏠 Ana Menü"): st.session_state.aktif_mod = "MENU"; st.session_state.secilen_sorular = []; st.rerun()
     if st.button("🚪 Çıkış"): st.session_state.ekran = 'giris'; st.rerun()
 
@@ -279,22 +282,21 @@ if st.session_state.ekran == 'giris':
                 if p == "PRO2025": st.session_state.ad_soyad="Yönetici"; st.session_state.premium_user=True; st.session_state.ekran='ana_menu'; st.rerun()
         st.markdown("<div class='footer-dev'>Geliştirici: Hibrit Etüt Merkezi</div>", unsafe_allow_html=True)
 
-# 2. ANA MENÜ (KAYDETME BUTONU ANA EKRANA DA GELDİ)
+# 2. ANA MENÜ (KAYDETME BUTONU ANA EKRANDA)
 elif st.session_state.aktif_mod == "MENU":
     st.markdown(f"## Hoşgeldin {st.session_state.ad_soyad}")
     
-    # 🌟 GÖRÜNMEZ BUTON SORUNUNA SON: HTML BUTON ENTEGRASYONU 🌟
+    # 🌟 SAF HTML BUTON 🌟
     safe_name = urllib.parse.quote(st.session_state.ad_soyad)
     safe_score = str(st.session_state.toplam_puan)
     final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
     
-    # HTML BUTON (KESİN ÇALIŞIR)
     st.markdown(f"""
-        <div style="background-color: #e8f5e9; padding: 15px; border-radius: 10px; border: 1px solid #27ae60; text-align: center; margin-bottom: 20px;">
-            <h4 style="color: #27ae60; margin:0;">🏆 Toplam Puanın: {st.session_state.toplam_puan}</h4>
-            <p style="font-size: 12px; color: #666; margin-bottom:10px;">Bu puanı listeye yazdırmak için aşağıdaki butona tıkla:</p>
+        <div style="background-color: #e8f5e9; padding: 20px; border-radius: 10px; border: 1px solid #27ae60; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <h3 style="color: #27ae60; margin:0 0 10px 0;">🏆 Toplam Puanın: {st.session_state.toplam_puan}</h3>
+            <p style="font-size: 14px; color: #555; margin-bottom:15px;">Bu puanı listeye yazdırmak için aşağıdaki butona tıkla:</p>
             <a href="{final_form_link}" target="_blank" style="text-decoration: none;">
-                <button style="background-color: #27ae60; color: white; border: none; padding: 15px 30px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                <button style="background-color: #27ae60; color: white; border: none; padding: 15px 40px; font-weight: bold; border-radius: 50px; cursor: pointer; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s;">
                     💾 SKORU LİSTEYE KAYDET
                 </button>
             </a>
@@ -493,7 +495,7 @@ elif st.session_state.aktif_mod == "GAME":
     html = GAME_HTML.replace("__REW__", str(r)).replace("__USR__", st.session_state.ad_soyad).replace("__LD__", lb)
     components.html(html, height=1000)
     
-    # 🌟 KESİN GÖRÜNÜR BUTON 🌟
+    # 🌟 SAF HTML BUTON 🌟
     safe_name = urllib.parse.quote(st.session_state.ad_soyad)
     safe_score = str(st.session_state.toplam_puan)
     final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
@@ -516,7 +518,7 @@ elif st.session_state.aktif_mod == "GAME":
 elif st.session_state.aktif_mod == "MATRIX":
     components.html(ASSET_MATRIX_HTML, height=800)
     
-    # 🌟 KESİN GÖRÜNÜR BUTON 🌟
+    # 🌟 SAF HTML BUTON 🌟
     safe_name = urllib.parse.quote(st.session_state.ad_soyad)
     safe_score = str(st.session_state.toplam_puan)
     final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
