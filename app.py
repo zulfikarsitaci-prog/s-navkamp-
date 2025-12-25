@@ -12,7 +12,7 @@ import urllib.parse
 st.set_page_config(page_title="Dijital Gelişim Projesi", page_icon="🟣", layout="wide")
 
 # ==============================================================================
-# FORM LİNKİ (SABİT)
+# FORM LİNKİ
 # ==============================================================================
 FORM_LINK_TASLAK = "https://docs.google.com/forms/d/e/1FAIpQLScshsXIM91CDKu8TgaHIelXYf3M9hzoGb7mldQCDAJ-rcuJ3w/viewform?usp=pp_url&entry.1300987443=AD_YOK&entry.598954691=9999"
 # ==============================================================================
@@ -49,7 +49,7 @@ TYT_VERI, MESLEK_VERI, LIFESIM_DATA = load_data()
 PREMIUM_TYT_DATA = {"Fen Bilimleri (💎 PREMIUM)": {"ders": "Fizik-Kimya", "cevaplar": ["A"]*5}, "İleri Mat (💎 PREMIUM)": {"ders": "Türev-İntegral", "cevaplar": ["A"]*5}}
 PREMIUM_MESLEK_DATA = {"11. Sınıf - Şirketler (💎 PREMIUM)": [{"soru": "A.Ş. Sermaye?", "secenekler": ["50.000","10.000"], "cevap": "50.000"}]}
 
-# --- 3. CSS TASARIMI (SADELEŞTİRİLMİŞ) ---
+# --- 3. CSS TASARIMI ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
@@ -60,13 +60,9 @@ st.markdown("""
     .proje-baslik { color: #5D3EBC; font-size: 28px; font-weight: 900; margin-bottom: 10px; }
     .alan-ismi { color: #555; font-size: 16px; font-weight: 600; }
     
-    /* STANDART BUTONLAR */
     div.stButton > button { background-color: #5D3EBC !important; color: #FFD300 !important; border: none !important; border-radius: 12px !important; font-weight: 700 !important; padding: 15px 20px !important; text-transform: uppercase; width: 100%; box-shadow: 0 4px 10px rgba(93,62,188,0.2); transition: 0.2s; }
     div.stButton > button:hover { background-color: #4c329e !important; transform: translateY(-2px); }
     
-    /* LINK BUTTON (KAYDET İÇİN) - RENK AYARI */
-    a[kind="primary"] { background-color: #27ae60 !important; color: white !important; border: none !important; font-weight: bold !important; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3) !important; }
-
     .menu-card { background: white; border-radius: 16px; padding: 20px; text-align: center; border: 2px solid #eee; height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; }
     .menu-card:hover { border-color: #5D3EBC; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(93,62,188,0.15); }
     .card-icon { font-size: 40px; margin-bottom: 10px; }
@@ -75,7 +71,7 @@ st.markdown("""
     
     .sim-box { background: #fff; padding: 25px; border-radius: 15px; border-left: 6px solid #FFD300; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); color: #222 !important; }
     div.stTextInput > div > div > input { border-radius: 10px; border: 2px solid #ddd; color: #333 !important; background-color: white !important; }
-    .footer-dev { text-align: center; margin-top: 50px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; font-weight: bold; }
+    
     footer {visibility: hidden;} header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
@@ -114,28 +110,22 @@ def get_hybrid_leaderboard(current_user, current_score):
                         p = int(float(p_str))
                         data.append({"name": str(row[name_col]), "score": p})
                 except: continue
-        
         user_found = False
         current_user_clean = str(current_user).strip().upper()
         final_score = max(int(current_score), st.session_state.toplam_puan)
         st.session_state.toplam_puan = final_score
-
         for p in data:
             if str(p["name"]).strip().upper() == current_user_clean:
                 p["score"] = max(p["score"], final_score)
                 p["isMe"] = True
                 user_found = True
                 break
-        
-        if not user_found:
-            data.append({"name": str(current_user), "score": final_score, "isMe": True})
-            
+        if not user_found: data.append({"name": str(current_user), "score": final_score, "isMe": True})
         data.sort(key=lambda x: x["score"], reverse=True)
         return json.dumps(data[:15], ensure_ascii=False)
-    except:
-        return json.dumps([{"name": str(current_user), "score": int(current_score), "isMe": True}], ensure_ascii=False)
+    except: return json.dumps([{"name": str(current_user), "score": int(current_score), "isMe": True}], ensure_ascii=False)
 
-# --- 6. PDF GÖSTERİCİ ---
+# --- 6. PDF ---
 def pdf_sayfa_getir(yol, sayfa_no):
     if not os.path.exists(yol): st.warning(f"PDF Bulunamadı: {yol}"); return
     try:
@@ -211,6 +201,7 @@ LIFE_SIM_DISPLAY_HTML = """
 with st.sidebar:
     st.write(f"👤 **{st.session_state.ad_soyad}**")
     
+    # 1. PREMIUM LİSANS ALANI
     if not st.session_state.premium_user:
         with st.expander("🔒 Premium Lisans", expanded=True):
             st.caption("Oyun kodunu buraya gir.")
@@ -221,20 +212,6 @@ with st.sidebar:
                     st.success("Açıldı!"); time.sleep(1); st.rerun()
                 else: st.error("Hatalı Kod!")
     else: st.success("🌟 PREMIUM AKTİF")
-    
-    st.markdown("---")
-    
-    # GARANTİ BUTON (NATIVE STREAMLIT)
-    st.write("💾 **Skor Kaydetme**")
-    safe_name = urllib.parse.quote(st.session_state.ad_soyad)
-    safe_score = str(st.session_state.toplam_puan)
-    final_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
-    
-    st.link_button(
-        label=f"📝 SKORU LİSTEYE KAYDET ({st.session_state.toplam_puan})",
-        url=final_link,
-        type="primary" # Yeşil/Vurgulu buton
-    )
     
     st.markdown("---")
     if st.button("🏠 Ana Menü"): st.session_state.aktif_mod = "MENU"; st.session_state.secilen_sorular = []; st.rerun()
@@ -372,7 +349,7 @@ elif st.session_state.aktif_mod == "TYT_COZ_PDF":
                 for i, ans in enumerate(data["cevaplar"]):
                     if st.session_state.get(f"q{i}") == ans: d+=1
                 st.session_state.dogru = d
-                st.session_state.toplam_puan += d * 10
+                st.session_state.toplam_puan += d * 10 # Puan ekle
                 st.session_state.aktif_mod = "SONUC"
                 st.rerun()
 
@@ -388,7 +365,7 @@ elif st.session_state.aktif_mod == "TYT_COZ_PREM":
             for i, ans in enumerate(data["cevaplar"]):
                 if st.session_state.get(f"q{i}") == ans: d+=1
             st.session_state.dogru = d
-            st.session_state.toplam_puan += d * 20
+            st.session_state.toplam_puan += d * 20 # Premium puanı
             st.session_state.aktif_mod = "SONUC"
             st.rerun()
 
@@ -407,7 +384,7 @@ elif st.session_state.aktif_mod == "MESLEK_COZ":
                 if o == q["cevap"]: 
                     st.toast("Doğru! 🎉")
                     st.session_state.dogru+=1
-                    st.session_state.toplam_puan += 10
+                    st.session_state.toplam_puan += 10 # Her doğruya puan
                 else: st.toast("Yanlış!")
                 time.sleep(0.5); st.session_state.soru_index+=1; st.rerun()
     else: st.session_state.aktif_mod = "SONUC"; st.rerun()
@@ -435,13 +412,13 @@ elif st.session_state.aktif_mod == "LIFESIM":
         st.markdown(f"<div class='sim-box'><b>👨‍🏫 Uzman Görüşü:</b><br>{scenario['doc']}</div>", unsafe_allow_html=True)
         if st.button("Ödülü Al (250 ₺)"):
             st.session_state.bekleyen_odul += 250
-            st.session_state.toplam_puan += 250
+            st.session_state.toplam_puan += 250 # Simülasyon puanı
             st.session_state.sim_index = (st.session_state.sim_index + 1) % len(scenarios)
             st.session_state.sim_step = 0
             st.rerun()
     if st.button("⬅️ Menü"): st.session_state.aktif_mod = "MENU"; st.rerun()
 
-# GAME
+# GAME (BUTON EKLENDİ)
 elif st.session_state.aktif_mod == "GAME":
     r = st.session_state.bekleyen_odul
     st.session_state.bekleyen_odul = 0
@@ -449,9 +426,25 @@ elif st.session_state.aktif_mod == "GAME":
     lb = get_hybrid_leaderboard(st.session_state.ad_soyad, st.session_state.toplam_puan)
     html = GAME_HTML.replace("__REW__", str(r)).replace("__USR__", st.session_state.ad_soyad).replace("__LD__", lb)
     components.html(html, height=1000)
+    
+    # 🌟 GÖRÜNÜR KAYDET BUTONU 🌟
+    st.markdown("### 🏆 Skorunu Kaydet")
+    safe_name = urllib.parse.quote(st.session_state.ad_soyad)
+    safe_score = str(st.session_state.toplam_puan)
+    final_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
+    st.link_button(f"💾 LİSTEYE KAYDET ({st.session_state.toplam_puan})", final_link, type="primary")
+    
     if st.button("Çıkış"): st.session_state.aktif_mod = "MENU"; st.rerun()
 
-# MATRIX
+# MATRIX (BUTON EKLENDİ)
 elif st.session_state.aktif_mod == "MATRIX":
     components.html(ASSET_MATRIX_HTML, height=800)
+    
+    # 🌟 GÖRÜNÜR KAYDET BUTONU 🌟
+    st.markdown("### 🏆 Skorunu Kaydet")
+    safe_name = urllib.parse.quote(st.session_state.ad_soyad)
+    safe_score = str(st.session_state.toplam_puan)
+    final_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
+    st.link_button(f"💾 LİSTEYE KAYDET ({st.session_state.toplam_puan})", final_link, type="primary")
+    
     if st.button("Çıkış"): st.session_state.aktif_mod = "MENU"; st.rerun()
