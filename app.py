@@ -12,9 +12,15 @@ import urllib.parse
 st.set_page_config(page_title="Dijital Gelişim Projesi", page_icon="🟣", layout="wide")
 
 # ==============================================================================
-# FORM LİNKİ
+# 1. GOOGLE FORM LİNKİ (VERİ GÖNDERMEK İÇİN)
 # ==============================================================================
 FORM_LINK_TASLAK = "https://docs.google.com/forms/d/e/1FAIpQLScshsXIM91CDKu8TgaHIelXYf3M9hzoGb7mldQCDAJ-rcuJ3w/viewform?usp=pp_url&entry.1300987443=AD_YOK&entry.598954691=9999"
+
+# ==============================================================================
+# 2. GOOGLE SHEETS ID (VERİ OKUMAK İÇİN - GÜNCELLENDİ ✅)
+# ==============================================================================
+SHEET_ID = "1e1cGm5ZM3oOT129gC0-kREgoriZ31asggTxVl0bh59o"  # <--- YENİ TABLO ID'Sİ BURADA
+SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 # ==============================================================================
 
 # --- 2. DOSYA VE VERİ YÖNETİMİ ---
@@ -23,8 +29,6 @@ MESLEK_JSON_ADI = "sorular.json"
 LIFESIM_JSON_ADI = "lifesim_data.json"
 TYT_PDF_ADI = "tytson8.pdf"
 UNLOCK_CODE = "PRO2025"
-SHEET_ID = "1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo"
-SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
 # Varsayılan Veriler
 DEFAULT_TYT = {"1": {"ders": "Türkçe", "cevaplar": ["A", "C", "B", "D", "E"]}}
@@ -51,71 +55,92 @@ TYT_VERI, MESLEK_VERI, LIFESIM_DATA = load_data()
 PREMIUM_TYT_DATA = {"Fen Bilimleri (💎 PREMIUM)": {"ders": "Fizik-Kimya", "cevaplar": ["A"]*5}, "İleri Mat (💎 PREMIUM)": {"ders": "Türev-İntegral", "cevaplar": ["A"]*5}}
 PREMIUM_MESLEK_DATA = {"11. Sınıf - Şirketler (💎 PREMIUM)": [{"soru": "A.Ş. Sermaye?", "secenekler": ["50.000","10.000"], "cevap": "50.000"}]}
 
-# --- 3. KRİTİK FONKSİYON: LEADERBOARD (EN ÜSTE ALINDI) ---
-@st.cache_data(ttl=5)
-def get_hybrid_leaderboard(current_user, current_score):
-    """
-    Hem Google Sheets'ten veriyi çeker, hem de aktif kullanıcının puanını günceller.
-    Ayrıca kullanıcının eski puanı yüksekse onu hatırlar.
-    """
+# --- 3. KRİTİK FONKSİYONLAR (SHEETS OKUMA & LEADERBOARD) ---
+@st.cache_data(ttl=5) # 5 saniyede bir taze veriyi çek
+def get_data_from_sheet():
     try:
         df = pd.read_csv(SHEET_URL)
+        # Sütun isimlerini standartlaştır (Büyük harf, boşluksuz)
         df.columns = [str(c).strip().upper().replace('İ','I') for c in df.columns]
+        return df
+    except:
+        return pd.DataFrame()
+
+def get_user_max_score(username):
+    """Kullanıcının tablodaki en yüksek puanını (Resume Game) bulur"""
+    try:
+        df = get_data_from_sheet()
+        if df.empty: return 0
         
+        # İsim ve Puan sütunlarını bul (Formun otomatik verdiği isimlere göre)
         name_col = next((c for c in df.columns if 'ISIM' in c or 'AD' in c or 'YANIT' in c), None)
         score_col = next((c for c in df.columns if 'PUAN' in c or 'SKOR' in c), None)
         
+        if not name_col or not score_col: return 0
+        
+        # İsme göre filtrele
+        clean_name = str(username).strip().upper()
+        df[name_col] = df[name_col].astype(str).str.strip().str.upper()
+        
+        user_rows = df[df[name_col] == clean_name]
+        if user_rows.empty: return 0
+        
+        # Puanları temizle ve en yükseğini al
+        user_rows[score_col] = user_rows[score_col].astype(str).str.replace('.', '', regex=False).str.replace(',', '', regex=False)
+        scores = pd.to_numeric(user_rows[score_col], errors='coerce').fillna(0)
+        return int(scores.max())
+    except:
+        return 0
+
+@st.cache_data(ttl=5)
+def get_hybrid_leaderboard(current_user, current_score):
+    """Hem tabloyu okur hem de anlık skoru işler"""
+    try:
+        df = get_data_from_sheet()
         data = []
         user_max_sheet_score = 0
         clean_user = str(current_user).strip().upper()
 
-        if name_col and score_col:
-            # Önce veriyi temizle ve işle
-            for _, row in df.iterrows():
-                try:
-                    raw_name = str(row[name_col])
-                    raw_score = row[score_col]
-                    
-                    # Puan temizliği (1.000 -> 1000)
-                    if pd.notna(raw_score):
-                        score_str = str(raw_score).replace('.', '').replace(',', '')
-                        score_int = int(float(score_str))
-                        
-                        data.append({"name": raw_name, "score": score_int})
-                        
-                        # Eğer bu satır şu anki kullanıcıya aitse, en yüksek puanını yakala
-                        if raw_name.strip().upper() == clean_user:
-                            if score_int > user_max_sheet_score:
-                                user_max_sheet_score = score_int
-                except:
-                    continue
+        if not df.empty:
+            name_col = next((c for c in df.columns if 'ISIM' in c or 'AD' in c or 'YANIT' in c), None)
+            score_col = next((c for c in df.columns if 'PUAN' in c or 'SKOR' in c), None)
+            
+            if name_col and score_col:
+                for _, row in df.iterrows():
+                    try:
+                        raw_name = str(row[name_col])
+                        raw_score = row[score_col]
+                        if pd.notna(raw_score):
+                            score_str = str(raw_score).replace('.', '').replace(',', '')
+                            score_int = int(float(score_str))
+                            data.append({"name": raw_name, "score": score_int})
+                            
+                            if raw_name.strip().upper() == clean_user:
+                                if score_int > user_max_sheet_score:
+                                    user_max_sheet_score = score_int
+                    except: continue
         
-        # Puan Karşılaştırması (Sheet vs Session)
-        # Eğer Sheet'teki puan, şu anki puandan yüksekse onu kullan (Resume Game)
+        # En yüksek puanı belirle (Tablo vs Mevcut Oturum)
         final_score = max(int(current_score), user_max_sheet_score)
         
-        # Listeyi tekrar oluştur (Tekil isimler için grupla)
+        # Listeyi tekilleştir
         unique_data = {}
         for item in data:
-            nm = item['name'].strip().title() # Baş harfleri büyüt
+            nm = item['name'].strip().title()
             sc = item['score']
-            if nm in unique_data:
-                unique_data[nm] = max(unique_data[nm], sc)
-            else:
-                unique_data[nm] = sc
+            unique_data[nm] = max(unique_data.get(nm, 0), sc)
         
-        # Aktif kullanıcıyı listeye zorla/güncelle
+        # Aktif kullanıcıyı güncelle
         display_name = str(current_user).strip().title()
         unique_data[display_name] = max(unique_data.get(display_name, 0), final_score)
         
-        # JSON formatına çevir
+        # Sırala ve JSON yap
         sorted_list = [{"name": k, "score": v, "isMe": (k == display_name)} for k, v in unique_data.items()]
         sorted_list.sort(key=lambda x: x["score"], reverse=True)
         
         return json.dumps(sorted_list[:15], ensure_ascii=False), final_score
 
-    except Exception as e:
-        # Hata durumunda boş liste ve mevcut skor
+    except:
         return json.dumps([{"name": str(current_user), "score": int(current_score), "isMe": True}], ensure_ascii=False), int(current_score)
 
 # --- 4. CSS TASARIMI ---
@@ -132,9 +157,8 @@ st.markdown("""
     .menu-card:hover { border-color: #5D3EBC; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(93,62,188,0.15); }
     .sim-box { background: #fff; padding: 25px; border-radius: 15px; border-left: 6px solid #FFD300; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); color: #222 !important; }
     div.stTextInput > div > div > input { border-radius: 10px; border: 2px solid #ddd; color: #333 !important; background-color: white !important; }
+    .footer-dev { text-align: center; margin-top: 50px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; font-weight: bold; }
     .nav-btn { width: 100%; padding: 5px !important; font-size: 12px !important; }
-    .html-save-btn { display: block; width: 100%; background-color: #27ae60; color: white !important; padding: 15px; text-align: center; border-radius: 12px; font-weight: 800; font-size: 18px; text-decoration: none; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4); margin-top: 10px; transition: transform 0.2s; border: 2px solid white; }
-    .html-save-btn:hover { transform: scale(1.02); background-color: #219150; box-shadow: 0 6px 20px rgba(39, 174, 96, 0.6); }
     footer {visibility: hidden;} header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
@@ -206,7 +230,7 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # GARANTİ BUTON (HTML) - YAN MENÜ
+    # GÖRÜNÜR BUTON (HTML) - YAN MENÜ
     safe_name = urllib.parse.quote(st.session_state.ad_soyad)
     safe_score = str(st.session_state.toplam_puan)
     final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
@@ -384,7 +408,7 @@ elif st.session_state.aktif_mod == "TYT_COZ_PDF":
                 for i, ans in enumerate(data["cevaplar"]):
                     if st.session_state.get(f"q{i}") == ans: d+=1
                 st.session_state.dogru = d
-                st.session_state.toplam_puan += d * 10 # Puan ekle
+                st.session_state.toplam_puan += d * 10
                 st.session_state.aktif_mod = "SONUC"
                 st.rerun()
 
@@ -401,7 +425,7 @@ elif st.session_state.aktif_mod == "TYT_COZ_PREM":
             for i, ans in enumerate(data["cevaplar"]):
                 if st.session_state.get(f"q{i}") == ans: d+=1
             st.session_state.dogru = d
-            st.session_state.toplam_puan += d * 20 # Premium puanı
+            st.session_state.toplam_puan += d * 20
             st.session_state.aktif_mod = "SONUC"
             st.rerun()
 
@@ -421,7 +445,7 @@ elif st.session_state.aktif_mod == "MESLEK_COZ":
                 if o == q["cevap"]: 
                     st.toast("Doğru! 🎉")
                     st.session_state.dogru+=1
-                    st.session_state.toplam_puan += 10 # Her doğruya puan
+                    st.session_state.toplam_puan += 10
                 else: st.toast("Yanlış!")
                 time.sleep(0.5); st.session_state.soru_index+=1; st.rerun()
     else: st.session_state.aktif_mod = "SONUC"; st.rerun()
@@ -451,7 +475,7 @@ elif st.session_state.aktif_mod == "LIFESIM":
         st.markdown(f"<div class='sim-box'><b>👨‍🏫 Uzman Görüşü:</b><br>{scenario['doc']}</div>", unsafe_allow_html=True)
         if st.button("Ödülü Al (250 ₺)"):
             st.session_state.bekleyen_odul += 250
-            st.session_state.toplam_puan += 250 # Simülasyon puanı
+            st.session_state.toplam_puan += 250
             st.session_state.sim_index = (st.session_state.sim_index + 1) % len(scenarios)
             st.session_state.sim_step = 0
             st.rerun()
