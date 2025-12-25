@@ -6,25 +6,25 @@ import json
 import fitz  # PyMuPDF
 import time
 import pandas as pd
-import urllib.parse # Link düzenleme için gerekli
+import urllib.parse
 
 # --- 1. SAYFA AYARLARI ---
 st.set_page_config(page_title="Dijital Gelişim Projesi", page_icon="🟣", layout="wide")
 
-# --- 2. AYARLAR VE VERİ YÖNETİMİ ---
+# ==============================================================================
+# 👇 LÜTFEN GOOGLE FORM LİNKİNİ AŞAĞIDAKİ TIRNAK İÇİNE YAPIŞTIR 👇
+# ==============================================================================
+FORM_LINK_TASLAK = "https://docs.google.com/forms/d/e/1FAIpQLScshsXIM91CDKu8TgaHIelXYf3M9hzoGb7mldQCDAJ-rcuJ3w/viewform?usp=pp_url&entry.1300987443=AD_YOK&entry.598954691=9999"
+# ==============================================================================
+
+# --- 2. DOSYA VE VERİ YÖNETİMİ ---
 TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 LIFESIM_JSON_ADI = "lifesim_data.json"
 TYT_PDF_ADI = "tytson8.pdf"
 UNLOCK_CODE = "PRO2025"
 
-# ==============================================================================
-# SENİN GOOGLE FORM LİNKİN (PRE-FILLED)
-# ==============================================================================
-FORM_LINK_TASLAK = "https://docs.google.com/forms/d/e/1FAIpQLScshsXIM91CDKu8TgaHIelXYf3M9hzoGb7mldQCDAJ-rcuJ3w/viewform?usp=pp_url&entry.1300987443=AD_YOK&entry.598954691=9999"
-# ==============================================================================
-
-# Dosya Kontrolleri ve Oluşturma
+# Varsayılan Veriler
 DEFAULT_TYT = {"1": {"ders": "Türkçe", "cevaplar": ["A", "C", "B", "D", "E"]}}
 DEFAULT_MESLEK = {"KONU_TARAMA": {"9. Sınıf": {"Meslek": {"Test 1": [{"soru": "Soru?", "secenekler": ["A"], "cevap": "A"}]}}}}
 DEFAULT_LIFESIM = [{"id":1, "category":"Girişim", "title":"Kantin", "text":"Yatırım?", "hint":"Risk al.", "doc":"Risk analizi."}]
@@ -46,7 +46,6 @@ def load_data():
 
 TYT_VERI, MESLEK_VERI, LIFESIM_DATA = load_data()
 
-# Premium Veriler
 PREMIUM_TYT_DATA = {"Fen Bilimleri (💎 PREMIUM)": {"ders": "Fizik-Kimya", "cevaplar": ["A"]*5}, "İleri Mat (💎 PREMIUM)": {"ders": "Türev-İntegral", "cevaplar": ["A"]*5}}
 PREMIUM_MESLEK_DATA = {"11. Sınıf - Şirketler (💎 PREMIUM)": [{"soru": "A.Ş. Sermaye?", "secenekler": ["50.000","10.000"], "cevap": "50.000"}]}
 
@@ -54,37 +53,30 @@ PREMIUM_MESLEK_DATA = {"11. Sınıf - Şirketler (💎 PREMIUM)": [{"soru": "A.�
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+    
     .stApp { background-color: #f4f6f8 !important; font-family: 'Poppins', sans-serif !important; color: #333 !important; }
     h1, h2, h3, h4 { color: #5D3EBC !important; font-weight: 800 !important; }
-    p, label, div, span { color: #333; }
     
     .giris-kart { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(93,62,188,0.15); text-align: center; border-bottom: 6px solid #FFD300; margin: 20px 0 40px 0; }
-    .proje-baslik { color: #5D3EBC; font-size: 28px; font-weight: 900; margin-bottom: 10px; }
-    .alan-ismi { color: #555; font-size: 16px; font-weight: 600; }
     
-    div.stButton > button { background-color: #5D3EBC !important; color: #FFD300 !important; border: none !important; border-radius: 12px !important; font-weight: 700 !important; padding: 15px 20px !important; text-transform: uppercase; width: 100%; box-shadow: 0 4px 10px rgba(93,62,188,0.2); transition: 0.2s; }
+    /* BUTONLAR */
+    div.stButton > button {
+        background-color: #5D3EBC !important; color: #FFD300 !important;
+        border: none !important; border-radius: 12px !important;
+        font-weight: 700 !important; padding: 15px 20px !important;
+        text-transform: uppercase; width: 100%;
+        box-shadow: 0 4px 10px rgba(93,62,188,0.2); transition: 0.2s;
+    }
     div.stButton > button:hover { background-color: #4c329e !important; transform: translateY(-2px); }
     
-    /* KAYDET BUTONU STİLİ */
-    .save-btn { 
-        text-decoration: none; display: inline-block; width: 100%; 
-        background: linear-gradient(90deg, #11998e, #38ef7d); 
-        color: white !important; padding: 12px; text-align: center; 
-        border-radius: 10px; font-weight: 800; margin-top: 10px; 
-        box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
-        border: 2px solid white;
-    }
-    .save-btn:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(56, 239, 125, 0.6); }
-
     .menu-card { background: white; border-radius: 16px; padding: 20px; text-align: center; border: 2px solid #eee; height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; }
     .menu-card:hover { border-color: #5D3EBC; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(93,62,188,0.15); }
-    .card-icon { font-size: 40px; margin-bottom: 10px; }
-    .card-title { font-size: 18px; font-weight: bold; color: #5D3EBC; }
-    .card-desc { font-size: 12px; color: #666; }
     
     .sim-box { background: #fff; padding: 25px; border-radius: 15px; border-left: 6px solid #FFD300; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); color: #222 !important; }
+    
     div.stTextInput > div > div > input { border-radius: 10px; border: 2px solid #ddd; color: #333 !important; background-color: white !important; }
-    .footer-dev { text-align: center; margin-top: 50px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; font-weight: bold; }
+    
+    /* GİZLEMELER */
     footer {visibility: hidden;} header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
@@ -100,7 +92,6 @@ if 'yanlis' not in st.session_state: st.session_state.yanlis = 0
 if 'bekleyen_odul' not in st.session_state: st.session_state.bekleyen_odul = 0
 if 'premium_user' not in st.session_state: st.session_state.premium_user = False
 if 'sim_step' not in st.session_state: st.session_state.sim_step = 0
-# Toplam Puan Takibi
 if 'toplam_puan' not in st.session_state: st.session_state.toplam_puan = 0
 
 # --- 5. LİDERLİK TABLOSU ---
@@ -114,6 +105,7 @@ def get_hybrid_leaderboard(current_user, current_score):
         df.columns = [str(c).strip().upper().replace('İ','I') for c in df.columns]
         name_col = next((c for c in df.columns if 'ISIM' in c or 'AD' in c), None)
         score_col = next((c for c in df.columns if 'PUAN' in c or 'SKOR' in c), None)
+        
         data = []
         if name_col and score_col:
             for _, row in df.iterrows():
@@ -125,14 +117,14 @@ def get_hybrid_leaderboard(current_user, current_score):
                         data.append({"name": str(row[name_col]), "score": p})
                 except: continue
         
+        # AKTİF KULLANICIYI LİSTEYE ZORLA EKLE (0 PUAN OLSA BİLE)
         user_found = False
-        clean_user = str(current_user).strip().upper()
-        
+        current_user_clean = str(current_user).strip().upper()
         final_score = max(int(current_score), st.session_state.toplam_puan)
         st.session_state.toplam_puan = final_score
 
         for p in data:
-            if str(p["name"]).strip().upper() == clean_user:
+            if str(p["name"]).strip().upper() == current_user_clean:
                 p["score"] = max(p["score"], final_score)
                 p["isMe"] = True
                 user_found = True
@@ -143,7 +135,7 @@ def get_hybrid_leaderboard(current_user, current_score):
             
         data.sort(key=lambda x: x["score"], reverse=True)
         return json.dumps(data[:15], ensure_ascii=False)
-    except Exception as e:
+    except:
         return json.dumps([{"name": str(current_user), "score": int(current_score), "isMe": True}], ensure_ascii=False)
 
 # --- 6. PDF GÖSTERİCİ ---
@@ -218,7 +210,7 @@ LIFE_SIM_DISPLAY_HTML = """
 
 # --- 8. UYGULAMA MANTIĞI ---
 
-# YAN MENÜ (SIDEBAR)
+# YAN MENÜ
 with st.sidebar:
     st.write(f"👤 **{st.session_state.ad_soyad}**")
     
@@ -240,22 +232,13 @@ with st.sidebar:
     st.write("💾 **Skoru Kaydet**")
     st.caption("Puanını listeye göndermek için tıkla:")
     
-    # URL ENCODE İŞLEMİ (Boşlukları ve özel karakterleri düzeltir)
     safe_name = urllib.parse.quote(st.session_state.ad_soyad)
     safe_score = str(st.session_state.toplam_puan)
-    
-    # Dinamik Link Oluşturma
     final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
     
-    st.markdown(f"""
-        <a href="{final_form_link}" target="_blank" class="save-btn">
-            GÖNDER ({st.session_state.toplam_puan} Puan)
-        </a>
-    """, unsafe_allow_html=True)
+    st.markdown(f"""<a href="{final_form_link}" target="_blank" class="save-btn">GÖNDER ({st.session_state.toplam_puan} Puan)</a>""", unsafe_allow_html=True)
     
     st.markdown("---")
-    
-    # 3. NAVİGASYON
     if st.button("🏠 Ana Menü"): st.session_state.aktif_mod = "MENU"; st.session_state.secilen_sorular = []; st.rerun()
     if st.button("🚪 Çıkış"): st.session_state.ekran = 'giris'; st.rerun()
 
@@ -268,7 +251,6 @@ if st.session_state.ekran == 'giris':
         if st.button("GİRİŞ YAP 🚀"):
             if ad.strip(): st.session_state.ad_soyad = ad; st.session_state.ekran = 'ana_menu'; st.rerun()
         
-        # ADMIN GİRİŞİ
         if st.checkbox("Yönetici Girişi"):
             p = st.text_input("Şifre:", type="password")
             if st.button("Yönetici Gir"):
