@@ -6,27 +6,28 @@ import json
 import fitz  # PyMuPDF
 import time
 import pandas as pd
+import urllib.parse # Link düzenleme için gerekli
 
 # --- 1. SAYFA AYARLARI ---
 st.set_page_config(page_title="Dijital Gelişim Projesi", page_icon="🟣", layout="wide")
 
-# --- 2. DOSYA VE VERİ YÖNETİMİ ---
+# --- 2. AYARLAR VE VERİ YÖNETİMİ ---
 TYT_JSON_ADI = "tyt_data.json"
 MESLEK_JSON_ADI = "sorular.json"
 LIFESIM_JSON_ADI = "lifesim_data.json"
 TYT_PDF_ADI = "tytson8.pdf"
 UNLOCK_CODE = "PRO2025"
 
-# Varsayılan Veriler
-DEFAULT_TYT = {
-    "1": {"ders": "Türkçe (Paragraf)", "cevaplar": ["A", "C", "B", "D", "E"]},
-    "2": {"ders": "Matematik (Temel)", "cevaplar": ["E", "E", "A", "C", "B"]}
-}
+# ==============================================================================
+# SENİN GOOGLE FORM LİNKİN (PRE-FILLED)
+# ==============================================================================
+FORM_LINK_TASLAK = "https://docs.google.com/forms/d/e/1FAIpQLScshsXIM91CDKu8TgaHIelXYf3M9hzoGb7mldQCDAJ-rcuJ3w/viewform?usp=pp_url&entry.1300987443=AD_YOK&entry.598954691=9999"
+# ==============================================================================
+
+# Dosya Kontrolleri ve Oluşturma
+DEFAULT_TYT = {"1": {"ders": "Türkçe", "cevaplar": ["A", "C", "B", "D", "E"]}}
 DEFAULT_MESLEK = {"KONU_TARAMA": {"9. Sınıf": {"Meslek": {"Test 1": [{"soru": "Soru?", "secenekler": ["A"], "cevap": "A"}]}}}}
-DEFAULT_LIFESIM = [
-    {"id":1, "category":"Girişimcilik", "title":"Okul Kantini", "text":"Kantini işletmek için <b>5.000 TL</b> lazım. Girer misin?", "hint":"Risk almadan kazanılmaz.", "doc":"<h3>Ticari Risk</h3><p>Net Kar = Ciro - Giderler.</p>"},
-    {"id":2, "category":"Yatırım", "title":"İlk Maaş", "text":"İlk maaşınla telefon mu alırsın, altın mı?", "hint":"Yatırım geleceği kurtarır.", "doc":"<h3>Tasarruf</h3><p>Gelirinin en az %10'unu biriktir.</p>"}
-]
+DEFAULT_LIFESIM = [{"id":1, "category":"Girişim", "title":"Kantin", "text":"Yatırım?", "hint":"Risk al.", "doc":"Risk analizi."}]
 
 if not os.path.exists(TYT_JSON_ADI):
     with open(TYT_JSON_ADI, "w", encoding="utf-8") as f: json.dump(DEFAULT_TYT, f, ensure_ascii=False)
@@ -37,9 +38,7 @@ if not os.path.exists(LIFESIM_JSON_ADI):
 
 def load_data():
     try:
-        with open(TYT_JSON_ADI, "r", encoding="utf-8") as f: 
-            tyt = json.load(f)
-            tyt = {int(k): v for k, v in tyt.items()}
+        with open(TYT_JSON_ADI, "r", encoding="utf-8") as f: tyt = {int(k):v for k,v in json.load(f).items()}
         with open(MESLEK_JSON_ADI, "r", encoding="utf-8") as f: meslek = json.load(f)
         with open(LIFESIM_JSON_ADI, "r", encoding="utf-8") as f: lifesim = json.load(f)
         return tyt, meslek, lifesim
@@ -47,66 +46,45 @@ def load_data():
 
 TYT_VERI, MESLEK_VERI, LIFESIM_DATA = load_data()
 
-# Premium İçerik
-PREMIUM_TYT_DATA = {
-    "Fen Bilimleri (💎 PREMIUM)": {"ders": "Fizik - Kimya - Biyoloji", "cevaplar": ["A", "B", "C", "D", "E"]},
-    "İleri Matematik (💎 PREMIUM)": {"ders": "Limit - Türev - İntegral", "cevaplar": ["E", "D", "C", "B", "A"]}
-}
-PREMIUM_MESLEK_DATA = {
-    "11. Sınıf - Şirketler Muhasebesi (💎 PREMIUM)": [
-        {"soru": "Anonim şirket en az kaç sermaye ile kurulur?", "secenekler": ["50.000", "10.000", "100.000"], "cevap": "50.000"},
-        {"soru": "Halka arz hangi kurulun iznine tabidir?", "secenekler": ["SPK", "BDDK", "TCMB"], "cevap": "SPK"}
-    ]
-}
+# Premium Veriler
+PREMIUM_TYT_DATA = {"Fen Bilimleri (💎 PREMIUM)": {"ders": "Fizik-Kimya", "cevaplar": ["A"]*5}, "İleri Mat (💎 PREMIUM)": {"ders": "Türev-İntegral", "cevaplar": ["A"]*5}}
+PREMIUM_MESLEK_DATA = {"11. Sınıf - Şirketler (💎 PREMIUM)": [{"soru": "A.Ş. Sermaye?", "secenekler": ["50.000","10.000"], "cevap": "50.000"}]}
 
-# --- 3. CSS TASARIMI (MODERN & GETİR STİLİ) ---
+# --- 3. CSS TASARIMI ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
-    
-    .stApp { background-color: #f4f6f8 !important; font-family: 'Poppins', sans-serif !important; color: #333333 !important; }
+    .stApp { background-color: #f4f6f8 !important; font-family: 'Poppins', sans-serif !important; color: #333 !important; }
     h1, h2, h3, h4 { color: #5D3EBC !important; font-weight: 800 !important; }
-    p, label, div { color: #333333; }
+    p, label, div, span { color: #333; }
     
-    .giris-kart {
-        background: white; padding: 40px; border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(93, 62, 188, 0.15); text-align: center;
-        border-bottom: 6px solid #FFD300; margin-top: 20px; margin-bottom: 40px;
-    }
-    .proje-baslik { color: #5D3EBC; font-size: 28px; font-weight: 900; margin-bottom: 10px; line-height: 1.2; }
-    .alan-ismi { color: #555; font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+    .giris-kart { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(93,62,188,0.15); text-align: center; border-bottom: 6px solid #FFD300; margin: 20px 0 40px 0; }
+    .proje-baslik { color: #5D3EBC; font-size: 28px; font-weight: 900; margin-bottom: 10px; }
+    .alan-ismi { color: #555; font-size: 16px; font-weight: 600; }
     
-    div.stButton > button {
-        background-color: #5D3EBC !important; color: #FFD300 !important;
-        border: none !important; border-radius: 12px !important;
-        font-weight: 700 !important; padding: 15px 20px !important;
-        transition: all 0.2s !important; text-transform: uppercase; width: 100%;
-        box-shadow: 0 4px 10px rgba(93, 62, 188, 0.2);
-    }
+    div.stButton > button { background-color: #5D3EBC !important; color: #FFD300 !important; border: none !important; border-radius: 12px !important; font-weight: 700 !important; padding: 15px 20px !important; text-transform: uppercase; width: 100%; box-shadow: 0 4px 10px rgba(93,62,188,0.2); transition: 0.2s; }
     div.stButton > button:hover { background-color: #4c329e !important; transform: translateY(-2px); }
     
-    .menu-card {
-        background: white; border-radius: 16px; padding: 20px;
-        text-align: center; border: 2px solid #eee; height: 180px;
-        display: flex; flex-direction: column; justify-content: center; align-items: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s;
+    /* KAYDET BUTONU STİLİ */
+    .save-btn { 
+        text-decoration: none; display: inline-block; width: 100%; 
+        background: linear-gradient(90deg, #11998e, #38ef7d); 
+        color: white !important; padding: 12px; text-align: center; 
+        border-radius: 10px; font-weight: 800; margin-top: 10px; 
+        box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
+        border: 2px solid white;
     }
-    .menu-card:hover { border-color: #5D3EBC; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(93, 62, 188, 0.15); }
+    .save-btn:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(56, 239, 125, 0.6); }
+
+    .menu-card { background: white; border-radius: 16px; padding: 20px; text-align: center; border: 2px solid #eee; height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; }
+    .menu-card:hover { border-color: #5D3EBC; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(93,62,188,0.15); }
     .card-icon { font-size: 40px; margin-bottom: 10px; }
     .card-title { font-size: 18px; font-weight: bold; color: #5D3EBC; }
     .card-desc { font-size: 12px; color: #666; }
-
-    .sim-box {
-        background: #ffffff; padding: 25px; border-radius: 15px;
-        border-left: 6px solid #FFD300; margin-bottom: 20px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08); color: #222 !important;
-    }
     
-    div[data-baseweb="select"] > div { background-color: white !important; color: #333 !important; border-color: #ddd !important; }
+    .sim-box { background: #fff; padding: 25px; border-radius: 15px; border-left: 6px solid #FFD300; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); color: #222 !important; }
     div.stTextInput > div > div > input { border-radius: 10px; border: 2px solid #ddd; color: #333 !important; background-color: white !important; }
-    
     .footer-dev { text-align: center; margin-top: 50px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; font-weight: bold; }
-    
     footer {visibility: hidden;} header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
@@ -122,6 +100,8 @@ if 'yanlis' not in st.session_state: st.session_state.yanlis = 0
 if 'bekleyen_odul' not in st.session_state: st.session_state.bekleyen_odul = 0
 if 'premium_user' not in st.session_state: st.session_state.premium_user = False
 if 'sim_step' not in st.session_state: st.session_state.sim_step = 0
+# Toplam Puan Takibi
+if 'toplam_puan' not in st.session_state: st.session_state.toplam_puan = 0
 
 # --- 5. LİDERLİK TABLOSU ---
 SHEET_ID = "1pHT6b-EiV3a_x3aLzYNu3tQmX10RxWeStD30C8Liqoo"
@@ -138,22 +118,33 @@ def get_hybrid_leaderboard(current_user, current_score):
         if name_col and score_col:
             for _, row in df.iterrows():
                 try: 
-                    p_str = str(row[score_col]).replace('.', '').replace(',', '')
-                    p = int(float(p_str))
-                    if p > 0: data.append({"name": str(row[name_col]), "score": p})
+                    p_val = row[score_col]
+                    if pd.notna(p_val):
+                        p_str = str(p_val).replace('.', '').replace(',', '')
+                        p = int(float(p_str))
+                        data.append({"name": str(row[name_col]), "score": p})
                 except: continue
+        
         user_found = False
-        current_user_clean = str(current_user).strip().upper()
+        clean_user = str(current_user).strip().upper()
+        
+        final_score = max(int(current_score), st.session_state.toplam_puan)
+        st.session_state.toplam_puan = final_score
+
         for p in data:
-            if p["name"].strip().upper() == current_user_clean:
-                p["score"] = max(p["score"], int(current_score))
+            if str(p["name"]).strip().upper() == clean_user:
+                p["score"] = max(p["score"], final_score)
                 p["isMe"] = True
                 user_found = True
                 break
-        if not user_found: data.append({"name": str(current_user), "score": int(current_score), "isMe": True})
+        
+        if not user_found:
+            data.append({"name": str(current_user), "score": final_score, "isMe": True})
+            
         data.sort(key=lambda x: x["score"], reverse=True)
-        return json.dumps(data[:10], ensure_ascii=False)
-    except: return json.dumps([{"name": str(current_user), "score": int(current_score), "isMe": True}], ensure_ascii=False)
+        return json.dumps(data[:15], ensure_ascii=False)
+    except Exception as e:
+        return json.dumps([{"name": str(current_user), "score": int(current_score), "isMe": True}], ensure_ascii=False)
 
 # --- 6. PDF GÖSTERİCİ ---
 def pdf_sayfa_getir(yol, sayfa_no):
@@ -175,29 +166,96 @@ ASSET_MATRIX_HTML = """
 
 GAME_HTML = """
 <!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><script src="https://cdn.tailwindcss.com"></script><script src="https://unpkg.com/lucide@latest"></script><style>body{background:radial-gradient(circle at center,#1e1b4b,#020617);color:white;font-family:sans-serif;overflow:hidden;user-select:none}.glass{background:rgba(255,255,255,0.03);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.05)}.pulse{animation:p 2s infinite}@keyframes p{0%{box-shadow:0 0 0 0 rgba(59,130,246,0.7)}70%{box-shadow:0 0 0 20px rgba(0,0,0,0)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}}.item{transition:0.2s}.item.ok{background:rgba(34,197,94,0.1);border-left:4px solid #22c55e;cursor:pointer}.item.no{opacity:0.5;filter:grayscale(1);cursor:not-allowed}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#334155;border-radius:5px}</style></head>
-<body class="h-screen flex flex-col p-2 gap-2"><div class="glass rounded-xl p-3 flex justify-between border-t-2 border-blue-500"><div><div class="text-[10px] text-blue-300">VARLIK</div><div class="text-2xl font-black" id="m">0 ₺</div></div><div class="text-right"><div class="text-[10px] text-green-400">NAKİT AKIŞI</div><div class="text-xl font-bold text-green-300" id="cps">0</div></div></div><div class="flex flex-col md:flex-row gap-2 flex-1 overflow-hidden"><div class="w-full md:w-1/3 flex flex-col gap-2"><div class="glass rounded-xl p-3 flex-1 overflow-hidden flex flex-col border border-yellow-500/20"><div class="flex justify-between mb-2 pb-2 border-b border-white/10"><h3 class="font-bold text-yellow-400 text-sm">🏆 LİDERLER</h3><span class="text-[10px] bg-green-900 text-green-300 px-2 rounded">CANLI</span></div><div id="lb" class="overflow-y-auto text-xs flex-1 space-y-1">Yükleniyor...</div></div><div class="glass rounded-xl p-4 flex flex-col items-center justify-center shrink-0"><button onclick="clk(event)" class="pulse w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center shadow-xl border-4 border-white/10 active:scale-95"><i data-lucide="zap" class="w-10 h-10 text-white fill-yellow-400"></i></button><div class="mt-2 text-xs text-slate-400">Güç: <span id="pow" class="text-white">1</span> ₺</div><button onclick="rst()" class="absolute top-2 right-2 text-red-500/50 p-1"><i data-lucide="trash" class="w-3 h-3"></i></button></div></div><div class="w-full md:w-2/3 glass rounded-xl flex flex-col overflow-hidden"><div class="p-3 border-b border-white/5 bg-black/20"><h2 class="font-bold text-sm">🛒 YATIRIMLAR</h2></div><div id="market" class="flex-1 overflow-y-auto p-2 space-y-2"></div></div></div><div id="pop" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 hidden"><div class="bg-slate-900 border border-yellow-500 p-6 rounded-2xl text-center"><h2 id="popTitle" class="text-xl font-bold text-white">TEBRİKLER!</h2><p id="popDesc" class="text-xs text-gray-400">Ödeme Alındı</p><div class="text-3xl font-black text-green-400 my-4">+ <span id="rew">0</span> ₺</div><button onclick="claim()" class="w-full py-2 bg-yellow-500 text-black font-bold rounded">KASAYA EKLE</button></div></div><div id="codePop" class="fixed inset-0 bg-black/95 flex items-center justify-center z-50 hidden"><div class="bg-purple-900 border-2 border-purple-500 p-8 rounded-2xl text-center shadow-2xl"><h2 class="text-2xl font-bold text-white mb-4">🔓 LİSANS ALINDI!</h2><p class="text-purple-200 mb-6">Özel testlerin kilidini açmak için bu şifreyi kullan:</p><div class="text-4xl font-mono font-black text-white bg-black/50 p-4 rounded border border-white/20 select-all">PRO2025</div><button onclick="closeCode()" class="mt-6 w-full py-2 bg-purple-500 hover:bg-purple-400 text-white font-bold rounded">ANLAŞILDI</button></div></div><script>lucide.createIcons(); let r=__REW__, u="__USR__", ld=__LD__, inf=1.25;const def={m:0, b:[{id:0,n:"Limonata",c:25,i:1,cnt:0,ic:"citrus"},{id:1,n:"Simit",c:250,i:4,cnt:0,ic:"bike"},{id:2,n:"YouTube",c:3500,i:20,cnt:0,ic:"youtube"},{id:3,n:"E-Ticaret",c:45000,i:90,cnt:0,ic:"shopping-bag"},{id:4,n:"Yazılım",c:600000,i:500,cnt:0,ic:"code"},{id:5,n:"Fabrika",c:8500000,i:3500,cnt:0,ic:"factory"},{id:6,n:"Banka",c:120000000,i:25000,cnt:0,ic:"landmark"},{id:7,n:"Uzay",c:1500000000,i:100000,cnt:0,ic:"rocket"}], unlocked: false};let g=JSON.parse(localStorage.getItem('f7'))||def;let transfer=localStorage.getItem('matrix_transfer');if(transfer){let amt=parseFloat(transfer);r+=amt;localStorage.removeItem('matrix_transfer');document.getElementById('popTitle').innerText="BORSA BLOKLARI";document.getElementById('popDesc').innerText="Matrix oyunundan temettü geliri aktarıldı."}if(r>0){document.getElementById('rew').innerText=r.toLocaleString();document.getElementById('pop').classList.remove('hidden')}upd();renderLB();renderM();setInterval(()=>{let c=getC();if(c>0){g.m+=c/10;upd()}},100);setInterval(()=>{localStorage.setItem('f7',JSON.stringify(g))},3000);function getC(){return g.b.reduce((a,b)=>a+(b.cnt*b.i),0)}function getK(b){return Math.floor(b.c*Math.pow(inf,b.cnt))}function upd(){document.getElementById('m').innerText=Math.floor(g.m).toLocaleString()+" ₺";document.getElementById('cps').innerText=getC().toLocaleString()+" /sn";document.getElementById('pow').innerText=Math.max(1,Math.floor(getC()*0.01)).toLocaleString();g.b.forEach((b,i)=>{let k=getK(b),el=document.getElementById('btn-'+i);if(el){el.className=`item p-3 rounded flex justify-between ${g.m>=k?'ok':'no'}`;el.querySelector('.c').innerText=k.toLocaleString()+" ₺";el.querySelector('.n').innerText=b.cnt}});let licBtn=document.getElementById('btn-lic');if(licBtn){if(g.unlocked){licBtn.classList.add('hidden')}else{licBtn.className=`item p-3 rounded flex justify-between ${g.m>=1000000?'ok bg-purple-900/50 border-purple-500':'no'}`}}}function renderM(){let l=document.getElementById('market');l.innerHTML="";g.b.forEach((b,i)=>{l.innerHTML+=`<div id="btn-${i}" onclick="buy(${i})" class="item p-3 rounded flex justify-between select-none"><div class="flex gap-3"><i data-lucide="${b.ic}"></i><div><div class="font-bold text-sm">${b.n}</div><div class="text-[10px] text-green-400">+${b.i}/sn</div></div></div><div class="text-right"><div class="c font-bold text-yellow-400">0</div><div class="n text-[10px] text-slate-500 bg-black/30 px-1 rounded">0</div></div></div>`});if(!g.unlocked){l.innerHTML+=`<div id="btn-lic" onclick="buyLic()" class="item p-3 rounded flex justify-between select-none mt-4 border-2 border-purple-500 bg-purple-900/20"><div class="flex gap-3"><i data-lucide="lock" class="text-purple-400"></i><div><div class="font-bold text-sm text-purple-300">EĞİTİM LİSANSI</div><div class="text-[10px] text-purple-400">Özel Soruları Açar</div></div></div><div class="text-right"><div class="font-bold text-yellow-400">1.000.000 ₺</div></div></div>`}lucide.createIcons()}function clk(e){let p=Math.max(1,Math.floor(getC()*0.01));g.m+=p;upd();let f=document.createElement('div');f.className='click-anim font-bold text-green-400 absolute text-xl';f.style.left=e.clientX+'px';f.style.top=(e.clientY-20)+'px';f.innerText="+"+p;document.body.appendChild(f);setTimeout(()=>f.remove(),800);let me=ld.find(x=>x.isMe);if(me){me.score=g.m;renderLB()}}function buy(i){let b=g.b[i],k=getK(b);if(g.m>=k){g.m-=k;b.cnt++;upd()}}function buyLic(){if(g.m>=1000000){g.m-=1000000;g.unlocked=true;upd();document.getElementById('codePop').classList.remove('hidden')}}function closeCode(){document.getElementById('codePop').classList.add('hidden');renderM()}function claim(){g.m+=r;document.getElementById('pop').classList.add('hidden');upd()}function rst(){if(confirm("Sıfırla?")){localStorage.removeItem('f7');location.reload()}}function renderLB(){let l=document.getElementById('lb');l.innerHTML="";ld.sort((a,b)=>b.score-a.score).slice(0,10).forEach((p,i)=>{let c=i===0?"text-yellow-400":(i===1?"text-slate-300":"text-slate-500");l.innerHTML+=`<div class="flex justify-between p-1 rounded ${p.isMe?'bg-blue-600/30':''}"><div class="flex gap-2"><span class="font-black ${c}">${i+1}</span><span class="truncate font-bold text-slate-200">${p.name}</span></div><span class="font-mono text-green-400">${Math.floor(p.score).toLocaleString()}</span></div>`})}</script></body></html>
+<body class="h-screen flex flex-col p-2 gap-2">
+<div class="glass rounded-xl p-3 flex justify-between border-t-2 border-blue-500"><div><div class="text-[10px] text-blue-300">VARLIK</div><div class="text-2xl font-black" id="m">0 ₺</div></div><div class="text-right"><div class="text-[10px] text-green-400">NAKİT AKIŞI</div><div class="text-xl font-bold text-green-300" id="cps">0</div></div></div>
+<div class="flex flex-col md:flex-row gap-2 flex-1 overflow-hidden">
+<div class="w-full md:w-1/3 flex flex-col gap-2"><div class="glass rounded-xl p-3 flex-1 overflow-hidden flex flex-col border border-yellow-500/20"><div class="flex justify-between mb-2 pb-2 border-b border-white/10"><h3 class="font-bold text-yellow-400 text-sm">🏆 LİDERLER</h3><span class="text-[10px] bg-green-900 text-green-300 px-2 rounded">CANLI</span></div><div id="lb" class="overflow-y-auto text-xs flex-1 space-y-1">Yükleniyor...</div></div>
+<div class="glass rounded-xl p-4 flex flex-col items-center justify-center shrink-0"><button onclick="clk(event)" class="pulse w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center shadow-xl border-4 border-white/10 active:scale-95"><i data-lucide="zap" class="w-10 h-10 text-white fill-yellow-400"></i></button><div class="mt-2 text-xs text-slate-400">Güç: <span id="pow" class="text-white">1</span> ₺</div><button onclick="rst()" class="absolute top-2 right-2 text-red-500/50 p-1"><i data-lucide="trash" class="w-3 h-3"></i></button></div></div>
+<div class="w-full md:w-2/3 glass rounded-xl flex flex-col overflow-hidden"><div class="p-3 border-b border-white/5 bg-black/20"><h2 class="font-bold text-sm">🛒 YATIRIMLAR</h2></div><div id="market" class="flex-1 overflow-y-auto p-2 space-y-2"></div></div></div>
+<div id="pop" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 hidden"><div class="bg-slate-900 border border-yellow-500 p-6 rounded-2xl text-center"><h2 id="popTitle" class="text-xl font-bold text-white">TEBRİKLER!</h2><p id="popDesc" class="text-xs text-gray-400">Ödeme Alındı</p><div class="text-3xl font-black text-green-400 my-4">+ <span id="rew">0</span> ₺</div><button onclick="claim()" class="w-full py-2 bg-yellow-500 text-black font-bold rounded">KASAYA EKLE</button></div></div>
+<div id="codePop" class="fixed inset-0 bg-black/95 flex items-center justify-center z-50 hidden"><div class="bg-purple-900 border-2 border-purple-500 p-8 rounded-2xl text-center shadow-2xl"><h2 class="text-2xl font-bold text-white mb-4">🔓 LİSANS ALINDI!</h2><p class="text-purple-200 mb-6">Bu kodu kopyala ve menüde kullan:</p><div class="text-4xl font-mono font-black text-white bg-black/50 p-4 rounded border border-white/20 select-all">PRO2025</div><button onclick="closeCode()" class="mt-6 w-full py-2 bg-purple-500 hover:bg-purple-400 text-white font-bold rounded">ANLAŞILDI</button></div></div>
+<script>
+lucide.createIcons(); let r=__REW__, u="__USR__", ld=__LD__, inf=1.25;
+const def={m:0, b:[{id:0,n:"Limonata",c:25,i:1,cnt:0,ic:"citrus"},{id:1,n:"Simit",c:250,i:4,cnt:0,ic:"bike"},{id:2,n:"YouTube",c:3500,i:20,cnt:0,ic:"youtube"},{id:3,n:"E-Ticaret",c:45000,i:90,cnt:0,ic:"shopping-bag"},{id:4,n:"Yazılım",c:600000,i:500,cnt:0,ic:"code"},{id:5,n:"Fabrika",c:8500000,i:3500,cnt:0,ic:"factory"},{id:6,n:"Banka",c:120000000,i:25000,cnt:0,ic:"landmark"},{id:7,n:"Uzay",c:1500000000,i:100000,cnt:0,ic:"rocket"}], unlocked: false};
+let g=JSON.parse(localStorage.getItem('f7'))||def;
+let transfer=localStorage.getItem('matrix_transfer');
+if(transfer){let amt=parseFloat(transfer);r+=amt;localStorage.removeItem('matrix_transfer');document.getElementById('popTitle').innerText="BORSA BLOKLARI";document.getElementById('popDesc').innerText="Matrix oyunundan temettü geliri aktarıldı."}
+if(r>0){document.getElementById('rew').innerText=r.toLocaleString();document.getElementById('pop').classList.remove('hidden')}
+upd(); renderLB(); renderM();
+setInterval(()=>{let c=getC(); if(c>0){g.m+=c/10; upd();}},100);
+setInterval(()=>{localStorage.setItem('f7',JSON.stringify(g))},3000);
+function getC(){return g.b.reduce((a,b)=>a+(b.cnt*b.i),0);}
+function getK(b){return Math.floor(b.c*Math.pow(inf,b.cnt));}
+function upd(){
+    document.getElementById('m').innerText=Math.floor(g.m).toLocaleString()+" ₺";
+    document.getElementById('cps').innerText=getC().toLocaleString() + " /sn";
+    document.getElementById('pow').innerText=Math.max(1,Math.floor(getC()*0.01)).toLocaleString();
+    g.b.forEach((b,i)=>{let k=getK(b),el=document.getElementById('btn-'+i);if(el){el.className=`item p-3 rounded flex justify-between ${g.m>=k?'ok':'no'}`;el.querySelector('.c').innerText=k.toLocaleString()+" ₺";el.querySelector('.n').innerText=b.cnt}});
+    let licBtn=document.getElementById('btn-lic');
+    if(licBtn){if(g.unlocked){licBtn.classList.add('hidden')}else{licBtn.className=`item p-3 rounded flex justify-between ${g.m>=1000000?'ok bg-purple-900/50 border-purple-500':'no'}`}}
+}
+function renderM(){
+    let l=document.getElementById('market'); l.innerHTML="";
+    if(!g.unlocked) {
+        l.innerHTML += `<div id="btn-lic" onclick="buyLic()" class="item p-3 rounded flex justify-between select-none mb-4 border-2 border-purple-500 bg-purple-900/20"><div class="flex gap-3"><i data-lucide="lock" class="text-purple-400"></i><div><div class="font-bold text-sm text-purple-300">EĞİTİM LİSANSI</div><div class="text-[10px] text-purple-400">Özel Soruları Açar</div></div></div><div class="text-right"><div class="font-bold text-yellow-400">1.000.000 ₺</div></div></div>`;
+    }
+    g.b.forEach((b,i)=>{l.innerHTML+=`<div id="btn-${i}" onclick="buy(${i})" class="item p-3 rounded flex justify-between select-none"><div class="flex gap-3"><i data-lucide="${b.ic}"></i><div><div class="font-bold text-sm">${b.n}</div><div class="text-[10px] text-green-400">+${b.i}/sn</div></div></div><div class="text-right"><div class="c font-bold text-yellow-400">0</div><div class="n text-[10px] text-slate-500 bg-black/30 px-1 rounded">0</div></div></div>`});
+    lucide.createIcons();
+}
+function clk(e){let p=Math.max(1,Math.floor(getC()*0.01)); g.m+=p; upd(); let f=document.createElement('div'); f.className='click-anim font-bold text-green-400 absolute text-xl'; f.style.left=e.clientX+'px'; f.style.top=(e.clientY-20)+'px'; f.innerText="+"+p; document.body.appendChild(f); setTimeout(()=>f.remove(),800); let me=ld.find(x=>x.isMe); if(me){me.score=g.m; renderLB();}}
+function buy(i){let b=g.b[i],k=getK(b); if(g.m>=k){g.m-=k; b.cnt++; upd();}}
+function buyLic(){if(g.m>=1000000){g.m-=1000000;g.unlocked=true;upd();document.getElementById('codePop').classList.remove('hidden')}}
+function closeCode(){document.getElementById('codePop').classList.add('hidden');renderM()}
+function claim(){g.m+=r; document.getElementById('pop').classList.add('hidden'); upd();}
+function rst(){if(confirm("Sıfırla?")){localStorage.removeItem('f7');location.reload()}}
+function renderLB(){let l=document.getElementById('lb'); l.innerHTML=""; ld.sort((a,b)=>b.score-a.score).slice(0,10).forEach((p,i)=>{let c=i===0?"text-yellow-400":(i===1?"text-slate-300":"text-slate-500");l.innerHTML+=`<div class="flex justify-between p-1 rounded ${p.isMe?'bg-blue-600/30':''}"><div class="flex gap-2"><span class="font-black ${c}">${i+1}</span><span class="truncate font-bold text-slate-200">${p.name}</span></div><span class="font-mono text-green-400">${Math.floor(p.score).toLocaleString()}</span></div>`;});}
+</script></body></html>
 """
 
 LIFE_SIM_DISPLAY_HTML = """
 <!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><script src="https://cdn.tailwindcss.com"></script><script src="https://unpkg.com/lucide@latest"></script><style>body{background:transparent;color:#333;font-family:sans-serif;padding:10px}.glass{background:white;border-radius:16px;padding:24px;border:1px solid #eee;box-shadow:0 10px 30px rgba(93,62,188,0.1)}.badge{background:rgba(93,62,188,0.1);color:#5D3EBC;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:bold;border:1px solid rgba(93,62,188,0.2)}#title{color:#5D3EBC}#text{color:#333;font-weight:500;font-size:1.1em;line-height:1.6}</style></head><body><div class="glass"><div class="flex justify-between items-start mb-4"><span id="cat" class="badge">KATEGORİ</span></div><h2 id="title" class="text-3xl font-bold mb-6">...</h2><div id="text" class="text-lg leading-relaxed mb-8">...</div><div class="flex gap-3"><button onclick="hint()" class="flex items-center gap-2 text-yellow-600 hover:text-yellow-500 transition"><i data-lucide="lightbulb" class="w-5 h-5"></i> İpucu Al</button><button onclick="doc()" class="flex items-center gap-2 text-purple-600 hover:text-purple-500 transition ml-4"><i data-lucide="book-open" class="w-5 h-5"></i> Uzman Görüşü</button></div><div id="infoBox" class="hidden mt-4 p-4 bg-gray-50 rounded-xl border-l-4 border-yellow-500 text-sm text-gray-700"></div></div><script>lucide.createIcons(); const data = __DATA__; const idx = __IDX__; const item = data[idx]; document.getElementById('cat').innerText = item.category.toUpperCase(); document.getElementById('title').innerText = item.title; document.getElementById('text').innerHTML = item.text; function hint(){ const box = document.getElementById('infoBox'); box.innerHTML = "<b>İPUCU:</b> " + item.hint; box.classList.remove('hidden'); box.style.borderColor = '#eab308'; } function doc(){ const box = document.getElementById('infoBox'); box.innerHTML = item.doc; box.classList.remove('hidden'); box.style.borderColor = '#5D3EBC'; }</script></body></html>
 """
 
-# --- 7. UYGULAMA MANTIĞI ---
+# --- 8. UYGULAMA MANTIĞI ---
 
-# YAN MENÜ
+# YAN MENÜ (SIDEBAR)
 with st.sidebar:
     st.write(f"👤 **{st.session_state.ad_soyad}**")
+    
+    # 1. PREMIUM LİSANS ALANI
     if not st.session_state.premium_user:
-        st.write("🔒 **Lisans Girişi**")
-        kod = st.text_input("Kod:", key="code_in")
-        if st.button("Aç"):
-            if kod == UNLOCK_CODE:
-                st.session_state.premium_user = True
-                st.success("Açıldı!"); time.sleep(1); st.rerun()
-            else: st.error("Hatalı!")
+        with st.expander("🔒 Premium Lisans", expanded=True):
+            st.caption("Oyun kodunu buraya gir.")
+            kod = st.text_input("Kod:", key="code_in")
+            if st.button("Aç"):
+                if kod == UNLOCK_CODE:
+                    st.session_state.premium_user = True
+                    st.success("Açıldı!"); time.sleep(1); st.rerun()
+                else: st.error("Hatalı Kod!")
     else: st.success("🌟 PREMIUM AKTİF")
     
     st.markdown("---")
+    
+    # 2. SKOR KAYDETME ALANI (OTOMATİK LİNK OLUŞTURUCU)
+    st.write("💾 **Skoru Kaydet**")
+    st.caption("Puanını listeye göndermek için tıkla:")
+    
+    # URL ENCODE İŞLEMİ (Boşlukları ve özel karakterleri düzeltir)
+    safe_name = urllib.parse.quote(st.session_state.ad_soyad)
+    safe_score = str(st.session_state.toplam_puan)
+    
+    # Dinamik Link Oluşturma
+    final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
+    
+    st.markdown(f"""
+        <a href="{final_form_link}" target="_blank" class="save-btn">
+            GÖNDER ({st.session_state.toplam_puan} Puan)
+        </a>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # 3. NAVİGASYON
     if st.button("🏠 Ana Menü"): st.session_state.aktif_mod = "MENU"; st.session_state.secilen_sorular = []; st.rerun()
     if st.button("🚪 Çıkış"): st.session_state.ekran = 'giris'; st.rerun()
 
@@ -205,21 +263,16 @@ with st.sidebar:
 if st.session_state.ekran == 'giris':
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
-        st.markdown("""<div class='giris-kart'><h1 class='proje-baslik'>Bağarası ÇPAL </h1><div class='alan-ismi'> Muhasebe ve Finansman Alanı Dijital Gelişim Projesi</div><p style='color:#666'>Hibrit Eğitim Modeli</p></div>""", unsafe_allow_html=True)
-        ad = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet Karaduman")
+        st.markdown("<div class='giris-kart'><h1 class='proje-baslik'>Dijital Gelişim Projesi</h1><div class='alan-ismi'>Muhasebe ve Finansman Alanı</div><p style='color:#666'>Bağarası ÇPAL</p></div>", unsafe_allow_html=True)
+        ad = st.text_input("Adınız Soyadınız:", placeholder="Örn: Mehmet Yılmaz")
         if st.button("GİRİŞ YAP 🚀"):
             if ad.strip(): st.session_state.ad_soyad = ad; st.session_state.ekran = 'ana_menu'; st.rerun()
         
-        # ADMIN GİRİŞİ (EKSTRA ÖZELLİK)
-        is_admin = st.checkbox("Yönetici Girişi")
-        if is_admin:
-            admin_pass = st.text_input("Şifre:", type="password")
+        # ADMIN GİRİŞİ
+        if st.checkbox("Yönetici Girişi"):
+            p = st.text_input("Şifre:", type="password")
             if st.button("Yönetici Gir"):
-                if admin_pass == "PRO2025":
-                    st.session_state.ad_soyad = "Yönetici"
-                    st.session_state.premium_user = True
-                    st.session_state.ekran = 'ana_menu'
-                    st.rerun()
+                if p == "PRO2025": st.session_state.ad_soyad="Yönetici"; st.session_state.premium_user=True; st.session_state.ekran='ana_menu'; st.rerun()
         st.markdown("<div class='footer-dev'>Geliştirici: Hibrit Etüt Merkezi</div>", unsafe_allow_html=True)
 
 # 2. ANA MENÜ
@@ -274,21 +327,21 @@ elif st.session_state.aktif_mod == "PREMIUM_MENU":
             if st.button("📈 Finans Uzmanlık"): st.session_state.secilen_sorular = PREMIUM_MESLEK_DATA; st.session_state.aktif_mod = "PREM_MESLEK"; st.rerun()
     if st.button("⬅️ Geri"): st.session_state.aktif_mod = "MENU"; st.rerun()
 
-# TYT SEÇİM
+# TYT SEÇİM (STANDART)
 elif st.session_state.aktif_mod == "TYT_SECIM":
     st.subheader("📘 TYT")
     test_ids = list(TYT_VERI.keys())
-    display_map = {k: f"Test {k} - {TYT_VERI[k]['ders']}" for k in test_ids}
-    secim_label = st.selectbox("Seçiniz:", list(display_map.values()))
-    secilen_key = [k for k, v in display_map.items() if v == secim_label][0]
+    display = {k: f"Test {k} - {TYT_VERI[k]['ders']}" for k in test_ids}
+    sel = st.selectbox("Seç:", list(display.values()))
+    key = [k for k, v in display.items() if v == sel][0]
     if st.button("Başlat"):
-        st.session_state.secilen_sorular = [secilen_key]
+        st.session_state.secilen_sorular = [key]
         st.session_state.soru_index = 0; st.session_state.dogru = 0; st.session_state.yanlis = 0
         st.session_state.aktif_mod = "TYT_COZ_PDF"
         st.rerun()
     if st.button("⬅️ Geri"): st.session_state.aktif_mod = "STUDY_MENU"; st.rerun()
 
-# MESLEK SEÇİM
+# MESLEK SEÇİM (STANDART)
 elif st.session_state.aktif_mod == "MESLEK_SECIM":
     st.subheader("💼 Meslek")
     flat = {}
@@ -297,29 +350,29 @@ elif st.session_state.aktif_mod == "MESLEK_SECIM":
             for d, t_dict in d_dict.items():
                 for t, qs in t_dict.items():
                     flat[f"{s} - {d} - {t}"] = qs
-    secim = st.selectbox("Test Seç:", list(flat.keys()))
+    sel = st.selectbox("Seç:", list(flat.keys()))
     if st.button("Başlat"):
-        st.session_state.secilen_sorular = flat[secim]
+        st.session_state.secilen_sorular = flat[sel]
         st.session_state.soru_index = 0; st.session_state.dogru = 0; st.session_state.yanlis = 0
         st.session_state.aktif_mod = "MESLEK_COZ"
         st.rerun()
     if st.button("⬅️ Geri"): st.session_state.aktif_mod = "STUDY_MENU"; st.rerun()
 
-# PREMIUM SEÇİM
+# PREMIUM SEÇİMLER
 elif st.session_state.aktif_mod == "PREM_TYT":
-    secim = st.selectbox("Ders:", list(st.session_state.secilen_sorular.keys()))
+    sel = st.selectbox("Ders:", list(st.session_state.secilen_sorular.keys()))
     if st.button("Başlat"):
-        st.session_state.secilen_sorular = st.session_state.secilen_sorular[secim]
-        st.session_state.soru_index = 0; st.session_state.dogru=0; st.session_state.yanlis=0
+        st.session_state.secilen_sorular = st.session_state.secilen_sorular[sel]
+        st.session_state.soru_index = 0; st.session_state.dogru = 0
         st.session_state.aktif_mod = "TYT_COZ_PREM"
         st.rerun()
     if st.button("Geri"): st.session_state.aktif_mod = "PREMIUM_MENU"; st.rerun()
 
 elif st.session_state.aktif_mod == "PREM_MESLEK":
-    secim = st.selectbox("Konu:", list(st.session_state.secilen_sorular.keys()))
+    sel = st.selectbox("Konu:", list(st.session_state.secilen_sorular.keys()))
     if st.button("Başlat"):
-        st.session_state.secilen_sorular = st.session_state.secilen_sorular[secim]
-        st.session_state.soru_index = 0; st.session_state.dogru=0; st.session_state.yanlis=0
+        st.session_state.secilen_sorular = st.session_state.secilen_sorular[sel]
+        st.session_state.soru_index = 0; st.session_state.dogru = 0
         st.session_state.aktif_mod = "MESLEK_COZ"
         st.rerun()
     if st.button("Geri"): st.session_state.aktif_mod = "PREMIUM_MENU"; st.rerun()
@@ -339,10 +392,11 @@ elif st.session_state.aktif_mod == "TYT_COZ_PDF":
                 for i, ans in enumerate(data["cevaplar"]):
                     if st.session_state.get(f"q{i}") == ans: d+=1
                 st.session_state.dogru = d
+                st.session_state.toplam_puan += d * 10 # Puan ekle
                 st.session_state.aktif_mod = "SONUC"
                 st.rerun()
 
-# TYT PREMIUM
+# TYT PREMIUM ÇÖZME (SADECE FORM)
 elif st.session_state.aktif_mod == "TYT_COZ_PREM":
     data = st.session_state.secilen_sorular
     st.subheader(data['ders'])
@@ -354,6 +408,7 @@ elif st.session_state.aktif_mod == "TYT_COZ_PREM":
             for i, ans in enumerate(data["cevaplar"]):
                 if st.session_state.get(f"q{i}") == ans: d+=1
             st.session_state.dogru = d
+            st.session_state.toplam_puan += d * 20 # Premium puanı
             st.session_state.aktif_mod = "SONUC"
             st.rerun()
 
@@ -369,8 +424,11 @@ elif st.session_state.aktif_mod == "MESLEK_COZ":
         c1, c2 = st.columns(2)
         for i, o in enumerate(st.session_state[f"op_{st.session_state.soru_index}"]):
             if (c1 if i%2==0 else c2).button(o, key=f"b{i}"):
-                if o == q["cevap"]: st.toast("Doğru! 🎉"); st.session_state.dogru+=1
-                else: st.toast("Yanlış!"); st.session_state.yanlis+=1
+                if o == q["cevap"]: 
+                    st.toast("Doğru! 🎉")
+                    st.session_state.dogru+=1
+                    st.session_state.toplam_puan += 10 # Her doğruya puan
+                else: st.toast("Yanlış!")
                 time.sleep(0.5); st.session_state.soru_index+=1; st.rerun()
     else: st.session_state.aktif_mod = "SONUC"; st.rerun()
 
@@ -380,7 +438,7 @@ elif st.session_state.aktif_mod == "SONUC":
     st.success(f"Bitti! Doğru: {st.session_state.dogru}")
     if st.button("Tamam"): st.session_state.aktif_mod = "MENU"; st.rerun()
 
-# SIMULATION
+# SIMULATION (Sokrates)
 elif st.session_state.aktif_mod == "LIFESIM":
     scenarios = json.loads(LIFESIM_DATA) if isinstance(LIFESIM_DATA, str) else LIFESIM_DATA
     if 'sim_index' not in st.session_state: st.session_state.sim_index = 0
@@ -394,10 +452,10 @@ elif st.session_state.aktif_mod == "LIFESIM":
             else: st.warning("Detay yaz.")
     elif st.session_state.sim_step == 1:
         st.success("Analizin Alındı.")
-        st.markdown(f"### 👨‍🏫 Uzman Görüşü\n")
-        st.markdown(scenario['doc'], unsafe_allow_html=True)
+        st.markdown(f"<div class='sim-box'><b>👨‍🏫 Uzman Görüşü:</b><br>{scenario['doc']}</div>", unsafe_allow_html=True)
         if st.button("Ödülü Al (250 ₺)"):
             st.session_state.bekleyen_odul += 250
+            st.session_state.toplam_puan += 250 # Simülasyon puanı
             st.session_state.sim_index = (st.session_state.sim_index + 1) % len(scenarios)
             st.session_state.sim_step = 0
             st.rerun()
@@ -405,8 +463,12 @@ elif st.session_state.aktif_mod == "LIFESIM":
 
 # GAME
 elif st.session_state.aktif_mod == "GAME":
-    r = st.session_state.bekleyen_odul; st.session_state.bekleyen_odul = 0
-    lb = get_hybrid_leaderboard(st.session_state.ad_soyad, 0)
+    r = st.session_state.bekleyen_odul
+    st.session_state.bekleyen_odul = 0
+    # Kazanılan parayı toplam puana ekle
+    if r > 0: st.session_state.toplam_puan += r
+    
+    lb = get_hybrid_leaderboard(st.session_state.ad_soyad, st.session_state.toplam_puan)
     html = GAME_HTML.replace("__REW__", str(r)).replace("__USR__", st.session_state.ad_soyad).replace("__LD__", lb)
     components.html(html, height=1000)
     if st.button("Çıkış"): st.session_state.aktif_mod = "MENU"; st.rerun()
