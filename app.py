@@ -12,7 +12,7 @@ import urllib.parse
 st.set_page_config(page_title="Dijital Gelişim Projesi", page_icon="🟣", layout="wide")
 
 # ==============================================================================
-# FORM LİNKİ
+# SİHİRLİ FORM LİNKİ (Parametreli versiyonu buraya sabitledim)
 # ==============================================================================
 FORM_LINK_TASLAK = "https://docs.google.com/forms/d/e/1FAIpQLScshsXIM91CDKu8TgaHIelXYf3M9hzoGb7mldQCDAJ-rcuJ3w/viewform?usp=pp_url&entry.1300987443=AD_YOK&entry.598954691=9999"
 # ==============================================================================
@@ -60,6 +60,7 @@ st.markdown("""
     .proje-baslik { color: #5D3EBC; font-size: 28px; font-weight: 900; margin-bottom: 10px; }
     .alan-ismi { color: #555; font-size: 16px; font-weight: 600; }
     
+    /* BUTONLAR */
     div.stButton > button { background-color: #5D3EBC !important; color: #FFD300 !important; border: none !important; border-radius: 12px !important; font-weight: 700 !important; padding: 15px 20px !important; text-transform: uppercase; width: 100%; box-shadow: 0 4px 10px rgba(93,62,188,0.2); transition: 0.2s; }
     div.stButton > button:hover { background-color: #4c329e !important; transform: translateY(-2px); }
     
@@ -71,7 +72,31 @@ st.markdown("""
     
     .sim-box { background: #fff; padding: 25px; border-radius: 15px; border-left: 6px solid #FFD300; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); color: #222 !important; }
     div.stTextInput > div > div > input { border-radius: 10px; border: 2px solid #ddd; color: #333 !important; background-color: white !important; }
+    .footer-dev { text-align: center; margin-top: 50px; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; font-weight: bold; }
     
+    /* GÖRÜNMEZ BUTON SORUNU İÇİN ÖZEL HTML BUTON STİLİ */
+    .html-save-btn {
+        display: block;
+        width: 100%;
+        background-color: #27ae60;
+        color: white !important;
+        padding: 15px;
+        text-align: center;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 18px;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+        margin-top: 10px;
+        transition: transform 0.2s;
+        border: 2px solid white;
+    }
+    .html-save-btn:hover {
+        transform: scale(1.02);
+        background-color: #219150;
+        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.6);
+    }
+
     footer {visibility: hidden;} header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
@@ -110,22 +135,28 @@ def get_hybrid_leaderboard(current_user, current_score):
                         p = int(float(p_str))
                         data.append({"name": str(row[name_col]), "score": p})
                 except: continue
+        
         user_found = False
-        current_user_clean = str(current_user).strip().upper()
+        clean_user = str(current_user).strip().upper()
         final_score = max(int(current_score), st.session_state.toplam_puan)
         st.session_state.toplam_puan = final_score
+
         for p in data:
-            if str(p["name"]).strip().upper() == current_user_clean:
+            if str(p["name"]).strip().upper() == clean_user:
                 p["score"] = max(p["score"], final_score)
                 p["isMe"] = True
                 user_found = True
                 break
-        if not user_found: data.append({"name": str(current_user), "score": final_score, "isMe": True})
+        
+        if not user_found:
+            data.append({"name": str(current_user), "score": final_score, "isMe": True})
+            
         data.sort(key=lambda x: x["score"], reverse=True)
         return json.dumps(data[:15], ensure_ascii=False)
-    except: return json.dumps([{"name": str(current_user), "score": int(current_score), "isMe": True}], ensure_ascii=False)
+    except:
+        return json.dumps([{"name": str(current_user), "score": int(current_score), "isMe": True}], ensure_ascii=False)
 
-# --- 6. PDF ---
+# --- 6. PDF GÖSTERİCİ ---
 def pdf_sayfa_getir(yol, sayfa_no):
     if not os.path.exists(yol): st.warning(f"PDF Bulunamadı: {yol}"); return
     try:
@@ -201,7 +232,6 @@ LIFE_SIM_DISPLAY_HTML = """
 with st.sidebar:
     st.write(f"👤 **{st.session_state.ad_soyad}**")
     
-    # 1. PREMIUM LİSANS ALANI
     if not st.session_state.premium_user:
         with st.expander("🔒 Premium Lisans", expanded=True):
             st.caption("Oyun kodunu buraya gir.")
@@ -212,6 +242,23 @@ with st.sidebar:
                     st.success("Açıldı!"); time.sleep(1); st.rerun()
                 else: st.error("Hatalı Kod!")
     else: st.success("🌟 PREMIUM AKTİF")
+    
+    st.markdown("---")
+    
+    # 2. SKOR KAYDETME ALANI (OTOMATİK LİNK OLUŞTURUCU)
+    st.write("💾 **Skoru Kaydet**")
+    st.caption("Puanını listeye göndermek için tıkla:")
+    
+    safe_name = urllib.parse.quote(st.session_state.ad_soyad)
+    safe_score = str(st.session_state.toplam_puan)
+    final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
+    
+    # SAF HTML BUTON (KESİN GÖRÜNÜR)
+    st.markdown(f"""
+        <a href="{final_form_link}" target="_blank" class="html-save-btn">
+            💾 LİSTEYE KAYDET ({st.session_state.toplam_puan})
+        </a>
+    """, unsafe_allow_html=True)
     
     st.markdown("---")
     if st.button("🏠 Ana Menü"): st.session_state.aktif_mod = "MENU"; st.session_state.secilen_sorular = []; st.rerun()
@@ -232,9 +279,28 @@ if st.session_state.ekran == 'giris':
                 if p == "PRO2025": st.session_state.ad_soyad="Yönetici"; st.session_state.premium_user=True; st.session_state.ekran='ana_menu'; st.rerun()
         st.markdown("<div class='footer-dev'>Geliştirici: Hibrit Etüt Merkezi</div>", unsafe_allow_html=True)
 
-# 2. ANA MENÜ
+# 2. ANA MENÜ (KAYDETME BUTONU ANA EKRANA DA GELDİ)
 elif st.session_state.aktif_mod == "MENU":
     st.markdown(f"## Hoşgeldin {st.session_state.ad_soyad}")
+    
+    # 🌟 GÖRÜNMEZ BUTON SORUNUNA SON: HTML BUTON ENTEGRASYONU 🌟
+    safe_name = urllib.parse.quote(st.session_state.ad_soyad)
+    safe_score = str(st.session_state.toplam_puan)
+    final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
+    
+    # HTML BUTON (KESİN ÇALIŞIR)
+    st.markdown(f"""
+        <div style="background-color: #e8f5e9; padding: 15px; border-radius: 10px; border: 1px solid #27ae60; text-align: center; margin-bottom: 20px;">
+            <h4 style="color: #27ae60; margin:0;">🏆 Toplam Puanın: {st.session_state.toplam_puan}</h4>
+            <p style="font-size: 12px; color: #666; margin-bottom:10px;">Bu puanı listeye yazdırmak için aşağıdaki butona tıkla:</p>
+            <a href="{final_form_link}" target="_blank" style="text-decoration: none;">
+                <button style="background-color: #27ae60; color: white; border: none; padding: 15px 30px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                    💾 SKORU LİSTEYE KAYDET
+                </button>
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
+    
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         st.markdown("""<div class='menu-card'><div class='card-icon'>📚</div><div class='card-title'>Etüt Merkezi</div><div class='card-desc'>TYT ve Alan Dersleri</div></div>""", unsafe_allow_html=True)
@@ -418,7 +484,7 @@ elif st.session_state.aktif_mod == "LIFESIM":
             st.rerun()
     if st.button("⬅️ Menü"): st.session_state.aktif_mod = "MENU"; st.rerun()
 
-# GAME (BUTON EKLENDİ)
+# GAME
 elif st.session_state.aktif_mod == "GAME":
     r = st.session_state.bekleyen_odul
     st.session_state.bekleyen_odul = 0
@@ -427,24 +493,44 @@ elif st.session_state.aktif_mod == "GAME":
     html = GAME_HTML.replace("__REW__", str(r)).replace("__USR__", st.session_state.ad_soyad).replace("__LD__", lb)
     components.html(html, height=1000)
     
-    # 🌟 GÖRÜNÜR KAYDET BUTONU 🌟
-    st.markdown("### 🏆 Skorunu Kaydet")
+    # 🌟 KESİN GÖRÜNÜR BUTON 🌟
     safe_name = urllib.parse.quote(st.session_state.ad_soyad)
     safe_score = str(st.session_state.toplam_puan)
-    final_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
-    st.link_button(f"💾 LİSTEYE KAYDET ({st.session_state.toplam_puan})", final_link, type="primary")
+    final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
+    
+    st.markdown(f"""
+        <div style="background-color: #e8f5e9; padding: 15px; border-radius: 10px; border: 1px solid #27ae60; text-align: center; margin-bottom: 20px;">
+            <h4 style="color: #27ae60; margin:0;">🏆 Toplam Puanın: {st.session_state.toplam_puan}</h4>
+            <p style="font-size: 12px; color: #666; margin-bottom:10px;">Bu puanı listeye yazdırmak için aşağıdaki butona tıkla:</p>
+            <a href="{final_form_link}" target="_blank" style="text-decoration: none;">
+                <button style="background-color: #27ae60; color: white; border: none; padding: 15px 30px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                    💾 SKORU LİSTEYE KAYDET
+                </button>
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
     
     if st.button("Çıkış"): st.session_state.aktif_mod = "MENU"; st.rerun()
 
-# MATRIX (BUTON EKLENDİ)
+# MATRIX
 elif st.session_state.aktif_mod == "MATRIX":
     components.html(ASSET_MATRIX_HTML, height=800)
     
-    # 🌟 GÖRÜNÜR KAYDET BUTONU 🌟
-    st.markdown("### 🏆 Skorunu Kaydet")
+    # 🌟 KESİN GÖRÜNÜR BUTON 🌟
     safe_name = urllib.parse.quote(st.session_state.ad_soyad)
     safe_score = str(st.session_state.toplam_puan)
-    final_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
-    st.link_button(f"💾 LİSTEYE KAYDET ({st.session_state.toplam_puan})", final_link, type="primary")
+    final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
+    
+    st.markdown(f"""
+        <div style="background-color: #e8f5e9; padding: 15px; border-radius: 10px; border: 1px solid #27ae60; text-align: center; margin-bottom: 20px;">
+            <h4 style="color: #27ae60; margin:0;">🏆 Toplam Puanın: {st.session_state.toplam_puan}</h4>
+            <p style="font-size: 12px; color: #666; margin-bottom:10px;">Bu puanı listeye yazdırmak için aşağıdaki butona tıkla:</p>
+            <a href="{final_form_link}" target="_blank" style="text-decoration: none;">
+                <button style="background-color: #27ae60; color: white; border: none; padding: 15px 30px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; font-size: 18px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                    💾 SKORU LİSTEYE KAYDET
+                </button>
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
     
     if st.button("Çıkış"): st.session_state.aktif_mod = "MENU"; st.rerun()
