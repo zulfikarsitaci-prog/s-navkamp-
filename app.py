@@ -167,19 +167,29 @@ ASSET_MATRIX_HTML = """
     <script>
         const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
         const GRID_SIZE = 10; let CELL_SIZE = 30; let grid = [], pieces = [], dragging = null, score = 0;
+        
         function resize() {
             const maxWidth = window.innerWidth - 20; const size = Math.min(maxWidth, 400); 
             CELL_SIZE = Math.floor(size / (GRID_SIZE + 2)); canvas.width = CELL_SIZE * GRID_SIZE + 20; canvas.height = CELL_SIZE * GRID_SIZE + 120;
             if(pieces.length > 0) draw();
         }
+        
         const SHAPES = [[[1]], [[1,1]], [[1],[1]], [[1,1],[1,1]], [[1,1,1]], [[1],[1],[1]], [[0,1,0],[1,1,1]]];
-        function init() { grid = Array(GRID_SIZE).fill(0).map(()=>Array(GRID_SIZE).fill(0)); score = 0; spawnPieces(); draw(); }
+        
+        function init() { 
+            grid = Array(GRID_SIZE).fill(0).map(()=>Array(GRID_SIZE).fill(0)); 
+            score = 0; 
+            spawnPieces(); 
+            draw(); 
+        }
+        
         function spawnPieces() {
             pieces = []; for(let i=0; i<3; i++) {
                 const m = SHAPES[Math.floor(Math.random()*SHAPES.length)]; const w = m[0].length * CELL_SIZE; const x = 10 + i * (canvas.width/3) + (canvas.width/3 - w)/2; const y = CELL_SIZE * GRID_SIZE + 30;
                 pieces.push({ m, x, y, bx: x, by: y, w, h: m.length*CELL_SIZE });
             }
         }
+        
         function draw() {
             ctx.fillStyle = "#080808"; ctx.fillRect(0,0,canvas.width,canvas.height);
             ctx.strokeStyle = "#222"; ctx.lineWidth = 1; ctx.beginPath();
@@ -189,34 +199,51 @@ ASSET_MATRIX_HTML = """
             pieces.forEach(p => { ctx.fillStyle = p === dragging ? "rgba(6, 182, 212, 0.8)" : "#06b6d4"; p.m.forEach((row, r) => row.forEach((val, c) => { if(val) ctx.fillRect(p.x + c*CELL_SIZE, p.y + r*CELL_SIZE, CELL_SIZE-2, CELL_SIZE-2); })); });
             document.getElementById('score').innerText = score;
         }
+        
         function getPos(e) {
             const r = canvas.getBoundingClientRect(); let clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX; let clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
             return { x: (x-r.left)*(canvas.width/r.width), y: (y-r.top)*(canvas.height/r.height) };
         }
+        
         function start(e) {
             e.preventDefault(); const p_ = getPos(e);
             for(let i=pieces.length-1; i>=0; i--) { const p = pieces[i]; if(p_.x>=p.x-10 && p_.x<=p.x+p.w+10 && p_.y>=p.y-10 && p_.y<=p.y+p.h+10) { dragging = p; dragging.dx = p_.x - p.x; dragging.dy = p_.y - p.y; draw(); return; } }
         }
+        
         function move(e) { if(!dragging) return; e.preventDefault(); const p = getPos(e); dragging.x = p.x - dragging.dx; dragging.y = p.y - dragging.dy; draw(); }
+        
         function end(e) {
             if(!dragging) return; e.preventDefault(); const gx = Math.round((dragging.x-10)/CELL_SIZE); const gy = Math.round((dragging.y-10)/CELL_SIZE);
-            if(canPlace(dragging.m, gx, gy)) { place(dragging.m, gx, gy); pieces = pieces.filter(p => p !== dragging); if(pieces.length === 0) spawnPieces(); } else { dragging.x = dragging.bx; dragging.y = dragging.by; }
+            if(canPlace(dragging.m, gx, gy)) { 
+                place(dragging.m, gx, gy); 
+                pieces = pieces.filter(p => p !== dragging); 
+                if(pieces.length === 0) spawnPieces(); 
+            } else { dragging.x = dragging.bx; dragging.y = dragging.by; }
             dragging = null; draw();
         }
+        
         function canPlace(m, gx, gy) {
             return m.every((row, r) => row.every((val, c) => { if(!val) return true; const tx=gx+c, ty=gy+r; return tx>=0 && tx<GRID_SIZE && ty>=0 && ty<GRID_SIZE && !grid[ty][tx]; }));
         }
+        
         function place(m, gx, gy) {
             m.forEach((row, r) => row.forEach((val, c) => { if(val) grid[gy+r][gx+c]=1; })); score += 10; 
-            let rows=[], cols=[]; for(let r=0; r<GRID; r++) if(grid[r].every(v=>v)) rows.push(r); for(let c=0; c<GRID; c++) if(grid.map(r=>r[c]).every(v=>v)) cols.push(c);
+            let rows=[], cols=[]; 
+            for(let r=0; r<GRID_SIZE; r++) if(grid[r].every(v=>v)) rows.push(r); 
+            for(let c=0; c<GRID_SIZE; c++) if(grid.map(r=>r[c]).every(v=>v)) cols.push(c);
             if(rows.length+cols.length > 0) { rows.forEach(r => grid[r].fill(0)); cols.forEach(c => grid.forEach(r => r[c]=0)); score += (rows.length+cols.length) * 50; }
         }
+        
         function getTransferCode() {
             if(score < 50) { alert("En az 50 Puan gerekli."); return; }
             let val = score; let hex = (val * 13).toString(16).toUpperCase(); let code = `FNK-${hex}-MTX`;
             document.getElementById('codeArea').innerText = code; document.getElementById('codeArea').style.display = 'block'; score = 0; init();
         }
-        canvas.addEventListener('mousedown', start); canvas.addEventListener('touchstart', start, {passive:false}); canvas.addEventListener('mousemove', move); canvas.addEventListener('touchmove', move, {passive:false}); canvas.addEventListener('mouseup', end); canvas.addEventListener('touchend', end, {passive:false});
+        
+        canvas.addEventListener('mousedown', start); canvas.addEventListener('touchstart', start, {passive:false}); 
+        canvas.addEventListener('mousemove', move); canvas.addEventListener('touchmove', move, {passive:false}); 
+        canvas.addEventListener('mouseup', end); canvas.addEventListener('touchend', end, {passive:false});
+        
         window.addEventListener('resize', resize); window.onload = () => { resize(); init(); };
     </script>
 </body>
@@ -318,12 +345,12 @@ else:
         st.header("📚 Soru Çözüm Merkezi")
         t_tyt, t_meslek = st.tabs(["📘 TYT (KİTAPÇIKLI)", "📙 MESLEK (ONLİNE)"])
         
-        # 1. TYT BÖLÜMÜ
+        # 1. TYT BÖLÜMÜ (PDF LİNK DÜZELTMELİ)
         with t_tyt:
             tyt_data = fetch_json_data(URL_TYT_DATA)
             
             if not tyt_data:
-                st.warning("TYT verileri yükleniyor... (tyt_data.json bekleniyor)")
+                st.warning("TYT verileri yükleniyor veya dosya bulunamadı...")
             else:
                 dersler = sorted(list(set([detay.get('ders') for detay in tyt_data.values() if 'ders' in detay])))
                 secilen_ders = st.selectbox("Çözmek İstediğiniz Dersi Seçin:", dersler, key="tyt_ders_sec")
@@ -345,35 +372,48 @@ else:
                     secilen_sayfa_no = secim[0]
                     secilen_detay = secim[2]
                     
-                    st.divider()
-                    
+                    st.markdown("---")
                     c_pdf, c_optik = st.columns([1.5, 1])
                     
                     with c_pdf:
-                        st.info(f"📄 Sayfa {secilen_sayfa_no} görüntüleniyor.")
-                        # PDF'i Sayfa Numarası ile Açma Butonu
-                        pdf_page_url = f"{URL_TYT_PDF}#page={secilen_sayfa_no}"
+                        st.info(f"📄 Sayfa {secilen_sayfa_no} için işlem yapıyorsunuz.")
+                        # PDF'i DOĞRUDAN SAYFA NUMARASIYLA AÇMA BUTONU (Gömme yerine Link)
+                        # Tarayıcıların kendi PDF görüntüleyicisi için #page= parametresi kullanılır.
+                        # GitHub Raw linki bazen indirmeyi tetikler, bu yüzden Google Docs Viewer daha güvenli olabilir ama sayfa atlamada sorun çıkarabilir.
+                        # En garantisi, indirmeyi tetiklemeyen doğrudan bir viewer linkidir.
+                        
+                        pdf_direct_link = f"{URL_TYT_PDF}#page={secilen_sayfa_no}"
+                        
                         st.markdown(f"""
-                        <a href="{pdf_page_url}" target="_blank" style="display:block; text-align:center; background:#e74c3c; color:white; padding:15px; border-radius:8px; font-weight:bold; text-decoration:none; margin-bottom:10px;">
-                            🚀 SAYFA {secilen_sayfa_no}'U YENİ SEKMEDE AÇ (TIKLA)
+                        <a href="{pdf_direct_link}" target="_blank" style="display:block; text-align:center; background:#D84315; color:white; padding:15px; border-radius:10px; font-weight:bold; text-decoration:none; font-size:16px; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+                            🚀 SORULARI GÖRMEK İÇİN TIKLA (SAYFA {secilen_sayfa_no})
                         </a>
-                        <embed src="{URL_TYT_PDF}#page={secilen_sayfa_no}" width="100%" height="800px" type="application/pdf">
+                        <div style="font-size:12px; color:#666; margin-top:5px; text-align:center;">
+                            *Linke tıkladığınızda PDF yeni sekmede açılacak ve doğrudan {secilen_sayfa_no}. sayfaya gidecektir.
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        # Gömülü önizleme (Google Viewer kullanmıyoruz, native kullanıyoruz)
+                        st.markdown(f"""
+                        <embed src="{URL_TYT_PDF}#page={secilen_sayfa_no}" width="100%" height="600px" type="application/pdf" style="margin-top:10px; border-radius:10px;">
                         """, unsafe_allow_html=True)
 
                     with c_optik:
                         st.subheader("📝 Optik Form")
                         with st.form(key=f"tyt_form_{secilen_sayfa_no}"):
                             user_answers = {}
-                            for i, soru_no in enumerate(secilen_detay['sorular']):
+                            soru_listesi = secilen_detay['sorular']
+                            cevap_anahtari = secilen_detay['cevaplar']
+                            
+                            for i, soru_no in enumerate(soru_listesi):
                                 st.markdown(f"**Soru {soru_no}**")
                                 user_answers[i] = st.radio(f"Soru {soru_no}", ['A', 'B', 'C', 'D', 'E'], key=f"q_{secilen_sayfa_no}_{soru_no}", horizontal=True, index=None, label_visibility="collapsed")
                                 st.write("")
                             if st.form_submit_button("KONTROL ET"):
                                 dogru, yanlis = 0, 0
-                                st.markdown("### Sonuçlar")
-                                for i, soru_no in enumerate(secilen_detay['sorular']):
+                                for i, soru_no in enumerate(soru_listesi):
                                     u_ans = user_answers[i]
-                                    try: c_ans = secilen_detay['cevaplar'][i] 
+                                    try: c_ans = cevap_anahtari[i] 
                                     except: c_ans = "?"
                                     if u_ans == c_ans:
                                         dogru += 1
@@ -385,55 +425,50 @@ else:
                                 st.info(f"**Kazanılan Puan:** {puan} ₺")
                                 st.session_state.bank_balance += puan
 
-        # 2. MESLEK BÖLÜMÜ (GÜNCELLENMİŞ HİYERARŞİ)
+        # 2. MESLEK BÖLÜMÜ (İÇ İÇE JSON ÇÖZÜMÜ)
         with t_meslek:
             meslek_data = fetch_json_data(URL_MESLEK_SORULAR)
             
-            # Root Anahtar Kontrolü (KONU_TARAMA var mı?)
             if not meslek_data:
                 st.warning("Meslek soruları yükleniyor...")
             else:
-                # Eğer root key varsa içine gir, yoksa direkt data'yı kullan
-                root_data = meslek_data.get("KONU_TARAMA", meslek_data)
+                # Ana Key: KONU_TARAMA
+                root = meslek_data.get("KONU_TARAMA", meslek_data)
                 
-                # 1. Sınıf Seçimi
-                siniflar = list(root_data.keys())
+                # Sınıf Seçimi
+                siniflar = list(root.keys())
                 sel_sinif = st.selectbox("Sınıf Seçiniz:", siniflar)
                 
                 if sel_sinif:
-                    # 2. Ders Seçimi
-                    dersler = list(root_data[sel_sinif].keys())
+                    # Ders Seçimi
+                    dersler = list(root[sel_sinif].keys())
                     sel_ders = st.selectbox("Ders Seçiniz:", dersler)
                     
                     if sel_ders:
-                        # 3. Test Seçimi
-                        testler = list(root_data[sel_sinif][sel_ders].keys())
+                        # Test Seçimi
+                        testler = list(root[sel_sinif][sel_ders].keys())
                         sel_test = st.selectbox("Test Seçiniz:", testler)
                         
                         if sel_test:
-                            # 4. Soruları Listele
-                            soru_listesi = root_data[sel_sinif][sel_ders][sel_test]
+                            sorular = root[sel_sinif][sel_ders][sel_test]
                             st.markdown("---")
                             st.subheader(f"📙 {sel_ders} - {sel_test}")
                             
                             with st.form(key=f"meslek_form_{sel_sinif}_{sel_ders}_{sel_test}"):
                                 m_answers = {}
-                                for i, q in enumerate(soru_listesi):
+                                for i, q in enumerate(sorular):
                                     st.markdown(f"**{i+1}. {q['soru']}**")
-                                    opts = q.get('secenekler', [])
-                                    m_answers[i] = st.radio("Cevap:", opts, key=f"m_{i}", index=None)
+                                    m_answers[i] = st.radio("Cevap:", q['secenekler'], key=f"m_{i}", index=None)
                                     st.divider()
                                 
                                 if st.form_submit_button("TESTİ BİTİR VE KONTROL ET"):
                                     m_dogru = 0
-                                    for i, q in enumerate(soru_listesi):
-                                        # Cevap kontrolü (Tam metin eşleşmesi)
-                                        dogru_cevap = q.get('cevap')
-                                        if m_answers[i] == dogru_cevap:
+                                    for i, q in enumerate(sorular):
+                                        if m_answers[i] == q['cevap']:
                                             m_dogru += 1
                                             st.success(f"✅ Soru {i+1}: Doğru")
                                         else:
-                                            st.error(f"❌ Soru {i+1}: Yanlış (Doğru Cevap: {dogru_cevap})")
+                                            st.error(f"❌ Soru {i+1}: Yanlış (Doğru: {q['cevap']})")
                                     
                                     m_puan = m_dogru * 100
                                     st.info(f"**Toplam Puan:** {m_puan} ₺")
