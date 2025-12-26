@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🔗 GITHUB VE VERİ AYARLARI
+# 🔗 GITHUB AYARLARI (OTOMATİK)
 # ==========================================
 GITHUB_USER = "zulfikarsitaci-prog"
 GITHUB_REPO = "s-navkamp-"
@@ -28,8 +28,7 @@ URL_TYT_DATA = f"{GITHUB_BASE_URL}/tyt_data.json"
 URL_TYT_PDF = f"{GITHUB_BASE_URL}/tytson8.pdf"
 URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
 
-# --- ⚠️ AYAR: TYT DERSLERİ PDF'TE KAÇINCI SAYFADA BAŞLIYOR? ---
-# Burayı PDF'ine bakarak düzenle. Örnek: "Türkçe": 1, "Matematik": 15 gibi.
+# TYT Ders Sayfa Haritası (PDF'teki Başlangıç Sayfaları)
 TYT_DERS_SAYFA_HARITASI = {
     "Türkçe": 1,
     "Sosyal Bilimler": 21,
@@ -332,26 +331,26 @@ else:
         
         # 1. TYT BÖLÜMÜ
         with t_tyt:
-            c_pdf, c_optik = st.columns([1.5, 1])
-            with c_pdf:
-                # Sayfa numarasını ders seçimine göre belirle
-                tyt_questions = fetch_json_data(URL_TYT_DATA)
-                if tyt_questions:
-                    cats_tyt = list(set([q.get('category', 'Genel') for q in tyt_questions if isinstance(q, dict)]))
-                    sel_cat_tyt = st.selectbox("Ders Seçiniz:", cats_tyt, key="tyt_sel_cat")
-                    
-                    # Sayfa numarası haritası (Manuel ayar gerekebilir)
+            # ÖNCE VERİYİ ÇEK (Scope Hatasını Önlemek İçin)
+            tyt_questions = fetch_json_data(URL_TYT_DATA)
+            
+            if not tyt_questions:
+                st.warning("TYT verileri yükleniyor veya dosya bulunamadı...")
+            else:
+                # KATEGORİ SEÇİMİNİ ANA ALANDA YAP
+                cats_tyt = list(set([q.get('category', 'Genel') for q in tyt_questions if isinstance(q, dict)]))
+                sel_cat_tyt = st.selectbox("Ders Seçiniz:", cats_tyt, key="tyt_sel_cat")
+                
+                c_pdf, c_optik = st.columns([1.5, 1])
+                
+                with c_pdf:
                     start_page = TYT_DERS_SAYFA_HARITASI.get(sel_cat_tyt, 1)
-                    
                     st.markdown(f"""
                     <embed src="{URL_TYT_PDF}#page={start_page}" width="100%" height="800px" type="application/pdf">
                     """, unsafe_allow_html=True)
-                else:
-                    st.warning("TYT verisi yükleniyor...")
 
-            with c_optik:
-                st.subheader(f"📝 {sel_cat_tyt} Optik Formu")
-                if tyt_questions:
+                with c_optik:
+                    st.subheader(f"📝 {sel_cat_tyt} Optik Formu")
                     active_questions = [q for q in tyt_questions if q.get('category') == sel_cat_tyt]
                     
                     with st.form(key=f"tyt_optik_{sel_cat_tyt}"):
@@ -377,21 +376,17 @@ else:
 
         # 2. MESLEK BÖLÜMÜ
         with t_meslek:
-            # Önce Sınıf, Sonra Ders Filtreleme
             meslek_qs = fetch_json_data(URL_MESLEK_SORULAR)
             
             if not meslek_qs:
-                st.warning("Meslek soruları yüklenemedi.")
+                st.warning("Meslek soruları yükleniyor... (sorular.json bekleniyor)")
             else:
-                # Sınıf Listesi (JSON'da 'sinif' anahtarı olmalı, yoksa 'category'den çıkarım yapılır)
-                siniflar = sorted(list(set([str(q.get('sinif', 'Genel')) for q in meslek_qs])))
+                siniflar = sorted(list(set([str(q.get('sinif', 'Genel')) for q in meslek_qs if isinstance(q, dict)])))
                 sel_sinif = st.selectbox("Sınıf Seviyesi:", siniflar)
                 
-                # Ders Listesi (Seçilen sınıfa göre)
                 dersler = sorted(list(set([q.get('category') for q in meslek_qs if str(q.get('sinif', 'Genel')) == sel_sinif])))
                 sel_ders = st.selectbox("Ders Seçiniz:", dersler)
                 
-                # Soruları Getir
                 active_meslek_qs = [q for q in meslek_qs if str(q.get('sinif', 'Genel')) == sel_sinif and q.get('category') == sel_ders]
                 
                 st.markdown("---")
@@ -399,7 +394,6 @@ else:
                     m_answers = {}
                     for i, q in enumerate(active_meslek_qs):
                         st.markdown(f"**{i+1}. {q.get('text')}**")
-                        # Seçenekler JSON'dan gelir
                         opts = q.get('options', ['A', 'B', 'C', 'D', 'E'])
                         m_answers[i] = st.radio("Cevap:", opts, key=f"m_q_{i}", horizontal=True, index=None, label_visibility="collapsed")
                         st.markdown("---")
