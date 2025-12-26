@@ -1,402 +1,310 @@
 [
-    {
-        "category": "Güncel Ekonomi",
-        "title": "1. Kredi Kartı Asgari Ödeme Tuzağı",
-        "text": "Bu ay harcamaların kontrolden çıktı, ekstre 40.000 TL geldi. Banka 'Asgari Tutar 8.000 TL öde, gerisini ertele' diyor. Kart faizi aylık %4.25 (yıllık bileşik %70+).<br><br><b>Karar:</b> Asgariyi ödeyip kalan parayla yatırım mı yaparsın? Yoksa birikimini bozdurup borcu tamamen kapatır mısın?",
-        "data": ["Borç: 40.000", "Asgari: 8.000", "Faiz: %4.25"],
-        "hint": "Bileşik faiz borçlunun düşmanıdır.",
-        "doc": "📌 **HAP BİLGİ: Kredi Kartı Faizi**<br><br>• Kredi kartı faizi, piyasadaki en yüksek maliyetli borçlanma türüdür.<br>• Asgari ödeme yapmak, borcu bitirmez; sadece yasal takibi engeller. Kalan borç her ay çığ gibi büyür. Eğer elinizdeki parayı %70'ten fazla getiri getirecek bir yere koyamıyorsanız, borcu kapatmak en iyi yatırımdır."
+  {
+    "category": "Bireysel Finans",
+    "title": "Kredi Kartı Asgari Ödeme Tuzağı",
+    "text": "Toplam borcun 50.000 TL. Asgari ödeme tutarı 10.000 TL ödendi. Kalan 40.000 TL'ye %5 akdi faiz işliyor. Bir sonraki ay borç ne olacak? Asgariyi ödemek mantıklı mı?",
+    "data": ["Borç: 50.000 TL", "Ödenen: 10.000 TL", "Faiz: %5 Aylık"],
+    "keywords": {
+      "bileşik": "Borcun sadece faizini değil, faizin faizini de ödeyeceğini (Bileşik Faiz etkisi) hesaba kattın mı?",
+      "kredi notu": "Sürekli asgari ödemenin Kredi Kayıt Bürosu (KKB) puanını nasıl etkileyeceğini düşündün mü?",
+      "maliyet": "Yıllık maliyet oranını hesapladın mı? %5 aylık faiz, yıllık basit %60'tan çok daha fazladır."
     },
-    {
-        "category": "Güncel Ekonomi",
-        "title": "2. Teknoloji Alışverişi ve Enflasyon",
-        "text": "Telefonun bozuldu. Yenisi 40.000 TL. Banka hesabında tam 40.000 TL var. Kredi kartı ile 12 taksit yaparsan vade farkıyla toplam 58.000 TL ödüyorsun. Ülkedeki yıllık enflasyon beklentisi %65.<br><br><b>Karar:</b> Nakit ödeyip parasız (likiditesiz) kalmak mı? Yoksa vade farkı ödeyip elindeki nakdi Altın/Döviz/Fon gibi araçlarda tutmak mı?",
-        "data": ["Nakit: 40k", "Taksitli: 58k", "Enf: %65"],
-        "hint": "Paranın Zaman Değeri: Bugünün 40 bini ile seneye 40 bin aynı alım gücünde mi?",
-        "doc": "📌 **HAP BİLGİ: Enflasyonist Ortamda Borçlanma**<br><br>• **Reel Maliyet:** Eğer ödeyeceğiniz vade farkı oranı (%45), ülkedeki enflasyondan (%65) düşükse, borçlanmak karlıdır. Çünkü borcunuzun reel değeri zamanla erir.<br>• **Nakit Kraldır:** Tüm nakdi bir mala bağlamak risklidir. Taksit yapıp, eldeki nakdi enflasyondan fazla getiri getiren bir araca yatırmak matematiksel olarak daha karlıdır."
+    "hapBilgi": "Kredi kartı asgari ödemesi bir borç kapama değil, borcu öteleme yöntemidir. Kalan borca işleyen akdi faiz, piyasadaki en yüksek faizlerden biridir. Mümkünse ihtiyaç kredisi çekip kartı kapatmak (Refinansman) daha düşük maliyetli olabilir."
+  },
+  {
+    "category": "Şirket Muhasebesi",
+    "title": "Nakit Akışı vs Kar",
+    "text": "Şirket kağıt üzerinde bu ay 1 Milyon TL kar etti görünüyor. Ancak kasada 0 TL var çünkü tüm satışlar 90 gün vadeli yapıldı. Bu hafta maaşları nasıl ödeyeceksin?",
+    "data": ["Kar: 1M TL", "Nakit: 0 TL", "Gider: Maaşlar"],
+    "keywords": {
+      "faktoring": "Alacaklarını kırdırıp (Faktoring) nakde dönme maliyetini ve avantajını kıyasladın mı?",
+      "tahsilat": "Satış ekibine vadesiz satış için prim vermeyi düşündün mü?",
+      "kredi": "Kısa vadeli işletme kredisi (Rotatif Kredi) kullanmak bir çözüm olabilir mi?",
+      "iflas": "Şirketler zarar ettikleri için değil, nakitleri bittiği için batarlar gerçeğini göz önüne aldın mı?"
     },
-    {
-        "category": "Hukuk & Emlak",
-        "title": "3. Tahliye Taahhütnamesi Krizi",
-        "text": "Mükemmel bir ev buldun. Ev sahibi sözleşmeyi imzalarken önüne boş bir 'Tahliye Taahhütnamesi' koydu. 'İmzalarsan evi veririm' diyor.<br><br><b>Karar:</b> Evi tutmak için riski alıp imzalar mısın? Yoksa bu bir tuzaktır deyip vazgeçer misin?",
-        "data": ["Kira: Uygun", "Risk: Tahliye"],
-        "hint": "Boş kağıda imza atmanın sonuçları ağırdır.",
-        "doc": "📌 **HAP BİLGİ: Tahliye Taahhütnamesi**<br><br>• Bu belge, kiracının en büyük kabusudur. Ev sahibi sonradan istediği tarihi atıp icraya koyabilir.<br>• Yargıtay, boş kağıda imza atanın sonucuna katlanacağı görüşündedir. Bunu imzalamak, '1 yıl sonra kirayı 5 katına çıkarsan da sesimi çıkaramam' demektir."
+    "hapBilgi": "Kar bir 'Görüş', Nakit bir 'Gerçektir'. Kağıt üzerindeki kar fatura kesildiği an oluşur (Tahakkuk Esası), ancak maaşlar nakit ödenir. Nakit Akış Tablosu yönetimi, Gelir Tablosu yönetiminden daha hayatidir."
+  },
+  {
+    "category": "Vergi & Mevzuat",
+    "title": "Gider Gösterme Yanılgısı",
+    "text": "Patron, şahsi tatil harcamasını şirkete gider olarak göstermek istiyor. 'Vergiden düşeriz' diyor. Muhasebeci olarak tepkin ne olur?",
+    "data": ["Harcama: Şahsi", "Talep: Gider Yaz", "Risk: Vergi Cezası"],
+    "keywords": {
+      "kanunen kabul edilmeyen": "Bu harcamanın KKEG (Kanunen Kabul Edilmeyen Gider) olduğunu biliyor musun?",
+      "örtülü kazanç": "Şirket parasını şahsi işler için kullanmanın 'Örtülü Kazanç Dağıtımı' sayılacağını patrona anlattın mı?",
+      "inceleme": "Vergi müfettişinin otel faturasındaki isimleri kontrol etme ihtimalini (Vergi İncelemesi) düşündün mü?",
+      "etik": "Meslek etiği açısından bu işlemi yapmayı reddetme sorumluluğun var mı?"
     },
-    {
-        "category": "Kariyer",
-        "title": "4. Kurumsal mı, Girişimcilik mi?",
-        "text": "<b>A) Kurumsal:</b> 45.000 TL Maaş + Sigorta. (Konfor alanı)<br><b>B) Kendi İşin:</b> İlk 6 ay gelir yok, batma riski var ama potansiyel sınırsız.<br><br>Hangisini seçersin?",
-        "data": ["Maaş: Garanti", "Girişim: Riskli"],
-        "hint": "Risk iştahını ve finansal tamponunu ölç.",
-        "doc": "📌 **HAP BİLGİ: Fırsat Maliyeti**<br><br>• Kurumsal hayat düzenli gelir sağlar ama zamanını satarsın.<br>• Girişimcilikte ise J eğrisi vardır; önce para kaybedersin, sonra kazanırsın. 6 ay gelirsiz yaşamaya dayanacak birikimin yoksa kurumsal daha mantıklıdır."
+    "hapBilgi": "Her harcama gider değildir. İşle ilgili olmayan harcamalar gider yazılırsa Vergi Ziyaı cezası kesilir. Bu harcama KKEG olarak işlense bile şirketin kasasından para çıkmış olur ama vergi matrahını düşürmez."
+  },
+  {
+    "category": "Yatırım",
+    "title": "Dolar mı Enflasyon mu?",
+    "text": "Dolar 1 yılda %30 arttı, Enflasyon %60 oldu. Dolar alan yatırımcı 'Paramı korudum' diyor. Haklı mı?",
+    "data": ["Dolar Artışı: %30", "Enflasyon: %60", "Algı: Korundum"],
+    "keywords": {
+      "alım gücü": "Paranın miktarı artsa bile alım gücünün (Reel Getiri) düştüğünü fark ettin mi?",
+      "negatif": "Yatırımcının aslında reel olarak %30 zarar ettiğini (Negatif Reel Faiz) nasıl açıklarsın?",
+      "fırsat maliyeti": "Parayı dolarda tutmak yerine borsada veya mevduatta tutsaydı ne olurdu?",
+      "kur": "Döviz artışının enflasyonun altında kalması (Kurun Baskılanması) durumunu analiz ettin mi?"
     },
-    {
-        "category": "Etik",
-        "title": "5. Şirket Kartı ile Kişisel Harcama",
-        "text": "Şirket kartı sende. Özel bir yemeği 'Şirket gideri' gibi gösterip ödemek aklından geçti. Kimse fark etmeyecek.<br><br>Yapar mısın?",
-        "data": ["Risk: Düşük", "Etik: ?"],
-        "hint": "Güven bir kere kaybedilir.",
-        "doc": "📌 **HAP BİLGİ: Güveni Kötüye Kullanma**<br><br>• Bu hukuken suçtur (TCK 155). İşveren fark etmese bile karakterin zedelenir. Dürüstlük en büyük kariyer sermayesidir."
+    "hapBilgi": "Bir yatırım aracının getirisi enflasyonun altındaysa, paranız erimiş demektir. Buna 'Negatif Reel Getiri' denir. Sadece nominal fiyata bakmak finansal bir yanılsamadır."
+  },
+  {
+    "category": "Maliyet Muhasebesi",
+    "title": "Sabit vs Değişken Gider",
+    "text": "Üretim dursa bile kira ve güvenlik ödeniyor. Siparişler azaldı. Birim maliyet neden artıyor?",
+    "data": ["Üretim: Azaldı", "Gider: Sabit", "Sonuç: Pahalı Ürün"],
+    "keywords": {
+      "birim maliyet": "Toplam sabit giderlerin daha az ürüne bölündüğünü (Birim Sabit Gider Artışı) fark ettin mi?",
+      "başabaş": "Şirketin kar etmeye başlaması için satması gereken minimum adedi (Başabaş Noktası) hesapladın mı?",
+      "kapasite": "Atıl kapasite maliyetinin ürün fiyatına yansımasını nasıl önlersin?",
+      "fiyatlama": "Maliyet arttı diye fiyatı artırırsan talebin daha da düşeceğini (Talep Esnekliği) düşündün mü?"
     },
-    {
-        "category": "Yatırım",
-        "title": "6. 'Coin Uçuyor' (FOMO)",
-        "text": "Arkadaşın X Coin'den parayı vurdu. 'Gel sen de yatır' diyor. Projeyi bilmiyorsun, sadece grafik yükseliyor.<br><br>Tüm paranı basar mısın?",
-        "data": ["Duygu: FOMO", "Bilgi: Yok"],
-        "hint": "Son giren ışıkları kapatır.",
-        "doc": "📌 **HAP BİLGİ: Ponzi ve Balonlar**<br><br>• Bir varlık sadece 'fiyatı artıyor' diye alınıyorsa bu bir balondur. Tepeden alanlar her zaman batar. Araştırmadığın şeye yatırım yapma."
+    "hapBilgi": "Üretim hacmi düştüğünde, ürün başına düşen sabit gider yükü artar. Bu kısır döngüdür: Maliyet artar -> Fiyat artar -> Satış düşer -> Üretim düşer -> Maliyet daha da artar. Çözüm hacmi artırmaktır."
+  },
+  {
+    "category": "Girişimcilik",
+    "title": "Burn Rate ve Runway",
+    "text": "Start-up hesabında 500.000 TL var. Aylık gider 50.000 TL. Gelir henüz yok. Ne zaman batarsın?",
+    "data": ["Kasa: 500k", "Aylık Gider: 50k", "Gelir: 0"],
+    "keywords": {
+      "runway": "Şirketin ömrünün (Runway) kaç ay kaldığını hesapladın mı?",
+      "yatırım": "Yeni yatırım turuna ne zaman çıkman gerektiğini planladın mı? Para bitmeden 3-4 ay önce başlamalısın.",
+      "pivot": "Para bitmeden iş modelini değiştirme (Pivot) şansın var mı?",
+      "kısıntı": "Burn rate'i (nakit yakma hızı) düşürmek için hangi giderleri kısabilirsin?"
     },
-    {
-        "category": "Hukuk",
-        "title": "7. İkinci El Araçta 'Pert' Kaydı",
-        "text": "Tanıdıktan ekspertizsiz araba aldın. Satarken 'Pert' (Ağır hasarlı) çıktı. Satıcı 'Bilmiyordum' diyor. Ne yaparsın?",
-        "data": ["Zarar: Büyük", "Kanıt: Yok"],
-        "hint": "Gizli Ayıp kavramını araştır.",
-        "doc": "📌 **HAP BİLGİ: Gizli Ayıp**<br><br>• Satıcı kusuru gizlediyse sorumludur. Ancak ekspertiz yaptırmamak 'Basiretli Tacir/Alıcı' ilkesine aykırıdır. Dava süreci çok zorlu geçer."
+    "hapBilgi": "Bu senaryoda Runway = 500k / 50k = 10 aydır. Girişimcilikte en önemli metrik 'Kalan Ömür'dür. Yatırımcılar genellikle 18 aylık runway görmek isterler."
+  },
+  {
+    "category": "Bireysel Finans",
+    "title": "Konut Kredisi ve Erken Ödeme",
+    "text": "10 yıllık konut kredisi çektin. 3. yılda eline toplu para geçti. Krediyi kapatmak mı, parayı yatırıma koymak mı?",
+    "data": ["Kredi Faizi: %2", "Yatırım Getirisi: %4", "Ceza: %2"],
+    "keywords": {
+      "erken ödeme cezası": "Konut kredilerinde %2 erken ödeme cezası olduğunu hesaba kattın mı?",
+      "alternatif getiri": "Ehindeki parayı mevduata veya fona koysan, krediye ödeyeceğin faizden daha çok kazanır mısın?",
+      "psikoloji": "Borçsuz olmanın vereceği psikolojik rahatlığı mı, matematiksel karı mı tercih edersin?",
+      "vergi": "Yatırım getirisinden düşülecek stopaj vergisini net hesaba kattın mı?"
     },
-    {
-        "category": "Yönetim",
-        "title": "8. Kriz Masası: Gıda Zehirlenmesi",
-        "text": "İşlettiğin kantinde zehirlenme şüphesi var. Veliler öfkeli.<br><br><b>Karar:</b> İnkar edip savunmaya mı geçersin? Sorumluluğu alıp işbirliği mi yaparsın?",
-        "data": ["Kriz: İtibar", "Risk: Yüksek"],
-        "hint": "Krizde inkar ateşi körükler.",
-        "doc": "📌 **HAP BİLGİ: Kriz İletişimi**<br><br>• 1. Kabul et. 2. Önlem al. 3. İşbirliği yap. Şeffaflık güveni geri kazanmanın tek yoludur."
+    "hapBilgi": "Eğer 'Yatırım Getirisi > Kredi Faizi' ise borcu kapatmak matematiksel olarak zarardır. Parayı işleterek borcun faizini ödeyebilir ve üste kar edebilirsiniz (Kaldıraç Etkisi)."
+  },
+  {
+    "category": "Şirket Muhasebesi",
+    "title": "Amortisman Yöntemi",
+    "text": "Yeni alınan makineyi 5 yılda giderleştirmek mi (Normal), ilk yıllarda çok gider yazmak mı (Azalan Bakiyeler)? Şirket bu yıl çok kar etti.",
+    "data": ["Kar: Yüksek", "Yöntem: Seçim", "Amaç: Vergi Planlaması"],
+    "keywords": {
+      "vergi kalkanı": "Bu yıl kar yüksekse, azalan bakiyeler yöntemiyle daha çok gider yazıp daha az vergi ödeyebileceğini (Vergi Kalkanı) düşündün mü?",
+      "nakit": "Daha az vergi ödeyerek şirkette kalan nakdi yatırıma dönüştürme fırsatını gördün mü?",
+      "gelecek": "İlk yıllarda hakkını kullanırsan, sonraki yıllarda vergi yükünün artacağını planladın mı?"
     },
-    {
-        "category": "Sosyal",
-        "title": "9. Borç İsteyen Arkadaş",
-        "text": "Sevdiğin ama borcuna sadık olmayan arkadaşın 20.000 TL istedi. Vermezsen küsecek.<br><br>Parayı riske atıp verir misin? Yoksa ilişkiyi riske atıp reddeder misin?",
-        "data": ["Risk: Para+Dostluk"],
-        "hint": "Borç, arkadaşlığın düşmanıdır.",
-        "doc": "📌 **HAP BİLGİ: Finansal Sınırlar**<br><br>• Kural: 'Geri gelmese de hayatıma devam edebilir miyim?' Cevap hayırsa borç verme. Dürüstçe 'Müsait değilim' demek en sağlıklısıdır."
+    "hapBilgi": "Karın yüksek olduğu dönemlerde 'Hızlandırılmış Amortisman' (Azalan Bakiyeler) yöntemi seçilerek vergi ödemesi ötelenir. Bu, devlete faizsiz borçlanmak gibidir."
+  },
+  {
+    "category": "Hukuk & Ticaret",
+    "title": "Çek Tahsilatı Sorunu",
+    "text": "Müşteriden aldığın çek karşılıksız çıktı. Müşteri 'Bekle ödeyeceğim' diyor. Çeki bankaya yazdırmalı mısın?",
+    "data": ["Çek: Karşılıksız", "Süre: 10 Gün", "Risk: İtibar vs Para"],
+    "keywords": {
+      "arkasını yazdırmak": "Çeki yazdırmazsan hukuki takip hakkını (İcra) kaybedebileceğini veya geciktireceğini biliyor musun?",
+      "zamanaşımı": "Çeklerde ibraz sürelerini (10 gün) kaçırırsan belgenin adi senede dönüşeceğini biliyor musun?",
+      "iyi niyet": "Ticari ilişkiyi bozmamak adına beklemek ile garantiyi kaybetmek arasındaki riski tarttın mı?"
     },
-    {
-        "category": "Girişimcilik",
-        "title": "10. Ortaklık: %50-%50 mi?",
-        "text": "Sen parayı koyuyorsun, arkadaşın kod yazıyor. %50-%50 hisse istiyor. İş batarsa parası giden sensin.<br><br>Kabul eder misin?",
-        "data": ["Sermaye: Sen", "Emek: O"],
-        "hint": "Hisse dağılımı kavga sebebidir.",
-        "doc": "📌 **HAP BİLGİ: Vesting (Hakediş)**<br><br>• Hisseleri baştan vermek yerine, 'Projede kaldığın süre boyunca hisse kazanacaksın' demek en doğrusudur. Sermaye ve emek dengesi iyi kurulmalıdır."
+    "hapBilgi": "Çek, görüldüğünde ödenen bir ödeme aracıdır. Karşılıksız çıktığında bankaya 'Arkasını yazdırmak', hukuki süreci başlatmanın ilk şartıdır. Yazdırılmazsa çek vasfını yitirebilir."
+  },
+  {
+    "category": "Envanter Yönetimi",
+    "title": "FIFO vs LIFO",
+    "text": "Enflasyon ortamında stok maliyetini hesaplarken 'İlk Giren İlk Çıkar' (FIFO) mı kullanmalısın? Amaç karı düşük gösterip az vergi ödemekse?",
+    "data": ["Ortam: Enflasyonist", "Amaç: Vergi Tasarrufu"],
+    "keywords": {
+      "maliyet": "Enflasyon varsa, eski giren mal ucuzdur. FIFO kullanırsan maliyet düşük, kar yüksek çıkar. Bunu fark ettin mi?",
+      "lifo yasağı": "Türkiye'de LIFO (Son Giren İlk Çıkar) yönteminin vergi mevzuatında genellikle kabul edilmediğini araştırdın mı?",
+      "stok karı": "Stokta bekleyen ürünün değerlenmesiyle oluşan 'Enflasyon Karı'nın vergisini ödemeye hazır mısın?"
     },
-    {
-        "category": "Muhasebe",
-        "title": "11. Fiş Almazsan İndirim",
-        "text": "Dişçi 'Fatura istemezsen 5.000 TL indirim yaparım' dedi. (Vergi kaçıracak).<br><br>Kabul eder misin?",
-        "data": ["Kazanç: 5.000", "Etik: Kötü"],
-        "hint": "Kayıt dışı ekonomi kamu hizmetini vurur.",
-        "doc": "📌 **HAP BİLGİ: Vergi Bilinci**<br><br>• Faturasız işlemde, yapılan iş hatalı çıkarsa yasal hak iddia edemezsin. Ayrıca vergi kaybı, dolaylı olarak sana yol/su/elektrik zammı olarak döner."
+    "hapBilgi": "Enflasyonist ortamda FIFO kullanmak, maliyeti düşük (eski fiyatlı) malları gider yazmak demektir. Bu da kağıt üzerindeki karı ve dolayısıyla vergiyi artırır. Şirketler için nakit çıkışı yaratır."
+  },
+  {
+    "category": "İK Yönetimi",
+    "title": "Brüt Maaş mı Net Maaş mı?",
+    "text": "Yeni işe gireceksin. Patron '30.000 TL Net' mi yoksa '45.000 TL Brüt' mü istersin diye sordu. Yıl sonunu düşünerek hangisi karlı?",
+    "data": ["Teklif A: Net", "Teklif B: Brüt", "Vergi Dilimi: Artan"],
+    "keywords": {
+      "vergi dilimi": "Aylar geçtikçe gelir vergisi diliminin artacağını ve brüt maaşın ele geçen kısmının azalacağını hesapladın mı?",
+      "sabit gelir": "Net maaş anlaşırsan vergi artışını işverenin üstlendiğini, senin eline geçen paranın değişmeyeceğini biliyor musun?",
+      "zam": "Ocak ayındaki zammın brüt üzerinden mi net üzerinden mi yapılacağının önemini sordun mu?"
     },
-    {
-        "category": "Kariyer",
-        "title": "12. Yurt Dışı vs Aile",
-        "text": "Yurt dışından harika teklif aldın ama ailenin bakıma ihtiyacı var. Gidersen aklın kalacak, kalırsan kariyerin bitecek.<br><br>Ne yaparsın?",
-        "data": ["Dilemma: Vicdan"],
-        "hint": "Duygusal karar matrisi.",
-        "doc": "📌 **HAP BİLGİ: Üçüncü Yol**<br><br>• Gidip para biriktirerek onlara daha iyi bir bakım sağlamak mümkün mü? Bazen gitmek, kalmaktan daha fazla yardım etmeni sağlar."
+    "hapBilgi": "Enflasyonist ve artan oranlı vergi sistemlerinde 'Net Maaş' anlaşması çalışanı korur. Brüt anlaşmada yıl sonuna doğru maaşınız vergi kesintisi yüzünden azalır (Elinize geçen para düşer)."
+  },
+  {
+    "category": "Pazarlama & Finans",
+    "title": "İskonto mu Vade mi?",
+    "text": "Müşteri malı alacak ama şartı var: Ya %10 indirim yap peşin ödeyeyim, ya da liste fiyatından alayım 4 ay sonra ödeyeyim. Mevduat faizi aylık %4.",
+    "data": ["İskonto: %10", "Vade: 4 Ay", "Faiz: %4 Aylık"],
+    "keywords": {
+      "bugünkü değer": "4 ay sonraki paranın bugünkü değerini (Net Present Value) hesapladın mı?",
+      "alternatif maliyet": "4 ayda %4 x 4 = %16 (basit) faiz geliri var. %10 indirim yapıp parayı alıp faize koysan daha karlı olabilir mi?",
+      "nakit ihtiyacı": "Şirketin şu an nakde sıkışık olup olmadığı kararını nasıl etkiler?"
     },
-    {
-        "category": "Yatırım",
-        "title": "13. Altın mı, Borsa mı?",
-        "text": "100.000 TL paran var.<br><b>Altın:</b> Güvenli ama az kazandırır.<br><b>Borsa:</b> Riskli ama katlama şansı var.<br><br>Hangisi?",
-        "data": ["Profil: Risk?"],
-        "hint": "Yumurtaları aynı sepete koyma.",
-        "doc": "📌 **HAP BİLGİ: Diversifikasyon**<br><br>• En sağlıklısı sepet yapmaktır. %40 Altın + %40 Borsa + %20 Nakit. Tek bir yere tüm parayı yatırmak yatırım değil kumardır."
+    "hapBilgi": "Basit hesap: 4 aylık vadede para %16 değer kaybedecek (veya kazanacak). %10 indirim yapıp parayı şimdi almak (%10 maliyet), 4 ay bekleyip %16 kaybetmekten daha iyidir. Peşin + İskonto mantıklıdır."
+  },
+  {
+    "category": "Otomobil & Yatırım",
+    "title": "Şirket Aracı: Satın Almak mı Kiralamak mı?",
+    "text": "Şirkete araç lazım. 1.5 Milyon TL verip almak mı, aylık 40.000 TL verip kiralamak mı?",
+    "data": ["Fiyat: 1.5M", "Kira: 40k", "Süre: 3 Yıl"],
+    "keywords": {
+      "gider kısıtlaması": "Binek araç alımında gider yazma sınırları (Amortisman kısıtlaması) olduğunu biliyor musun?",
+      "kdv": "Kiralama faturasının KDV'sinin tamamını indirebileceğini, ama satın almada sınır olduğunu hesaba kattın mı?",
+      "toplu para": "1.5 Milyon TL'yi araca bağlamak yerine ticarette kullanmanın getirisini düşündün mü?",
+      "ikinci el": "3 yıl sonra aracın 2. el satış değerinin şirkete kar (ve vergi) olarak döneceğini hesapladın mı?"
     },
-    {
-        "category": "Pazarlama",
-        "title": "14. Influencer Tavsiyesi",
-        "text": "Fenomen 'Bu krem mucize' dedi. Ürün pahalı. Alır mısın?",
-        "data": ["Kaynak: Reklam"],
-        "hint": "Ürün mü satıyor, hayal mi?",
-        "doc": "📌 **HAP BİLGİ: Influencer Marketing**<br><br>• Tavsiyelerin çoğu ücretli işbirliğidir. Gerçek kullanıcı yorumlarına (şikayet siteleri) bakmadan fenomen sözüyle ürün alınmaz."
+    "hapBilgi": "Operasyonel kiralama; bakım, sigorta ve vergi avantajı sağlar ve toplu parayı şirkette bırakır. Satın alma ise enflasyonist ortamda aracın değer kazanmasıyla 'yatırım' gibi görünebilir ama vergi yükü daha ağırdır."
+  },
+  {
+    "category": "Bankacılık",
+    "title": "KMH (Eksi Hesap) Tehlikesi",
+    "text": "Hesapta para yok, faturalar otomatik ödemede KMH'tan (Eksi Bakiye) ödendi. 10 gün sonra maaş yatınca kapandı. Önemli bir şey değil mi?",
+    "data": ["Kullanım: KMH", "Süre: 10 Gün", "Faiz: Yüksek"],
+    "keywords": {
+      "günlük faiz": "KMH faizinin günlük işletildiğini ve piyasadaki en yüksek faiz oranı olduğunu biliyor musun?",
+      "alışkanlık": "Sürekli ekside yaşamanın bütçe disiplinini bozduğunu fark ettin mi?",
+      "masraf": "Faiz dışında vergi ve fon kesintilerini de maliyete ekledin mi?"
     },
-    {
-        "category": "Hukuk",
-        "title": "15. Kulaklık İadesi",
-        "text": "İnternetten kulaklık aldın, açıp denedin, beğenmedin. Satıcı 'Hijyen ürünü, iade almam' dedi.<br><br>Hakkını arar mısın?",
-        "data": ["Durum: Açık"],
-        "hint": "Cayma hakkı istisnaları.",
-        "doc": "📌 **HAP BİLGİ: Cayma Hakkı**<br><br>• İnternet alışverişinde 14 gün iade hakkı vardır ANCAK kulaklık, iç çamaşırı gibi hijyen ürünleri açıldıysa iade edilemez. Satıcı haklıdır."
+    "hapBilgi": "Kredili Mevduat Hesabı (KMH), acil durumlar içindir. Düzenli bir finansman aracı olarak kullanılırsa, maaşınızın önemli bir kısmı fark etmeden faize gider."
+  },
+  {
+    "category": "Sigorta",
+    "title": "Eksik Sigorta Riski",
+    "text": "Fabrikanın değeri 100 Milyon TL ama prim ucuz olsun diye 50 Milyon TL üzerinden sigortalattın. 10 Milyon TL'lik hasar oldu. Sigorta ne öder?",
+    "data": ["Değer: 100M", "Poliçe: 50M", "Hasar: 10M"],
+    "keywords": {
+      "eksik sigorta": "Sigorta bedelinin gerçek değerden düşük olması durumunda 'Eksik Sigorta' kuralının işleyeceğini biliyor musun?",
+      "oran": "Poliçe değeri gerçek değerin yarısı (%50). Hasarın da sadece yarısını alabileceğini biliyor musun?",
+      "co-insurance": "Sigortacının bu durumda hasarın tamamını değil, prim ödenen oranda karşılayacağını hesapladın mı?"
     },
-    {
-        "category": "Değerler",
-        "title": "16. Kopya Çeken Arkadaş",
-        "text": "Arkadaşın kopya çekiyor. O yüksek alırsa senin sıralaman düşecek (Çan eğrisi).<br><br>İspiyonlar mısın, susar mısın?",
-        "data": ["Dilemma: Adalet"],
-        "hint": "Adalet mi, Sadakat mi?",
-        "doc": "📌 **HAP BİLGİ: Haksız Rekabet**<br><br>• Haksızlığa susmak, suça ortak olmaktır. Arkadaşınla konuşup bunun emeğine saygısızlık olduğunu belirtmek en olgun tavırdır."
+    "hapBilgi": "Eksik sigorta durumunda, hasar ne kadar küçük olursa olsun, sigorta şirketi 'Sigorta Bedeli / Gerçek Değer' oranında ödeme yapar. 100M yerine 50M gösterdiyseniz, 10M hasar için sadece 5M alırsınız."
+  },
+  {
+    "category": "Etik & Hukuk",
+    "title": "Naylon Fatura Teklifi",
+    "text": "Tedarikçi 'KDV ödeme, sana %5 komisyonla fatura keseyim' dedi. Şirketin KDV ödemesi çok çıkıyor. Kabul eder misin?",
+    "data": ["Teklif: Sahte Belge", "Kazanç: KDV", "Risk: Hapis"],
+    "keywords": {
+      "sahte belge": "Bunun Vergi Usul Kanunu 359. maddeye göre 'Kaçakçılık Suçu' olduğunu ve hapis cezası olduğunu biliyor musun?",
+      "kod": "Şirketin 'Özel Esaslara' (KOD'a) alınacağını ve bir daha ticaret yapamaz hale geleceğini düşündün mü?",
+      "sorumluluk": "Muhasebeci veya yönetici olarak bu suça iştirak etmenin bedelini biliyor musun?"
     },
-    {
-        "category": "Güvenlik",
-        "title": "17. Oltalama (Phishing)",
-        "text": "Mesaj: 'Tebrikler! 50.000 TL kazandınız. Çekmek için 1.000 TL vergi ödeyin.' Site çok resmi görünüyor.<br><br>Parayı gönderir misin?",
-        "data": ["Vaat: Bedava Para"],
-        "hint": "Bedava peynir fare kapanında olur.",
-        "doc": "📌 **HAP BİLGİ: Dolandırıcılık**<br><br>• Hiçbir resmi kurum size para vermek için sizden para istemez. 'Ön ödeme dolandırıcılığı' dünyadaki en yaygın suçtur."
+    "hapBilgi": "Naylon fatura (Sahte Belge), sadece vergi cezası değil, hapis cezası gerektiren bir suçtur. Şirketi 'Kara Liste'ye sokar, bankalar kredileri keser, ticari hayat biter."
+  },
+  {
+    "category": "Ekonomi",
+    "title": "Stagflasyon Nedir?",
+    "text": "Hem fiyatlar artıyor (Enflasyon) hem de işler durdu, işsizlik artıyor (Durgunluk). Bu durumda ne yapmalı?",
+    "data": ["Durum: Enflasyon + Durgunluk"],
+    "keywords": {
+      "nakit": "Bu dönemde 'Nakit Kraldır' prensibinin neden en önemli strateji olduğunu açıklayabilir misin?",
+      "maliyet kısıntısı": "Büyümek yerine küçülerek hayatta kalma (Downsizing) stratejisini düşündün mü?",
+      "borç": "Faizler de yüksek olacağı için borçlanmaktan kaçınmak gerektiğini analiz ettin mi?"
     },
-    {
-        "category": "Kariyer",
-        "title": "18. Topluluk Önünde Konuşma",
-        "text": "Sunum yapmaktan korkuyorsun. Arkadaşın 'Sen hazırla, ben sunayım' dedi.<br><br>Kabul edip saklanır mısın, korkunun üzerine mi gidersin?",
-        "data": ["Engel: Korku"],
-        "hint": "Konfor alanından çık.",
-        "doc": "📌 **HAP BİLGİ: Gelişim Alanı**<br><br>• Liderlik sahnede öğrenilir. Kekelesen bile o sunumu yapmak, seni izlemekten daha çok geliştirir."
+    "hapBilgi": "Stagflasyon (Stagnation + Inflation), ekonomistlerin korkulu rüyasıdır. İşsizlik artarken fiyatların da artmasıdır. Bu dönemde agresif büyüme değil, nakdi koruma ve verimlilik esastır."
+  },
+  {
+    "category": "Bireysel Emeklilik",
+    "title": "BES'ten Erken Çıkış",
+    "text": "BES'te 5. yılın. Devlet katkısı %30. Paraya ihtiyacın oldu, çıkmak istiyorsun. Zararın ne olur?",
+    "data": ["Süre: 5 Yıl", "Katkı: %30", "Durum: Çıkış"],
+    "keywords": {
+      "hak ediş": "10 yılı ve 56 yaşı doldurmadan çıkarsan devlet katkısının büyük kısmını kaybedeceğini biliyor musun?",
+      "stopaj": "Ana para hariç getiri üzerinden kesilecek stopajın erken çıkışta çok yüksek (%15) olduğunu hesapladın mı?",
+      "giriş aidatı": "Erken çıkışta ertelenmiş giriş aidatının tahsil edileceğini biliyor musun?"
     },
-    {
-        "category": "Girişimcilik",
-        "title": "19. Zor Müşteri",
-        "text": "Müşteri kahveyi bitirip 'Soğuktu para vermem' diyor. Yalan söylüyor.<br><br>Parayı almaz mısın, ısrar mı edersin?",
-        "data": ["Olay: Haksızlık"],
-        "hint": "Taviz tavizi doğurur.",
-        "doc": "📌 **HAP BİLGİ: Müşteri İlişkileri**<br><br>• 'Müşteri her zaman haklıdır' değil, 'Müşteriyi kazanmak haktır'. Ancak zorba müşteriye boyun eğmek işletme itibarını zedeler."
+    "hapBilgi": "BES uzun vadeli bir yatırımdır. İlk 3 yılda çıkarsanız devlet katkısının tamamını, 3-6 yıl arası %85'ini, 6-10 yıl arası %65'ini kaybedersiniz. Mümkünse çıkmak yerine fon dağılımını değiştirmek veya ödemeye ara vermek daha mantıklıdır."
+  },
+  {
+    "category": "Gayrimenkul",
+    "title": "Tapu Harcı Gerçeği",
+    "text": "Evi 5 Milyon TL'ye aldın. Tapuda 1 Milyon TL (Rayiç Bedel) gösterelim, harç az çıksın dediler. Ne dersin?",
+    "data": ["Gerçek: 5M", "Beyan: 1M", "Risk: Ceza"],
+    "keywords": {
+      "pişmanlık": "Maliye'nin banka transferlerini izlediğini ve aradaki farkın cezasını faiziyle isteyeceğini biliyor musun?",
+      "satış kazancı": "Evi 5 yıl içinde satarsan, alış bedeli düşük göründüğü için çok yüksek 'Değer Artış Kazancı Vergisi' ödeyeceğini hesapladın mı?",
+      "ön alım": "Belediyenin rayiç bedelden alma hakkı (Şufa) olduğunu duydun mu?"
     },
-    {
-        "category": "Teknoloji",
-        "title": "20. Dijital Ayak İzi",
-        "text": "Eski utanç verici tweetlerini buldun. İş başvurusu yapacaksın.<br><br>Hesabı silip inkar mı edersin, dürüst mü olursun?",
-        "data": ["Risk: İK"],
-        "hint": "İnternet unutmaz.",
-        "doc": "📌 **HAP BİLGİ: Dijital İtibar**<br><br>• İK uzmanları geçmişe bakar. Temizlik yapmak en iyisidir. Sorulursa dürüstçe 'Gençlik hatasıydı' demek güven verir."
+    "hapBilgi": "Tapu harcını düşük göstermek kısa vadede kar gibi görünse de, evi satarken ödeyeceğiniz Gelir Vergisi (Değer Artış Kazancı) çok daha yüksek çıkar. Ayrıca tespit edilirse ağır cezası vardır."
+  },
+  {
+    "category": "Yatırım Psikolojisi",
+    "title": "FOMO ve Tepeden Almak",
+    "text": "Herkes X hissesini konuşuyor, %200 artmış. Sen de 'Kaçırmayayım' diye girdin. Hisse düşmeye başladı. Sorun ne?",
+    "data": ["Hisse: Zirvede", "Duygu: Korku", "Sonuç: Zarar"],
+    "keywords": {
+      "fomo": "Fear Of Missing Out (Fırsatı Kaçırma Korkusu) ile rasyonel olmayan bir karar verdiğini kabul ediyor musun?",
+      "temel analiz": "Hissenin fiyatı artmış ama şirketin karı artmış mı? F/K oranına baktın mı?",
+      "stop loss": "Girerken nerede zarar kesip çıkacağını (Stop Loss) belirlemiş miydin?"
     },
-    {
-        "category": "Eğitim",
-        "title": "21. KYK Bursu Yönetimi",
-        "text": "Burs yattı. Arkadaşların 'Hepsini kriptoya atalım' diyor. Senin ise kitap alman lazım.<br><br>Sürüye uyar mısın, bütçe mi yaparsın?",
-        "data": ["Para: Kısıtlı"],
-        "hint": "İhtiyaç vs İstek.",
-        "doc": "📌 **HAP BİLGİ: Bütçe Disiplini**<br><br>• Önce zorunlu ihtiyaçlar (Barınma, Eğitim) ayrılmalı, kalan 'Keyif Parası' ile risk alınmalıdır."
+    "hapBilgi": "Borsada haber manşetlere düştüğünde, o tren genellikle kaçmıştır. 'Herkes alırken sat, herkes satarken al' (Contrarian) stratejisi genellikle FOMO'dan daha çok kazandırır."
+  },
+  {
+      "category": "E-Ticaret",
+      "title": "Pazaryeri Komisyonları",
+      "text": "Ürünü 100 TL'ye mal edip Trendyol/Hepsiburada'da 150 TL'ye satıyorsun. Kar ettiğini sanıyorsun ama zarar ediyorsun. Neyi unuttun?",
+      "data": ["Maliyet: 100", "Satış: 150", "Kar: ?"],
+      "keywords": {
+        "komisyon": "Pazaryeri komisyonunu (%15-20) düştün mü?",
+        "kargo": "Kargo bedelinin satıcıya ait olduğunu hesapladın mı?",
+        "kdv": "Satış fiyatı içindeki KDV'yi ve ödeyeceğin KDV farkını hesapladın mı?",
+        "iade": "İade oranlarını ve iade kargo maliyetlerini bütçeye ekledin mi?"
+      },
+      "hapBilgi": "E-ticarette 'Brüt Kar' yanıltıcıdır. Net Kar = Satış Fiyatı - (Ürün Maliyeti + Komisyon + Kargo + Reklam + KDV + Operasyon Giderleri). Genellikle 100'e alınan malın 150'ye satılması e-ticarette zarardır."
+  },
+  {
+    "category": "Finans Matematiği",
+    "title": "72 Kuralı",
+    "text": "Paranı yıllık %24 faizle yatırdın. Paranın ikiye katlanması kaç yıl sürer? Formül kullanmadan pratik hesap.",
+    "data": ["Faiz: %24", "Hedef: 2 Katı"],
+    "keywords": {
+      "72 kuralı": "Bileşik faizde paranın ikiye katlanma süresini bulmak için 72'yi faiz oranına böldüğünü biliyor musun?",
+      "zaman": "Faiz getirisi ile enflasyon ilişkisini kurdun mu?",
+      "vergi": "Bu basit hesapta stopajın (verginin) düşülmediğini biliyor musun?"
     },
-    {
-        "category": "Sigorta",
-        "title": "22. Trafik Sigortası vs Kasko",
-        "text": "Araba aldın. Trafik sigortası zorunlu ama Kasko pahalı (20.000 TL).<br><br>Kaskodan tasarruf eder misin?",
-        "data": ["Risk: Kaza"],
-        "hint": "Risk transferi.",
-        "doc": "📌 **HAP BİLGİ: Sigorta Mantığı**<br><br>• Trafik sigortası karşıyı öder, seni ödemez. Kaza yaparsan 500.000 TL masrafı cebinden ödemek, 20.000 TL kasko ödemekten daha acıdır."
-    },
-    {
-        "category": "Sağlık",
-        "title": "23. Özel Sağlık Sigortası",
-        "text": "Gençsin, turp gibisin. İş yeri 'Maaşından kesip sağlık sigortası yapalım mı?' dedi.<br><br>Gerek yok deyip nakit mi alırsın?",
-        "data": ["Risk: Hastalık"],
-        "hint": "Sağlık en büyük sermayedir.",
-        "doc": "📌 **HAP BİLGİ: Sağlık Riski**<br><br>• Beklenmedik bir ameliyat 100.000 TL tutabilir. Sigorta, bu büyük finansal riski küçük taksitlerle satın almaktır."
-    },
-    {
-        "category": "Sosyal",
-        "title": "24. Düğünde Altın Takmak",
-        "text": "Uzak akrabanın düğünü var. Çeyrek altın 4.000+ TL oldu. Gitmesen ayıp olacak, gitsen bütçen çökecek.<br><br>Borç alıp gider misin, bahane mi bulursun?",
-        "data": ["Baskı: El ne der"],
-        "hint": "Sosyal maliyet.",
-        "doc": "📌 **HAP BİLGİ: Sosyal Bütçe**<br><br>• 'El ne der' diye borçlanmak finansal intihardır. Samimi bir tebrik veya daha küçük bir hediye, bütçe dengesini korur."
-    },
-    {
-        "category": "Güvenlik",
-        "title": "25. Şifre Paylaşımı",
-        "text": "Sevgilin sosyal medya şifrelerini istedi. 'Benden saklın mı var?' diyor.<br><br>Verir misin?",
-        "data": ["Konu: Mahremiyet"],
-        "hint": "Dijital sınırlarını çiz.",
-        "doc": "📌 **HAP BİLGİ: Dijital Mahremiyet**<br><br>• Şifreler kişiseldir. Paylaşmak güven göstergesi değil, güvenlik açığıdır. Yarın ayrıldığınızda o hesap şantaj malzemesi olabilir."
-    },
-    {
-        "category": "Alışveriş",
-        "title": "26. Market Markalı Ürünler",
-        "text": "Bilindik marka makarna 20 TL, market markası 10 TL. İçerik aynı.<br><br>Marka takıntısı yapar mısın, tasarruf mu edersin?",
-        "data": ["Fark: %100"],
-        "hint": "Akıllı alışveriş.",
-        "doc": "📌 **HAP BİLGİ: Private Label**<br><br>• Market markalı ürünleri genelde o büyük markalar üretir. Sadece ambalaj farkına para ödemek akıllıca değildir."
-    },
-    {
-        "category": "Kariyer",
-        "title": "27. İş Yerinde Dedikodu",
-        "text": "Öğle yemeğinde herkes müdürü çekiştiriyor. Sen de katılırsan gruba dahil olacaksın, susarsan dışlanacaksın.<br><br>Ne yaparsın?",
-        "data": ["Risk: Profesyonellik"],
-        "hint": "Dedikodu yapan, senin dedikodunu da yapar.",
-        "doc": "📌 **HAP BİLGİ: Ofis Politikası**<br><br>• Dedikoduya katılmak kısa vadede sosyalleştirir ama uzun vadede güvenilmez biri olmana neden olur. Nötr kalmak en iyisidir."
-    },
-    {
-        "category": "Eğitim",
-        "title": "28. Udemy Kursu vs YouTube",
-        "text": "Bir yazılım öğrenmek istiyorsun. YouTube'da bedava videolar var ama dağınık. Udemy'de 100 TL'ye düzenli kurs var.<br><br>Parayı verir misin?",
-        "data": ["Maliyet: 100 TL"],
-        "hint": "Zaman maliyeti.",
-        "doc": "📌 **HAP BİLGİ: Yapılandırılmış Bilgi**<br><br>• Bedava kaynaklarda doğru sırayı bulmak için harcayacağın zaman, 100 TL'den daha değerlidir. Düzenli bilgiye para ödemek yatırımdır."
-    },
-    {
-        "category": "Hukuk",
-        "title": "29. Sözleşme Okumadan İmzalamak",
-        "text": "Spor salonuna yazılıyorsun. 5 sayfa sözleşme verdiler. Okumadan imzalar mısın?",
-        "data": ["Risk: Taahhüt"],
-        "hint": "Küçük yazılar hayat kurtarır.",
-        "doc": "📌 **HAP BİLGİ: İmza Sorumluluğu**<br><br>• Okumadan imzaladığın belgede 'Üyelik iptalinde 1 yıllık ücret alınır' yazıyor olabilir. Asla okumadan imza atma."
-    },
-    {
-        "category": "Yatırım",
-        "title": "30. BES (Bireysel Emeklilik)",
-        "text": "Devlet %30 katkı veriyor ama parayı 56 yaşına kadar çekemezsin.<br><br>Genç yaşta BES'e girer misin?",
-        "data": ["Teşvik: %30"],
-        "hint": "Uzun vadeli birikim.",
-        "doc": "📌 **HAP BİLGİ: BES Mantığı**<br><br>• %30 devlet katkısı dünyanın hiçbir yerinde yok. Küçük paralarla (aylık 500 TL) damlaya damlaya göl olur. Erken başlamak bileşik getiriyi patlatır."
-    },
-    {
-        "category": "Teknoloji",
-        "title": "31. İkinci El Telefon Alırken",
-        "text": "İnternette çok ucuz bir iPhone buldun. Satıcı 'Yurt dışı kayıtlı, kapanmaz garantili' diyor.<br><br>Alır mısın?",
-        "data": ["Risk: IMEI"],
-        "hint": "Ucuz etin yahnisi.",
-        "doc": "📌 **HAP BİLGİ: IMEI Kaydı**<br><br>• Yasal olmayan yollarla (klon IMEI) kaydedilen telefonlar bir gün mutlaka kapanır. Elinde tabletle kalırsın."
-    },
-    {
-        "category": "Sosyal",
-        "title": "32. Hesap Ödeme Tartışması",
-        "text": "İlk buluşmada hesap geldi. Alman usulü mü teklif edersin, yoksa 'Ben öderim' şovu mu yaparsın?",
-        "data": ["Konu: Nezaket"],
-        "hint": "Samimiyet testi.",
-        "doc": "📌 **HAP BİLGİ: Alman Usulü**<br><br>• Günümüz ekonomisinde en adil olanı herkesin yediğini ödemesidir. Ama nezaketen ilk teklifi yapmak puandır."
-    },
-    {
-        "category": "Girişimcilik",
-        "title": "33. Bedava Staj",
-        "text": "Büyük bir şirkette staj buldun ama ücret yok, sadece yemek var. CV için çok iyi.<br><br>Kabul eder misin?",
-        "data": ["Kazanç: Deneyim"],
-        "hint": "Deneyim mi Para mı?",
-        "doc": "📌 **HAP BİLGİ: Kariyer Yatırımı**<br><br>• Öğrenciyken para değil deneyim ve network (çevre) biriktirmek daha değerlidir. CV'deki o marka gelecekte sana çok kapı açar."
-    },
-    {
-        "category": "Etik",
-        "title": "34. Otobüste Yaşlıya Yer Vermek",
-        "text": "Çok yorgunsun, oturdun. Yaşlı biri bindi. Uyuyor numarası mı yaparsın, yer mi verirsin?",
-        "data": ["Durum: Yorgunluk"],
-        "hint": "Toplumsal sözleşme.",
-        "doc": "📌 **HAP BİLGİ: Empati**<br><br>• Bir gün sen de yaşlanacaksın. Toplumsal nezaket kuralları, birlikte yaşamayı mümkün kılan tutkaldır."
-    },
-    {
-        "category": "Yönetim",
-        "title": "35. Zaman Yönetimi: Pomodoro",
-        "text": "Ders çalışman lazım ama telefon elinden düşmüyor. Odaklanamıyorsun.<br><br>Nasıl bir yöntem izlersin?",
-        "data": ["Sorun: Dikkat"],
-        "hint": "25 dakika çalış, 5 dakika mola.",
-        "doc": "📌 **HAP BİLGİ: Pomodoro Tekniği**<br><br>• Beyin uzun süre odaklanamaz. 25 dk çalışıp 5 dk mola vermek, 3 saat aralıksız çalışmaya çalışmaktan çok daha verimlidir."
-    },
-    {
-        "category": "Hukuk",
-        "title": "36. Kefil Olmak",
-        "text": "Abin araba alacak, kredi için sana kefil olmanı istedi. 'Ben öderim merak etme' diyor.<br><br>İmza atar mısın?",
-        "data": ["Risk: Borç"],
-        "hint": "Kefil olmak, borcu ödemeyi kabul etmektir.",
-        "doc": "📌 **HAP BİLGİ: Müteselsil Kefillik**<br><br>• Kefil olduğunda banka borçludan alamazsa direkt sana gelir. 'Ben sadece imza attım' diyemezsin. Kendi ödeyemeyeceğin borca kefil olma."
-    },
-    {
-        "category": "Sağlık",
-        "title": "37. Sigara Maliyeti",
-        "text": "Günde 1 paket sigara içiyorsun (60 TL). Ayda 1.800 TL eder.<br><br>Bu parayla ne yapabilirdin?",
-        "data": ["Maliyet: Yüksek"],
-        "hint": "Bileşik etki.",
-        "doc": "📌 **HAP BİLGİ: Sigara Matematiği**<br><br>• Ayda 1.800 TL'yi 10 yıl boyunca %5 reel getiriyle yatırıma koysan, bir araba parası (yaklaşık 300-400 bin TL) birikirdi. Sağlığın cabası."
-    },
-    {
-        "category": "Alışveriş",
-        "title": "38. İkinci El Kıyafet (Dolap/Gardrops)",
-        "text": "Marka bir mont 5.000 TL. İkinci el uygulamasında aynısı az kullanılmış 1.500 TL.<br><br>'Başkası giydi' diye takıntı mı yaparsın, alır mısın?",
-        "data": ["Tasarruf: %70"],
-        "hint": "Sürdürülebilirlik.",
-        "doc": "📌 **HAP BİLGİ: Döngüsel Ekonomi**<br><br>• İkinci el almak hem cebini korur hem doğayı. Yıkayınca o mont senindir. Zenginler bile 'Vintage' adı altında ikinci el giyer."
-    },
-    {
-        "category": "Güvenlik",
-        "title": "39. Açık Wi-Fi Tehlikesi",
-        "text": "Kafedesin, internet paketin bitti. Şifresiz 'Kafe_Wifi' ağına bağlanıp bankacılık işlemi yapar mısın?",
-        "data": ["Risk: Hack"],
-        "hint": "Ortadaki adam saldırısı.",
-        "doc": "📌 **HAP BİLGİ: Public Wi-Fi**<br><br>• Şifresiz ağlarda hackerlar bilgilerinizi çalabilir (Man in the Middle). Halka açık ağda asla banka/şifre işlemi yapma."
-    },
-    {
-        "category": "Kariyer",
-        "title": "40. LinkedIn Profili",
-        "text": "Üniversite bitti ama LinkedIn profilin boş. 'İş bulayım sonra açarım' mı dersin?",
-        "data": ["Ağ: Network"],
-        "hint": "İş seni bulsun.",
-        "doc": "📌 **HAP BİLGİ: Personal Branding**<br><br>• İşverenler CV'den önce LinkedIn'e bakar. Öğrenciyken projelerini oraya koymak, mezun olmadan iş teklifi almanı sağlar."
-    },
-    {
-        "category": "Sosyal",
-        "title": "41. Hayır Diyebilmek",
-        "text": "Arkadaşların her hafta sonu pahalı mekanlara gidiyor. Senin bütçen yetmiyor.<br><br>Borçlanıp gider misin, 'Ben gelmiyorum' der misin?",
-        "data": ["Baskı: Akran"],
-        "hint": "Sınır çizmek.",
-        "doc": "📌 **HAP BİLGİ: Finansal Özgüven**<br><br>• 'Bütçem uygun değil' demek eziklik değil, finansal olgunluktur. Gerçek arkadaşlar seni paran için sevmez."
-    },
-    {
-        "category": "Yatırım",
-        "title": "42. Dövizle Borçlanmak",
-        "text": "Telefon alacaksın, arkadaşın 'Sana 1000 Dolar borç vereyim, seneye dolar olarak öde' dedi.<br><br>Gelirin TL. Kabul eder misin?",
-        "data": ["Risk: Kur"],
-        "hint": "Gelirin neyse borcun o olsun.",
-        "doc": "📌 **HAP BİLGİ: Kur Riski**<br><br>• Gelirin TL ise asla Döviz/Altın borçlanma. Kur patlarsa borcun 2 katına çıkabilir. Bu 'Açık Pozisyon' riskidir."
-    },
-    {
-        "category": "Girişimcilik",
-        "title": "43. Dropshipping Hayali",
-        "text": "Youtube'da 'Stoksuz e-ticaretle günde 1000 dolar kazan' videosu gördün. Eğitim seti 5.000 TL.<br><br>Alır mısın?",
-        "data": ["Vaat: Kolay Para"],
-        "hint": "Altına hücumda kürek satanlar kazanır.",
-        "doc": "📌 **HAP BİLGİ: Kolay Para Tuzağı**<br><br>• Gerçekten o kadar kolay kazansalar, sırrını 5.000 TL'ye satmazlar, kendileri kazanır. Bu eğitimleri satanlar, ticaretten değil eğitimden kazanır."
-    },
-    {
-        "category": "Etik",
-        "title": "44. Korsan Yazılım/Oyun",
-        "text": "Adobe Photoshop çok pahalı. Crackli indirip kullanmak hırsızlık mıdır, mecburiyet mi?",
-        "data": ["Maliyet: Yüksek"],
-        "hint": "Fikri mülkiyet.",
-        "doc": "📌 **HAP BİLGİ: Siber Güvenlik ve Etik**<br><br>• Crackli dosyalar genelde virüs (trojan) içerir. Bilgisayarın zombi bilgisayara dönüşebilir. Ücretsiz alternatifleri (GIMP vb.) kullanmak daha etiktir."
-    },
-    {
-        "category": "Hukuk",
-        "title": "45. Senet İmzalamak",
-        "text": "Spor salonu 'Sözleşme yerine senet yapıyoruz' dedi. İmzaladın ama senedin üzerinde 'Nama yazılı' ibaresi yok.<br><br>Risk nedir?",
-        "data": ["Belge: Senet"],
-        "hint": "Senet ciro edilebilir.",
-        "doc": "📌 **HAP BİLGİ: Kambiyo Senetleri**<br><br>• Senedi 'Nama Yazılı' yapmazsan, salon sahibi o senedi başkasına (tefeciye vb.) verebilir. Hizmet almasan bile üçüncü kişiye parayı ödemek zorunda kalırsın."
-    },
-    {
-        "category": "Yönetim",
-        "title": "46. Erteleme Hastalığı (Procrastination)",
-        "text": "Ödevin son günü yarın. Sen hala dizi izliyorsun. 'Gece sabahlar yaparım' diyorsun.<br><br>Bu döngüyü nasıl kırarsın?",
-        "data": ["Sorun: Tembellik"],
-        "hint": "Kurbağayı ye.",
-        "doc": "📌 **HAP BİLGİ: Eat That Frog**<br><br>• En zor işi günün en başında yap. Ertelemek işi yok etmez, sadece stresini artırır."
-    },
-    {
-        "category": "Sağlık",
-        "title": "47. Fast Food vs Ev Yemeği",
-        "text": "Dışarıda yemek pratik ama pahalı ve sağlıksız. Evden sefer tası götürmek 'eziklik' mi, akıllılık mı?",
-        "data": ["Tasarruf: Büyük"],
-        "hint": "Latte Factor.",
-        "doc": "📌 **HAP BİLGİ: Küçük Harcamalar**<br><br>• Her gün dışarıda yenen öğle yemeği parasıyla yılda bir tatil yapılır. Sefer tası taşımak finansal zekadır."
-    },
-    {
-        "category": "Sosyal",
-        "title": "48. Trafikte Kavga",
-        "text": "Biri önüne kırdı, kornaya bastı, küfretti. İnip kavga mı edersin, camı kapatıp gider misin?",
-        "data": ["Risk: Yaralanma"],
-        "hint": "Haklı olmak mı, hayatta kalmak mı?",
-        "doc": "📌 **HAP BİLGİ: Öfke Kontrolü**<br><br>• Trafikteki kişinin arabasında silah/bıçak olup olmadığını bilemezsin. Haklı olup morgda olmaktansa, haksız olup evinde olmak iyidir."
-    },
-    {
-        "category": "Ekonomi",
-        "title": "49. Döviz Bürosu vs Banka",
-        "text": "Döviz alacaksın. Bankada makas (alım-satım farkı) çok açık. Kapalıçarşı'da makas dar ama nakit taşıma riski var.<br><br>Hangisi?",
-        "data": ["Fark: Makas"],
-        "hint": "Güvenlik maliyeti.",
-        "doc": "📌 **HAP BİLGİ: Makas Aralığı**<br><br>• Büyük tutarlarda fiziki döviz almak daha karlıdır ama çalınma riski vardır. Dijital bankacılık güvenlidir ama maliyetlidir."
-    },
-    {
-        "category": "Gelecek",
-        "title": "50. İngilizce Öğrenmek",
-        "text": "Herkes 'İngilizce şart' diyor ama sen 'Yapay zeka çeviriyor zaten' diyorsun.<br><br>Öğrenmeye zaman harcar mısın?",
-        "data": ["Yatırım: Dil"],
-        "hint": "Global vizyon.",
-        "doc": "📌 **HAP BİLGİ: Dil Bariyeri**<br><br>• Yapay zeka çeviri yapar ama insan ilişkisi kuramaz. İngilizce bilmek, maaşını ve iş bulma potansiyelini otomatik olarak 2 katına çıkarır."
-    }
+    "hapBilgi": "72 Kuralı: 72 / Yıllık Faiz Oranı = Paranın İkiye Katlanma Yılı. Örnek: 72 / 24 = 3 Yıl. Paranız 3 yılda iki katına çıkar (Vergi hariç)."
+  },
+  {
+      "category": "Aile Şirketleri",
+      "title": "Kurumsallaşma ve Aile Anayasası",
+      "text": "Şirkette 3 kardeş, 5 kuzen çalışıyor. Kimse kime rapor vereceğini bilmiyor. Karlılık düşüyor. Çözüm ne?",
+      "data": ["Durum: Kaos", "Risk: Batış"],
+      "keywords": {
+        "aile anayasası": "Aile ilişkileri ile iş ilişkilerini ayıracak yazılı bir 'Aile Anayasası' hazırlamayı düşündün mü?",
+        "profesyonel": "Şirketin başına aileden olmayan profesyonel bir CEO getirmeyi (Profesyonel Yönetim) tartıştınız mı?",
+        "liyakat": "Kuzenleri soyadlarına göre değil, yeteneklerine göre mi işe aldınız?"
+      },
+      "hapBilgi": "Aile şirketlerinin 3. kuşağa geçememesinin ana nedeni kurumsallaşamamaktır. Duygusal bağlar ticari kararları etkiler. Aile Anayasası, şirketin ve ailenin geleceğini koruyan en önemli hukuki metindir."
+  },
+  {
+      "category": "Kripto Varlıklar",
+      "title": "Soğuk Cüzdan Güvenliği",
+      "text": "Kripto paralarını borsada tutuyorsun. Borsa 'Hacklendim' dedi veya iflas etti. Parana ne olur?",
+      "data": ["Yer: Borsa", "Risk: Yüksek"],
+      "keywords": {
+        "private key": "'Not your keys, not your coins' (Anahtar senin değilse, coin senin değildir) ilkesini biliyor musun?",
+        "soğuk cüzdan": "Uzun vadeli yatırımları internete kapalı donanım cüzdanlarda (Ledger/Trezor) saklamayı düşündün mü?",
+        "yasal güvence": "Kripto borsalarındaki paranın devlet güvencesinde (TMSF gibi) olmadığını biliyor musun?"
+      },
+      "hapBilgi": "Merkezi borsalar banka değildir. İflas edebilirler. Büyük meblağlar mutlaka kişisel soğuk cüzdanlara çekilmelidir. Borsa sadece al-sat yapmak içindir, saklamak için değil."
+  },
+  {
+      "category": "Dış Ticaret",
+      "title": "Eximbank Kredisi",
+      "text": "İhracat yapıyorsun ama sermayen yetmiyor. Banka kredileri çok pahalı. Alternatif ucuz kaynak nedir?",
+      "data": ["Durum: İhracatçı", "Sorun: Finansman"],
+      "keywords": {
+        "eximbank": "Devletin ihracatçıyı destekleyen bankası Eximbank'ın düşük faizli kredilerini araştırdın mı?",
+        "taahhüt": "Bu krediyi alırsan belirli bir sürede ihracat yapma taahhüdü (Kapatma) vermen gerektiğini biliyor musun?",
+        "kur riski": "Döviz kredisi alıp gelirin TL olursa batacağını (Kur Riski) hesapladın mı?"
+      },
+      "hapBilgi": "İhracatçılar için en ucuz kaynak Eximbank kredileridir (Reeskont Kredisi). Ancak bu kredilerin kuralı, aldığınız parayla gerçekten ihracat yapıp dövizi ülkeye getirmektir."
+  }
 ]
