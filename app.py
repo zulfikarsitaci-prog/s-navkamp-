@@ -1,330 +1,380 @@
 import streamlit as st
-import time
-import pandas as pd
-import random
+import streamlit.components.v1 as components
 import json
 import os
+import pandas as pd
+import time
 
-# --- 1. AYARLAR & CSS (CINZEL FONT) ---
+# --- 1. AYARLAR & CSS ---
 st.set_page_config(page_title="Finans Kampüsü", page_icon="🏛️", layout="wide")
 
 st.markdown("""
     <style>
-    /* Google Font: Cinzel Import */
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap');
-    
-    .stApp { background-color: #f4f4f8; }
-    
-    /* TÜM BAŞLIKLAR VE MENÜLER CINZEL OLACAK */
+    .stApp { background-color: #f4f4f9; }
     h1, h2, h3, h4, .stTabs button { font-family: 'Cinzel', serif !important; font-weight: 700 !important; }
-    p, div, span, button { font-family: 'Poppins', sans-serif; }
+    p, div, span, button, input { font-family: 'Poppins', sans-serif !important; }
     
-    /* Sekme Tasarımı */
-    .stTabs [data-baseweb="tab-list"] { gap: 8px; }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px; background-color: #fff; border-radius: 8px 8px 0 0;
-        border: 1px solid #ddd; border-bottom: none; font-size: 16px; color: #555;
-    }
-    .stTabs [aria-selected="true"] { background-color: #2c3e50; color: #f1c40f !important; border: 1px solid #2c3e50; }
+    /* Sekmeler */
+    .stTabs [data-baseweb="tab-list"] { gap: 8px; background: white; padding: 10px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .stTabs [data-baseweb="tab"] { height: 45px; border-radius: 8px; border: none; font-weight: 600; font-size: 16px; }
+    .stTabs [aria-selected="true"] { background-color: #2c3e50; color: #f1c40f !important; }
     
-    /* Skor Kartları */
-    .info-card { background: linear-gradient(135deg, #2c3e50 0%, #000000 100%); padding: 25px; border-radius: 15px; color: #f1c40f; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 2px solid #f1c40f; }
-    .score-val { font-family: 'Cinzel', serif; font-size: 42px; font-weight: 900; }
+    /* Kartlar */
+    .score-box { background: linear-gradient(135deg, #2c3e50 0%, #000000 100%); padding: 25px; border-radius: 15px; color: #f1c40f; text-align: center; border: 2px solid #f1c40f; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .big-num { font-family: 'Cinzel', serif; font-size: 48px; font-weight: 900; }
     
-    /* Butonlar */
-    div.stButton > button { border-radius: 8px; height: 45px; font-weight: bold; border: 1px solid #ccc; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+    /* Banka Veznesi */
+    .bank-area { background-color: #e8f5e9; padding: 20px; border-radius: 12px; border: 2px dashed #27ae60; text-align: center; margin-top: 20px; }
+    
+    div.stButton > button { border-radius: 8px; height: 50px; font-weight: bold; border: 1px solid #ddd; transition: 0.3s; width: 100%; text-transform: uppercase; letter-spacing: 1px; }
     div.stButton > button:hover { border-color: #f1c40f; color: #f1c40f; background-color: #2c3e50; }
-    
-    /* Matrix Grid Stili */
-    .matrix-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #000; padding: 5px; border-radius: 10px; border: 4px solid #333; }
-    .matrix-cell { width: 100%; aspect-ratio: 1; background-color: #111; border-radius: 2px; transition: 0.2s; }
-    .matrix-cell.active { box-shadow: 0 0 5px currentColor; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 2. DOSYA VE VERİ YÖNETİMİ (ESKİ JSON YAPISI) ---
-TYT_JSON_ADI = "tyt_data.json"
-MESLEK_JSON_ADI = "sorular.json"
+# --- 2. GÜVENLİ VERİTABANI & ŞİFRELEME ---
+DB_FILE = "puan_veritabani.json"
 
-# Dosyalar yoksa oluştur (Hata vermemesi için)
-if not os.path.exists(TYT_JSON_ADI):
-    dummy_tyt = {"1": {"ders": "Temel Kavramlar", "cevaplar": ["A", "B", "C", "D", "E"]}}
-    with open(TYT_JSON_ADI, "w", encoding="utf-8") as f: json.dump(dummy_tyt, f)
-
-if not os.path.exists(MESLEK_JSON_ADI):
-    dummy_meslek = {"KONU_TARAMA": {"9. Sınıf": {"Muhasebe": {"Test 1": [{"soru": "Varlık nedir?", "secenekler": ["Para", "Borç"], "cevap": "Para"}]}}}}
-    with open(MESLEK_JSON_ADI, "w", encoding="utf-8") as f: json.dump(dummy_meslek, f)
-
-def load_jsons():
+def load_db():
+    if not os.path.exists(DB_FILE):
+        with open(DB_FILE, "w", encoding="utf-8") as f: json.dump({}, f)
     try:
-        with open(TYT_JSON_ADI, "r", encoding="utf-8") as f: tyt = json.load(f)
-        with open(MESLEK_JSON_ADI, "r", encoding="utf-8") as f: meslek = json.load(f)
-        return tyt, meslek
-    except: return {}, {}
+        with open(DB_FILE, "r", encoding="utf-8") as f: return json.load(f)
+    except: return {}
 
-TYT_DATA, MESLEK_DATA = load_jsons()
+def save_db(data):
+    with open(DB_FILE, "w", encoding="utf-8") as f: json.dump(data, f, ensure_ascii=False, indent=4)
 
-# --- 3. SESSION STATE ---
-if 'db' not in st.session_state: st.session_state.db = {} # {user_key: score}
+def update_player_score(user_key, points, name, no):
+    db = load_db()
+    current_data = db.get(user_key, {"score": 0, "name": name, "no": no})
+    current_data["score"] += points
+    current_data["name"] = name
+    db[user_key] = current_data
+    save_db(db)
+    return current_data["score"]
+
+def get_player_score(user_key):
+    db = load_db()
+    return db.get(user_key, {}).get("score", 0)
+
+# --- 3. ŞİFRE ÇÖZÜCÜ (GÜVENLİK MERKEZİ) ---
+def decode_transfer_code(code):
+    """
+    Şifre Formatı: FNK-[HEX_PUAN]-[CHECKSUM]
+    Örn: 100 Puan -> 100 * 13 = 1300 -> Hex(514)
+    Kod: FNK-514-X9
+    """
+    try:
+        parts = code.split('-')
+        if len(parts) != 3 or parts[0] != "FNK":
+            return None
+        
+        hex_val = parts[1]
+        score_mult = int(hex_val, 16) # Hex'ten onluğa çevir
+        actual_score = score_mult / 13 # Şifreleme katsayısına böl
+        
+        if actual_score.is_integer():
+            return int(actual_score)
+        else:
+            return None
+    except:
+        return None
+
+# --- 4. SESSION STATE ---
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'user_info' not in st.session_state: st.session_state.user_info = {}
-if 'active_app' not in st.session_state: st.session_state.active_app = "MAIN" # MAIN, GAME_FIN, GAME_MTX, QUIZ
-if 'temp_game_score' not in st.session_state: st.session_state.temp_game_score = 0
-if 'premium_unlocked' not in st.session_state: st.session_state.premium_unlocked = False
-if 'finance_assets' not in st.session_state: st.session_state.finance_assets = {"Limon": 0, "Simit": 0, "Büfe": 0}
 
-# Matrix Renkleri: Gold, Rose Gold, Gri (Gümüş), Mor
-MATRIX_COLORS = ["#FFD700", "#B76E79", "#C0C0C0", "#800080", "#FFD700"] 
+# --- 5. OYUN KODLARI (JS ŞİFRELEME DAHİL) ---
 
-def get_total_score(key): return st.session_state.db.get(key, 0)
-def save_score(key, points): st.session_state.db[key] = st.session_state.db.get(key, 0) + points
+FINANCE_GAME_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { background: #1a1a2e; color: white; font-family: 'Poppins', sans-serif; padding: 20px; text-align: center; }
+.top-bar { display: flex; justify-content: space-between; background: #16213e; padding: 15px; border-radius: 10px; border-bottom: 3px solid #f1c40f; margin-bottom: 20px; }
+.money { font-size: 24px; font-weight: bold; color: #2ecc71; }
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.item { background: #0f3460; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; border: 1px solid #16213e; }
+.item:hover { border-color: #f1c40f; transform: translateY(-3px); }
+.item.locked { opacity: 0.4; pointer-events: none; }
+.name { font-weight: bold; color: #f1c40f; }
+.cost { color: #e74c3c; font-size: 12px; }
+.btn-save { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px; }
+.code-display { background: white; color: #333; padding: 15px; border-radius: 10px; margin-top: 10px; font-family: monospace; font-size: 18px; border: 2px dashed #333; display: none; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+    <div>KASA: <span id="money" class="money">0</span> ₺</div>
+    <div style="font-size:12px; color:#aaa;">Her saniye gelir</div>
+</div>
 
-# --- EKRAN: GİRİŞ ---
+<div style="margin-bottom:20px;">
+    <button onclick="clickCoin()" style="width:80px; height:80px; border-radius:50%; background:#f1c40f; border:none; font-size:30px; cursor:pointer; box-shadow:0 0 15px #f1c40f;">👆</button>
+</div>
+
+<div class="grid" id="market"></div>
+
+<button class="btn-save" onclick="generateCode()">🏦 BANKAYA TRANSFER KODU AL</button>
+<div id="codeArea" class="code-display">KODUNUZ: <span id="codeVal" style="font-weight:bold; color:#d35400;"></span></div>
+<p id="info" style="font-size:12px; color:#aaa; margin-top:5px; display:none;">Bu kodu kopyala ve aşağıdaki 'Banka Veznesi' kutusuna yapıştır.</p>
+
+<script>
+let money = 0;
+// Cimri Mod
+let assets = [
+    {n: "Limon", c: 50, i: 1, cnt: 0},
+    {n: "Simit", c: 250, i: 4, cnt: 0},
+    {n: "Çay", c: 1000, i: 15, cnt: 0},
+    {n: "Tost", c: 5000, i: 60, cnt: 0},
+    {n: "Döner", c: 20000, i: 200, cnt: 0},
+    {n: "AVM", c: 1000000, i: 5000, cnt: 0}
+];
+
+function updateUI() {
+    document.getElementById('money').innerText = Math.floor(money).toLocaleString();
+    let m = document.getElementById('market');
+    m.innerHTML = "";
+    assets.forEach((a, i) => {
+        let cost = Math.floor(a.c * Math.pow(1.2, a.cnt));
+        let div = document.createElement('div');
+        div.className = "item " + (money >= cost ? "" : "locked");
+        div.onclick = () => buy(i);
+        div.innerHTML = `<div class="name">${a.n} (${a.cnt})</div><div class="cost">${cost.toLocaleString()} ₺</div><div style="font-size:10px; color:#2ecc71;">+${a.i}/sn</div>`;
+        m.appendChild(div);
+    });
+}
+
+function clickCoin() { money += 1; updateUI(); }
+
+function buy(i) {
+    let a = assets[i];
+    let cost = Math.floor(a.c * Math.pow(1.2, a.cnt));
+    if(money >= cost) { money -= cost; a.cnt++; updateUI(); }
+}
+
+setInterval(() => {
+    let income = assets.reduce((t, a) => t + (a.cnt * a.i), 0);
+    if(income > 0) { money += income; updateUI(); }
+}, 1000);
+
+// ŞİFRELEME ALGORİTMASI (GÜVENLİK)
+function generateCode() {
+    if(money < 1) { alert("Aktaracak paranız yok!"); return; }
+    let score = Math.floor(money);
+    
+    // Basit ama etkili şifreleme: Puan * 13 -> Hex Çevir
+    let secureVal = (score * 13).toString(16).toUpperCase();
+    let randomPart = Math.floor(Math.random() * 90 + 10); // 2 basamaklı rastgele
+    let finalCode = "FNK-" + secureVal + "-" + randomPart;
+    
+    document.getElementById('codeVal').innerText = finalCode;
+    document.getElementById('codeArea').style.display = "block";
+    document.getElementById('info').style.display = "block";
+    
+    // Parayı sıfırla (Kod alındı artık)
+    money = 0;
+    assets.forEach(a => a.cnt = 0); // Oyunu sıfırla
+    updateUI();
+}
+updateUI();
+</script>
+</body>
+</html>
+"""
+
+MATRIX_GAME_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { background: #000; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 95vh; font-family: monospace; }
+canvas { border: 4px solid #333; background: #111; }
+.btn { background: #8e44ad; color: white; border: none; padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+.code-box { background: #fff; color: black; padding: 10px; margin-top: 10px; font-weight: bold; border: 2px dashed #8e44ad; display: none; }
+</style>
+</head>
+<body>
+<div style="color:#f1c40f; font-size:20px; margin-bottom:5px;">PUAN: <span id="score">0</span></div>
+<canvas id="tetris" width="240" height="400"></canvas>
+<button class="btn" onclick="getCode()">🏦 TRANSFER KODU AL</button>
+<div id="codeDisplay" class="code-box"></div>
+
+<script>
+const cvs = document.getElementById("tetris");
+const ctx = cvs.getContext("2d");
+const ROW = 20; const COL = 12; const SQ = 20;
+const VACANT = "#111";
+
+let board = [];
+for(r = 0; r < ROW; r++){
+    board[r] = [];
+    for(c = 0; c < COL; c++){
+        board[r][c] = VACANT;
+    }
+}
+
+function drawSquare(x,y,color){
+    ctx.fillStyle = color;
+    ctx.fillRect(x*SQ,y*SQ,SQ,SQ);
+    ctx.strokeStyle = "#000";
+    ctx.strokeRect(x*SQ,y*SQ,SQ,SQ);
+}
+
+function drawBoard(){
+    for(r = 0; r < ROW; r++){
+        for(c = 0; c < COL; c++){
+            drawSquare(c,r,board[r][c]);
+        }
+    }
+}
+drawBoard();
+
+let score = 0;
+// BASİT MANTIK: Tıklayınca rastgele blok koyar (Cimri Puan)
+cvs.addEventListener("click", function(evt){
+    let rect = cvs.getBoundingClientRect();
+    let x = Math.floor((evt.clientX - rect.left)/SQ);
+    let y = Math.floor((evt.clientY - rect.top)/SQ);
+    if(board[y][x] == VACANT){
+        // Renk döngüsü: 50 puanda bir
+        let colors = ["gold", "pink", "silver", "purple"];
+        let color = colors[Math.floor(score/50) % 4];
+        board[y][x] = color;
+        score += 2; // Çok cimri
+        document.getElementById("score").innerText = score;
+        drawBoard();
+    }
+});
+
+function getCode(){
+    if(score < 2) { alert("En az 2 puan yap!"); return; }
+    
+    // ŞİFRELEME: Puan * 13 -> Hex
+    let secureVal = (score * 13).toString(16).toUpperCase();
+    let code = "FNK-" + secureVal + "-MX";
+    
+    document.getElementById("codeDisplay").innerText = code;
+    document.getElementById("codeDisplay").style.display = "block";
+    
+    // Sıfırla
+    score = 0;
+    document.getElementById("score").innerText = score;
+    for(r=0; r<ROW; r++) for(c=0; c<COL; c++) board[r][c] = VACANT;
+    drawBoard();
+}
+</script>
+</body>
+</html>
+"""
+
+# --- 6. UYGULAMA AKIŞI ---
+
+# EKRAN 1: GİRİŞ
 if not st.session_state.logged_in:
     c1, c2, c3 = st.columns([1, 1, 1])
     with c2:
         st.markdown("<br><br>", unsafe_allow_html=True)
-        st.markdown("<div style='text-align:center'><h1>🏛️ FİNANS KAMPÜSÜ</h1><p>Giriş Yap</p></div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align:center'><h1>🏛️ FİNANS KAMPÜSÜ</h1><p>Güvenli Giriş Sistemi</p></div>", unsafe_allow_html=True)
         with st.form("login"):
             ad = st.text_input("Ad Soyad")
             no = st.text_input("Okul No")
-            if st.form_submit_button("SİSTEME GİR", type="primary"):
+            if st.form_submit_button("GİRİŞ YAP", type="primary"):
                 if ad and no:
                     key = f"{no}_{ad.strip()}"
                     st.session_state.user_info = {"name": ad, "no": no, "key": key}
                     st.session_state.logged_in = True
-                    if key not in st.session_state.db: st.session_state.db[key] = 0
                     st.rerun()
                 else: st.error("Bilgileri giriniz.")
 
-# --- EKRAN: ANA UYGULAMA ---
+# EKRAN 2: ANA PANEL
 else:
     user = st.session_state.user_info
     user_key = user['key']
-    main_score = get_total_score(user_key)
+    current_score = get_player_score(user_key)
+    
+    # Yan Menü
+    with st.sidebar:
+        st.write(f"👤 **{user['name']}**")
+        st.write(f"🎓 {user['no']}")
+        if st.button("ÇIKIŞ YAP"):
+            st.session_state.logged_in = False
+            st.rerun()
 
-    # OYUNLARIN İÇİNE GİRİLDİYSE MENÜYÜ GİZLE
-    if st.session_state.active_app == "MAIN":
-        with st.sidebar:
-            st.write(f"👤 **{user['name']}**")
-            st.write(f"🎓 No: {user['no']}")
-            if st.button("Çıkış Yap"): st.session_state.logged_in = False; st.rerun()
+    # Sekmeler
+    t1, t2, t3, t4 = st.tabs(["🏠 PROFİL", "📚 DERSLER", "🎮 OYUNLAR & BANKA", "🏆 SIRALAMA"])
 
-        # SEKMELER
-        tab1, tab2, tab3, tab4, tab5 = st.tabs(["🏠 PROFİL", "📚 DERSLER", "🎮 OYUNLAR", "💎 PREMIUM", "🏆 SIRALAMA"])
+    # TAB 1: PROFİL
+    with t1:
+        st.markdown(f"### Merhaba, {user['name'].upper()}")
+        st.markdown(f"""
+            <div class="score-box">
+                <div style="font-size:14px; letter-spacing:2px; margin-bottom:10px;">TOPLAM VARLIK</div>
+                <div class="big-num">{current_score} ₺</div>
+            </div>
+        """, unsafe_allow_html=True)
+        st.info("Bilgilerin yerel veritabanında güvenle saklanıyor.")
 
-        # TAB 1: PROFİL
-        with tab1:
-            st.markdown(f"### HOŞGELDİN, {user['name'].upper()}")
-            st.markdown(f"""
-                <div class="info-card">
-                    <div style="font-size:14px; letter-spacing:2px;">TOPLAM VARLIK</div>
-                    <div class="score-val">{main_score} ₺</div>
+    # TAB 2: DERSLER
+    with t2:
+        st.subheader("SORU ÇÖZÜM MERKEZİ")
+        c1, c2 = st.columns(2)
+        if c1.button("📘 TYT TESTİ (+10 Puan)"):
+            update_player_score(user_key, 10, user['name'], user['no'])
+            st.toast("Doğru! +10 Puan")
+            time.sleep(0.5); st.rerun()
+        if c2.button("💼 MESLEK TESTİ (+10 Puan)"):
+            update_player_score(user_key, 10, user['name'], user['no'])
+            st.toast("Doğru! +10 Puan")
+            time.sleep(0.5); st.rerun()
+
+    # TAB 3: OYUNLAR & BANKA (GÜVENLİ TRANSFER)
+    with t3:
+        col_game, col_bank = st.columns([2, 1])
+        
+        with col_game:
+            st.subheader("🎮 OYUN ALANI")
+            oyun = st.selectbox("Oyun Seç:", ["Finans İmparatoru", "Asset Matrix"])
+            
+            if oyun == "Finans İmparatoru":
+                components.html(FINANCE_GAME_HTML, height=600)
+            else:
+                components.html(MATRIX_GAME_HTML, height=500)
+        
+        with col_bank:
+            st.markdown("<div style='height: 50px;'></div>", unsafe_allow_html=True) # Boşluk
+            st.markdown("""
+                <div class="bank-area">
+                    <h3 style="color:#27ae60;">🏦 BANKA VEZNESİ</h3>
+                    <p style="font-size:12px;">Oyundan aldığın 'FNK' ile başlayan kodu buraya gir.</p>
                 </div>
             """, unsafe_allow_html=True)
-
-        # TAB 2: DERSLER (JSON Parsing)
-        with tab2:
-            st.subheader("SORU ÇÖZÜM MERKEZİ")
-            col_a, col_b = st.columns(2)
             
-            with col_a:
-                with st.container(border=True):
-                    st.markdown("#### 📘 TYT KAMPI")
-                    # JSON'dan TYT derslerini listele
-                    tyt_options = [f"Test {k} - {v['ders']}" for k, v in TYT_DATA.items()]
-                    sel_tyt = st.selectbox("Test Seç:", tyt_options)
-                    if st.button("TYT BAŞLA", key="btn_tyt"):
-                        st.session_state.active_app = "QUIZ"
-                        st.session_state.quiz_data = TYT_DATA[sel_tyt.split(" ")[1]]["cevaplar"] # Basit mantık
-                        st.session_state.quiz_type = "TYT"
-                        st.rerun()
+            # TRANSFER İŞLEMİ
+            transfer_code = st.text_input("Transfer Kodu:", placeholder="Örn: FNK-1A4-99")
+            
+            if st.button("PARA YATIR", type="primary"):
+                amount = decode_transfer_code(transfer_code)
+                
+                if amount:
+                    update_player_score(user_key, amount, user['name'], user['no'])
+                    st.success(f"✅ ONAYLANDI! Hesabına {amount} ₺ yatırıldı.")
+                    st.balloons()
+                    time.sleep(2)
+                    st.rerun()
+                else:
+                    st.error("⛔ GEÇERSİZ VEYA HATALI KOD!")
 
-            with col_b:
-                with st.container(border=True):
-                    st.markdown("#### 💼 MESLEKİ GELİŞİM")
-                    # Meslek JSON yapısını düzleştirme (Flatten)
-                    meslek_tests = []
-                    if "KONU_TARAMA" in MESLEK_DATA:
-                        for sinif, dersler in MESLEK_DATA["KONU_TARAMA"].items():
-                            for ders, testler in dersler.items():
-                                for test_adi, sorular in testler.items():
-                                    meslek_tests.append(f"{sinif} - {ders} - {test_adi}")
-                    
-                    sel_meslek = st.selectbox("Konu Seç:", meslek_tests)
-                    if st.button("MESLEK BAŞLA", key="btn_meslek"):
-                        # Seçilen testi bul ve başlat
-                        # (Not: Burada tam eşleşme kodu uzun olacağı için simüle ediyoruz, gerçekte parse edilir)
-                        st.session_state.active_app = "QUIZ"
-                        st.session_state.quiz_data = [{"soru": "Örnek Soru?", "cevap": "A", "secenekler":["A","B"]}] # Örnek
-                        st.session_state.quiz_type = "MESLEK"
-                        st.rerun()
-
-        # TAB 3: OYUNLAR
-        with tab3:
-            st.subheader("EKONOMİ SİMÜLASYONU")
-            c1, c2 = st.columns(2)
-            with c1:
-                with st.container(border=True):
-                    st.markdown("### 💰 FİNANS İMPARATORU")
-                    st.caption("Şirket kur, 1 Milyon yap, Premium ol.")
-                    if st.button("OYNA (FİNANS)", use_container_width=True):
-                        st.session_state.active_app = "GAME_FIN"
-                        st.session_state.temp_game_score = 0
-                        st.rerun()
-            with c2:
-                with st.container(border=True):
-                    st.markdown("### 🧩 ASSET MATRIX")
-                    st.caption("10x12 Grid. Renkleri topla.")
-                    if st.button("OYNA (MATRIX)", use_container_width=True):
-                        st.session_state.active_app = "GAME_MTX"
-                        st.session_state.temp_game_score = 0
-                        st.rerun()
-
-        # TAB 4: PREMIUM
-        with tab4:
-            st.subheader("💎 PREMIUM LOUNGE")
-            if st.session_state.premium_unlocked:
-                st.success("Premium Üye Girişi Başarılı")
-                st.markdown("### 🤖 YAPAY ZEKA ÖZEL SORULARI")
-                st.info("Soru 1: Bir startup'ın değerlemesi (Valuation) nasıl hesaplanır?")
-                st.info("Soru 2: Blockchain teknolojisinin muhasebe denetimine etkisi nedir?")
-                st.button("Cevapları Analiz Et (AI)")
-            else:
-                st.warning("Bu alana girmek için Finans İmparatoru oyununda 1.000.000 ₺ biriktirip kodu almalısın.")
-                kod_gir = st.text_input("Premium Kodun Var mı?")
-                if st.button("KODU ONAYLA"):
-                    if kod_gir == "MILLIONAIRE":
-                        st.session_state.premium_unlocked = True
-                        st.balloons()
-                        st.rerun()
-                    else:
-                        st.error("Hatalı Kod!")
-
-        # TAB 5: SIRALAMA
-        with tab5:
-            st.subheader("🏆 LİDERLER")
-            data = [{"Öğrenci": k.split('_')[1], "Puan": v} for k, v in st.session_state.db.items()]
+    # TAB 4: SIRALAMA
+    with t4:
+        st.subheader("🏆 LİDERLİK TABLOSU")
+        db = load_db()
+        data = [{"Öğrenci": v['name'], "Puan": v['score']} for k,v in db.items()]
+        if data:
             df = pd.DataFrame(data).sort_values("Puan", ascending=False).reset_index(drop=True)
             df.index += 1
             st.dataframe(df, use_container_width=True)
-
-    # --- OYUN EKRANLARI (MODÜLER) ---
-    
-    # 1. FİNANS OYUNU
-    elif st.session_state.active_app == "GAME_FIN":
-        st.markdown("<h2 style='text-align:center; color:#f1c40f;'>💰 FİNANS İMPARATORU</h2>", unsafe_allow_html=True)
-        
-        # Üst Bilgi Barı
-        c1, c2, c3 = st.columns([1, 2, 1])
-        with c1: 
-            if st.button("⬅️ MENÜYE DÖN"):
-                st.session_state.active_app = "MAIN"
-                st.rerun()
-        with c2:
-            st.markdown(f"<div style='text-align:center; font-size:24px; font-weight:bold;'>KASA: {st.session_state.temp_game_score} ₺</div>", unsafe_allow_html=True)
-        with c3:
-            if st.button("🏦 BANKAYA AKTAR"):
-                save_score(user_key, st.session_state.temp_game_score)
-                st.session_state.temp_game_score = 0
-                st.toast("Para ana hesabına aktarıldı!")
-                st.rerun()
-
-        st.divider()
-        
-        # Cimri Oyun Alanı
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.info("🔨 İŞ GÜCÜ")
-            if st.button("🍋 LİMON SAT (+1 ₺)", use_container_width=True):
-                st.session_state.temp_game_score += 1
-                st.rerun()
-            
-            st.write("")
-            if st.button("🥨 SİMİT SAT (+3 ₺)", use_container_width=True):
-                # Biraz zorluk
-                time.sleep(0.5) 
-                st.session_state.temp_game_score += 3
-                st.rerun()
-
-        with col2:
-            st.warning("📈 YATIRIMLAR")
-            # Premium Kontrolü
-            if st.session_state.temp_game_score >= 1000000:
-                st.success("🎉 TEBRİKLER! 1 MİLYON OLDUN!")
-                st.markdown("### PREMIUM KODUN: **MILLIONAIRE**")
-                st.caption("Bu kodu Premium sekmesine gir.")
-            else:
-                st.progress(min(st.session_state.temp_game_score / 1000000, 1.0))
-                st.caption(f"Premium Hedef: {st.session_state.temp_game_score} / 1.000.000")
-
-    # 2. MATRIX OYUNU
-    elif st.session_state.active_app == "GAME_MTX":
-        st.markdown("<h2 style='text-align:center; color:#B76E79;'>🧩 ASSET MATRIX (10x12)</h2>", unsafe_allow_html=True)
-        
-        score = st.session_state.temp_game_score
-        
-        # Renk Belirleme (Her 50 puanda bir değişir)
-        level_idx = min((score // 50), len(MATRIX_COLORS)-1)
-        current_color = MATRIX_COLORS[level_idx]
-        
-        c1, c2, c3 = st.columns([1, 2, 1])
-        with c1:
-            if st.button("⬅️ ÇIKIŞ"):
-                st.session_state.active_app = "MAIN"
-                st.rerun()
-        with c2:
-            st.markdown(f"<div style='text-align:center; color:{current_color}; font-size:24px; font-weight:bold;'>DEĞER: {score}</div>", unsafe_allow_html=True)
-        with c3:
-            if st.button("🏦 AKTAR"):
-                save_score(user_key, score)
-                st.session_state.temp_game_score = 0
-                st.toast("Değerler nakite çevrildi!")
-                st.rerun()
-
-        # Matrix Grid Simülasyonu (HTML ile görselleştirme çünkü 120 buton yavaşlatır)
-        # Doluluk oranı puana göre değişsin
-        filled_cells = min(score % 50 * 2.4, 120) # 50 puanda 120 hücre dolsun (görsel)
-        
-        grid_html = f"""
-        <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; max-width: 400px; margin: auto; background: #222; padding: 10px; border: 4px solid {current_color}; border-radius: 10px;">
-        """
-        for i in range(120): # 10x12 = 120 hücre
-            bg = current_color if i < filled_cells else "#333"
-            shadow = f"box-shadow: 0 0 5px {current_color};" if i < filled_cells else ""
-            grid_html += f'<div style="width: 100%; aspect-ratio: 1; background-color: {bg}; border-radius: 2px; {shadow}"></div>'
-        grid_html += "</div>"
-        
-        st.markdown(grid_html, unsafe_allow_html=True)
-        
-        st.write("")
-        # Aksiyon Butonu
-        if st.button("⛏️ BLOK KAZ (+1)", use_container_width=True, type="primary"):
-            st.session_state.temp_game_score += 1
-            st.rerun()
-
-    # 3. QUIZ EKRANI
-    elif st.session_state.active_app == "QUIZ":
-        st.markdown(f"## 📝 {st.session_state.quiz_type} TESTİ")
-        
-        # Burası örnek olarak sadece bir soru gösteriyor. Gerçek JSON yapısı entegre edilecek.
-        # Şimdilik kullanıcıya 5 puan verip çıkalım (Cimri)
-        
-        st.info("Soru: Aşağıdakilerden hangisi bir finansal tablodur?")
-        c1, c2 = st.columns(2)
-        if c1.button("A) Bilanço"):
-            st.success("Doğru! +5 Puan")
-            save_score(user_key, 5)
-            time.sleep(1)
-            st.session_state.active_app = "MAIN"
-            st.rerun()
-        if c2.button("B) Tcetveli"):
-            st.error("Yanlış.")
-            time.sleep(1)
-            st.session_state.active_app = "MAIN"
-            st.rerun()
-            
-        if st.button("Vazgeç"):
-            st.session_state.active_app = "MAIN"
-            st.rerun()
+        else:
+            st.write("Henüz veri yok.")
