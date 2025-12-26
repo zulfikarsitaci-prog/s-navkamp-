@@ -2,161 +2,114 @@ import streamlit as st
 import streamlit.components.v1 as components
 import json
 import os
-import pandas as pd
-import time
-import urllib.parse
 
-# --- AYARLAR ---
-st.set_page_config(page_title="Finans Kampüsü", page_icon="🏛️", layout="wide")
+st.set_page_config(page_title="Finans İmparatoru", layout="wide")
 
-# --- CSS (Arayüz Düzenlemeleri) ---
-st.markdown("""
-    <style>
-    .stApp { background-color: #0a0a12; color: #e0e0e0; }
-    [data-testid="stSidebar"] { background-color: #16213e; border-right: 1px solid #f1c40f; }
-    h1, h2, h3 { color: #f1c40f !important; font-family: sans-serif; }
+# --- 1. OYUN KODLARI (HTML STRINGS) ---
+
+# FİNANS İMPARATORU (Python İçinde Gömülü)
+FINANCE_GAME = """
+<style>
+ body { background: #0a0a12; color: white; font-family: sans-serif; text-align: center; }
+ .box { background: #16213e; padding: 20px; border: 1px solid #f1c40f; border-radius: 10px; margin: 10px auto; max-width: 400px; }
+ .btn { background: linear-gradient(45deg, #f1c40f, #d35400); border: none; padding: 15px; width: 100%; color: black; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 5px; }
+</style>
+<div class="box">
+  <h2>FİNANS İMPARATORU</h2>
+  <h1 id="money" style="color:#2ecc71">0 ₺</h1>
+  <button class="btn" onclick="earn()">TIKLA KAZAN (+100 ₺)</button>
+  <button class="btn" style="background:#3498db; color:white" onclick="invest()">YATIRIM YAP (Maliyet: 1000 ₺)</button>
+  <p id="status" style="font-size:12px; color:#aaa; margin-top:10px;">Pasif Gelir: 0 ₺/sn</p>
+</div>
+<script>
+  let money = 0;
+  let income = 0;
+  function update() { 
+    document.getElementById('money').innerText = money + ' ₺'; 
+    document.getElementById('status').innerText = 'Pasif Gelir: ' + income + ' ₺/sn';
+  }
+  function earn() { money += 100; update(); }
+  function invest() {
+    if(money >= 1000) { money -= 1000; income += 50; update(); }
+  }
+  setInterval(() => { money += income; update(); }, 1000);
+</script>
+"""
+
+# ASSET MATRIX (Python İçinde Gömülü)
+MATRIX_GAME = """
+<style>
+ body { background: #000; display: flex; flex-direction: column; align-items: center; color: white; font-family: monospace; }
+ canvas { border: 1px solid #333; box-shadow: 0 0 20px rgba(0,255,255,0.2); margin-top: 20px; }
+ button { background: #00e5ff; border: none; padding: 10px 30px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+</style>
+<h2>ASSET MATRIX</h2>
+<canvas id="c" width="300" height="400"></canvas>
+<button onclick="reset()">YENİ OYUN</button>
+<script>
+ const c = document.getElementById('c'), ctx = c.getContext('2d');
+ let pieces = [];
+ function reset() {
+    pieces = [{x:50,y:350,w:30},{x:130,y:350,w:60},{x:220,y:350,w:30}];
+    draw();
+ }
+ function draw() {
+    ctx.fillStyle = '#111'; ctx.fillRect(0,0,300,400);
+    // Basit Grid
+    ctx.strokeStyle='#222'; ctx.beginPath();
+    for(let i=0;i<300;i+=30) { ctx.moveTo(i,0); ctx.lineTo(i,300); ctx.moveTo(0,i); ctx.lineTo(300,i); }
+    ctx.stroke();
     
-    /* Banka Alanı Stili */
-    .bank-area { background-color: #0f3460; padding: 20px; border-radius: 12px; border: 2px dashed #27ae60; text-align: center; color: #2ecc71; }
-    .html-save-btn { display: block; width: 100%; background: #27ae60; color: white; padding: 10px; text-align: center; border-radius: 8px; text-decoration: none; margin-top: 10px; }
-    </style>
-""", unsafe_allow_html=True)
+    // Parçalar (Basit Temsil)
+    ctx.fillStyle = '#00e5ff';
+    pieces.forEach(p => ctx.fillRect(p.x, p.y, p.w, 30));
+ }
+ reset();
+</script>
+"""
 
-# --- VERİTABANI FONKSİYONLARI ---
-DB_FILE = "puan_veritabani.json"
-
-def load_db():
-    if not os.path.exists(DB_FILE):
-        with open(DB_FILE, "w", encoding="utf-8") as f: json.dump({}, f)
+# --- 2. VERİ YÜKLEME VE HTML BİRLEŞTİRME ---
+def load_lifesim_game():
+    # JSON verisini oku
     try:
-        with open(DB_FILE, "r", encoding="utf-8") as f: return json.load(f)
-    except: return {}
+        with open('lifesim_data.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            json_str = json.dumps(data)
+    except FileNotFoundError:
+        json_str = "[]" # Hata durumunda boş veri
 
-def save_db(data):
-    with open(DB_FILE, "w", encoding="utf-8") as f: json.dump(data, f, ensure_ascii=False, indent=4)
-
-def update_player_score(user_key, points, name, no):
-    db = load_db()
-    current_data = db.get(user_key, {"score": 0, "name": name, "no": no})
-    current_data["score"] += points
-    current_data["name"] = name
-    db[user_key] = current_data
-    save_db(db)
-    return current_data["score"]
-
-def get_player_score(user_key):
-    db = load_db()
-    return db.get(user_key, {}).get("score", 0)
-
-def decode_transfer_code(code):
+    # HTML dosyasını oku
     try:
-        parts = code.split('-')
-        if len(parts) != 3 or parts[0] != "FNK": return None
-        hex_val = parts[1]
-        score_mult = int(hex_val, 16)
-        actual_score = score_mult / 13
-        if actual_score.is_integer(): return int(actual_score)
-        else: return None
-    except: return None
+        with open('game.html', 'r', encoding='utf-8') as f:
+            html = f.read()
+    except FileNotFoundError:
+        return "<h1>Hata: game.html bulunamadı!</h1>"
 
-# --- SESSION STATE ---
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
-if 'user_info' not in st.session_state: st.session_state.user_info = {}
+    # Veriyi HTML içine enjekte et
+    # "PYTHON_DATA_HERE" yazan yeri silip yerine "scenarios = [....];" yazıyoruz.
+    injected_html = html.replace(
+        "// PYTHON_DATA_HERE", 
+        f"scenarios = {json_str};"
+    )
+    return injected_html
 
-# --- UYGULAMA AKIŞI ---
+# --- 3. STREAMLIT ARAYÜZÜ ---
 
-# 1. GİRİŞ EKRANI
-if not st.session_state.logged_in:
-    c1, c2, c3 = st.columns([1, 2, 1])
-    with c2:
-        st.markdown("<h1 style='text-align:center;'>🏛️ FİNANS KAMPÜSÜ</h1>", unsafe_allow_html=True)
-        with st.form("login"):
-            ad = st.text_input("Ad Soyad")
-            no = st.text_input("Okul No")
-            if st.form_submit_button("GİRİŞ YAP", type="primary"):
-                if ad and no:
-                    key = f"{no}_{ad.strip()}"
-                    st.session_state.user_info = {"name": ad, "no": no, "key": key}
-                    st.session_state.logged_in = True
-                    st.rerun()
-                else: st.error("Eksik bilgi girdiniz.")
+st.sidebar.title("MENÜ")
+menu = st.sidebar.radio("Seçim Yapınız:", ["💼 LifeSim (Kariyer)", "📈 Finans İmparatoru", "🧩 Asset Matrix"])
 
-# 2. ANA PANEL
-else:
-    user = st.session_state.user_info
-    user_key = user['key']
-    current_score = get_player_score(user_key)
-    
-    # YAN MENÜ
-    with st.sidebar:
-        st.markdown(f"### 👤 {user['name']}")
-        st.info(f"💰 Varlık: **{current_score} ₺**")
-        
-        # Skor Kaydetme Linki
-        safe_name = urllib.parse.quote(user['name'])
-        form_link = f"https://docs.google.com/forms/d/e/1FAIpQLScshsXIM91CDKu8TgaHIelXYf3M9hzoGb7mldQCDAJ-rcuJ3w/viewform?usp=pp_url&entry.1300987443={safe_name}&entry.598954691={current_score}"
-        st.markdown(f"""<a href="{form_link}" target="_blank" class="html-save-btn">💾 SKORU KAYDET</a>""", unsafe_allow_html=True)
-        
-        if st.button("ÇIKIŞ YAP"):
-            st.session_state.logged_in = False
-            st.rerun()
+if menu == "💼 LifeSim (Kariyer)":
+    st.header("💼 LifeSim: Kariyer Yönetimi")
+    # LifeSim HTML'ini dinamik oluşturup gösteriyoruz
+    game_code = load_lifesim_game()
+    components.html(game_code, height=700, scrolling=True)
 
-    # SEKMELER
-    t1, t2, t3, t4 = st.tabs(["🏠 PROFİL", "📚 SORU MERKEZİ", "🎮 SİMÜLASYON DÜNYASI", "🏆 LİDERLİK"])
+elif menu == "📈 Finans İmparatoru":
+    st.header("📈 Finans İmparatoru")
+    # Python içindeki stringi gösteriyoruz
+    components.html(FINANCE_GAME, height=600)
 
-    with t1:
-        st.metric("Toplam Varlık", f"{current_score} ₺")
-        st.success("Verileriniz güvende. Oyunlardan kazandığınız kodları Banka bölümüne girmeyi unutmayın.")
-
-    with t2:
-        st.subheader("Akademik Görevler")
-        c1, c2 = st.columns(2)
-        if c1.button("TYT Testi Çöz (+20 Puan)"):
-             update_player_score(user_key, 20, user['name'], user['no'])
-             st.toast("+20 Puan Eklendi!")
-             time.sleep(1)
-             st.rerun()
-        if c2.button("Meslek Testi Çöz (+20 Puan)"):
-             update_player_score(user_key, 20, user['name'], user['no'])
-             st.toast("+20 Puan Eklendi!")
-             time.sleep(1)
-             st.rerun()
-
-    with t3:
-        # --- HTML OYUN ENTEGRASYONU ---
-        st.info("Aşağıdaki menüden oynamak istediğiniz simülasyonu seçin.")
-        
-        # game.html dosyasını oku ve göster
-        try:
-            with open("game.html", "r", encoding="utf-8") as f:
-                html_content = f.read()
-                components.html(html_content, height=800, scrolling=False)
-        except FileNotFoundError:
-            st.error("game.html dosyası bulunamadı! Lütfen GitHub'a yükleyin.")
-
-        # BANKA VEZNESİ (Transfer Kodu)
-        st.markdown("---")
-        c_bank, c_info = st.columns([1, 2])
-        with c_bank:
-            st.markdown('<div class="bank-area"><h3>🏦 MERKEZ BANKASI</h3></div>', unsafe_allow_html=True)
-        with c_info:
-            code = st.text_input("Transfer Kodu Giriniz (Örn: FNK-A1B-99):")
-            if st.button("KODU BOZDUR VE YATIR", type="primary"):
-                amount = decode_transfer_code(code)
-                if amount:
-                    update_player_score(user_key, amount, user['name'], user['no'])
-                    st.success(f"Hesabınıza {amount} ₺ eklendi!")
-                    time.sleep(2)
-                    st.rerun()
-                else:
-                    st.error("Geçersiz Kod!")
-
-    with t4:
-        db = load_db()
-        data = [{"Öğrenci": v['name'], "Puan": v['score']} for k,v in db.items()]
-        if data:
-            df = pd.DataFrame(data).sort_values("Puan", ascending=False).reset_index(drop=True)
-            df.index += 1
-            st.dataframe(df, use_container_width=True)
-        else:
-            st.info("Henüz veri yok.")
+elif menu == "🧩 Asset Matrix":
+    st.header("🧩 Asset Matrix")
+    # Python içindeki stringi gösteriyoruz
+    components.html(MATRIX_GAME, height=600)
