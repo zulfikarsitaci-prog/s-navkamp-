@@ -3,208 +3,105 @@ import streamlit.components.v1 as components
 import json
 import os
 
-st.set_page_config(page_title="Finans İmparatoru", layout="wide", initial_sidebar_state="expanded")
+# 1. SAYFA AYARLARI
+st.set_page_config(
+    page_title="Finans İmparatoru & Kampüs",
+    page_icon="🏛️",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# CSS DÜZENLEMELERİ
+# 2. CSS STİLLERİ (Görünüm)
 st.markdown("""
 <style>
     [data-testid="stSidebar"] { background-color: #0f172a; border-right: 1px solid #334155; }
-    h1, h2, h3 { color: white; }
-    .stRadio > label { color: white; font-weight: bold; }
+    .stApp { background-color: #0a0a12; color: white; }
+    h1, h2, h3 { color: #f1c40f !important; font-family: 'Segoe UI', sans-serif; }
+    .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; background: #1e293b; color: white; border: 1px solid #334155; }
+    .stButton>button:hover { border-color: #f1c40f; color: #f1c40f; }
+    .info-box { padding: 15px; background: #16213e; border-radius: 10px; border-left: 5px solid #f1c40f; margin-bottom: 20px; }
 </style>
 """, unsafe_allow_html=True)
 
-# ================= 1. GÖMÜLÜ OYUN KODLARI =================
+# 3. OTURUM VE PUAN YÖNETİMİ (Session State)
+if 'balance' not in st.session_state: st.session_state.balance = 0
+if 'bank' not in st.session_state: st.session_state.bank = 0
+if 'inventory' not in st.session_state: st.session_state.inventory = []
 
-# FİNANS İMPARATORU (HTML/JS String)
-FINANCE_GAME_HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-<style>
- body { background: #0a0a12; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; user-select: none; }
- .box { background: #16213e; padding: 20px; border-radius: 15px; border: 2px solid #f1c40f; max-width: 400px; margin: 20px auto; box-shadow: 0 0 20px rgba(241,196,15,0.2); }
- h2 { color: #f1c40f; margin: 0 0 15px 0; letter-spacing: 2px; }
- .money { font-size: 36px; font-weight: bold; color: #2ecc71; margin: 10px 0; text-shadow: 0 0 10px rgba(46,204,113,0.4); }
- .btn { background: linear-gradient(45deg, #f1c40f, #d35400); border: none; padding: 15px; width: 100%; color: #000; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; margin-top: 10px; transition: transform 0.1s; }
- .btn:active { transform: scale(0.98); }
- .btn-invest { background: linear-gradient(45deg, #3498db, #2980b9); color: white; }
- .stats { display: flex; justify-content: space-between; margin-top: 15px; font-size: 12px; color: #aaa; }
-</style>
-</head>
-<body>
-<div class="box">
-  <h2>FİNANS İMPARATORU</h2>
-  <div class="money" id="money">0 ₺</div>
-  <div style="color: #aaa; font-size: 14px; margin-bottom: 20px;">Pasif Gelir: <span id="income" style="color: #fff">0</span> ₺/sn</div>
-  
-  <button class="btn" onclick="earn()">👆 TIKLA KAZAN (+100 ₺)</button>
-  <button class="btn btn-invest" onclick="invest()">🏢 DÜKKAN AL (Maliyet: <span id="cost">1000</span> ₺)</button>
-  
-  <div class="stats">
-     <span>Dükkan Sayısı: <span id="shops">0</span></span>
-     <span>Seviye: Başlangıç</span>
-  </div>
-</div>
-<script>
-  let money = 0;
-  let income = 0;
-  let shops = 0;
-  let cost = 1000;
+# 4. YARDIMCI FONKSİYON: HTML OYUN YÜKLEME
+def load_html_game(filename, height=700):
+    """HTML dosyasını okur ve ekrana basar. Dosya yoksa uyarı verir."""
+    if os.path.exists(filename):
+        with open(filename, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+            # LifeSim verisi için özel durum: JSON verisini enjekte etme yeri
+            if filename == "game_lifesim.html" and os.path.exists("lifesim_data.json"):
+                with open("lifesim_data.json", 'r', encoding='utf-8') as jf:
+                    json_data = jf.read()
+                    # HTML içindeki placeholder'ı gerçek veriyle değiştir
+                    html_content = html_content.replace("// PYTHON_DATA_HERE", f"let scenarios = {json_data};")
+            
+            components.html(html_content, height=height, scrolling=False)
+    else:
+        st.warning(f"⚠️ {filename} dosyası henüz yüklenmedi. Lütfen GitHub'a yükleyin.")
 
-  function update() { 
-    document.getElementById('money').innerText = Math.floor(money).toLocaleString() + ' ₺'; 
-    document.getElementById('income').innerText = income.toLocaleString();
-    document.getElementById('cost').innerText = cost.toLocaleString();
-    document.getElementById('shops').innerText = shops;
-  }
-
-  function earn() { 
-    money += 100; 
-    update(); 
-  }
-
-  function invest() {
-    if(money >= cost) { 
-      money -= cost; 
-      income += 50; 
-      shops++;
-      cost = Math.floor(cost * 1.2); // Maliyet artışı
-      update(); 
-    }
-  }
-
-  // Pasif Gelir Döngüsü
-  setInterval(() => { 
-    money += income; 
-    update(); 
-  }, 1000);
-</script>
-</body>
-</html>
-"""
-
-# ASSET MATRIX (HTML/JS String)
-MATRIX_GAME_HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-<style>
- body { background: #050505; color: white; display: flex; flex-direction: column; align-items: center; font-family: monospace; margin: 0; padding: 20px; }
- canvas { background: #111; border: 2px solid #333; border-radius: 4px; box-shadow: 0 0 30px rgba(0,255,255,0.1); }
- h2 { color: #00e5ff; letter-spacing: 3px; margin-bottom: 10px; }
- button { background: #00e5ff; color: #000; border: none; padding: 10px 30px; font-weight: bold; cursor: pointer; margin-top: 15px; border-radius: 4px; }
- button:hover { background: #00b8cc; }
- #score { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #fff; }
-</style>
-</head>
-<body>
-<h2>ASSET MATRIX</h2>
-<div id="score">SKOR: 0</div>
-<canvas id="c" width="320" height="400"></canvas>
-<button onclick="init()">YENİ OYUN</button>
-
-<script>
- const c = document.getElementById('c'), ctx = c.getContext('2d');
- let pieces = [], score = 0;
-
- function init() {
-    score = 0;
-    document.getElementById('score').innerText = "SKOR: " + score;
-    spawnPieces();
-    draw();
- }
-
- function spawnPieces() {
-    pieces = [
-        {x: 30, y: 320, w: 30, h: 30, c: '#FFD700'}, // Altın
-        {x: 110, y: 320, w: 60, h: 30, c: '#00e5ff'}, // Neon Mavi
-        {x: 220, y: 320, w: 30, h: 60, c: '#ff0055'}  // Neon Pembe
-    ];
- }
-
- function draw() {
-    ctx.fillStyle = '#080808'; ctx.fillRect(0,0,320,400);
+# 5. YAN MENÜ (SIDEBAR)
+with st.sidebar:
+    st.title("🏛️ FİNANS KAMPÜSÜ")
+    st.markdown("---")
     
-    // Grid Çizgileri
-    ctx.strokeStyle='#222'; ctx.lineWidth=1; ctx.beginPath();
-    for(let i=0;i<=320;i+=32) { ctx.moveTo(i,0); ctx.lineTo(i,300); } // Dikey
-    for(let i=0;i<=300;i+=30) { ctx.moveTo(0,i); ctx.lineTo(320,i); } // Yatay
-    ctx.stroke();
+    menu = st.radio("MENÜ", [
+        "👤 Profil",
+        "🎓 Soru Çözüm (TYT/Meslek)",
+        "💼 LifeSim (Kariyer)",
+        "📈 Finans İmparatoru",
+        "🧩 Asset Matrix (Blok)",
+        "🏆 Skor Tablosu"
+    ])
     
-    // Alt Çizgi (Spawn Alanı Ayracı)
-    ctx.strokeStyle='#444'; ctx.beginPath(); ctx.moveTo(0,300); ctx.lineTo(320,300); ctx.stroke();
+    st.markdown("---")
+    # Mini Cüzdan Görünümü
+    c1, c2 = st.columns(2)
+    c1.metric("Cüzdan", f"{st.session_state.balance} ₺")
+    c2.metric("Banka", f"{st.session_state.bank} ₺")
 
-    // Parçaları Çiz
-    pieces.forEach(p => {
-        ctx.fillStyle = p.c;
-        ctx.fillRect(p.x, p.y, p.w, p.h);
-        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-        ctx.strokeRect(p.x, p.y, p.w, p.h);
-    });
- }
- 
- // Basit Etkileşim (Görsel Demo)
- c.addEventListener('mousedown', () => {
-    score += 10;
-    document.getElementById('score').innerText = "SKOR: " + score;
-    // Parçaların rengini rastgele değiştir (Canlılık için)
-    pieces.forEach(p => p.c = `hsl(${Math.random()*360}, 70%, 50%)`);
-    draw();
- });
+# 6. SAYFA İÇERİKLERİ
 
- init();
-</script>
-</body>
-</html>
-"""
+# --- PROFİL ---
+if menu == "👤 Profil":
+    st.header("👤 Oyuncu Profili")
+    st.info("Hoş geldin, Yatırımcı Adayı.")
+    st.write(f"Toplam Net Varlık: **{st.session_state.balance + st.session_state.bank} ₺**")
 
-# ================= 2. LIFESIM YÜKLEME FONKSİYONU =================
-def load_lifesim_game():
-    # 1. JSON Verisini Oku
-    try:
-        with open('lifesim_data.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            json_str = json.dumps(data) # JSON verisini String'e çevir
-    except FileNotFoundError:
-        # Dosya yoksa boş liste gönder, oyun bozulmasın
-        json_str = "[]" 
+# --- SORU ÇÖZÜM ---
+elif menu == "🎓 Soru Çözüm (TYT/Meslek)":
+    st.header("🎓 Soru Çözüm Merkezi")
+    st.write("Burada TYT ve Meslek dersleri testleri olacak.")
+    # İleride buraya soru kodları eklenecek
 
-    # 2. HTML Dosyasını Oku
-    try:
-        with open('game.html', 'r', encoding='utf-8') as f:
-            html = f.read()
-    except FileNotFoundError:
-        return "<h2 style='color:red'>Hata: game.html bulunamadı!</h2>"
-
-    # 3. Veriyi HTML içine yapıştır (Inject)
-    # game.html içindeki "// PYTHON_DATA_HERE" yazısını bulup gerçek veriyle değiştirir.
-    injected_html = html.replace(
-        "// PYTHON_DATA_HERE", 
-        f"scenarios = {json_str};"
-    )
-    return injected_html
-
-# ================= 3. STREAMLIT ARAYÜZÜ =================
-
-# Yan Menü
-st.sidebar.title("MENÜ")
-st.sidebar.info("Aşağıdan oynamak istediğiniz simülasyonu seçin.")
-menu = st.sidebar.radio("Seçim Yapınız:", ["💼 LifeSim (Kariyer)", "📈 Finans İmparatoru", "🧩 Asset Matrix"])
-
-# Menü Mantığı
-if menu == "💼 LifeSim (Kariyer)":
+# --- LIFESIM ---
+elif menu == "💼 LifeSim (Kariyer)":
     st.header("💼 LifeSim: Kariyer Yönetimi")
-    # LifeSim'i dinamik olarak yükle ve göster
-    game_code = load_lifesim_game()
-    components.html(game_code, height=700, scrolling=False)
+    # game_lifesim.html dosyasını çağırır
+    load_html_game("game_lifesim.html", height=800)
 
+# --- FİNANS İMPARATORU ---
 elif menu == "📈 Finans İmparatoru":
-    st.header("📈 Finans İmparatoru")
-    # Python içindeki HTML stringi göster
-    components.html(FINANCE_GAME_HTML, height=600)
+    st.header("📈 Finans İmparatoru (Pasif Gelir)")
+    # game_finance.html dosyasını çağırır
+    load_html_game("game_finance.html", height=650)
 
-elif menu == "🧩 Asset Matrix":
-    st.header("🧩 Asset Matrix")
-    # Python içindeki HTML stringi göster
-    components.html(MATRIX_GAME_HTML, height=600)
+# --- ASSET MATRIX ---
+elif menu == "🧩 Asset Matrix (Blok)":
+    st.header("🧩 Asset Matrix: Blok Oyunu")
+    # game_matrix.html dosyasını çağırır
+    load_html_game("game_matrix.html", height=700)
+
+# --- SKOR TABLOSU ---
+elif menu == "🏆 Skor Tablosu":
+    st.header("🏆 Liderlik Tablosu")
+    st.table([
+        {"Sıra": 1, "Oyuncu": "Elon M.", "Puan": "999M"},
+        {"Sıra": 2, "Oyuncu": "Jeff B.", "Puan": "500M"},
+        {"Sıra": 3, "Oyuncu": "SİZ", "Puan": f"{st.session_state.balance}"}
+    ])
