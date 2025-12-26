@@ -29,16 +29,20 @@ URL_TYT_PDF = f"{GITHUB_BASE_URL}/tytson8.pdf"
 URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
 
 # ==========================================
-# 3. YARDIMCI FONKSİYONLAR
+# 3. YARDIMCI FONKSİYONLAR (GÜNCELLENDİ)
 # ==========================================
 @st.cache_data(ttl=300)
 def fetch_json_data(url):
+    """
+    JSON verisini çeker. Hem Liste [] hem de Sözlük {} formatını kabul eder.
+    """
     try:
         response = requests.get(url)
         if response.status_code == 200:
             return json.loads(response.text)
-    except: pass
-    return {}
+    except: 
+        pass
+    return None
 
 def load_lifesim_html():
     try:
@@ -49,6 +53,9 @@ def load_lifesim_html():
             html = resp.text if resp.status_code == 200 else "<h3>game.html bulunamadı</h3>"
         
         data = fetch_json_data(URL_LIFESIM)
+        # Eğer data None ise boş liste ata
+        if data is None: data = []
+        
         json_str = json.dumps(data)
         return html.replace("// PYTHON_DATA_HERE", f"var scenarios = {json_str};")
     except: return "<h3>Yükleme Hatası</h3>"
@@ -239,11 +246,9 @@ st.markdown("""
     .login-container { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #D84315; }
     .bank-box { background: #e8f5e9; border: 2px dashed #27ae60; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
     
-    /* Optik Form Stili */
-    .optik-box { background:white; padding:15px; border-radius:10px; margin-bottom:10px; border-left:4px solid #D84315; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .optik-question { font-weight:bold; margin-bottom:5px; color:#2c3e50; }
-    .correct-ans { color: #27ae60; font-weight:bold; }
-    .wrong-ans { color: #c0392b; font-weight:bold; }
+    /* Optik Form Satır Stili */
+    .optik-row { background:white; padding:5px 15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
+    .optik-row:hover { background-color:#f8f9fa; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -322,12 +327,12 @@ else:
         st.header("📚 Soru Çözüm Merkezi")
         t_tyt, t_meslek = st.tabs(["📘 TYT (KİTAPÇIKLI)", "📙 MESLEK (ONLİNE)"])
         
-        # 1. TYT BÖLÜMÜ (YENİ SİSTEM)
+        # 1. TYT BÖLÜMÜ
         with t_tyt:
             tyt_data = fetch_json_data(URL_TYT_DATA)
             
             if not tyt_data:
-                st.warning("TYT verileri yükleniyor... (tyt_data.json bekleniyor)")
+                st.warning("TYT verileri yükleniyor veya dosya bulunamadı...")
             else:
                 # 1. Dersleri Listele
                 dersler = sorted(list(set([v['ders'] for k, v in tyt_data.items() if 'ders' in v])))
@@ -335,15 +340,17 @@ else:
                 
                 # 2. Seçilen Dersi İçeren Sayfaları Bul
                 ilgili_sayfalar = []
-                for sayfa_no, detay in tyt_data.items():
+                # Sözlükte sıralama olmadığı için key'leri int'e çevirip sıralayalım
+                sorted_keys = sorted(tyt_data.keys(), key=lambda x: int(x) if x.isdigit() else 9999)
+                
+                for sayfa_no in sorted_keys:
+                    detay = tyt_data[sayfa_no]
                     if detay.get('ders') == secilen_ders:
-                        # Soru aralığını bul (Örn: 1-3)
                         sorular = detay.get('sorular', [])
                         if sorular:
                             aralik = f"{min(sorular)} - {max(sorular)}"
                             ilgili_sayfalar.append((sayfa_no, aralik, detay))
                 
-                # 3. Sayfa Seçimi (Örn: Sayfa 13 | Sorular: 1-3)
                 if ilgili_sayfalar:
                     secim = st.selectbox(
                         "Hangi sayfayı çözmek istiyorsunuz?", 
@@ -373,7 +380,6 @@ else:
                         with st.form(key=f"tyt_form_{secilen_sayfa_no}"):
                             user_answers = {}
                             
-                            # Soruları Döngüye Al
                             for i, soru_no in enumerate(soru_listesi):
                                 st.markdown(f"**Soru {soru_no}**")
                                 user_answers[i] = st.radio(
@@ -384,7 +390,7 @@ else:
                                     index=None,
                                     label_visibility="collapsed"
                                 )
-                                st.write("") # Boşluk
+                                st.write("")
                             
                             if st.form_submit_button("KONTROL ET"):
                                 dogru, yanlis = 0, 0
@@ -392,7 +398,6 @@ else:
                                 
                                 for i, soru_no in enumerate(soru_listesi):
                                     u_ans = user_answers[i]
-                                    # Cevap anahtarından doğru şıkkı al (String indexleme)
                                     try:
                                         c_ans = cevap_anahtari[i] 
                                     except:
@@ -417,9 +422,7 @@ else:
             if not meslek_qs:
                 st.warning("Meslek soruları yükleniyor... (sorular.json bekleniyor)")
             else:
-                # Liste formatında mı kontrol et
                 if isinstance(meslek_qs, list):
-                    # Sınıf ve Ders Filtreleme
                     siniflar = sorted(list(set([str(q.get('sinif', 'Genel')) for q in meslek_qs])))
                     sel_sinif = st.selectbox("Sınıf Seviyesi:", siniflar)
                     
