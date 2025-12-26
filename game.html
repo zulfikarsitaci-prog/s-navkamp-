@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Finans İmparatoru & Blok Sim</title>
+    <title>Finans İmparatoru</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -14,678 +14,556 @@
             theme: {
                 extend: {
                     colors: { 
-                        bg: '#0f172a', 
-                        surface: '#1e293b', 
-                        primary: '#38bdf8', 
-                        accent: '#818cf8', 
-                        success: '#34d399', 
-                        warning: '#fbbf24', 
-                        danger: '#f87171' 
+                        bg: '#0f172a', surface: '#1e293b', primary: '#38bdf8', 
+                        accent: '#818cf8', success: '#34d399', warning: '#fbbf24', danger: '#f87171' 
                     },
-                    animation: { 'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite' }
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'] }
                 }
             }
         }
     </script>
 
     <style>
-        /* GENEL AYARLAR */
-        body { background-color: #050505; color: #fff; font-family: 'Montserrat', sans-serif; overflow: hidden; margin: 0; }
+        body { background-color: #050505; color: #fff; overflow: hidden; }
         
-        /* ÜST MENÜ */
-        #top-nav {
-            position: fixed; top: 0; left: 0; width: 100%; height: 60px;
-            background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid #334155;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 15px; z-index: 50; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-        }
-        .nav-btn {
-            background: transparent; border: 1px solid #334155; color: #94a3b8;
-            padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;
-            transition: all 0.3s; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;
-        }
-        .nav-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
-        .nav-btn:hover:not(.active) { border-color: #94a3b8; color: #fff; }
+        /* Sidebar Stilleri */
+        .sidebar { width: 250px; background: #0f172a; border-right: 1px solid #334155; display: flex; flex-direction: column; height: 100vh; position: fixed; left: 0; top: 0; z-index: 50; transition: transform 0.3s; }
+        .menu-item { display: flex; items-center; gap: 10px; padding: 12px 20px; color: #94a3b8; cursor: pointer; transition: 0.2s; font-weight: 600; font-size: 0.9rem; }
+        .menu-item:hover { background: #1e293b; color: #fff; }
+        .menu-item.active { background: #38bdf8; color: #0f172a; border-right: 4px solid #fff; }
+        .menu-icon { width: 20px; height: 20px; }
 
-        /* EKONOMİ GÖSTERGESİ */
-        .economy-widget { display: flex; gap: 15px; align-items: center; font-family: 'Courier New', monospace; font-size: 0.9rem; }
-        .money-val { color: #34d399; font-weight: bold; }
-        .bank-btn { font-size: 0.75rem; background: #334155; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
-        .bank-btn:hover { background: #475569; }
+        /* Ana İçerik Alanı */
+        .main-content { margin-left: 250px; height: 100vh; overflow-y: auto; background: #050505; padding: 20px; position: relative; }
+        .section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* OYUN SEKMELERİ */
-        .game-section { padding-top: 70px; height: 100vh; box-sizing: border-box; display: none; overflow-y: auto; }
-        .game-section.active { display: block; }
+        /* Mobil Uyumluluk */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 100%; max-width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding-top: 60px; }
+            #mobile-menu-btn { display: block; }
+        }
 
-        /* BLOK OYUNU STİLLERİ */
-        #block-game-wrapper { 
-            display: flex; flex-col; align-items: center; justify-content: start; 
-            width: 100%; height: 100%; text-align: center;
-        }
-        canvas { 
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.9); border-radius: 4px; border: 1px solid #222; 
-            background: #080808; touch-action: none; margin-top: 10px; display: block;
-        }
+        /* Özel Bileşenler */
+        .glass-card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; }
+        .game-canvas { border: 1px solid #333; background: #080808; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.8); margin: 0 auto; display: block; }
         
-        /* LIFESIM STİLLERİ */
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
-        .typing::after { content: '|'; animation: blink 1s step-start infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        /* MODALLAR (Start Screen & Banka) */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92); z-index: 100; display: none;
-            flex-direction: column; justify-content: center; align-items: center;
-        }
-        .modal-box { 
-            background: #1e293b; padding: 25px; border-radius: 12px; border: 1px solid #38bdf8; 
-            width: 90%; max-width: 400px; position: relative;
-        }
+        /* Alt Sekmeler (Eğlence Menüsü İçin) */
+        .sub-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .sub-tab { padding: 8px 16px; border-radius: 6px; cursor: pointer; color: #94a3b8; font-size: 0.85rem; font-weight: bold; }
+        .sub-tab.active { background: #334155; color: #fff; }
     </style>
 </head>
 <body>
 
-    <nav id="top-nav">
-        <div class="flex gap-3">
-            <button class="nav-btn active" onclick="switchTab('block')"><i data-lucide="grid-3x3" size="18"></i> OYUN</button>
-            <button class="nav-btn" onclick="switchTab('life')"><i data-lucide="briefcase" size="18"></i> KARİYER</button>
-        </div>
-        <div class="economy-widget">
-            <div onclick="openBank()" class="cursor-pointer flex flex-col md:flex-row md:gap-4 text-right md:text-left">
-                <span>Nakit: <span id="cash-display" class="money-val">0 TL</span></span>
-                <span>Banka: <span id="bank-display" class="money-val">0 TL</span></span>
-            </div>
-            <button onclick="openBank()" class="bank-btn hidden md:block">Havale</button>
-        </div>
-    </nav>
+    <button id="mobile-menu-btn" onclick="toggleSidebar()" class="fixed top-4 left-4 z-50 p-2 bg-slate-800 rounded text-white md:hidden hidden">
+        <i data-lucide="menu"></i>
+    </button>
 
-    <div id="bank-modal" class="modal-overlay">
-        <div class="modal-box">
-            <button onclick="closeBank()" class="absolute top-3 right-3 text-slate-400 hover:text-white"><i data-lucide="x"></i></button>
-            <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="landmark" class="text-success"></i> Mobil Bankacılık</h3>
-            <p class="text-slate-400 text-sm mb-6">Nakit paranızı bankaya yatırarak güvenceye alın.</p>
-            
-            <div class="mb-4">
-                <label class="text-xs text-slate-500 block mb-1">Yatırılacak Tutar</label>
-                <input type="number" id="deposit-amount" class="w-full bg-slate-900 border border-slate-700 rounded p-3 text-white focus:border-primary outline-none" placeholder="Miktar giriniz...">
-            </div>
-            
-            <div class="flex justify-end gap-3">
-                <button onclick="depositMoney()" class="w-full py-3 bg-success hover:bg-green-500 text-slate-900 font-bold rounded shadow-lg transition-transform active:scale-95">YATIR</button>
-            </div>
+    <div class="sidebar" id="sidebar">
+        <div class="p-6 border-b border-slate-800">
+            <h1 class="text-xl font-black text-white tracking-tighter">FINANS <span class="text-primary">İMPARATORU</span></h1>
+            <div class="text-xs text-slate-500 mt-1">v2.1 Beta</div>
         </div>
-    </div>
-
-    <div id="block-section" class="game-section active">
-        <div id="block-game-wrapper">
-            <div class="text-center mb-1 w-full max-w-[500px] flex justify-between items-end px-4">
-                <div>
-                    <div class="text-[10px] text-slate-400 tracking-widest">GÜNCEL VARLIK</div>
-                    <div id="score" class="text-2xl font-black text-white">$0</div>
-                </div>
-                <div class="text-xs text-yellow-500 font-mono" id="level-display">SEVİYE 1</div>
+        
+        <nav class="flex-1 py-4 overflow-y-auto">
+            <div class="menu-item" onclick="showSection('profil')">
+                <i data-lucide="user" class="menu-icon"></i> Profil
             </div>
-            
-            <canvas id="gameCanvas"></canvas>
-            
-            <div id="startScreen" class="modal-overlay" style="display: flex; background: rgba(5,5,5,0.95);">
-                <h1 class="text-5xl font-black mb-2 text-white tracking-tighter">BLOCK <span class="text-yellow-400">SIM</span></h1>
-                <p class="text-slate-400 mb-8 px-6 text-center max-w-md leading-relaxed">
-                    Blokları yerleştir, satırları silerek para kazan.<br>
-                    Kazandığın parayla kariyer basamaklarını tırman.
-                </p>
-                <button onclick="initGame()" class="px-10 py-4 bg-primary text-slate-900 font-bold rounded-lg shadow-[0_0_20px_rgba(56,189,248,0.4)] hover:scale-105 transition-all">SİMÜLASYONU BAŞLAT</button>
+            <div class="menu-item active" onclick="showSection('soru-cozum')">
+                <i data-lucide="brain-circuit" class="menu-icon"></i> Soru Çözüm Merkezi
+            </div>
+            <div class="menu-item" onclick="showSection('lifesim')">
+                <i data-lucide="briefcase" class="menu-icon"></i> LifeSim (Kariyer)
+            </div>
+            <div class="menu-item" onclick="showSection('eglence')">
+                <i data-lucide="gamepad-2" class="menu-icon"></i> Eğlence & Finans
+            </div>
+            <div class="menu-item" onclick="showSection('premium')">
+                <i data-lucide="crown" class="menu-icon text-yellow-500"></i> Premium
+            </div>
+            <div class="menu-item" onclick="showSection('skor')">
+                <i data-lucide="trophy" class="menu-icon"></i> Skor Tablosu
+            </div>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800">
+            <div class="bg-slate-900 rounded-lg p-3">
+                <div class="text-xs text-slate-400">Toplam Varlık</div>
+                <div class="text-lg font-bold text-success" id="sidebar-cash">0 TL</div>
             </div>
         </div>
     </div>
 
-    <div id="life-section" class="game-section">
-        <div class="p-4 flex flex-col md:flex-row gap-6 max-w-7xl mx-auto min-h-[85vh]">
-            
-            <div class="w-full md:w-1/3 flex flex-col gap-4">
-                <div class="glass p-5 rounded-xl border-l-4 border-accent shadow-lg">
-                    <label class="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-2 mb-2">
-                        <i data-lucide="list-todo" size="14"></i> Görev Listesi
-                    </label>
-                    <select id="scenarioSelect" onchange="loadScenario()" class="w-full bg-slate-900 text-white p-3 rounded border border-slate-700 focus:border-accent outline-none cursor-pointer">
-                        <option>Veriler Yükleniyor...</option>
-                    </select>
-                </div>
-
-                <div class="glass p-6 rounded-xl flex-1 flex flex-col shadow-lg">
-                    <div class="flex justify-between items-start mb-4">
-                        <span id="categoryBadge" class="px-3 py-1 bg-slate-700/50 text-slate-300 text-xs font-bold rounded-full border border-slate-600">KATEGORİ</span>
-                        <div class="flex items-center gap-1 text-success font-mono font-bold bg-success/10 px-2 py-1 rounded">
-                            <i data-lucide="plus-circle" size="14"></i>
-                            <span id="rewardBadge">0 TL</span>
-                        </div>
-                    </div>
-                    
-                    <h2 id="scenarioTitle" class="text-xl font-bold text-white mb-4 leading-snug">Senaryo Bekleniyor...</h2>
-                    <p id="scenarioText" class="text-sm text-slate-300 font-light leading-relaxed mb-6">Lütfen listeden bir görev seçin.</p>
-                    
-                    <div class="mt-auto bg-slate-800/50 p-3 rounded border border-slate-700">
-                        <div class="text-[10px] text-slate-400 font-bold uppercase mb-2">Veri Parametreleri:</div>
-                        <ul id="scenarioData" class="space-y-1 text-xs font-mono text-primary"></ul>
+    <div class="main-content" onclick="closeSidebarMobile()">
+        
+        <div id="profil" class="section">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i data-lucide="user" class="text-primary"></i> Oyuncu Profili</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card p-6 flex items-center gap-4">
+                    <div class="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center text-2xl">👤</div>
+                    <div>
+                        <div class="text-sm text-slate-400">Kullanıcı Adı</div>
+                        <div class="text-xl font-bold">Yatırımcı Adayı</div>
+                        <div class="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded mt-1 inline-block">Başlangıç Seviyesi</div>
                     </div>
                 </div>
-            </div>
-
-            <div class="w-full md:w-2/3 flex flex-col gap-4">
-                <div class="glass p-5 rounded-xl min-h-[120px] flex gap-4 border border-slate-700/50">
-                    <div class="bg-slate-800 p-3 rounded-full h-12 w-12 flex items-center justify-center border border-slate-600 shrink-0">
-                        <i data-lucide="bot" class="text-accent w-6 h-6 animate-pulse-fast"></i>
+                <div class="glass-card p-6">
+                    <h3 class="text-sm font-bold text-slate-400 mb-2">İstatistikler</h3>
+                    <div class="flex justify-between border-b border-slate-700 py-2">
+                        <span>Çözülen Senaryo</span> <span class="text-white font-mono">0</span>
                     </div>
-                    <div class="flex-1">
-                        <div class="text-[10px] text-accent font-bold uppercase mb-1">AI DANIŞMAN</div>
-                        <div id="aiFeedback" class="text-sm text-slate-200 typing leading-relaxed">
-                            Sistem çevrimiçi. Finansal kararlarını analiz etmeye hazırım.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass p-1 rounded-xl flex-1 border border-slate-700 relative flex flex-col min-h-[300px]">
-                    <textarea id="inputText" class="w-full h-full bg-transparent p-6 text-base text-slate-200 resize-none outline-none font-mono font-light" placeholder="// Stratejini veya çözümünü buraya detaylıca yaz..."></textarea>
-                    
-                    <div class="absolute bottom-4 right-4">
-                        <button onclick="analyzeSubmission()" id="actionBtn" class="bg-primary hover:bg-blue-400 text-slate-900 font-bold px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i data-lucide="zap" size="16"></i> ANALİZ ET
-                        </button>
+                    <div class="flex justify-between py-2">
+                        <span>Başarı Oranı</span> <span class="text-white font-mono">%0</span>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div id="soru-cozum" class="section active">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i data-lucide="brain-circuit" class="text-primary"></i> Soru Çözüm Merkezi</h2>
+            <div class="flex flex-col md:flex-row gap-6 h-[80vh]">
+                <div class="w-full md:w-1/3 flex flex-col gap-4">
+                    <div class="glass-card p-4 border-l-4 border-accent">
+                        <label class="text-xs text-slate-400 font-bold uppercase mb-2 block">GÖREV / SENARYO SEÇ</label>
+                        <select id="scenarioSelect" onchange="loadScenario()" class="w-full bg-slate-900 text-white p-3 rounded border border-slate-700 focus:border-accent outline-none">
+                            <option>Yükleniyor...</option>
+                        </select>
+                    </div>
+                    <div class="glass-card p-5 flex-1 flex flex-col">
+                        <span id="categoryBadge" class="self-start px-2 py-1 bg-slate-700 text-xs rounded mb-3 text-slate-300">KATEGORİ</span>
+                        <h3 id="scenarioTitle" class="text-lg font-bold text-white mb-3">Senaryo Başlığı</h3>
+                        <p id="scenarioText" class="text-sm text-slate-300 font-light leading-relaxed mb-4">İçerik bekleniyor...</p>
+                        <div class="mt-auto pt-4 border-t border-slate-700/50 flex justify-between items-center">
+                            <span class="text-xs text-slate-400">Potansiyel Kazanç:</span>
+                            <span id="rewardBadge" class="text-success font-bold">+1000 TL</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full md:w-2/3 flex flex-col gap-4">
+                    <div class="glass-card p-4 min-h-[100px] flex gap-3 items-start">
+                        <i data-lucide="bot" class="text-accent shrink-0 mt-1"></i>
+                        <div id="aiFeedback" class="text-sm text-slate-200 leading-relaxed">Analiz sistemi hazır. Cevabınızı bekliyorum...</div>
+                    </div>
+                    <div class="glass-card p-1 flex-1 relative flex flex-col">
+                        <textarea id="inputText" class="w-full h-full bg-transparent p-5 text-slate-200 resize-none outline-none font-mono text-sm" placeholder="// Çözüm stratejinizi buraya yazın..."></textarea>
+                        <div class="absolute bottom-4 right-4">
+                            <button onclick="analyzeSubmission()" id="actionBtn" class="bg-primary hover:bg-blue-400 text-slate-900 font-bold px-5 py-2 rounded shadow-lg transition-transform active:scale-95 flex items-center gap-2">
+                                <i data-lucide="zap" size="16"></i> ANALİZ ET
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="lifesim" class="section">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i data-lucide="briefcase" class="text-primary"></i> LifeSim Kariyer Yönetimi</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-card p-6 border-t-4 border-success">
+                    <h3 class="text-lg font-bold text-white mb-1">Varlıklarım</h3>
+                    <p class="text-xs text-slate-400 mb-4">Nakit ve Banka Toplamı</p>
+                    <div class="text-3xl font-black text-success tracking-tight" id="total-assets">0 TL</div>
+                    <div class="mt-4 grid grid-cols-2 gap-2 text-xs">
+                        <div class="bg-slate-800 p-2 rounded">
+                            <div class="text-slate-500">Cüzdan</div>
+                            <div id="wallet-val" class="text-white font-mono">0</div>
+                        </div>
+                        <div class="bg-slate-800 p-2 rounded">
+                            <div class="text-slate-500">Banka</div>
+                            <div id="bank-val" class="text-white font-mono">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 border-t-4 border-primary">
+                    <h3 class="text-lg font-bold text-white mb-1">Mevcut İş</h3>
+                    <div class="flex items-center gap-3 mt-4">
+                        <div class="w-10 h-10 bg-primary/20 rounded flex items-center justify-center text-primary"><i data-lucide="building-2"></i></div>
+                        <div>
+                            <div class="font-bold">Serbest Yatırımcı</div>
+                            <div class="text-xs text-slate-400">Giriş Seviyesi</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="eglence" class="section">
+            <h2 class="text-2xl font-bold mb-4 flex items-center gap-2"><i data-lucide="gamepad-2" class="text-primary"></i> Eğlence & Kazanç</h2>
+            
+            <div class="sub-tabs">
+                <div class="sub-tab active" onclick="showSubTab('blok-oyunu', this)">🧩 Blok Oyunu</div>
+                <div class="sub-tab" onclick="showSubTab('finans-oyunu', this)">📈 Pasif Gelir (Finans)</div>
+            </div>
+
+            <div id="blok-oyunu" class="sub-section active">
+                <div class="flex flex-col items-center">
+                    <div class="w-full max-w-[500px] flex justify-between items-end mb-2 px-2">
+                        <div class="text-white font-bold text-xl"><span id="score">$0</span> <span class="text-xs text-slate-500 font-normal">Oyun Değeri</span></div>
+                        <div class="text-xs text-yellow-500">SEVİYE 1</div>
+                    </div>
+                    <canvas id="gameCanvas" class="game-canvas"></canvas>
+                    <div class="mt-4 text-center text-xs text-slate-500">
+                        Blokları yerleştir, satırları sil, para kazan. Kazancın cüzdanına eklenir.
+                        <br><button onclick="initGame()" class="mt-2 bg-slate-800 hover:bg-slate-700 text-white px-4 py-1 rounded text-xs border border-slate-600">Oyunu Sıfırla</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="finans-oyunu" class="sub-section hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-card p-6">
+                        <h3 class="text-lg font-bold text-white mb-4">💰 Banka & Faiz</h3>
+                        <p class="text-sm text-slate-400 mb-4">Paranı bankaya yatırarak pasif gelir elde et. Faiz her işlemde işler.</p>
+                        
+                        <div class="bg-slate-900 p-4 rounded mb-4 border border-slate-700">
+                            <label class="text-xs text-slate-500 block mb-1">Yatırılacak Miktar</label>
+                            <input type="number" id="deposit-amount" class="w-full bg-slate-800 text-white p-2 rounded outline-none border border-slate-600" placeholder="Miktar...">
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="bankAction('deposit')" class="flex-1 bg-success text-slate-900 font-bold py-2 rounded hover:bg-green-400">YATIR</button>
+                            <button onclick="bankAction('withdraw')" class="flex-1 bg-slate-700 text-white font-bold py-2 rounded hover:bg-slate-600">ÇEK</button>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card p-6 flex flex-col justify-center items-center text-center">
+                        <div class="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="trending-up" class="text-yellow-500 w-10 h-10"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">Pasif Gelir Modu</h3>
+                        <p class="text-sm text-slate-400 mt-2">Banka bakiyen üzerinden saatlik faiz kazan.</p>
+                        <div class="mt-4 text-2xl font-mono text-yellow-400">%5 Faiz Oranı</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="premium" class="section">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i data-lucide="crown" class="text-yellow-500"></i> Premium Üyelik</h2>
+            <div class="glass-card p-8 text-center max-w-lg mx-auto border border-yellow-500/30">
+                <div class="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-600 rounded-full mx-auto flex items-center justify-center mb-6 shadow-lg shadow-yellow-500/20">
+                    <i data-lucide="star" class="text-white w-12 h-12"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Pro Yatırımcı Ol</h3>
+                <p class="text-slate-400 mb-6">Reklamsız deneyim, 2x pasif gelir ve özel senaryolara erişim kazan.</p>
+                <button class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 rounded-lg transition-transform active:scale-95">
+                    HEMEN YÜKSELT (Demo)
+                </button>
+            </div>
+        </div>
+
+        <div id="skor" class="section">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2"><i data-lucide="trophy" class="text-primary"></i> Skor Tablosu</h2>
+            <div class="glass-card overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-800 text-xs text-slate-400 uppercase">
+                        <tr>
+                            <th class="p-4">#</th>
+                            <th class="p-4">Oyuncu</th>
+                            <th class="p-4 text-right">Net Varlık</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700 text-sm">
+                        <tr class="hover:bg-slate-800/50">
+                            <td class="p-4 font-mono text-yellow-500">1</td>
+                            <td class="p-4 font-bold">Elon M.</td>
+                            <td class="p-4 text-right font-mono text-success">₺999,000,000</td>
+                        </tr>
+                        <tr class="hover:bg-slate-800/50">
+                            <td class="p-4 font-mono text-slate-400">2</td>
+                            <td class="p-4">Jeff B.</td>
+                            <td class="p-4 text-right font-mono text-success">₺500,000,000</td>
+                        </tr>
+                        <tr class="bg-primary/10 border-l-4 border-primary">
+                            <td class="p-4 font-mono text-white">3</td>
+                            <td class="p-4 font-bold text-primary">SİZ</td>
+                            <td class="p-4 text-right font-mono text-success" id="leaderboard-score">0 TL</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // --- 1. DEĞİŞKENLER VE AYARLAR ---
+        // --- DEĞİŞKENLER ---
         let playerCash = 0;
         let playerBank = 0;
         let scenarios = [];
+        let currentScenario = null;
         
-        // !!! BU KISIM APP.PY TARAFINDAN GÜNCELLENECEK !!!
+        // --- VERİ ENJEKSİYONU (APP.PY İÇİN) ---
         // PYTHON_DATA_HERE
         
-        // Eğer Python veriyi yükleyemezse (Fallback Verisi)
         if (typeof scenarios === 'undefined' || scenarios.length === 0) {
-            console.warn("Python verisi bulunamadı, demo moduna geçiliyor.");
-            scenarios = [
-                { 
-                    "category": "Demo", 
-                    "title": "Sistem Bağlantı Hatası", 
-                    "text": "Oyun verisi sunucudan çekilemedi. Lütfen app.py'ın çalıştığından emin olun.", 
-                    "data": ["Durum: Offline"], 
-                    "money_reward": 0,
-                    "keywords": {}, 
-                    "hapBilgi": "Streamlit uygulamasını yenileyin." 
-                }
-            ];
+            scenarios = [{ "category": "Demo", "title": "Veri Yok", "text": "App.py çalışmıyor.", "money_reward": 0 }];
         }
 
-        let currentScenario = null;
-
-        // --- 2. EKONOMİ FONKSİYONLARI ---
-        function updateEconomyUI() {
-            document.getElementById('cash-display').innerText = playerCash.toLocaleString('tr-TR') + ' TL';
-            document.getElementById('bank-display').innerText = playerBank.toLocaleString('tr-TR') + ' TL';
-        }
-
-        function openBank() { document.getElementById('bank-modal').style.display = 'flex'; }
-        function closeBank() { document.getElementById('bank-modal').style.display = 'none'; }
-        
-        function depositMoney() {
-            const input = document.getElementById('deposit-amount');
-            const amount = parseInt(input.value);
+        // --- SAYFA YÖNETİMİ ---
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             
-            if (isNaN(amount) || amount <= 0) {
-                alert("Lütfen geçerli bir miktar girin.");
-                return;
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active'); // Tıklanan menüyü aktif yap
+            
+            if(window.innerWidth < 768) toggleSidebar(); // Mobilde menüyü kapat
+            
+            if(id === 'eglence') {
+                setTimeout(resizeBlockGame, 100); // Canvas render sorunu için
             }
-            if (amount > playerCash) {
-                alert("Yetersiz nakit bakiye!");
-                return;
-            }
-            
-            playerCash -= amount;
-            playerBank += amount;
-            input.value = '';
-            updateEconomyUI();
-            closeBank();
-            // Basit bir animasyon efekti eklenebilir buraya
-            alert("İşlem Başarılı: " + amount + " TL hesaba aktarıldı.");
         }
 
-        function switchTab(tab) {
-            document.querySelectorAll('.game-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        function showSubTab(id, btn) {
+            document.getElementById('blok-oyunu').classList.add('hidden');
+            document.getElementById('finans-oyunu').classList.add('hidden');
+            document.getElementById(id).classList.remove('hidden');
             
-            if (tab === 'block') {
-                document.getElementById('block-section').classList.add('active');
-                document.querySelector('button[onclick="switchTab(\'block\')"]').classList.add('active');
-                setTimeout(resizeBlockGame, 50); // Canvas'ın render olması için minik gecikme
+            document.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+
+            if(id === 'blok-oyunu') setTimeout(resizeBlockGame, 50);
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+        function closeSidebarMobile() {
+            if(window.innerWidth < 768) document.getElementById('sidebar').classList.remove('open');
+        }
+
+        // --- EKONOMİ ---
+        function updateEconomy() {
+            const total = playerCash + playerBank;
+            const fmt = (num) => num.toLocaleString('tr-TR') + ' TL';
+            
+            document.getElementById('sidebar-cash').innerText = fmt(total);
+            document.getElementById('total-assets').innerText = fmt(total);
+            document.getElementById('wallet-val').innerText = fmt(playerCash);
+            document.getElementById('bank-val').innerText = fmt(playerBank);
+            document.getElementById('leaderboard-score').innerText = fmt(total);
+        }
+
+        function bankAction(type) {
+            const amount = parseInt(document.getElementById('deposit-amount').value);
+            if(!amount || amount <= 0) return alert("Geçersiz miktar");
+            
+            if(type === 'deposit') {
+                if(amount > playerCash) return alert("Yetersiz Nakit");
+                playerCash -= amount; playerBank += amount;
+                alert(`${amount} TL yatırıldı. Pasif gelir aktif.`);
             } else {
-                document.getElementById('life-section').classList.add('active');
-                document.querySelector('button[onclick="switchTab(\'life\')"]').classList.add('active');
+                if(amount > playerBank) return alert("Yetersiz Banka Bakiyesi");
+                playerBank -= amount; playerCash += amount;
+                alert(`${amount} TL çekildi.`);
             }
+            updateEconomy();
+            document.getElementById('deposit-amount').value = '';
         }
 
-        // --- 3. LIFESIM MANTIĞI ---
-        function initLifeSim() {
-            lucide.createIcons();
+        // --- SORU ÇÖZÜM ---
+        function loadScenarios() {
             const select = document.getElementById('scenarioSelect');
             select.innerHTML = "";
-            
-            scenarios.forEach((s, idx) => {
+            scenarios.forEach((s, i) => {
                 let opt = document.createElement('option');
-                opt.value = idx;
-                opt.innerText = `[${s.category}] ${s.title}`;
+                opt.value = i; opt.innerText = s.title;
                 select.appendChild(opt);
             });
-            
             loadScenario(0);
         }
 
-        function loadScenario(index = null) {
-            if (index === null) index = document.getElementById('scenarioSelect').value;
-            currentScenario = scenarios[index];
-            
+        function loadScenario(idx = null) {
+            if(idx === null) idx = document.getElementById('scenarioSelect').value;
+            currentScenario = scenarios[idx];
             document.getElementById('categoryBadge').innerText = currentScenario.category;
             document.getElementById('scenarioTitle').innerText = currentScenario.title;
             document.getElementById('scenarioText').innerText = currentScenario.text;
-            document.getElementById('rewardBadge').innerText = (currentScenario.money_reward || 1000) + " TL";
-            
-            const dataList = document.getElementById('scenarioData');
-            dataList.innerHTML = "";
-            if(currentScenario.data) {
-                currentScenario.data.forEach(item => {
-                    dataList.innerHTML += `<li class="flex justify-between border-b border-slate-700/50 pb-1"><span class="text-slate-400">></span> <span class="text-accent">${item}</span></li>`;
-                });
-            }
-            
+            document.getElementById('rewardBadge').innerText = "+" + (currentScenario.money_reward || 1000) + " TL";
             document.getElementById('inputText').value = "";
-            document.getElementById('aiFeedback').innerHTML = `<span class="typing text-primary">Yeni senaryo yüklendi. Analiz bekleniyor...</span>`;
-            
+            document.getElementById('aiFeedback').innerText = "Cevap bekleniyor...";
             const btn = document.getElementById('actionBtn');
-            btn.disabled = false;
-            btn.classList.remove('bg-success', 'cursor-default');
-            btn.classList.add('bg-primary');
-            btn.innerHTML = '<i data-lucide="zap" size="16"></i> ANALİZ ET';
-            lucide.createIcons();
+            btn.disabled = false; btn.innerHTML = "ANALİZ ET"; btn.classList.remove('bg-success');
         }
 
         function analyzeSubmission() {
-            const text = document.getElementById('inputText').value.toLowerCase();
-            const feedbackArea = document.getElementById('aiFeedback');
+            const txt = document.getElementById('inputText').value.toLowerCase();
             const btn = document.getElementById('actionBtn');
-
-            if (text.length < 5) {
-                feedbackArea.innerHTML = "<span class='text-warning font-bold'>⚠ HATA:</span> Girdi çok kısa. Lütfen detaylandır.";
-                return;
-            }
-
-            btn.innerHTML = 'İŞLENİYOR...';
+            
+            if(txt.length < 3) return alert("Daha uzun yazmalısın.");
+            
+            btn.innerHTML = "İnceleniyor...";
             btn.disabled = true;
-
+            
             setTimeout(() => {
                 let score = 0;
-                let missing = [];
                 const keys = currentScenario.keywords || {};
-                const totalKeys = Object.keys(keys).length;
-
-                for (const [key, question] of Object.entries(keys)) {
-                    if (text.includes(key)) score++;
-                    else missing.push(question);
-                }
-
-                const successThreshold = totalKeys > 0 ? 0.5 : 1; // %50 başarı oranı yeterli
-                const currentRatio = totalKeys > 0 ? (score / totalKeys) : 1;
-
-                if (currentRatio >= successThreshold) {
-                    const reward = currentScenario.money_reward || 1000;
-                    playerCash += reward;
-                    updateEconomyUI();
-                    
-                    feedbackArea.innerHTML = `
-                        <div class="text-success font-bold mb-1">✔ ANALİZ BAŞARILI</div>
-                        <div class="text-slate-300 text-xs mb-2">${currentScenario.hapBilgi}</div>
-                        <div class="inline-block bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded text-xs font-bold border border-yellow-500/50">+${reward} TL KAZANDIN</div>
-                    `;
-                    
-                    btn.className = "bg-success text-slate-900 font-bold px-6 py-3 rounded-lg flex items-center gap-2 cursor-default w-full justify-center";
-                    btn.innerHTML = '<i data-lucide="check-circle" size="16"></i> TAMAMLANDI';
+                const total = Object.keys(keys).length;
+                
+                for(let k in keys) if(txt.includes(k)) score++;
+                
+                const success = total === 0 || (score/total) >= 0.5;
+                
+                if(success) {
+                    const r = currentScenario.money_reward || 1000;
+                    playerCash += r;
+                    updateEconomy();
+                    document.getElementById('aiFeedback').innerHTML = `<span class="text-success font-bold">BAŞARILI!</span><br>${currentScenario.hapBilgi}`;
+                    btn.innerHTML = "TAMAMLANDI";
+                    btn.classList.add('bg-success');
                 } else {
-                    const hint = missing.length > 0 ? missing[Math.floor(Math.random() * missing.length)] : "Daha fazla detay ver.";
-                    feedbackArea.innerHTML = `
-                        <div class="text-warning font-bold mb-1">⚠ EKSİK NOKTALAR VAR</div>
-                        <div class="text-slate-300 italic">"${hint}"</div>
-                    `;
-                    btn.innerHTML = '<i data-lucide="refresh-cw" size="16"></i> TEKRAR DENE';
+                    document.getElementById('aiFeedback').innerText = "Eksiklerin var, tekrar dene.";
+                    btn.innerHTML = "TEKRAR DENE";
                     btn.disabled = false;
                 }
-                lucide.createIcons();
             }, 800);
         }
 
-        // --- 4. BLOK OYUNU MANTIĞI ---
+        // --- BLOK OYUNU ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
         const GRID_SIZE = 12;
         let CELL_SIZE = 30;
-        let BOARD_OFFSET_X = 10;
-        let BOARD_OFFSET_Y = 10;
-        
-        let grid = [];
-        let blockScore = 0;
-        let pieces = [];
-        let draggingPiece = null;
-        
-        // Şekiller
-        const SHAPES = [
-            [[1]], [[1, 1]], [[1], [1]], 
-            [[1, 1], [1, 1]], [[1, 1, 1]], 
-            [[1], [1], [1]], [[0, 1, 0], [1, 1, 1]]
-        ];
+        let grid = [], pieces = [], dragging = null, blockScore = 0;
 
         function resizeBlockGame() {
-            const wrapper = document.getElementById('block-game-wrapper');
-            const maxWidth = Math.min(wrapper.clientWidth - 20, 500);
-            const maxHeight = window.innerHeight * 0.75;
-            
-            // Grid boyutunu hesapla
-            const availableSize = Math.min(maxWidth, maxHeight);
-            CELL_SIZE = Math.floor((availableSize - 40) / GRID_SIZE);
-            
-            // Canvas boyutlarını set et
-            canvas.width = CELL_SIZE * GRID_SIZE + (BOARD_OFFSET_X * 2);
-            canvas.height = CELL_SIZE * GRID_SIZE + (BOARD_OFFSET_Y * 2) + 120; // +120px spawn alanı için
-
-            if (pieces.length > 0) draw();
+            // Container genişliğine göre canvas boyutunu ayarla
+            const container = document.getElementById('blok-oyunu');
+            const size = Math.min(container.clientWidth - 40, 400); 
+            CELL_SIZE = Math.floor(size / GRID_SIZE);
+            canvas.width = CELL_SIZE * GRID_SIZE + 20;
+            canvas.height = CELL_SIZE * GRID_SIZE + 120; // Spawn alanı için yer
+            if(pieces.length > 0) draw();
         }
 
         function initGame() {
-            grid = Array(GRID_SIZE).fill(0).map(() => Array(GRID_SIZE).fill(0));
+            grid = Array(GRID_SIZE).fill(0).map(()=>Array(GRID_SIZE).fill(0));
             blockScore = 0;
-            updateScoreDisplay();
-            document.getElementById('startScreen').style.display = 'none';
             spawnPieces();
-            resizeBlockGame();
             draw();
         }
-        
-        function updateScoreDisplay() {
-            document.getElementById('score').innerText = "$" + blockScore;
-        }
 
+        const SHAPES = [[[1]], [[1,1]], [[1],[1]], [[1,1],[1,1]], [[1,1,1]], [[1],[1],[1]]];
+        
         function spawnPieces() {
             pieces = [];
-            const spawnAreaY = BOARD_OFFSET_Y + (GRID_SIZE * CELL_SIZE) + 30;
-            const availableWidth = canvas.width - 20;
-            const slotWidth = availableWidth / 3;
-
-            for (let i = 0; i < 3; i++) {
-                const shapeMatrix = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-                
-                // Parçayı kabaca ortala
-                const pieceWidth = shapeMatrix[0].length * CELL_SIZE;
-                const startX = 10 + (i * slotWidth) + (slotWidth - pieceWidth) / 2;
-                
-                pieces.push({
-                    matrix: shapeMatrix,
-                    x: startX,
-                    y: spawnAreaY,
-                    baseX: startX,
-                    baseY: spawnAreaY,
-                    width: pieceWidth,
-                    height: shapeMatrix.length * CELL_SIZE,
-                    isDragging: false
-                });
+            for(let i=0; i<3; i++) {
+                const m = SHAPES[Math.floor(Math.random()*SHAPES.length)];
+                const w = m[0].length * CELL_SIZE;
+                const x = 10 + i * (canvas.width/3) + (canvas.width/3 - w)/2;
+                const y = CELL_SIZE * GRID_SIZE + 30;
+                pieces.push({ m, x, y, bx: x, by: y, w, h: m.length*CELL_SIZE });
             }
         }
 
         function draw() {
-            // Arka planı temizle
-            ctx.fillStyle = "#080808";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Gridi Çiz
-            ctx.strokeStyle = "#222";
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            for (let i = 0; i <= GRID_SIZE; i++) {
-                ctx.moveTo(BOARD_OFFSET_X, BOARD_OFFSET_Y + i * CELL_SIZE);
-                ctx.lineTo(BOARD_OFFSET_X + GRID_SIZE * CELL_SIZE, BOARD_OFFSET_Y + i * CELL_SIZE);
-                ctx.moveTo(BOARD_OFFSET_X + i * CELL_SIZE, BOARD_OFFSET_Y);
-                ctx.lineTo(BOARD_OFFSET_X + i * CELL_SIZE, BOARD_OFFSET_Y + GRID_SIZE * CELL_SIZE);
+            ctx.fillStyle = "#080808"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            // Grid
+            ctx.strokeStyle = "#222"; ctx.lineWidth = 1; ctx.beginPath();
+            for(let i=0; i<=GRID_SIZE; i++) {
+                ctx.moveTo(10, 10+i*CELL_SIZE); ctx.lineTo(10+GRID_SIZE*CELL_SIZE, 10+i*CELL_SIZE);
+                ctx.moveTo(10+i*CELL_SIZE, 10); ctx.lineTo(10+i*CELL_SIZE, 10+GRID_SIZE*CELL_SIZE);
             }
             ctx.stroke();
-
-            // Yerleşmiş Blokları Çiz
-            for (let r = 0; r < GRID_SIZE; r++) {
-                for (let c = 0; c < GRID_SIZE; c++) {
-                    if (grid[r][c] === 1) {
-                        drawCell(BOARD_OFFSET_X + c * CELL_SIZE, BOARD_OFFSET_Y + r * CELL_SIZE, CELL_SIZE, '#FFD700');
-                    }
-                }
-            }
-
-            // Mevcut Parçaları Çiz
-            pieces.forEach(p => {
-                if (!p.isDragging) {
-                    drawShape(p.matrix, p.x, p.y, CELL_SIZE * 0.6, '#38bdf8'); // Spawn alanındakiler küçük görünür
-                }
-            });
-
-            // Sürüklenen Parçayı Çiz (En üstte)
-            if (draggingPiece) {
-                // Gölge (Preview)
-                const { gx, gy } = getGridCoords(draggingPiece.x, draggingPiece.y);
-                if (canPlace(draggingPiece.matrix, gx, gy)) {
-                    drawShape(draggingPiece.matrix, BOARD_OFFSET_X + gx * CELL_SIZE, BOARD_OFFSET_Y + gy * CELL_SIZE, CELL_SIZE, 'rgba(255, 255, 255, 0.15)');
-                }
-                // Asıl parça (Tam boy)
-                drawShape(draggingPiece.matrix, draggingPiece.x, draggingPiece.y, CELL_SIZE, '#38bdf8');
-            }
+            // Yerleşenler
+            for(let r=0; r<GRID_SIZE; r++) for(let c=0; c<GRID_SIZE; c++) 
+                if(grid[r][c]) { ctx.fillStyle = "#FFD700"; ctx.fillRect(10+c*CELL_SIZE+1, 10+r*CELL_SIZE+1, CELL_SIZE-2, CELL_SIZE-2); }
+            // Parçalar
+            pieces.forEach(p => drawPiece(p));
+            if(dragging) drawPiece(dragging, true);
         }
 
-        function drawCell(x, y, size, color) {
-            ctx.fillStyle = color;
-            ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
-            ctx.shadowBlur = 0;
+        function drawPiece(p, glow=false) {
+            ctx.fillStyle = glow ? "rgba(56, 189, 248, 0.8)" : "#38bdf8";
+            p.m.forEach((row, r) => row.forEach((val, c) => {
+                if(val) ctx.fillRect(p.x + c*CELL_SIZE, p.y + r*CELL_SIZE, CELL_SIZE-2, CELL_SIZE-2);
+            }));
         }
 
-        function drawShape(matrix, x, y, size, color) {
-            for (let r = 0; r < matrix.length; r++) {
-                for (let c = 0; c < matrix[r].length; c++) {
-                    if (matrix[r][c] === 1) {
-                        drawCell(x + c * size, y + r * size, size, color);
-                    }
-                }
-            }
+        // --- GAME EVENTS (MOUSE/TOUCH) ---
+        function getPos(e) {
+            const r = canvas.getBoundingClientRect();
+            const x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            const y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+            return { x: (x-r.left)*(canvas.width/r.width), y: (y-r.top)*(canvas.height/r.height) };
         }
-
-        // --- 5. OYUN KONTROLLERİ (MOUSE & TOUCH FIX) ---
-        function getEventPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            let clientX = e.clientX;
-            let clientY = e.clientY;
-            
-            if (e.changedTouches && e.changedTouches.length > 0) {
-                clientX = e.changedTouches[0].clientX;
-                clientY = e.changedTouches[0].clientY;
-            }
-
-            // Canvas Ölçekleme Faktörü (Çözünürlük uyumsuzluğunu çözer)
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-
-            return {
-                x: (clientX - rect.left) * scaleX,
-                y: (clientY - rect.top) * scaleY
-            };
-        }
-
-        function getGridCoords(px, py) {
-            // Parçanın sol üst köşesine göre grid koordinatı
-            let gx = Math.round((px - BOARD_OFFSET_X) / CELL_SIZE);
-            let gy = Math.round((py - BOARD_OFFSET_Y) / CELL_SIZE);
-            return { gx, gy };
-        }
-
-        let dragOffsetX = 0, dragOffsetY = 0;
 
         function handleStart(e) {
-            e.preventDefault();
-            const pos = getEventPos(e);
-
-            for (let i = pieces.length - 1; i >= 0; i--) {
+            e.preventDefault(); const pos = getPos(e);
+            for(let i=pieces.length-1; i>=0; i--) {
                 const p = pieces[i];
-                // Hitbox hesapla (Spawn alanındaki küçük boyut için)
-                const renderSize = CELL_SIZE * 0.6;
-                const width = p.matrix[0].length * renderSize;
-                const height = p.matrix.length * renderSize;
-
-                // Tıklama alanı genişletildi (+20px padding)
-                if (pos.x >= p.x - 20 && pos.x <= p.x + width + 20 && 
-                    pos.y >= p.y - 20 && pos.y <= p.y + height + 20) {
-                    
-                    draggingPiece = p;
-                    p.isDragging = true;
-                    
-                    // Sürüklemeye başlarken parmağın parçanın ortasına gelmesini sağla
-                    dragOffsetX = (p.matrix[0].length * CELL_SIZE) / 2;
-                    dragOffsetY = (p.matrix.length * CELL_SIZE) / 2;
-                    
-                    // Anında pozisyon güncelle
-                    p.x = pos.x - dragOffsetX;
-                    p.y = pos.y - dragOffsetY;
-                    
-                    draw();
-                    return;
+                if(pos.x>=p.x-10 && pos.x<=p.x+p.w+10 && pos.y>=p.y-10 && pos.y<=p.y+p.h+10) {
+                    dragging = p; dragging.dx = pos.x - p.x; dragging.dy = pos.y - p.y;
+                    draw(); return;
                 }
             }
         }
-
         function handleMove(e) {
-            if (!draggingPiece) return;
-            e.preventDefault(); // Kaydırmayı engelle
-            const pos = getEventPos(e);
-            draggingPiece.x = pos.x - dragOffsetX;
-            draggingPiece.y = pos.y - dragOffsetY;
+            if(!dragging) return;
+            e.preventDefault(); const pos = getPos(e);
+            dragging.x = pos.x - dragging.dx; dragging.y = pos.y - dragging.dy;
             draw();
         }
-
         function handleEnd(e) {
-            if (!draggingPiece) return;
+            if(!dragging) return;
             e.preventDefault();
+            const gx = Math.round((dragging.x-10)/CELL_SIZE);
+            const gy = Math.round((dragging.y-10)/CELL_SIZE);
             
-            const { gx, gy } = getGridCoords(draggingPiece.x, draggingPiece.y);
-            
-            if (canPlace(draggingPiece.matrix, gx, gy)) {
-                placePiece(draggingPiece.matrix, gx, gy);
-                // Parçayı listeden sil
-                pieces = pieces.filter(p => p !== draggingPiece);
-                // Hepsi bittiyse yenilerini üret
-                if (pieces.length === 0) spawnPieces();
+            if(canPlace(dragging.m, gx, gy)) {
+                place(dragging.m, gx, gy);
+                pieces = pieces.filter(p => p !== dragging);
+                if(pieces.length === 0) spawnPieces();
             } else {
-                // Yerleşemezse yerine geri dönsün
-                draggingPiece.x = draggingPiece.baseX;
-                draggingPiece.y = draggingPiece.baseY;
-                draggingPiece.isDragging = false;
+                dragging.x = dragging.bx; dragging.y = dragging.by;
             }
-            draggingPiece = null;
-            draw();
+            dragging = null; draw();
         }
 
-        function canPlace(matrix, gx, gy) {
-            for (let r = 0; r < matrix.length; r++) {
-                for (let c = 0; c < matrix[r].length; c++) {
-                    if (matrix[r][c] === 1) {
-                        let tx = gx + c;
-                        let ty = gy + r;
-                        // Sınır ve Doluluk Kontrolü
-                        if (tx < 0 || tx >= GRID_SIZE || ty < 0 || ty >= GRID_SIZE || grid[ty][tx] === 1) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
+        function canPlace(m, gx, gy) {
+            return m.every((row, r) => row.every((val, c) => {
+                if(!val) return true;
+                const tx = gx+c, ty = gy+r;
+                return tx>=0 && tx<GRID_SIZE && ty>=0 && ty<GRID_SIZE && !grid[ty][tx];
+            }));
         }
 
-        function placePiece(matrix, gx, gy) {
-            for (let r = 0; r < matrix.length; r++) {
-                for (let c = 0; c < matrix[r].length; c++) {
-                    if (matrix[r][c] === 1) {
-                        grid[gy + r][gx + c] = 1;
-                    }
-                }
-            }
-            // Her parça yerleştirme puan verir
+        function place(m, gx, gy) {
+            m.forEach((row, r) => row.forEach((val, c) => { if(val) grid[gy+r][gx+c] = 1; }));
             blockScore += 10;
-            updateScoreDisplay();
-            checkLines();
+            // Satır/Sütun silme
+            let rows=[], cols=[];
+            for(let r=0; r<GRID_SIZE; r++) if(grid[r].every(v=>v)) rows.push(r);
+            for(let c=0; c<GRID_SIZE; c++) if(grid.map(r=>r[c]).every(v=>v)) cols.push(c);
+            
+            if(rows.length + cols.length > 0) {
+                rows.forEach(r => grid[r].fill(0));
+                cols.forEach(c => grid.forEach(r => r[c]=0));
+                const bonus = (rows.length+cols.length) * 50;
+                playerCash += bonus;
+                updateEconomy();
+            }
+            document.getElementById('score').innerText = "$" + blockScore;
         }
 
-        function checkLines() {
-            let linesCleared = 0;
-            let rowsToClear = [];
-            let colsToClear = [];
-            
-            // Satırları Kontrol Et
-            for (let r = 0; r < GRID_SIZE; r++) {
-                if (grid[r].every(val => val === 1)) rowsToClear.push(r);
-            }
-            // Sütunları Kontrol Et
-            for (let c = 0; c < GRID_SIZE; c++) {
-                let colFull = true;
-                for (let r = 0; r < GRID_SIZE; r++) {
-                    if (grid[r][c] === 0) colFull = false;
-                }
-                if (colFull) colsToClear.push(c);
-            }
-            
-            // Temizle
-            rowsToClear.forEach(r => grid[r].fill(0));
-            colsToClear.forEach(c => {
-                for (let r = 0; r < GRID_SIZE; r++) grid[r][c] = 0;
-            });
-
-            // Puan ve Para Ödülü
-            linesCleared = rowsToClear.length + colsToClear.length;
-            if (linesCleared > 0) {
-                // Blok Puanı
-                blockScore += linesCleared * 100;
-                
-                // EKONOMİYE PARA EKLE (Nakit Ödül)
-                const cashReward = linesCleared * 50; 
-                playerCash += cashReward;
-                
-                updateScoreDisplay();
-                updateEconomyUI(); // Üst menüdeki parayı güncelle
-            }
-        }
-
-        // --- 6. EVENT LISTENER'LAR ---
-        canvas.addEventListener('mousedown', handleStart);
-        canvas.addEventListener('mousemove', handleMove);
-        canvas.addEventListener('mouseup', handleEnd);
-        canvas.addEventListener('mouseleave', handleEnd);
+        canvas.addEventListener('mousedown', handleStart); canvas.addEventListener('touchstart', handleStart, {passive:false});
+        canvas.addEventListener('mousemove', handleMove); canvas.addEventListener('touchmove', handleMove, {passive:false});
+        canvas.addEventListener('mouseup', handleEnd); canvas.addEventListener('touchend', handleEnd, {passive:false});
         
-        canvas.addEventListener('touchstart', handleStart, { passive: false });
-        canvas.addEventListener('touchmove', handleMove, { passive: false });
-        canvas.addEventListener('touchend', handleEnd, { passive: false });
-        
-        window.addEventListener('resize', resizeBlockGame);
-
-        // --- 7. BAŞLATMA ---
+        // --- BAŞLAT ---
         window.onload = function() {
-            initLifeSim();
-            setTimeout(resizeBlockGame, 100);
-            updateEconomyUI();
-        }
+            lucide.createIcons();
+            loadScenarios();
+            initGame();
+            updateEconomy();
+            window.addEventListener('resize', resizeBlockGame);
+        };
+
     </script>
 </body>
 </html>
