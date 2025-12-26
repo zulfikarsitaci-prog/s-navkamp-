@@ -17,7 +17,7 @@ st.set_page_config(
 # ==========================================
 # Buraya lifesim_data.json dosyanın RAW linkini yapıştıracaksın.
 # Örnek: "https://raw.githubusercontent.com/KULLANICI_ADI/REPO_ADI/main/lifesim_data.json"
-GITHUB_JSON_URL = "https://raw.githubusercontent.com/KULLANICI_ADI/REPO_ADI/main/lifesim_data.json" 
+GITHUB_JSON_URL = "https://raw.githubusercontent.com/zulfikarsitaci-prog/s-navkamp-/refs/heads/main/lifesim_data.json" 
 
 # 2. LIFESIM HTML ŞABLONU (Değişmedi, aynı kalacak)
 LIFESIM_HTML_TEMPLATE = """
