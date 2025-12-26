@@ -6,88 +6,44 @@ import pandas as pd
 import time
 import urllib.parse
 
-# --- 1. AYARLAR & CSS (FERAH TEMA) ---
+# --- 1. AYARLAR & CSS (TEMİZLİK VE FONT) ---
 st.set_page_config(page_title="Finans Kampüsü", page_icon="🏛️", layout="wide")
 
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap');
-    
-    /* GEREKSİZLERİ GİZLE */
     .stDeployButton, footer, header { display: none !important; }
     [data-testid="stToolbar"] { display: none !important; }
+    .viewerBadge_container__1QSob { display: none !important; }
     
-    /* GENEL SAYFA (FERAH AÇIK RENK) */
-    .stApp { background-color: #f4f6f9; color: #2c3e50; }
-    
-    /* FONTLAR */
-    h1, h2, h3, h4 { font-family: 'Cinzel', serif !important; font-weight: 700 !important; color: #2c3e50 !important; }
-    .stTabs button { font-family: 'Cinzel', serif !important; font-weight: 700 !important; }
+    .stApp { background-color: #0a0a12; color: #e0e0e0; }
+    h1, h2, h3, h4, .stTabs button { font-family: 'Cinzel', serif !important; font-weight: 700 !important; color: #f1c40f !important; }
     p, div, span, button, input { font-family: 'Poppins', sans-serif !important; }
     
-    /* SEKMELER (TABS) - MODERN BEYAZ */
-    .stTabs [data-baseweb="tab-list"] { 
-        gap: 10px; background: #ffffff; padding: 10px; 
-        border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-    }
-    .stTabs [data-baseweb="tab"] { 
-        height: 45px; border-radius: 8px; border: none; 
-        font-weight: 600; font-size: 15px; color: #7f8c8d; 
-    }
-    .stTabs [aria-selected="true"] { 
-        background-color: #2c3e50 !important; color: #f1c40f !important; 
-        box-shadow: 0 4px 10px rgba(44, 62, 80, 0.3);
-    }
+    /* Sekmeler */
+    .stTabs [data-baseweb="tab-list"] { gap: 8px; background: #16213e; padding: 10px; border-radius: 12px; border: 1px solid #f1c40f; box-shadow: 0 0 15px rgba(241, 196, 15, 0.1); }
+    .stTabs [data-baseweb="tab"] { height: 45px; border-radius: 8px; border: none; font-weight: 600; font-size: 16px; color: #aaa; background: #0f3460; }
+    .stTabs [aria-selected="true"] { background: linear-gradient(135deg, #f1c40f 0%, #d35400 100%) !important; color: #000 !important; font-weight: bold; }
     
-    /* SKOR KARTI - PREMIUM GOLD */
-    .score-box { 
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); 
-        padding: 25px; border-radius: 15px; text-align: center; 
-        border-left: 5px solid #f1c40f; 
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
-    }
-    .big-num { 
-        font-family: 'Cinzel', serif; font-size: 48px; font-weight: 900; 
-        color: #2c3e50; 
-        text-shadow: 2px 2px 0px rgba(241, 196, 15, 0.2);
-    }
+    /* Kartlar */
+    .score-box { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 25px; border-radius: 15px; color: #f1c40f; text-align: center; border: 2px solid #f1c40f; box-shadow: 0 0 25px rgba(241, 196, 15, 0.2); }
+    .big-num { font-family: 'Cinzel', serif; font-size: 48px; font-weight: 900; text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
     
-    /* BANKA VEZNESİ */
-    .bank-area { 
-        background-color: #ffffff; padding: 20px; border-radius: 12px; 
-        border: 2px dashed #27ae60; text-align: center; margin-top: 20px; 
-        color: #27ae60; box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-    }
+    /* Banka Veznesi */
+    .bank-area { background-color: #0f3460; padding: 20px; border-radius: 12px; border: 2px dashed #27ae60; text-align: center; margin-top: 20px; color: #2ecc71; }
     
-    /* YAN MENÜ */
-    [data-testid="stSidebar"] { 
-        background-color: #ffffff; border-right: 1px solid #eee; 
-    }
+    /* Yan Menü */
+    [data-testid="stSidebar"] { background-color: #16213e; border-right: 1px solid #f1c40f; }
     
-    /* BUTONLAR */
-    div.stButton > button { 
-        border-radius: 8px; height: 50px; font-weight: bold; 
-        border: 1px solid #ddd; transition: 0.3s; width: 100%; 
-        background: white; color: #2c3e50;
-    }
-    div.stButton > button:hover { 
-        border-color: #f1c40f; background-color: #f1c40f; color: white; 
-        box-shadow: 0 5px 15px rgba(241, 196, 15, 0.3);
-    }
+    div.stButton > button { border-radius: 8px; height: 50px; font-weight: bold; border: 1px solid #f1c40f; transition: 0.3s; width: 100%; text-transform: uppercase; letter-spacing: 1px; background: #0f3460; color: #f1c40f; }
+    div.stButton > button:hover { background: #f1c40f; color: #000; box-shadow: 0 0 15px #f1c40f; }
     
-    /* ÖZEL HTML BUTON (YEŞİL) */
-    .html-save-btn { 
-        display: block; width: 100%; background: #27ae60; 
-        color: white !important; padding: 15px; text-align: center; 
-        border-radius: 12px; font-weight: 800; font-size: 18px; 
-        text-decoration: none; margin-top: 10px; transition: transform 0.2s; 
-        box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
-    }
-    .html-save-btn:hover { transform: scale(1.02); background: #219150; }
+    .html-save-btn { display: block; width: 100%; background: linear-gradient(45deg, #27ae60, #2ecc71); color: white !important; padding: 15px; text-align: center; border-radius: 12px; font-weight: 800; font-size: 18px; text-decoration: none; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4); margin-top: 10px; transition: transform 0.2s; border: none; }
+    .html-save-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(39, 174, 96, 0.8); }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 2. GÜVENLİ VERİTABANI ---
+# --- 2. GÜVENLİ VERİTABANI & ŞİFRELEME ---
 FORM_LINK_TASLAK = "https://docs.google.com/forms/d/e/1FAIpQLScshsXIM91CDKu8TgaHIelXYf3M9hzoGb7mldQCDAJ-rcuJ3w/viewform?usp=pp_url&entry.1300987443=AD_YOK&entry.598954691=9999"
 DB_FILE = "puan_veritabani.json"
 
@@ -129,208 +85,698 @@ def decode_transfer_code(code):
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'user_info' not in st.session_state: st.session_state.user_info = {}
 
-# --- 4. OYUN KODLARI (HTML/JS) - Arka planlar güncellendi ---
+# --- 4. OYUN KODLARI (HTML/JS) ---
 
-# Finans Oyunu (Lacivert Dashboard Teması)
+# Finans Oyunu: Premium Dark Tema
 FINANCE_GAME_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
 <style>
-body { background: #2c3e50; color: #ecf0f1; font-family: 'Poppins', sans-serif; padding: 10px; text-align: center; user-select:none; }
-.top-bar { display: flex; justify-content: space-between; background: #34495e; padding: 15px; border-radius: 12px; border-bottom: 3px solid #f1c40f; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-.money { font-size: 24px; font-weight: bold; color: #f1c40f; }
+body { background: #0a0a12; color: #e0e0e0; font-family: 'Poppins', sans-serif; padding: 10px; text-align: center; user-select:none; }
+.top-bar { display: flex; justify-content: space-between; background: #16213e; padding: 15px; border-radius: 12px; border: 2px solid #f1c40f; margin-bottom: 20px; box-shadow: 0 0 15px rgba(241, 196, 15, 0.1); }
+.money { font-size: 24px; font-weight: bold; color: #f1c40f; text-shadow: 0 0 5px rgba(241, 196, 15, 0.5); }
 .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.item { background: #34495e; padding: 12px; border-radius: 10px; cursor: pointer; transition: 0.1s; border: 1px solid #465c71; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-.item:hover { border-color: #f1c40f; transform: translateY(-2px); background: #3e5871; }
+.item { background: linear-gradient(145deg, #0f3460, #16213e); padding: 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; border: 1px solid #1a1a2e; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+.item:hover { border-color: #f1c40f; transform: translateY(-3px); box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); }
 .item:active { transform: scale(0.98); }
-.item.locked { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
+.item.locked { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
 .name { font-weight: bold; color: #fff; font-size: 13px; margin-bottom: 5px; }
 .cost { color: #e74c3c; font-size: 11px; }
 .income { color: #2ecc71; font-size: 11px; font-weight: bold; }
-.count { position: absolute; top: -5px; right: -5px; background: #f1c40f; color: #2c3e50; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-.btn-save { background: #27ae60; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 0 #219150; }
-.btn-save:active { transform: translateY(4px); box-shadow: none; }
-.code-display { background: white; color: #2c3e50; padding: 10px; border-radius: 10px; margin-top: 10px; font-family: monospace; font-size: 16px; border: 2px dashed #f1c40f; display: none; }
-.clicker-btn { width:90px; height:90px; border-radius:50%; background:radial-gradient(circle, #f1c40f 0%, #f39c12 100%); border:4px solid #fff; font-size:35px; cursor:pointer; box-shadow:0 5px 15px rgba(0,0,0,0.2); transition: 0.1s; }
-.clicker-btn:active { transform: scale(0.95); }
+.count { position: absolute; top: -5px; right: -5px; background: #f1c40f; color: black; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; box-shadow: 0 0 5px #f1c40f; }
+.btn-save { background: linear-gradient(45deg, #27ae60, #2ecc71); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px; box-shadow: 0 0 10px rgba(39, 174, 96, 0.5); }
+.btn-save:hover { box-shadow: 0 0 20px rgba(39, 174, 96, 0.8); }
+.code-display { background: #16213e; color: #f1c40f; padding: 10px; border-radius: 10px; margin-top: 10px; font-family: monospace; font-size: 16px; border: 2px dashed #f1c40f; display: none; }
+.clicker-btn { width:90px; height:90px; border-radius:50%; background:radial-gradient(circle, #f1c40f 0%, #d35400 100%); border:3px solid #fff; font-size:35px; cursor:pointer; box-shadow:0 0 25px rgba(241,196,15,0.6); transition: 0.1s; }
+.clicker-btn:active { transform: scale(0.95); box-shadow:0 0 15px rgba(241,196,15,0.8); }
 </style>
 </head>
 <body>
 <div class="top-bar">
     <div>KASA: <span id="money" class="money">0</span> ₺</div>
-    <div style="font-size:11px; color:#bdc3c7; margin-top:5px;">GELİR: <span id="cps" style="color:#2ecc71;">0</span>/sn</div>
+    <div style="font-size:11px; color:#aaa; margin-top:5px;">GELİR: <span id="cps" style="color:#2ecc71;">0</span>/sn</div>
 </div>
-<div style="margin-bottom:20px;"><button onclick="clickCoin()" class="clicker-btn">👆</button></div>
+
+<div style="margin-bottom:20px;">
+    <button onclick="clickCoin()" class="clicker-btn">👆</button>
+</div>
+
 <div class="grid" id="market"></div>
+
 <button class="btn-save" onclick="generateCode()">🏦 BANKAYA TRANSFER KODU AL</button>
 <div id="codeArea" class="code-display"><span id="codeVal" style="font-weight:bold;"></span></div>
-<p id="info" style="font-size:10px; color:#bdc3c7; margin-top:5px; display:none;">Kodu kopyala ve uygulamadaki 'Banka Veznesi' kutusuna yapıştır.</p>
+<p id="info" style="font-size:10px; color:#aaa; margin-top:5px; display:none;">Kodu kopyala ve uygulamadaki 'Banka Veznesi' kutusuna yapıştır.</p>
+
 <script>
 let money = 0;
-let assets = [{n: "Limonata Standı", c: 50, i: 0.5, cnt: 0}, {n: "Simit Tezgahı", c: 350, i: 2, cnt: 0}, {n: "Kırtasiye Dükkanı", c: 1500, i: 8, cnt: 0}, {n: "Okul Kantini", c: 7500, i: 35, cnt: 0}, {n: "Servis Filosu", c: 35000, i: 150, cnt: 0}, {n: "Yazılım A.Ş.", c: 150000, i: 600, cnt: 0}, {n: "Uluslararası Holding", c: 1000000, i: 4500, cnt: 0}];
+let assets = [
+    {n: "Limonata Standı", c: 50, i: 0.5, cnt: 0},
+    {n: "Simit Tezgahı", c: 350, i: 2, cnt: 0},
+    {n: "Kırtasiye Dükkanı", c: 1500, i: 8, cnt: 0},
+    {n: "Okul Kantini Işletmesi", c: 7500, i: 35, cnt: 0},
+    {n: "Öğrenci Servis Filosu", c: 35000, i: 150, cnt: 0},
+    {n: "Yazılım & Teknoloji A.Ş.", c: 150000, i: 600, cnt: 0},
+    {n: "Uluslararası Holding", c: 1000000, i: 4500, cnt: 0}
+];
+
 function updateUI() {
     document.getElementById('money').innerText = Math.floor(money).toLocaleString();
     let totalCps = assets.reduce((t, a) => t + (a.cnt * a.i), 0);
     document.getElementById('cps').innerText = totalCps.toFixed(1);
-    let m = document.getElementById('market'); m.innerHTML = "";
+    
+    let m = document.getElementById('market');
+    m.innerHTML = "";
     assets.forEach((a, i) => {
         let cost = Math.floor(a.c * Math.pow(1.25, a.cnt));
-        let div = document.createElement('div'); div.className = "item " + (money >= cost ? "" : "locked"); div.onclick = () => buy(i);
-        div.innerHTML = `<span class="count">${a.cnt}</span><div class="name">${a.n}</div><div class="cost">Maliyet: ${cost.toLocaleString()} ₺</div><div class="income">+${a.i}/sn</div>`;
+        let div = document.createElement('div');
+        div.className = "item " + (money >= cost ? "" : "locked");
+        div.onclick = () => buy(i);
+        div.innerHTML = `
+            <span class="count">${a.cnt}</span>
+            <div class="name">${a.n}</div>
+            <div class="cost">Maliyet: ${cost.toLocaleString()} ₺</div>
+            <div class="income">+${a.i}/sn</div>
+        `;
         m.appendChild(div);
     });
 }
+
 function clickCoin() { money += 1; updateUI(); }
+
 function buy(i) {
-    let a = assets[i]; let cost = Math.floor(a.c * Math.pow(1.25, a.cnt));
+    let a = assets[i];
+    let cost = Math.floor(a.c * Math.pow(1.25, a.cnt));
     if(money >= cost) { money -= cost; a.cnt++; updateUI(); }
 }
+
 setInterval(() => {
     let income = assets.reduce((t, a) => t + (a.cnt * a.i), 0);
     if(income > 0) { money += income / 10; updateUI(); }
 }, 100);
+
 function generateCode() {
     if(money < 10) { alert("En az 10 TL birikmeli!"); return; }
     let score = Math.floor(money);
     let secureVal = (score * 13).toString(16).toUpperCase();
     let randomPart = Math.floor(Math.random() * 90 + 10);
     let finalCode = "FNK-" + secureVal + "-" + randomPart;
+    
     document.getElementById('codeVal').innerText = finalCode;
     document.getElementById('codeArea').style.display = "block";
     document.getElementById('info').style.display = "block";
     money = 0; assets.forEach(a => a.cnt = 0); updateUI();
 }
 updateUI();
-</script></body></html>
+</script>
+</body>
+</html>
 """
 
-# Matrix Oyunu (Block Blast - Koyu Lacivert Tema)
+# Matrix Oyunu: Gönderdiğin HTML Kodu Entegre Edildi
 MATRIX_GAME_HTML = """
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-<style>
-body { background: #2c3e50; color: #ecf0f1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 98vh; font-family: 'Poppins', sans-serif; user-select: none; overflow: hidden; padding-top: 10px; }
-.board-container { padding: 5px; background: #34495e; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 2px solid #2c3e50; }
-.board { display: grid; grid-template-columns: repeat(10, 28px); grid-template-rows: repeat(10, 28px); gap: 3px; }
-.cell { width: 28px; height: 28px; background: #2c3e50; border-radius: 4px; border: 1px solid #1a252f; transition: background 0.2s; }
-.cell.filled { border: none; }
-.cell.highlight { background: rgba(255, 255, 255, 0.3); border: 1px dashed #fff; }
-.cell.invalid { background: rgba(231, 76, 60, 0.4); border: 1px dashed #c0392b; }
-.top-ui { display: flex; justify-content: space-between; width: 320px; margin-bottom: 15px; align-items: center; }
-.score-box { background: #34495e; padding: 5px 15px; border-radius: 20px; border: 2px solid #f1c40f; font-weight: bold; color: #f1c40f; }
-.btn-bank { background: #8e44ad; color: white; border: none; padding: 8px 15px; font-weight: bold; border-radius: 20px; cursor: pointer; font-size: 12px; }
-.dock { display: flex; justify-content: center; gap: 20px; margin-top: 25px; height: 80px; align-items: center; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 15px; width: 320px; }
-.shape-preview { display: grid; gap: 2px; cursor: grab; transition: transform 0.1s; }
-.shape-preview:active { cursor: grabbing; transform: scale(1.1); }
-.preview-cell { width: 20px; height: 20px; border-radius: 3px; }
-#drag-ghost { position: fixed; pointer-events: none; z-index: 100; display: none; opacity: 0.8; }
-.code-box { background: white; color: #2c3e50; padding: 10px; margin-top: 10px; font-weight: bold; border: 2px dashed #f1c40f; display: none; font-size:14px; font-family: monospace; border-radius: 8px; text-align: center; width: 300px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Black Asset Matrix 10x12</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050505;
+            font-family: 'Montserrat', sans-serif;
+            color: #fff;
+            touch-action: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            padding-top: 15px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+            z-index: 2;
+        }
+
+        .score-label {
+            font-size: 11px;
+            color: #aaa;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        #score {
+            font-size: 32px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            transition: color 0.5s;
+        }
+
+        #level-indicator {
+            font-size: 10px;
+            margin-top: 2px;
+            opacity: 0.7;
+            color: #FFD700; /* Başlangıç rengi */
+            transition: color 0.5s;
+        }
+
+        canvas {
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+            border-radius: 4px;
+            border: 1px solid #222;
+            background: #080808;
+            touch-action: none;
+        }
+
+        .menu-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transition: opacity 0.3s;
+        }
+
+        .hidden { opacity: 0; pointer-events: none; }
+
+        h1 { font-size: 2rem; text-transform: uppercase; letter-spacing: -1px; margin-bottom: 10px; text-align: center;}
+        h1 span { color: #FFD700; }
+        p { color: #888; margin-bottom: 30px; font-size: 0.9rem; text-align: center; max-width: 80%; }
+
+        .btn {
+            background: linear-gradient(45deg, #333, #111);
+            border: 1px solid #444;
+            padding: 12px 35px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: #444; border-color: #666; }
+        
+        /* EK TRANSFER BUTONU STİLİ */
+        .btn-transfer {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            border: 1px solid #2ecc71;
+            padding: 8px 20px;
+            font-size: 14px;
+            margin-top: 10px;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .code-box {
+            background: #fff;
+            color: #000;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-family: monospace;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<div class="top-ui">
-    <div class="score-box">SKOR: <span id="score">0</span></div>
-    <button class="btn-bank" onclick="getCode()">🏦 KOD AL</button>
-</div>
-<div class="board-container"><div class="board" id="board"></div></div>
-<div class="dock" id="dock"></div>
-<div id="drag-ghost"></div>
-<div id="codeDisplay" class="code-box"></div>
-<script>
-const BOARD_SIZE = 10;
-let grid = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
-let score = 0; let dockShapes = []; let isDragging = false; let draggedShape = null; let dragOriginIndex = -1;
-const THEMES = [{ name: "Gold", bg: "#f1c40f", shadow: "#f39c12" }, { name: "Rose", bg: "#e94560", shadow: "#c0392b" }, { name: "Silver", bg: "#bdc3c7", shadow: "#7f8c8d" }, { name: "Purple", bg: "#9b59b6", shadow: "#8e44ad" }, { name: "Cyan", bg: "#00cec9", shadow: "#00b894" }];
-const SHAPES = [[[1]], [[1, 1]], [[1], [1]], [[1, 1, 1]], [[1], [1], [1]], [[1, 1], [1, 1]], [[1, 0], [1, 0], [1, 1]], [[1, 1, 1], [0, 1, 0]], [[1, 1, 0], [0, 1, 1]]];
-function getTheme() { return THEMES[Math.floor(score / 50) % THEMES.length]; }
-function initBoard() {
-    const boardDiv = document.getElementById("board"); boardDiv.innerHTML = "";
-    for(let r=0; r<BOARD_SIZE; r++) { for(let c=0; c<BOARD_SIZE; c++) { let cell = document.createElement("div"); cell.className = "cell"; cell.id = `c-${r}-${c}`; boardDiv.appendChild(cell); } }
-    updateBoardView(); refillDock();
-}
-function updateBoardView() {
-    for(let r=0; r<BOARD_SIZE; r++) {
-        for(let c=0; c<BOARD_SIZE; c++) {
-            let cell = document.getElementById(`c-${r}-${c}`);
-            cell.className = "cell"; cell.style.background = ""; cell.style.boxShadow = "";
-            if(grid[r][c]) { let theme = getTheme(); cell.classList.add("filled"); cell.style.background = theme.bg; cell.style.boxShadow = `0 0 5px ${theme.shadow}`; }
+
+    <div id="game-container">
+        <div class="header">
+            <div class="score-label">Net Varlık Değeri</div>
+            <div id="score">$0</div>
+            <div id="level-indicator">SEVİYE: GOLD</div>
+        </div>
+        
+        <canvas id="gameCanvas"></canvas>
+        
+        <button class="btn-transfer" onclick="getTransferCode()">🏦 TRANSFER KODU AL</button>
+        <div id="codeDisplay" class="code-box"></div>
+
+        <div id="startScreen" class="menu-screen">
+            <h1>Asset Matrix <span>10x12</span></h1>
+            <p>Piyasa zorlaştı. Puanlar kısıtlı.<br>12x12 matriste hayatta kal.</p>
+            <button class="btn" onclick="initGame()">Analize Başla</button>
+        </div>
+
+        <div id="gameOverScreen" class="menu-screen hidden">
+            <h1 style="color: #ff3333;">İFLAS</h1>
+            <p>Likidite Sağlanamadı.<br>Son Değer: <span id="finalScore" style="color:#fff;">$0</span></p>
+            <button class="btn" onclick="initGame()">Yeniden Yapılandır</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const finalScoreEl = document.getElementById('finalScore');
+        const levelEl = document.getElementById('level-indicator');
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+
+        // --- AYARLAR ---
+        const GRID_SIZE = 10; // 10x12 İSTEĞİ - KARE TABANLI 10x10, YÜKSEKLİK İÇİN AYARLANABİLİR AMA BASİT OLSUN
+        let CELL_SIZE = 30; 
+        let BOARD_OFFSET_X = 0;
+        let BOARD_OFFSET_Y = 0;
+        
+        // RENK TEMALARI (Gold, Purple, Rose Gold)
+        const THEMES = [
+            { name: "GOLD", start: '#FFD700', end: '#C5A028' },       // Klasik Altın
+            { name: "NEON PURPLE", start: '#D500F9', end: '#7B1FA2' }, // Neon Mor
+            { name: "ROSE GOLD", start: '#E0BFB8', end: '#B76E79' }    // Rose Gold
+        ];
+        
+        let currentLevel = 0;
+        let levelThreshold = 50; // Her 50 puanda renk değişir (Cimri puanlama için uygun)
+
+        const GRID_LINE_COLOR = '#222';
+
+        // --- OYUN DURUMU ---
+        let grid = Array(GRID_SIZE).fill(0).map(() => Array(GRID_SIZE).fill(0));
+        let score = 0;
+        let availablePieces = [];
+        let draggingPiece = null;
+        let isGameOver = false;
+
+        // --- ŞEKİLLER ---
+        const SHAPES = [
+            [[1]], 
+            [[1, 1]], [[1], [1]], 
+            [[1, 1, 1]], [[1], [1], [1]], 
+            [[1, 1], [1, 1]], 
+            [[1, 1, 1], [0, 1, 0]], 
+            [[1, 1, 0], [0, 1, 1]], 
+            [[0, 1, 1], [1, 1, 0]], 
+            [[1, 0], [1, 0], [1, 1]], 
+            [[1, 1, 1], [1, 0, 0]], 
+            [[1, 1, 1, 1]], [[1],[1],[1],[1]]
+        ];
+
+        // --- TEMEL FONKSİYONLAR ---
+
+        function resize() {
+            const maxWidth = window.innerWidth * 0.95;
+            const maxHeight = window.innerHeight * 0.85; 
+            
+            // 12x12 olduğu için hücreler daha küçük olmalı
+            let size = Math.min(maxWidth, maxHeight * 0.75); 
+            
+            CELL_SIZE = Math.floor(size / GRID_SIZE);
+            
+            canvas.width = CELL_SIZE * GRID_SIZE + 20; 
+            canvas.height = CELL_SIZE * GRID_SIZE + 130; // Alt panel için yer
+
+            BOARD_OFFSET_X = 10;
+            BOARD_OFFSET_Y = 10;
+            
+            if (!isGameOver && availablePieces.length > 0) draw();
         }
-    }
-    document.getElementById("score").innerText = score;
-}
-function renderDock() {
-    const dockDiv = document.getElementById("dock"); dockDiv.innerHTML = "";
-    dockShapes.forEach((shapeMatrix, index) => {
-        if(shapeMatrix === null) { dockDiv.appendChild(document.createElement("div")); return; }
-        let preview = document.createElement("div"); preview.className = "shape-preview";
-        preview.style.gridTemplateColumns = `repeat(${shapeMatrix[0].length}, 20px)`;
-        shapeMatrix.forEach(row => { row.forEach(cellVal => { let pCell = document.createElement("div"); pCell.className = "preview-cell"; if(cellVal) { pCell.style.background = getTheme().bg; } else { pCell.style.background = "transparent"; } preview.appendChild(pCell); }); });
-        preview.onmousedown = (e) => startDrag(e, shapeMatrix, index);
-        dockDiv.appendChild(preview);
-    });
-}
-function refillDock() {
-    if(dockShapes.every(s => s === null) || dockShapes.length === 0) { dockShapes = []; for(let i=0; i<3; i++) dockShapes.push(SHAPES[Math.floor(Math.random() * SHAPES.length)]); }
-    renderDock();
-}
-let ghost = document.getElementById("drag-ghost");
-function startDrag(e, shape, index) {
-    isDragging = true; draggedShape = shape; dragOriginIndex = index;
-    ghost.innerHTML = ""; ghost.style.display = "grid";
-    ghost.style.gridTemplateColumns = `repeat(${shape[0].length}, 28px)`; ghost.style.gap = "3px";
-    shape.forEach(row => { row.forEach(cellVal => { let gCell = document.createElement("div"); gCell.style.width = "28px"; gCell.style.height = "28px"; gCell.style.borderRadius = "4px"; if(cellVal) { gCell.style.background = getTheme().bg; } else { gCell.style.background = "transparent"; } ghost.appendChild(gCell); }); });
-    moveGhost(e);
-}
-document.onmousemove = (e) => { if(!isDragging) return; moveGhost(e); highlightGrid(e); }
-document.onmouseup = (e) => {
-    if(!isDragging) return; isDragging = false; ghost.style.display = "none";
-    let target = getHoveredGridCoord(e);
-    if(target && canPlace(draggedShape, target.r, target.c)) {
-        placeShape(draggedShape, target.r, target.c); dockShapes[dragOriginIndex] = null;
-        score += draggedShape.flat().reduce((a,b)=>a+b, 0) * 2;
-        checkLines(); updateBoardView(); refillDock();
-    }
-    draggedShape = null; updateBoardView();
-}
-function moveGhost(e) { ghost.style.left = e.clientX - (ghost.offsetWidth / 2) + "px"; ghost.style.top = e.clientY - (ghost.offsetHeight / 2) + "px"; }
-function getHoveredGridCoord(e) {
-    let boardRect = document.getElementById("board").getBoundingClientRect();
-    if(e.clientX < boardRect.left || e.clientX > boardRect.right || e.clientY < boardRect.top || e.clientY > boardRect.bottom) return null;
-    let mouseRelX = e.clientX - boardRect.left; let mouseRelY = e.clientY - boardRect.top;
-    let ghostRect = ghost.getBoundingClientRect();
-    let centerX = mouseRelX - (ghostRect.width / 2) + 14; let centerY = mouseRelY - (ghostRect.height / 2) + 14;
-    let c = Math.floor(centerX / (28 + 3)); let r = Math.floor(centerY / (28 + 3));
-    let shapeH = draggedShape.length; let shapeW = draggedShape[0].length;
-    r = Math.round(r - (shapeH/2) + 0.5); c = Math.round(c - (shapeW/2) + 0.5);
-    return {r, c};
-}
-function highlightGrid(e) {
-    updateBoardView(); let target = getHoveredGridCoord(e); if(!target) return;
-    let valid = canPlace(draggedShape, target.r, target.c);
-    for(let i=0; i<draggedShape.length; i++) { for(let j=0; j<draggedShape[0].length; j++) { if(draggedShape[i][j]) { let cell = document.getElementById(`c-${target.r+i}-${target.c+j}`); if(cell) cell.classList.add(valid ? "highlight" : "invalid"); } } }
-}
-function canPlace(shape, r, c) {
-    if(r < 0 || c < 0 || r + shape.length > BOARD_SIZE || c + shape[0].length > BOARD_SIZE) return false;
-    for(let i=0; i<shape.length; i++) { for(let j=0; j<shape[0].length; j++) { if(shape[i][j] && grid[r+i][c+j]) return false; } } return true;
-}
-function placeShape(shape, r, c) { for(let i=0; i<shape.length; i++) { for(let j=0; j<shape[0].length; j++) { if(shape[i][j]) grid[r+i][c+j] = 1; } } }
-function checkLines() {
-    let linesCleared = 0;
-    for(let r=0; r<BOARD_SIZE; r++) { if(grid[r].every(v => v === 1)) { grid[r].fill(0); linesCleared++; } }
-    for(let c=0; c<BOARD_SIZE; c++) { let full = true; for(let r=0; r<BOARD_SIZE; r++) if(grid[r][c] === 0) full = false; if(full) { for(let r=0; r<BOARD_SIZE; r++) grid[r][c] = 0; linesCleared++; } }
-    if(linesCleared > 0) score += linesCleared * 50 * linesCleared;
-}
-function getCode(){
-    if(score < 10) { alert("En az 10 puan yap!"); return; }
-    let secureVal = (score * 13).toString(16).toUpperCase();
-    let code = "FNK-" + secureVal + "-BL";
-    document.getElementById("codeDisplay").innerText = code; document.getElementById("codeDisplay").style.display = "block";
-    score = 0; grid = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0)); dockShapes = []; refillDock(); updateBoardView();
-}
-initBoard();
-</script></body></html>
+        window.addEventListener('resize', resize);
+
+        function initGame() {
+            grid = Array(GRID_SIZE).fill(0).map(() => Array(GRID_SIZE).fill(0));
+            score = 0;
+            currentLevel = 0;
+            isGameOver = false;
+            updateScore(0);
+            updateTheme();
+            
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            document.getElementById('codeDisplay').style.display = "none";
+            
+            generateNewPieces();
+            resize();
+            draw();
+        }
+
+        function generateNewPieces() {
+            availablePieces = [];
+            for (let i = 0; i < 3; i++) {
+                const shapeMatrix = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+                
+                const spawnY = BOARD_OFFSET_Y + GRID_SIZE * CELL_SIZE + 20;
+                // 3 parça için eşit dağılım
+                const spawnX = BOARD_OFFSET_X + (canvas.width / 6) + (i * (canvas.width / 3.2)) - (CELL_SIZE); 
+                
+                availablePieces.push({
+                    matrix: shapeMatrix,
+                    x: spawnX,
+                    y: spawnY,
+                    baseX: spawnX,
+                    baseY: spawnY,
+                    width: shapeMatrix[0].length * CELL_SIZE,
+                    height: shapeMatrix.length * CELL_SIZE,
+                    isDragging: false
+                });
+            }
+            if (checkGameOverState()) gameOver();
+        }
+
+        // CİMRİ PUANLAMA & LEVEL SİSTEMİ
+        function updateScore(points) {
+            score += points;
+            scoreEl.innerText = "$" + score; // Sadece sayı, binlik ayraç yok
+            
+            // Level Kontrolü
+            let calculatedLevel = Math.floor(score / levelThreshold);
+            if (calculatedLevel !== currentLevel) {
+                currentLevel = calculatedLevel;
+                updateTheme();
+            }
+        }
+
+        function updateTheme() {
+            const themeIndex = currentLevel % THEMES.length;
+            const theme = THEMES[themeIndex];
+            
+            levelEl.innerText = "SEVİYE: " + theme.name;
+            levelEl.style.color = theme.start;
+            scoreEl.style.color = theme.start; // Skor rengi de değişsin
+            
+            // Canvas'ı yeniden çiz ki renkler değişsin
+            if(!isGameOver) draw();
+        }
+
+        // --- ÇİZİM ---
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+            drawPlacedBlocks();
+            drawAvailablePieces();
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = GRID_LINE_COLOR;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                ctx.moveTo(BOARD_OFFSET_X, BOARD_OFFSET_Y + i * CELL_SIZE);
+                ctx.lineTo(BOARD_OFFSET_X + GRID_SIZE * CELL_SIZE, BOARD_OFFSET_Y + i * CELL_SIZE);
+                ctx.moveTo(BOARD_OFFSET_X + i * CELL_SIZE, BOARD_OFFSET_Y);
+                ctx.lineTo(BOARD_OFFSET_X + i * CELL_SIZE, BOARD_OFFSET_Y + GRID_SIZE * CELL_SIZE);
+            }
+            ctx.stroke();
+        }
+
+        function drawCell(x, y, size, isPreview = false) {
+             const themeIndex = currentLevel % THEMES.length;
+             const theme = THEMES[themeIndex];
+
+             const gradient = ctx.createLinearGradient(x, y, x + size, y + size);
+             if(isPreview) {
+                 gradient.addColorStop(0, hexToRgbA(theme.start, 0.4));
+                 gradient.addColorStop(1, hexToRgbA(theme.end, 0.4));
+             } else {
+                 gradient.addColorStop(0, theme.start);
+                 gradient.addColorStop(1, theme.end);
+             }
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
+            
+            ctx.strokeStyle = isPreview ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.4)";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x + 1, y + 1, size - 2, size - 2);
+        }
+
+        // Yardımcı fonksiyon: Hex'i şeffaf RGB'ye çevir
+        function hexToRgbA(hex, alpha){
+            let c;
+            if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+                c= hex.substring(1).split('');
+                if(c.length== 3){
+                    c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+                }
+                c= '0x'+c.join('');
+                return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')';
+            }
+            return hex;
+        }
+
+        function drawPlacedBlocks() {
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    if (grid[row][col] === 1) {
+                        drawCell(BOARD_OFFSET_X + col * CELL_SIZE, BOARD_OFFSET_Y + row * CELL_SIZE, CELL_SIZE);
+                    }
+                }
+            }
+        }
+
+        function drawAvailablePieces() {
+            availablePieces.forEach(piece => {
+                if (piece.isDragging) return;
+                // Aşağıdaki parçaları %50 boyutta çiz (12x12 olduğu için yer dar)
+                drawShape(piece.matrix, piece.x, piece.y, CELL_SIZE * 0.5); 
+            });
+
+            if (draggingPiece) {
+                drawShape(draggingPiece.matrix, draggingPiece.x, draggingPiece.y, CELL_SIZE);
+                
+                const { gridX, gridY } = getGridCoordsFromMouse(draggingPiece.x, draggingPiece.y);
+                if (canPlace(draggingPiece.matrix, gridX, gridY)) {
+                     drawShape(draggingPiece.matrix, BOARD_OFFSET_X + gridX * CELL_SIZE, BOARD_OFFSET_Y + gridY * CELL_SIZE, CELL_SIZE, true);
+                }
+            }
+        }
+
+        function drawShape(matrix, startX, startY, cellSize, isPreview = false) {
+            for (let row = 0; row < matrix.length; row++) {
+                for (let col = 0; col < matrix[row].length; col++) {
+                    if (matrix[row][col] === 1) {
+                        drawCell(startX + col * cellSize, startY + row * cellSize, cellSize, isPreview);
+                    }
+                }
+            }
+        }
+
+        // --- OYUN MANTIĞI ---
+
+        function canPlace(matrix, gridX, gridY) {
+            for (let row = 0; row < matrix.length; row++) {
+                for (let col = 0; col < matrix[row].length; col++) {
+                    if (matrix[row][col] === 1) {
+                        let targetX = gridX + col;
+                        let targetY = gridY + row;
+                        if (targetX < 0 || targetX >= GRID_SIZE || targetY < 0 || targetY >= GRID_SIZE || grid[targetY][targetX] === 1) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        function placePiece(matrix, gridX, gridY) {
+            for (let row = 0; row < matrix.length; row++) {
+                for (let col = 0; col < matrix[row].length; col++) {
+                    if (matrix[row][col] === 1) {
+                        grid[gridY + row][gridX + col] = 1;
+                    }
+                }
+            }
+            // CİMRİ PUAN: Blok yerleştirme sadece +1 puan
+            updateScore(1); 
+            checkAndClearLines();
+        }
+
+        function checkAndClearLines() {
+            let linesCleared = 0;
+            let rowsToClear = [];
+            let colsToClear = [];
+
+            for (let row = 0; row < GRID_SIZE; row++) {
+                if (grid[row].every(cell => cell === 1)) rowsToClear.push(row);
+            }
+            for (let col = 0; col < GRID_SIZE; col++) {
+                let full = true;
+                for (let row = 0; row < GRID_SIZE; row++) {
+                    if (grid[row][col] === 0) { full = false; break; }
+                }
+                if (full) colsToClear.push(col);
+            }
+
+            rowsToClear.forEach(row => {
+                for (let col = 0; col < GRID_SIZE; col++) grid[row][col] = 0;
+                linesCleared++;
+            });
+            colsToClear.forEach(col => {
+                for (let row = 0; row < GRID_SIZE; row++) grid[row][col] = 0;
+                linesCleared++;
+            });
+
+            if (linesCleared > 0) {
+                // CİMRİ PUAN: Satır başına sadece 10 puan + (satır sayısı * 5 bonus)
+                let bonus = linesCleared * 10 + (linesCleared > 1 ? linesCleared * 5 : 0);
+                updateScore(bonus);
+                
+                // Efekt
+                canvas.style.transform = 'scale(1.01)';
+                setTimeout(() => canvas.style.transform = 'scale(1)', 100);
+            }
+        }
+
+        // --- DRAG & DROP ---
+
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+
+        function getEventPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+        
+        function getGridCoordsFromMouse(pieceX, pieceY) {
+            let rawGridX = Math.round((pieceX - BOARD_OFFSET_X) / CELL_SIZE);
+            let rawGridY = Math.round((pieceY - BOARD_OFFSET_Y) / CELL_SIZE);
+            return { gridX: rawGridX, gridY: rawGridY };
+        }
+
+        function handleStart(e) {
+            if(isGameOver) return;
+            e.preventDefault();
+            const pos = getEventPos(e);
+
+            for (let i = availablePieces.length - 1; i >= 0; i--) {
+                const p = availablePieces[i];
+                const renderSize = CELL_SIZE * 0.5; // Aşağıdaki parçalar küçük
+                const pWidth = p.matrix[0].length * renderSize;
+                const pHeight = p.matrix.length * renderSize;
+
+                // Tıklama toleransı (parmaklar için biraz genişlet)
+                if (pos.x > p.x - 10 && pos.x < p.x + pWidth + 10 &&
+                    pos.y > p.y - 10 && pos.y < p.y + pHeight + 10) {
+                    
+                    draggingPiece = p;
+                    p.isDragging = true;
+                    dragOffsetX = pos.x - p.x;
+                    dragOffsetY = pos.y - p.y;
+                    
+                    // Sürüklerken tam boyuta (CELL_SIZE) ölçekle
+                    dragOffsetX = (dragOffsetX / renderSize) * CELL_SIZE;
+                    dragOffsetY = (dragOffsetY / renderSize) * CELL_SIZE;
+                    
+                    draw();
+                    return;
+                }
+            }
+        }
+
+        function handleMove(e) {
+            if (!draggingPiece) return;
+            e.preventDefault();
+            const pos = getEventPos(e);
+            draggingPiece.x = pos.x - dragOffsetX;
+            draggingPiece.y = pos.y - dragOffsetY;
+            draw();
+        }
+
+        function handleEnd(e) {
+            if (!draggingPiece) return;
+            e.preventDefault();
+
+            const { gridX, gridY } = getGridCoordsFromMouse(draggingPiece.x, draggingPiece.y);
+
+            if (canPlace(draggingPiece.matrix, gridX, gridY)) {
+                placePiece(draggingPiece.matrix, gridX, gridY);
+                availablePieces = availablePieces.filter(p => p !== draggingPiece);
+                
+                if (availablePieces.length === 0) {
+                    generateNewPieces();
+                } else {
+                    if(checkGameOverState()) gameOver();
+                }
+            } else {
+                draggingPiece.x = draggingPiece.baseX;
+                draggingPiece.y = draggingPiece.baseY;
+                draggingPiece.isDragging = false;
+            }
+
+            draggingPiece = null;
+            draw();
+        }
+
+        function checkGameOverState() {
+            if (availablePieces.length === 0) return false;
+            for (let i = 0; i < availablePieces.length; i++) {
+                const matrix = availablePieces[i].matrix;
+                for (let row = 0; row < GRID_SIZE; row++) {
+                    for (let col = 0; col < GRID_SIZE; col++) {
+                        if (canPlace(matrix, col, row)) return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            finalScoreEl.innerText = scoreEl.innerText;
+            gameOverScreen.classList.remove('hidden');
+        }
+        
+        // --- TRANSFER KODU ÜRETME ---
+        function getTransferCode() {
+            if (score < 5) { alert("Transfer için en az $5 değer üretmelisin!"); return; }
+            
+            // ŞİFRELEME: (Puan * 13) -> Hex
+            let secureVal = (score * 13).toString(16).toUpperCase();
+            let code = "FNK-" + secureVal + "-MTX";
+            
+            document.getElementById('codeDisplay').innerText = "KODUN: " + code;
+            document.getElementById('codeDisplay').style.display = "block";
+            
+            // Oyunu Sıfırla (Kod alındıktan sonra)
+            score = 0;
+            grid = Array(GRID_SIZE).fill(0).map(() => Array(GRID_SIZE).fill(0));
+            updateScore(0);
+            generateNewPieces();
+            draw();
+        }
+
+        canvas.addEventListener('mousedown', handleStart);
+        canvas.addEventListener('mousemove', handleMove);
+        canvas.addEventListener('mouseup', handleEnd);
+        canvas.addEventListener('mouseleave', handleEnd);
+        canvas.addEventListener('touchstart', handleStart, { passive: false });
+        canvas.addEventListener('touchmove', handleMove, { passive: false });
+        canvas.addEventListener('touchend', handleEnd, { passive: false });
+
+        resize();
+    </script>
+</body>
+</html>
 """
 
 # --- 5. UYGULAMA AKIŞI ---
@@ -340,17 +786,17 @@ if not st.session_state.logged_in:
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
         st.markdown("<br><br>", unsafe_allow_html=True)
-        st.markdown("<div style='text-align:center'><h1>🏛️ FİNANS KAMPÜSÜ</h1><p>Öğrenci Giriş Portalı</p></div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align:center'><h1>🏛️ FİNANS KAMPÜSÜ</h1><p>Premium Öğrenci Portalı</p></div>", unsafe_allow_html=True)
         with st.form("login"):
             ad = st.text_input("Ad Soyad")
             no = st.text_input("Okul No")
-            if st.form_submit_button("SİSTEME GİRİŞ", type="primary"):
+            if st.form_submit_button("SİSTEME GİRİŞ YAP", type="primary"):
                 if ad and no:
                     key = f"{no}_{ad.strip()}"
                     st.session_state.user_info = {"name": ad, "no": no, "key": key}
                     st.session_state.logged_in = True
                     st.rerun()
-                else: st.error("Lütfen bilgileri giriniz.")
+                else: st.error("Lütfen bilgileri eksiksiz giriniz.")
 
 # EKRAN 2: ANA PANEL
 else:
@@ -360,7 +806,7 @@ else:
     
     with st.sidebar:
         st.markdown(f"### 👤 {user['name'].upper()}")
-        st.markdown(f"**🎓 No:** {user['no']}")
+        st.markdown(f"**🎓 Okul No:** {user['no']}")
         st.markdown("---")
         # OTO KAYIT BUTONU
         safe_name = urllib.parse.quote(user['name'])
@@ -368,44 +814,42 @@ else:
         final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
         st.markdown(f"""<a href="{final_form_link}" target="_blank" class="html-save-btn">💾 SKORU LİSTEYE KAYDET</a>""", unsafe_allow_html=True)
         st.markdown("---")
-        if st.button("ÇIKIŞ YAP", key="logout_btn"): # KEY EKLENDİ
+        if st.button("GÜVENLİ ÇIKIŞ"):
             st.session_state.logged_in = False
             st.rerun()
 
     # Sekmeler
-    t1, t2, t3, t4 = st.tabs(["🏠 PROFİL", "📚 DERSLER", "🎮 OYUN & BANKA", "🏆 SIRALAMA"])
+    t1, t2, t3, t4 = st.tabs(["🏠 PROFİL ÖZETİ", "📚 SORU MERKEZİ", "🎮 OYUN & BANKA", "🏆 LİDERLİK TABLOSU"])
 
     # TAB 1: PROFİL
     with t1:
-        st.markdown(f"## HOŞGELDİN, {user['name'].split(' ')[0].upper()}")
+        st.markdown(f"## HOŞGELDİNİZ, SAYIN {user['name'].split(' ')[0].upper()}")
         st.markdown(f"""
             <div class="score-box">
-                <div style="font-size:16px; letter-spacing:3px; margin-bottom:15px; opacity:0.8; color:#2c3e50;">TOPLAM VARLIK</div>
+                <div style="font-size:16px; letter-spacing:3px; margin-bottom:15px; opacity:0.8;">TOPLAM NET VARLIK</div>
                 <div class="big-num">{current_score} ₺</div>
             </div>
         """, unsafe_allow_html=True)
-        st.success("Bilgileriniz yerel veritabanında güvende.")
+        st.success("✅ Verileriniz yerel veritabanında şifreli olarak saklanmaktadır. Skor tablosunda görünmek için yan menüdeki 'Listeye Kaydet' butonunu kullanınız.")
 
     # TAB 2: DERSLER
     with t2:
-        st.subheader("SORU ÇÖZÜM MERKEZİ")
+        st.subheader("AKADEMİK GELİŞİM")
         c1, c2 = st.columns(2)
         with c1.container(border=True):
             st.markdown("### 📘 TYT HAZIRLIK")
-            st.caption("Genel Yetenek Soruları")
-            # --- KRİTİK DÜZELTME: UNIQUE KEY ---
-            if st.button("TESTİ BAŞLAT (+20 Puan)", key="btn_tyt_start_fixed"): 
+            st.caption("Temel Yeterlilik Testi Denemeleri")
+            if st.button("TESTİ BAŞLAT (+20 Puan)", key="btn_tyt"): # KEY EKLENDİ (HATA FİX)
                 update_player_score(user_key, 20, user['name'], user['no'])
-                st.toast("Tebrikler! +20 Puan eklendi.")
+                st.toast("🎉 Tebrikler! +20 Puan eklendi.")
                 time.sleep(0.5); st.rerun()
                 
         with c2.container(border=True):
             st.markdown("### 💼 MESLEKİ ALAN")
-            st.caption("Muhasebe Soruları")
-            # --- KRİTİK DÜZELTME: UNIQUE KEY ---
-            if st.button("TESTİ BAŞLAT (+20 Puan)", key="btn_meslek_start_fixed"): 
+            st.caption("Muhasebe ve Finansman Soruları")
+            if st.button("TESTİ BAŞLAT (+20 Puan)", key="btn_meslek"): # KEY EKLENDİ (HATA FİX)
                 update_player_score(user_key, 20, user['name'], user['no'])
-                st.toast("Tebrikler! +20 Puan eklendi.")
+                st.toast("🎉 Tebrikler! +20 Puan eklendi.")
                 time.sleep(0.5); st.rerun()
 
     # TAB 3: OYUNLAR & BANKA
@@ -413,10 +857,10 @@ else:
         col_game, col_bank = st.columns([2, 1])
         
         with col_game:
-            st.subheader("SİMÜLASYONLAR")
-            oyun = st.selectbox("Oyun Seç:", ["Finans İmparatoru", "Asset Matrix (Block Blast)"])
+            st.subheader("EKONOMİ SİMÜLASYONLARI")
+            oyun = st.selectbox("Simülasyon Seçiniz:", ["Finans İmparatoru (Pasif Gelir)", "Asset Matrix (Block Blast)"])
             
-            if oyun == "Finans İmparatoru":
+            if oyun == "Finans İmparatoru (Pasif Gelir)":
                 components.html(FINANCE_GAME_HTML, height=650)
             else:
                 components.html(MATRIX_GAME_HTML, height=650)
@@ -425,32 +869,33 @@ else:
             st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
             st.markdown("""
                 <div class="bank-area">
-                    <h3 style="color:#2ecc71; margin:0;">🏦 BANKA VEZNESİ</h3>
-                    <p style="font-size:13px; color:#aaa;">Güvenli Transfer</p>
+                    <h3 style="color:#2ecc71; margin:0;">🏦 MERKEZ BANKASI</h3>
+                    <p style="font-size:13px; color:#aaa;">Güvenli Transfer Noktası</p>
                 </div>
             """, unsafe_allow_html=True)
             
-            transfer_code = st.text_input("Transfer Kodu:", placeholder="Örn: FNK-...")
+            st.info("Oyunlardan elde ettiğiniz 'FNK' kodunu aşağıya girerek varlıklarınızı ana hesabınıza aktarabilirsiniz.")
+            transfer_code = st.text_input("Transfer Kodu (FNK-...):", placeholder="Örn: FNK-1A4-BL")
             
-            if st.button("PARA YATIR", type="primary", key="btn_deposit_fixed"): # KEY EKLENDİ
+            if st.button("KODU ONAYLA VE YATIR", type="primary"):
                 amount = decode_transfer_code(transfer_code)
                 if amount:
                     update_player_score(user_key, amount, user['name'], user['no'])
-                    st.success(f"✅ Hesabına {amount} ₺ eklendi.")
+                    st.success(f"✅ İŞLEM BAŞARILI! Hesabınıza {amount} ₺ tanımlandı.")
                     st.balloons()
                     time.sleep(2)
                     st.rerun()
                 else:
-                    st.error("⛔ Geçersiz Kod!")
+                    st.error("⛔ HATA: Geçersiz veya hatalı transfer kodu!")
 
     # TAB 4: SIRALAMA
     with t4:
         st.subheader("🏆 LİDERLİK KÜRSÜSÜ")
         db = load_db()
-        data = [{"Öğrenci": v['name'], "Puan": v['score']} for k,v in db.items()]
+        data = [{"Öğrenci Adı": v['name'], "Okul No": v['no'], "Toplam Varlık (₺)": v['score']} for k,v in db.items()]
         if data:
-            df = pd.DataFrame(data).sort_values("Puan", ascending=False).reset_index(drop=True)
+            df = pd.DataFrame(data).sort_values("Toplam Varlık (₺)", ascending=False).reset_index(drop=True)
             df.index += 1
             st.dataframe(df, use_container_width=True, height=500)
         else:
-            st.info("Veri yok.")
+            st.info("Henüz kayıtlı veri bulunmamaktadır.")
