@@ -38,7 +38,7 @@ def fetch_json_data(url):
         if response.status_code == 200:
             return json.loads(response.text)
     except: pass
-    return None
+    return {}
 
 def load_lifesim_html():
     try:
@@ -62,7 +62,7 @@ def decode_transfer_code(code):
     except: return None
 
 # ==========================================
-# 🎮 OYUN KODLARI (SABİT)
+# 🎮 OYUN KODLARI
 # ==========================================
 FINANCE_GAME_HTML = """
 <!DOCTYPE html>
@@ -239,10 +239,7 @@ st.markdown("""
     .stButton>button:hover { background-color: #D84315; color: white; }
     .login-container { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #D84315; }
     .bank-box { background: #e8f5e9; border: 2px dashed #27ae60; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
-    
-    /* Optik Form Satır Stili */
-    .optik-row { background:white; padding:5px 15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
-    .optik-row:hover { background-color:#f8f9fa; }
+    .optik-box { background:white; padding:15px; border-radius:10px; margin-bottom:10px; border-left:4px solid #D84315; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 </style>
 """, unsafe_allow_html=True)
 
@@ -326,7 +323,7 @@ else:
             tyt_data = fetch_json_data(URL_TYT_DATA)
             
             if not tyt_data:
-                st.warning("TYT verileri yükleniyor veya dosya bulunamadı...")
+                st.warning("TYT verileri yükleniyor... (tyt_data.json bekleniyor)")
             else:
                 dersler = sorted(list(set([detay.get('ders') for detay in tyt_data.values() if 'ders' in detay])))
                 secilen_ders = st.selectbox("Çözmek İstediğiniz Dersi Seçin:", dersler, key="tyt_ders_sec")
@@ -348,12 +345,21 @@ else:
                     secilen_sayfa_no = secim[0]
                     secilen_detay = secim[2]
                     
-                    st.markdown("---")
+                    st.divider()
+                    
                     c_pdf, c_optik = st.columns([1.5, 1])
+                    
                     with c_pdf:
                         st.info(f"📄 Sayfa {secilen_sayfa_no} görüntüleniyor.")
-                        pdf_viewer_url = f"https://docs.google.com/gview?url={URL_TYT_PDF}&embedded=true"
-                        st.markdown(f"""<iframe src="{pdf_viewer_url}#page={secilen_sayfa_no}" width="100%" height="800px" style="border:none;"></iframe>""", unsafe_allow_html=True)
+                        # PDF'i Sayfa Numarası ile Açma Butonu
+                        pdf_page_url = f"{URL_TYT_PDF}#page={secilen_sayfa_no}"
+                        st.markdown(f"""
+                        <a href="{pdf_page_url}" target="_blank" style="display:block; text-align:center; background:#e74c3c; color:white; padding:15px; border-radius:8px; font-weight:bold; text-decoration:none; margin-bottom:10px;">
+                            🚀 SAYFA {secilen_sayfa_no}'U YENİ SEKMEDE AÇ (TIKLA)
+                        </a>
+                        <embed src="{URL_TYT_PDF}#page={secilen_sayfa_no}" width="100%" height="800px" type="application/pdf">
+                        """, unsafe_allow_html=True)
+
                     with c_optik:
                         st.subheader("📝 Optik Form")
                         with st.form(key=f"tyt_form_{secilen_sayfa_no}"):
@@ -364,6 +370,7 @@ else:
                                 st.write("")
                             if st.form_submit_button("KONTROL ET"):
                                 dogru, yanlis = 0, 0
+                                st.markdown("### Sonuçlar")
                                 for i, soru_no in enumerate(secilen_detay['sorular']):
                                     u_ans = user_answers[i]
                                     try: c_ans = secilen_detay['cevaplar'][i] 
@@ -378,60 +385,59 @@ else:
                                 st.info(f"**Kazanılan Puan:** {puan} ₺")
                                 st.session_state.bank_balance += puan
 
-        # 2. MESLEK BÖLÜMÜ (YENİ SİSTEM - NESTED JSON)
+        # 2. MESLEK BÖLÜMÜ (GÜNCELLENMİŞ HİYERARŞİ)
         with t_meslek:
-            # Tüm yapıyı ("KONU_TARAMA") çek
-            meslek_data_raw = fetch_json_data(URL_MESLEK_SORULAR)
+            meslek_data = fetch_json_data(URL_MESLEK_SORULAR)
             
-            if not meslek_data_raw:
-                st.warning("Meslek soruları yüklenemedi.")
+            # Root Anahtar Kontrolü (KONU_TARAMA var mı?)
+            if not meslek_data:
+                st.warning("Meslek soruları yükleniyor...")
             else:
-                # Ana Başlık (Genelde 'KONU_TARAMA')
-                root_keys = list(meslek_data_raw.keys())
-                if root_keys:
-                    main_data = meslek_data_raw[root_keys[0]] # İlk anahtarı al
-                    
-                    # 1. Sınıf Seçimi
-                    siniflar = list(main_data.keys())
-                    sel_sinif = st.selectbox("Sınıf Seviyesi:", siniflar)
-                    
+                # Eğer root key varsa içine gir, yoksa direkt data'yı kullan
+                root_data = meslek_data.get("KONU_TARAMA", meslek_data)
+                
+                # 1. Sınıf Seçimi
+                siniflar = list(root_data.keys())
+                sel_sinif = st.selectbox("Sınıf Seçiniz:", siniflar)
+                
+                if sel_sinif:
                     # 2. Ders Seçimi
-                    if sel_sinif:
-                        dersler = list(main_data[sel_sinif].keys())
-                        sel_ders = st.selectbox("Ders Seçiniz:", dersler)
-                        
+                    dersler = list(root_data[sel_sinif].keys())
+                    sel_ders = st.selectbox("Ders Seçiniz:", dersler)
+                    
+                    if sel_ders:
                         # 3. Test Seçimi
-                        if sel_ders:
-                            testler = list(main_data[sel_sinif][sel_ders].keys())
-                            sel_test = st.selectbox("Test Seçiniz:", testler)
+                        testler = list(root_data[sel_sinif][sel_ders].keys())
+                        sel_test = st.selectbox("Test Seçiniz:", testler)
+                        
+                        if sel_test:
+                            # 4. Soruları Listele
+                            soru_listesi = root_data[sel_sinif][sel_ders][sel_test]
+                            st.markdown("---")
+                            st.subheader(f"📙 {sel_ders} - {sel_test}")
                             
-                            # 4. Soruları Getir
-                            if sel_test:
-                                sorular_listesi = main_data[sel_sinif][sel_ders][sel_test]
-                                st.markdown(f"### 📙 {sel_ders} - {sel_test}")
+                            with st.form(key=f"meslek_form_{sel_sinif}_{sel_ders}_{sel_test}"):
+                                m_answers = {}
+                                for i, q in enumerate(soru_listesi):
+                                    st.markdown(f"**{i+1}. {q['soru']}**")
+                                    opts = q.get('secenekler', [])
+                                    m_answers[i] = st.radio("Cevap:", opts, key=f"m_{i}", index=None)
+                                    st.divider()
                                 
-                                with st.form(key=f"meslek_form_{sel_sinif}_{sel_ders}_{sel_test}"):
-                                    m_answers = {}
-                                    for i, q in enumerate(sorular_listesi):
-                                        st.markdown(f"**{i+1}. {q['soru']}**")
-                                        # Seçenekler
-                                        m_answers[i] = st.radio("Cevabınız:", q['secenekler'], key=f"m_q_{i}", index=None)
-                                        st.divider()
+                                if st.form_submit_button("TESTİ BİTİR VE KONTROL ET"):
+                                    m_dogru = 0
+                                    for i, q in enumerate(soru_listesi):
+                                        # Cevap kontrolü (Tam metin eşleşmesi)
+                                        dogru_cevap = q.get('cevap')
+                                        if m_answers[i] == dogru_cevap:
+                                            m_dogru += 1
+                                            st.success(f"✅ Soru {i+1}: Doğru")
+                                        else:
+                                            st.error(f"❌ Soru {i+1}: Yanlış (Doğru Cevap: {dogru_cevap})")
                                     
-                                    if st.form_submit_button("TESTİ BİTİR VE KONTROL ET"):
-                                        m_dogru = 0
-                                        st.markdown("### 📊 Sonuçlar")
-                                        for i, q in enumerate(sorular_listesi):
-                                            if m_answers[i] == q['cevap']:
-                                                m_dogru += 1
-                                                st.success(f"✅ **Soru {i+1}:** Doğru")
-                                            else:
-                                                st.error(f"❌ **Soru {i+1}:** Yanlış (Doğru Cevap: {q['cevap']})")
-                                        
-                                        m_puan = m_dogru * 100
-                                        st.success(f"✅ Toplam Doğru: {m_dogru}")
-                                        st.info(f"💰 Kazanılan: {m_puan} ₺")
-                                        st.session_state.bank_balance += m_puan
+                                    m_puan = m_dogru * 100
+                                    st.info(f"**Toplam Puan:** {m_puan} ₺")
+                                    st.session_state.bank_balance += m_puan
 
     with tab_eglence:
         st.header("🎮 Simülasyonlar")
