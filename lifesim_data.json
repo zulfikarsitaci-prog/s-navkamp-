@@ -1,26 +1,310 @@
 [
   {
-    "category": "Finans",
-    "title": "Enflasyonist Ortamda Borçlanma",
-    "text": "Telefonun peşin fiyatı 30.000 TL, 12 taksitli fiyatı 36.000 TL (%20 Vade Farkı). Yıllık enflasyon beklentisi %60. Hangi seçeneği seçersin?",
-    "data": ["Peşin: 30k", "Taksitli: 36k", "Enflasyon: %60"],
-    "money_reward": 1500,
+    "category": "Bireysel Finans",
+    "title": "Kredi Kartı Asgari Ödeme Tuzağı",
+    "text": "Toplam borcun 50.000 TL. Asgari ödeme tutarı 10.000 TL ödendi. Kalan 40.000 TL'ye %5 akdi faiz işliyor. Bir sonraki ay borç ne olacak? Asgariyi ödemek mantıklı mı?",
+    "data": ["Borç: 50.000 TL", "Ödenen: 10.000 TL", "Faiz: %5 Aylık"],
     "keywords": {
-      "reel": "Reel faiz ile nominal faiz farkını düşündün mü?",
-      "nakit": "Nakit paranın zaman değerini (Time Value of Money) hesaba kattın mı?"
+      "bileşik": "Borcun sadece faizini değil, faizin faizini de ödeyeceğini (Bileşik Faiz etkisi) hesaba kattın mı?",
+      "kredi notu": "Sürekli asgari ödemenin Kredi Kayıt Bürosu (KKB) puanını nasıl etkileyeceğini düşündün mü?",
+      "maliyet": "Yıllık maliyet oranını hesapladın mı? %5 aylık faiz, yıllık basit %60'tan çok daha fazladır."
     },
-    "hapBilgi": "Enflasyon (%60) kredi maliyetinden (%20) yüksekse borçlanmak karlıdır."
+    "hapBilgi": "Kredi kartı asgari ödemesi bir borç kapama değil, borcu öteleme yöntemidir. Kalan borca işleyen akdi faiz, piyasadaki en yüksek faizlerden biridir. Mümkünse ihtiyaç kredisi çekip kartı kapatmak (Refinansman) daha düşük maliyetli olabilir."
+  },
+  {
+    "category": "Şirket Muhasebesi",
+    "title": "Nakit Akışı vs Kar",
+    "text": "Şirket kağıt üzerinde bu ay 1 Milyon TL kar etti görünüyor. Ancak kasada 0 TL var çünkü tüm satışlar 90 gün vadeli yapıldı. Bu hafta maaşları nasıl ödeyeceksin?",
+    "data": ["Kar: 1M TL", "Nakit: 0 TL", "Gider: Maaşlar"],
+    "keywords": {
+      "faktoring": "Alacaklarını kırdırıp (Faktoring) nakde dönme maliyetini ve avantajını kıyasladın mı?",
+      "tahsilat": "Satış ekibine vadesiz satış için prim vermeyi düşündün mü?",
+      "kredi": "Kısa vadeli işletme kredisi (Rotatif Kredi) kullanmak bir çözüm olabilir mi?",
+      "iflas": "Şirketler zarar ettikleri için değil, nakitleri bittiği için batarlar gerçeğini göz önüne aldın mı?"
+    },
+    "hapBilgi": "Kar bir 'Görüş', Nakit bir 'Gerçektir'. Kağıt üzerindeki kar fatura kesildiği an oluşur (Tahakkuk Esası), ancak maaşlar nakit ödenir. Nakit Akış Tablosu yönetimi, Gelir Tablosu yönetiminden daha hayatidir."
+  },
+  {
+    "category": "Vergi & Mevzuat",
+    "title": "Gider Gösterme Yanılgısı",
+    "text": "Patron, şahsi tatil harcamasını şirkete gider olarak göstermek istiyor. 'Vergiden düşeriz' diyor. Muhasebeci olarak tepkin ne olur?",
+    "data": ["Harcama: Şahsi", "Talep: Gider Yaz", "Risk: Vergi Cezası"],
+    "keywords": {
+      "kanunen kabul edilmeyen": "Bu harcamanın KKEG (Kanunen Kabul Edilmeyen Gider) olduğunu biliyor musun?",
+      "örtülü kazanç": "Şirket parasını şahsi işler için kullanmanın 'Örtülü Kazanç Dağıtımı' sayılacağını patrona anlattın mı?",
+      "inceleme": "Vergi müfettişinin otel faturasındaki isimleri kontrol etme ihtimalini (Vergi İncelemesi) düşündün mü?",
+      "etik": "Meslek etiği açısından bu işlemi yapmayı reddetme sorumluluğun var mı?"
+    },
+    "hapBilgi": "Her harcama gider değildir. İşle ilgili olmayan harcamalar gider yazılırsa Vergi Ziyaı cezası kesilir. Bu harcama KKEG olarak işlense bile şirketin kasasından para çıkmış olur ama vergi matrahını düşürmez."
+  },
+  {
+    "category": "Yatırım",
+    "title": "Dolar mı Enflasyon mu?",
+    "text": "Dolar 1 yılda %30 arttı, Enflasyon %60 oldu. Dolar alan yatırımcı 'Paramı korudum' diyor. Haklı mı?",
+    "data": ["Dolar Artışı: %30", "Enflasyon: %60", "Algı: Korundum"],
+    "keywords": {
+      "alım gücü": "Paranın miktarı artsa bile alım gücünün (Reel Getiri) düştüğünü fark ettin mi?",
+      "negatif": "Yatırımcının aslında reel olarak %30 zarar ettiğini (Negatif Reel Faiz) nasıl açıklarsın?",
+      "fırsat maliyeti": "Parayı dolarda tutmak yerine borsada veya mevduatta tutsaydı ne olurdu?",
+      "kur": "Döviz artışının enflasyonun altında kalması (Kurun Baskılanması) durumunu analiz ettin mi?"
+    },
+    "hapBilgi": "Bir yatırım aracının getirisi enflasyonun altındaysa, paranız erimiş demektir. Buna 'Negatif Reel Getiri' denir. Sadece nominal fiyata bakmak finansal bir yanılsamadır."
+  },
+  {
+    "category": "Maliyet Muhasebesi",
+    "title": "Sabit vs Değişken Gider",
+    "text": "Üretim dursa bile kira ve güvenlik ödeniyor. Siparişler azaldı. Birim maliyet neden artıyor?",
+    "data": ["Üretim: Azaldı", "Gider: Sabit", "Sonuç: Pahalı Ürün"],
+    "keywords": {
+      "birim maliyet": "Toplam sabit giderlerin daha az ürüne bölündüğünü (Birim Sabit Gider Artışı) fark ettin mi?",
+      "başabaş": "Şirketin kar etmeye başlaması için satması gereken minimum adedi (Başabaş Noktası) hesapladın mı?",
+      "kapasite": "Atıl kapasite maliyetinin ürün fiyatına yansımasını nasıl önlersin?",
+      "fiyatlama": "Maliyet arttı diye fiyatı artırırsan talebin daha da düşeceğini (Talep Esnekliği) düşündün mü?"
+    },
+    "hapBilgi": "Üretim hacmi düştüğünde, ürün başına düşen sabit gider yükü artar. Bu kısır döngüdür: Maliyet artar -> Fiyat artar -> Satış düşer -> Üretim düşer -> Maliyet daha da artar. Çözüm hacmi artırmaktır."
   },
   {
     "category": "Girişimcilik",
-    "title": "MVP vs Mükemmel Ürün",
-    "text": "Ürün çalışıyor ama tasarımı kötü. Rakip çıkmak üzere. 3 ay tasarım mı çalışmalı, hemen mi çıkmalı?",
-    "data": ["Rakip: Var", "Süre: +3 Ay"],
-    "money_reward": 5000,
+    "title": "Burn Rate ve Runway",
+    "text": "Start-up hesabında 500.000 TL var. Aylık gider 50.000 TL. Gelir henüz yok. Ne zaman batarsın?",
+    "data": ["Kasa: 500k", "Aylık Gider: 50k", "Gelir: 0"],
     "keywords": {
-      "geri bildirim": "Müşteri geri bildirimi (Feedback) olmadan mükemmele ulaşamazsın.",
-      "pazar": "Pazara ilk giren (First Mover) avantajını kaybetme."
+      "runway": "Şirketin ömrünün (Runway) kaç ay kaldığını hesapladın mı?",
+      "yatırım": "Yeni yatırım turuna ne zaman çıkman gerektiğini planladın mı? Para bitmeden 3-4 ay önce başlamalısın.",
+      "pivot": "Para bitmeden iş modelini değiştirme (Pivot) şansın var mı?",
+      "kısıntı": "Burn rate'i (nakit yakma hızı) düşürmek için hangi giderleri kısabilirsin?"
     },
-    "hapBilgi": "Mükemmel iyinin düşmanıdır. MVP ile hemen çıkıp veriye göre geliştirmek esastır."
+    "hapBilgi": "Bu senaryoda Runway = 500k / 50k = 10 aydır. Girişimcilikte en önemli metrik 'Kalan Ömür'dür. Yatırımcılar genellikle 18 aylık runway görmek isterler."
+  },
+  {
+    "category": "Bireysel Finans",
+    "title": "Konut Kredisi ve Erken Ödeme",
+    "text": "10 yıllık konut kredisi çektin. 3. yılda eline toplu para geçti. Krediyi kapatmak mı, parayı yatırıma koymak mı?",
+    "data": ["Kredi Faizi: %2", "Yatırım Getirisi: %4", "Ceza: %2"],
+    "keywords": {
+      "erken ödeme cezası": "Konut kredilerinde %2 erken ödeme cezası olduğunu hesaba kattın mı?",
+      "alternatif getiri": "Ehindeki parayı mevduata veya fona koysan, krediye ödeyeceğin faizden daha çok kazanır mısın?",
+      "psikoloji": "Borçsuz olmanın vereceği psikolojik rahatlığı mı, matematiksel karı mı tercih edersin?",
+      "vergi": "Yatırım getirisinden düşülecek stopaj vergisini net hesaba kattın mı?"
+    },
+    "hapBilgi": "Eğer 'Yatırım Getirisi > Kredi Faizi' ise borcu kapatmak matematiksel olarak zarardır. Parayı işleterek borcun faizini ödeyebilir ve üste kar edebilirsiniz (Kaldıraç Etkisi)."
+  },
+  {
+    "category": "Şirket Muhasebesi",
+    "title": "Amortisman Yöntemi",
+    "text": "Yeni alınan makineyi 5 yılda giderleştirmek mi (Normal), ilk yıllarda çok gider yazmak mı (Azalan Bakiyeler)? Şirket bu yıl çok kar etti.",
+    "data": ["Kar: Yüksek", "Yöntem: Seçim", "Amaç: Vergi Planlaması"],
+    "keywords": {
+      "vergi kalkanı": "Bu yıl kar yüksekse, azalan bakiyeler yöntemiyle daha çok gider yazıp daha az vergi ödeyebileceğini (Vergi Kalkanı) düşündün mü?",
+      "nakit": "Daha az vergi ödeyerek şirkette kalan nakdi yatırıma dönüştürme fırsatını gördün mü?",
+      "gelecek": "İlk yıllarda hakkını kullanırsan, sonraki yıllarda vergi yükünün artacağını planladın mı?"
+    },
+    "hapBilgi": "Karın yüksek olduğu dönemlerde 'Hızlandırılmış Amortisman' (Azalan Bakiyeler) yöntemi seçilerek vergi ödemesi ötelenir. Bu, devlete faizsiz borçlanmak gibidir."
+  },
+  {
+    "category": "Hukuk & Ticaret",
+    "title": "Çek Tahsilatı Sorunu",
+    "text": "Müşteriden aldığın çek karşılıksız çıktı. Müşteri 'Bekle ödeyeceğim' diyor. Çeki bankaya yazdırmalı mısın?",
+    "data": ["Çek: Karşılıksız", "Süre: 10 Gün", "Risk: İtibar vs Para"],
+    "keywords": {
+      "arkasını yazdırmak": "Çeki yazdırmazsan hukuki takip hakkını (İcra) kaybedebileceğini veya geciktireceğini biliyor musun?",
+      "zamanaşımı": "Çeklerde ibraz sürelerini (10 gün) kaçırırsan belgenin adi senede dönüşeceğini biliyor musun?",
+      "iyi niyet": "Ticari ilişkiyi bozmamak adına beklemek ile garantiyi kaybetmek arasındaki riski tarttın mı?"
+    },
+    "hapBilgi": "Çek, görüldüğünde ödenen bir ödeme aracıdır. Karşılıksız çıktığında bankaya 'Arkasını yazdırmak', hukuki süreci başlatmanın ilk şartıdır. Yazdırılmazsa çek vasfını yitirebilir."
+  },
+  {
+    "category": "Envanter Yönetimi",
+    "title": "FIFO vs LIFO",
+    "text": "Enflasyon ortamında stok maliyetini hesaplarken 'İlk Giren İlk Çıkar' (FIFO) mı kullanmalısın? Amaç karı düşük gösterip az vergi ödemekse?",
+    "data": ["Ortam: Enflasyonist", "Amaç: Vergi Tasarrufu"],
+    "keywords": {
+      "maliyet": "Enflasyon varsa, eski giren mal ucuzdur. FIFO kullanırsan maliyet düşük, kar yüksek çıkar. Bunu fark ettin mi?",
+      "lifo yasağı": "Türkiye'de LIFO (Son Giren İlk Çıkar) yönteminin vergi mevzuatında genellikle kabul edilmediğini araştırdın mı?",
+      "stok karı": "Stokta bekleyen ürünün değerlenmesiyle oluşan 'Enflasyon Karı'nın vergisini ödemeye hazır mısın?"
+    },
+    "hapBilgi": "Enflasyonist ortamda FIFO kullanmak, maliyeti düşük (eski fiyatlı) malları gider yazmak demektir. Bu da kağıt üzerindeki karı ve dolayısıyla vergiyi artırır. Şirketler için nakit çıkışı yaratır."
+  },
+  {
+    "category": "İK Yönetimi",
+    "title": "Brüt Maaş mı Net Maaş mı?",
+    "text": "Yeni işe gireceksin. Patron '30.000 TL Net' mi yoksa '45.000 TL Brüt' mü istersin diye sordu. Yıl sonunu düşünerek hangisi karlı?",
+    "data": ["Teklif A: Net", "Teklif B: Brüt", "Vergi Dilimi: Artan"],
+    "keywords": {
+      "vergi dilimi": "Aylar geçtikçe gelir vergisi diliminin artacağını ve brüt maaşın ele geçen kısmının azalacağını hesapladın mı?",
+      "sabit gelir": "Net maaş anlaşırsan vergi artışını işverenin üstlendiğini, senin eline geçen paranın değişmeyeceğini biliyor musun?",
+      "zam": "Ocak ayındaki zammın brüt üzerinden mi net üzerinden mi yapılacağının önemini sordun mu?"
+    },
+    "hapBilgi": "Enflasyonist ve artan oranlı vergi sistemlerinde 'Net Maaş' anlaşması çalışanı korur. Brüt anlaşmada yıl sonuna doğru maaşınız vergi kesintisi yüzünden azalır (Elinize geçen para düşer)."
+  },
+  {
+    "category": "Pazarlama & Finans",
+    "title": "İskonto mu Vade mi?",
+    "text": "Müşteri malı alacak ama şartı var: Ya %10 indirim yap peşin ödeyeyim, ya da liste fiyatından alayım 4 ay sonra ödeyeyim. Mevduat faizi aylık %4.",
+    "data": ["İskonto: %10", "Vade: 4 Ay", "Faiz: %4 Aylık"],
+    "keywords": {
+      "bugünkü değer": "4 ay sonraki paranın bugünkü değerini (Net Present Value) hesapladın mı?",
+      "alternatif maliyet": "4 ayda %4 x 4 = %16 (basit) faiz geliri var. %10 indirim yapıp parayı alıp faize koysan daha karlı olabilir mi?",
+      "nakit ihtiyacı": "Şirketin şu an nakde sıkışık olup olmadığı kararını nasıl etkiler?"
+    },
+    "hapBilgi": "Basit hesap: 4 aylık vadede para %16 değer kaybedecek (veya kazanacak). %10 indirim yapıp parayı şimdi almak (%10 maliyet), 4 ay bekleyip %16 kaybetmekten daha iyidir. Peşin + İskonto mantıklıdır."
+  },
+  {
+    "category": "Otomobil & Yatırım",
+    "title": "Şirket Aracı: Satın Almak mı Kiralamak mı?",
+    "text": "Şirkete araç lazım. 1.5 Milyon TL verip almak mı, aylık 40.000 TL verip kiralamak mı?",
+    "data": ["Fiyat: 1.5M", "Kira: 40k", "Süre: 3 Yıl"],
+    "keywords": {
+      "gider kısıtlaması": "Binek araç alımında gider yazma sınırları (Amortisman kısıtlaması) olduğunu biliyor musun?",
+      "kdv": "Kiralama faturasının KDV'sinin tamamını indirebileceğini, ama satın almada sınır olduğunu hesaba kattın mı?",
+      "toplu para": "1.5 Milyon TL'yi araca bağlamak yerine ticarette kullanmanın getirisini düşündün mü?",
+      "ikinci el": "3 yıl sonra aracın 2. el satış değerinin şirkete kar (ve vergi) olarak döneceğini hesapladın mı?"
+    },
+    "hapBilgi": "Operasyonel kiralama; bakım, sigorta ve vergi avantajı sağlar ve toplu parayı şirkette bırakır. Satın alma ise enflasyonist ortamda aracın değer kazanmasıyla 'yatırım' gibi görünebilir ama vergi yükü daha ağırdır."
+  },
+  {
+    "category": "Bankacılık",
+    "title": "KMH (Eksi Hesap) Tehlikesi",
+    "text": "Hesapta para yok, faturalar otomatik ödemede KMH'tan (Eksi Bakiye) ödendi. 10 gün sonra maaş yatınca kapandı. Önemli bir şey değil mi?",
+    "data": ["Kullanım: KMH", "Süre: 10 Gün", "Faiz: Yüksek"],
+    "keywords": {
+      "günlük faiz": "KMH faizinin günlük işletildiğini ve piyasadaki en yüksek faiz oranı olduğunu biliyor musun?",
+      "alışkanlık": "Sürekli ekside yaşamanın bütçe disiplinini bozduğunu fark ettin mi?",
+      "masraf": "Faiz dışında vergi ve fon kesintilerini de maliyete ekledin mi?"
+    },
+    "hapBilgi": "Kredili Mevduat Hesabı (KMH), acil durumlar içindir. Düzenli bir finansman aracı olarak kullanılırsa, maaşınızın önemli bir kısmı fark etmeden faize gider."
+  },
+  {
+    "category": "Sigorta",
+    "title": "Eksik Sigorta Riski",
+    "text": "Fabrikanın değeri 100 Milyon TL ama prim ucuz olsun diye 50 Milyon TL üzerinden sigortalattın. 10 Milyon TL'lik hasar oldu. Sigorta ne öder?",
+    "data": ["Değer: 100M", "Poliçe: 50M", "Hasar: 10M"],
+    "keywords": {
+      "eksik sigorta": "Sigorta bedelinin gerçek değerden düşük olması durumunda 'Eksik Sigorta' kuralının işleyeceğini biliyor musun?",
+      "oran": "Poliçe değeri gerçek değerin yarısı (%50). Hasarın da sadece yarısını alabileceğini biliyor musun?",
+      "co-insurance": "Sigortacının bu durumda hasarın tamamını değil, prim ödenen oranda karşılayacağını hesapladın mı?"
+    },
+    "hapBilgi": "Eksik sigorta durumunda, hasar ne kadar küçük olursa olsun, sigorta şirketi 'Sigorta Bedeli / Gerçek Değer' oranında ödeme yapar. 100M yerine 50M gösterdiyseniz, 10M hasar için sadece 5M alırsınız."
+  },
+  {
+    "category": "Etik & Hukuk",
+    "title": "Naylon Fatura Teklifi",
+    "text": "Tedarikçi 'KDV ödeme, sana %5 komisyonla fatura keseyim' dedi. Şirketin KDV ödemesi çok çıkıyor. Kabul eder misin?",
+    "data": ["Teklif: Sahte Belge", "Kazanç: KDV", "Risk: Hapis"],
+    "keywords": {
+      "sahte belge": "Bunun Vergi Usul Kanunu 359. maddeye göre 'Kaçakçılık Suçu' olduğunu ve hapis cezası olduğunu biliyor musun?",
+      "kod": "Şirketin 'Özel Esaslara' (KOD'a) alınacağını ve bir daha ticaret yapamaz hale geleceğini düşündün mü?",
+      "sorumluluk": "Muhasebeci veya yönetici olarak bu suça iştirak etmenin bedelini biliyor musun?"
+    },
+    "hapBilgi": "Naylon fatura (Sahte Belge), sadece vergi cezası değil, hapis cezası gerektiren bir suçtur. Şirketi 'Kara Liste'ye sokar, bankalar kredileri keser, ticari hayat biter."
+  },
+  {
+    "category": "Ekonomi",
+    "title": "Stagflasyon Nedir?",
+    "text": "Hem fiyatlar artıyor (Enflasyon) hem de işler durdu, işsizlik artıyor (Durgunluk). Bu durumda ne yapmalı?",
+    "data": ["Durum: Enflasyon + Durgunluk"],
+    "keywords": {
+      "nakit": "Bu dönemde 'Nakit Kraldır' prensibinin neden en önemli strateji olduğunu açıklayabilir misin?",
+      "maliyet kısıntısı": "Büyümek yerine küçülerek hayatta kalma (Downsizing) stratejisini düşündün mü?",
+      "borç": "Faizler de yüksek olacağı için borçlanmaktan kaçınmak gerektiğini analiz ettin mi?"
+    },
+    "hapBilgi": "Stagflasyon (Stagnation + Inflation), ekonomistlerin korkulu rüyasıdır. İşsizlik artarken fiyatların da artmasıdır. Bu dönemde agresif büyüme değil, nakdi koruma ve verimlilik esastır."
+  },
+  {
+    "category": "Bireysel Emeklilik",
+    "title": "BES'ten Erken Çıkış",
+    "text": "BES'te 5. yılın. Devlet katkısı %30. Paraya ihtiyacın oldu, çıkmak istiyorsun. Zararın ne olur?",
+    "data": ["Süre: 5 Yıl", "Katkı: %30", "Durum: Çıkış"],
+    "keywords": {
+      "hak ediş": "10 yılı ve 56 yaşı doldurmadan çıkarsan devlet katkısının büyük kısmını kaybedeceğini biliyor musun?",
+      "stopaj": "Ana para hariç getiri üzerinden kesilecek stopajın erken çıkışta çok yüksek (%15) olduğunu hesapladın mı?",
+      "giriş aidatı": "Erken çıkışta ertelenmiş giriş aidatının tahsil edileceğini biliyor musun?"
+    },
+    "hapBilgi": "BES uzun vadeli bir yatırımdır. İlk 3 yılda çıkarsanız devlet katkısının tamamını, 3-6 yıl arası %85'ini, 6-10 yıl arası %65'ini kaybedersiniz. Mümkünse çıkmak yerine fon dağılımını değiştirmek veya ödemeye ara vermek daha mantıklıdır."
+  },
+  {
+    "category": "Gayrimenkul",
+    "title": "Tapu Harcı Gerçeği",
+    "text": "Evi 5 Milyon TL'ye aldın. Tapuda 1 Milyon TL (Rayiç Bedel) gösterelim, harç az çıksın dediler. Ne dersin?",
+    "data": ["Gerçek: 5M", "Beyan: 1M", "Risk: Ceza"],
+    "keywords": {
+      "pişmanlık": "Maliye'nin banka transferlerini izlediğini ve aradaki farkın cezasını faiziyle isteyeceğini biliyor musun?",
+      "satış kazancı": "Evi 5 yıl içinde satarsan, alış bedeli düşük göründüğü için çok yüksek 'Değer Artış Kazancı Vergisi' ödeyeceğini hesapladın mı?",
+      "ön alım": "Belediyenin rayiç bedelden alma hakkı (Şufa) olduğunu duydun mu?"
+    },
+    "hapBilgi": "Tapu harcını düşük göstermek kısa vadede kar gibi görünse de, evi satarken ödeyeceğiniz Gelir Vergisi (Değer Artış Kazancı) çok daha yüksek çıkar. Ayrıca tespit edilirse ağır cezası vardır."
+  },
+  {
+    "category": "Yatırım Psikolojisi",
+    "title": "FOMO ve Tepeden Almak",
+    "text": "Herkes X hissesini konuşuyor, %200 artmış. Sen de 'Kaçırmayayım' diye girdin. Hisse düşmeye başladı. Sorun ne?",
+    "data": ["Hisse: Zirvede", "Duygu: Korku", "Sonuç: Zarar"],
+    "keywords": {
+      "fomo": "Fear Of Missing Out (Fırsatı Kaçırma Korkusu) ile rasyonel olmayan bir karar verdiğini kabul ediyor musun?",
+      "temel analiz": "Hissenin fiyatı artmış ama şirketin karı artmış mı? F/K oranına baktın mı?",
+      "stop loss": "Girerken nerede zarar kesip çıkacağını (Stop Loss) belirlemiş miydin?"
+    },
+    "hapBilgi": "Borsada haber manşetlere düştüğünde, o tren genellikle kaçmıştır. 'Herkes alırken sat, herkes satarken al' (Contrarian) stratejisi genellikle FOMO'dan daha çok kazandırır."
+  },
+  {
+      "category": "E-Ticaret",
+      "title": "Pazaryeri Komisyonları",
+      "text": "Ürünü 100 TL'ye mal edip Trendyol/Hepsiburada'da 150 TL'ye satıyorsun. Kar ettiğini sanıyorsun ama zarar ediyorsun. Neyi unuttun?",
+      "data": ["Maliyet: 100", "Satış: 150", "Kar: ?"],
+      "keywords": {
+        "komisyon": "Pazaryeri komisyonunu (%15-20) düştün mü?",
+        "kargo": "Kargo bedelinin satıcıya ait olduğunu hesapladın mı?",
+        "kdv": "Satış fiyatı içindeki KDV'yi ve ödeyeceğin KDV farkını hesapladın mı?",
+        "iade": "İade oranlarını ve iade kargo maliyetlerini bütçeye ekledin mi?"
+      },
+      "hapBilgi": "E-ticarette 'Brüt Kar' yanıltıcıdır. Net Kar = Satış Fiyatı - (Ürün Maliyeti + Komisyon + Kargo + Reklam + KDV + Operasyon Giderleri). Genellikle 100'e alınan malın 150'ye satılması e-ticarette zarardır."
+  },
+  {
+    "category": "Finans Matematiği",
+    "title": "72 Kuralı",
+    "text": "Paranı yıllık %24 faizle yatırdın. Paranın ikiye katlanması kaç yıl sürer? Formül kullanmadan pratik hesap.",
+    "data": ["Faiz: %24", "Hedef: 2 Katı"],
+    "keywords": {
+      "72 kuralı": "Bileşik faizde paranın ikiye katlanma süresini bulmak için 72'yi faiz oranına böldüğünü biliyor musun?",
+      "zaman": "Faiz getirisi ile enflasyon ilişkisini kurdun mu?",
+      "vergi": "Bu basit hesapta stopajın (verginin) düşülmediğini biliyor musun?"
+    },
+    "hapBilgi": "72 Kuralı: 72 / Yıllık Faiz Oranı = Paranın İkiye Katlanma Yılı. Örnek: 72 / 24 = 3 Yıl. Paranız 3 yılda iki katına çıkar (Vergi hariç)."
+  },
+  {
+      "category": "Aile Şirketleri",
+      "title": "Kurumsallaşma ve Aile Anayasası",
+      "text": "Şirkette 3 kardeş, 5 kuzen çalışıyor. Kimse kime rapor vereceğini bilmiyor. Karlılık düşüyor. Çözüm ne?",
+      "data": ["Durum: Kaos", "Risk: Batış"],
+      "keywords": {
+        "aile anayasası": "Aile ilişkileri ile iş ilişkilerini ayıracak yazılı bir 'Aile Anayasası' hazırlamayı düşündün mü?",
+        "profesyonel": "Şirketin başına aileden olmayan profesyonel bir CEO getirmeyi (Profesyonel Yönetim) tartıştınız mı?",
+        "liyakat": "Kuzenleri soyadlarına göre değil, yeteneklerine göre mi işe aldınız?"
+      },
+      "hapBilgi": "Aile şirketlerinin 3. kuşağa geçememesinin ana nedeni kurumsallaşamamaktır. Duygusal bağlar ticari kararları etkiler. Aile Anayasası, şirketin ve ailenin geleceğini koruyan en önemli hukuki metindir."
+  },
+  {
+      "category": "Kripto Varlıklar",
+      "title": "Soğuk Cüzdan Güvenliği",
+      "text": "Kripto paralarını borsada tutuyorsun. Borsa 'Hacklendim' dedi veya iflas etti. Parana ne olur?",
+      "data": ["Yer: Borsa", "Risk: Yüksek"],
+      "keywords": {
+        "private key": "'Not your keys, not your coins' (Anahtar senin değilse, coin senin değildir) ilkesini biliyor musun?",
+        "soğuk cüzdan": "Uzun vadeli yatırımları internete kapalı donanım cüzdanlarda (Ledger/Trezor) saklamayı düşündün mü?",
+        "yasal güvence": "Kripto borsalarındaki paranın devlet güvencesinde (TMSF gibi) olmadığını biliyor musun?"
+      },
+      "hapBilgi": "Merkezi borsalar banka değildir. İflas edebilirler. Büyük meblağlar mutlaka kişisel soğuk cüzdanlara çekilmelidir. Borsa sadece al-sat yapmak içindir, saklamak için değil."
+  },
+  {
+      "category": "Dış Ticaret",
+      "title": "Eximbank Kredisi",
+      "text": "İhracat yapıyorsun ama sermayen yetmiyor. Banka kredileri çok pahalı. Alternatif ucuz kaynak nedir?",
+      "data": ["Durum: İhracatçı", "Sorun: Finansman"],
+      "keywords": {
+        "eximbank": "Devletin ihracatçıyı destekleyen bankası Eximbank'ın düşük faizli kredilerini araştırdın mı?",
+        "taahhüt": "Bu krediyi alırsan belirli bir sürede ihracat yapma taahhüdü (Kapatma) vermen gerektiğini biliyor musun?",
+        "kur riski": "Döviz kredisi alıp gelirin TL olursa batacağını (Kur Riski) hesapladın mı?"
+      },
+      "hapBilgi": "İhracatçılar için en ucuz kaynak Eximbank kredileridir (Reeskont Kredisi). Ancak bu kredilerin kuralı, aldığınız parayla gerçekten ihracat yapıp dövizi ülkeye getirmektir."
   }
 ]
