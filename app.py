@@ -1,8 +1,8 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
+import requests # İnternetten veri çekmek için gerekli
 import json
-import os
 
 # 1. SAYFA AYARLARI
 st.set_page_config(
@@ -12,8 +12,14 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. LIFESIM HTML ŞABLONU (Senin Kodun Burada)
-# Javascript kısmındaki "PYTHON_DATA_HERE" yazısı veri ile değiştirilecek.
+# ==========================================
+# 🔗 GITHUB AYARLARI (BURAYI DÜZENLE)
+# ==========================================
+# Buraya lifesim_data.json dosyanın RAW linkini yapıştıracaksın.
+# Örnek: "https://raw.githubusercontent.com/KULLANICI_ADI/REPO_ADI/main/lifesim_data.json"
+GITHUB_JSON_URL = "https://raw.githubusercontent.com/KULLANICI_ADI/REPO_ADI/main/lifesim_data.json" 
+
+# 2. LIFESIM HTML ŞABLONU (Değişmedi, aynı kalacak)
 LIFESIM_HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -35,10 +41,8 @@ LIFESIM_HTML_TEMPLATE = """
     </script>
     <style>
         body { background-color: #f8f9fa; color: #1e293b; font-family: 'Segoe UI', sans-serif; }
-        /* Light Mode Uyumlu Haller */
         .glass { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         .dark-glass { background: #1e293b; color: white; }
-        
         .typing::after { content: '|'; animation: blink 1s step-start infinite; }
         @keyframes blink { 50% { opacity: 0; } }
         ::-webkit-scrollbar { width: 6px; }
@@ -83,7 +87,6 @@ LIFESIM_HTML_TEMPLATE = """
     </div>
 
     <div class="w-full md:w-2/3 flex flex-col gap-4">
-        
         <div id="aiInteractionArea" class="dark-glass p-5 rounded-xl min-h-[140px] flex gap-4 transition-all duration-500 shadow-lg">
             <div class="bg-slate-700 p-3 rounded-full shrink-0 h-12 w-12 flex items-center justify-center">
                 <i data-lucide="bot" class="text-blue-400 w-6 h-6 animate-pulse-fast"></i>
@@ -123,13 +126,11 @@ LIFESIM_HTML_TEMPLATE = """
         // --- PYTHON'DAN VERİ ENJEKSİYONU ---
         // PYTHON_DATA_HERE
         
-        // Hata durumunda boş veri
         if (typeof scenarios === 'undefined') {
-            var scenarios = [{ title: "Veri Yüklenemedi", text: "Lütfen json dosyasını kontrol edin.", category: "Hata", data:[], keywords:{} }];
+            var scenarios = [{ title: "Veri Yükleniyor...", text: "Lütfen bekleyin veya sayfayı yenileyin.", category: "Sistem", data:[], keywords:{} }];
         }
 
         let currentScenario = null;
-        let conversationPhase = 0;
 
         window.onload = function() {
             loadScenarioDropdown();
@@ -138,6 +139,7 @@ LIFESIM_HTML_TEMPLATE = """
 
         function loadScenarioDropdown() {
             const select = document.getElementById('scenarioSelect');
+            select.innerHTML = ""; // Temizle
             scenarios.forEach((s, idx) => {
                 let opt = document.createElement('option');
                 opt.value = idx;
@@ -148,8 +150,9 @@ LIFESIM_HTML_TEMPLATE = """
 
         function loadScenario(index = null) {
             if(index === null) index = document.getElementById('scenarioSelect').value;
-            currentScenario = scenarios[index];
+            if(!scenarios[index]) return;
             
+            currentScenario = scenarios[index];
             document.getElementById('categoryBadge').innerText = currentScenario.category.toUpperCase();
             document.getElementById('scenarioTitle').innerText = currentScenario.title;
             document.getElementById('scenarioText').innerText = currentScenario.text;
@@ -166,10 +169,11 @@ LIFESIM_HTML_TEMPLATE = """
             document.getElementById('hapBilgiBox').classList.add('hidden');
             document.getElementById('scoreDisplay').classList.add('hidden');
             document.getElementById('aiFeedback').innerHTML = `<span class="typing text-blue-300">Yeni senaryo yüklendi. Stratejini bekliyorum...</span>`;
-            document.getElementById('actionBtn').innerHTML = '<i data-lucide="zap" class="w-4 h-4"></i> ANALİZİ BAŞLAT';
-            document.getElementById('actionBtn').disabled = false;
-            document.getElementById('actionBtn').classList.remove('bg-emerald-600', 'cursor-default');
-            document.getElementById('actionBtn').classList.add('bg-blue-600');
+            
+            const btn = document.getElementById('actionBtn');
+            btn.innerHTML = 'ANALİZİ BAŞLAT';
+            btn.disabled = false;
+            btn.className = "bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2 rounded-lg shadow-lg flex items-center gap-2 transition-all active:scale-95 group";
             
             updateSystemState("HAZIR");
         }
@@ -215,6 +219,7 @@ LIFESIM_HTML_TEMPLATE = """
                     const randomMissing = missing.length > 0 ? missing[Math.floor(Math.random() * missing.length)] : {question: "Daha detaylı açıkla."};
                     feedbackArea.innerHTML = `<span class="text-yellow-400 font-bold">>> EKSİK TESPİT EDİLDİ.</span><br>Şunu düşündün mü: ${randomMissing.question}`;
                     btn.innerHTML = 'TEKRAR DENE';
+                    btn.className = "bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-2 rounded-lg shadow-lg flex items-center gap-2 transition-all active:scale-95 group";
                     btn.disabled = false;
                     updateSystemState("BEKLENİYOR");
                 }
@@ -229,7 +234,7 @@ LIFESIM_HTML_TEMPLATE = """
 </html>
 """
 
-# 3. CSS TASARIM (Streamlit Arayüzü)
+# 3. CSS TASARIM
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap');
@@ -254,6 +259,22 @@ st.markdown("""
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'user_name' not in st.session_state: st.session_state.user_name = ""
 if 'user_no' not in st.session_state: st.session_state.user_no = ""
+
+# --- FONKSİYON: VERİ ÇEKME ---
+# Veriyi her defasında çekmemek için önbelleğe alıyoruz (5 dakika)
+@st.cache_data(ttl=300)
+def fetch_lifesim_data():
+    try:
+        if "githubusercontent" not in GITHUB_JSON_URL:
+            return "[]" # Geçersiz link ise boş dön
+        
+        response = requests.get(GITHUB_JSON_URL)
+        if response.status_code == 200:
+            return response.text # JSON string olarak döner
+        else:
+            return "[]"
+    except:
+        return "[]"
 
 # --- EKRAN 1: GİRİŞ EKRANI ---
 if not st.session_state.logged_in:
@@ -333,14 +354,12 @@ else:
     with tab_lifesim:
         st.header("💼 LifeSim: Kariyer Simülasyonu")
         
-        # JSON Verisini Oku
-        try:
-            with open('lifesim_data.json', 'r', encoding='utf-8') as f:
-                json_data = f.read()
-        except FileNotFoundError:
-            json_data = "[]" # Hata önleyici
-            st.error("lifesim_data.json bulunamadı!")
-
+        # GitHub'dan Veri Çek
+        json_data = fetch_lifesim_data()
+        
+        if json_data == "[]":
+            st.warning("Veriler GitHub'dan çekilemedi. Lütfen 'GITHUB_JSON_URL' satırını kontrol edin veya repo'nun public olduğundan emin olun.")
+        
         # HTML Şablonuna Veriyi Göm
         # Javascript değişkeni 'const scenarios = ...' kısmını oluşturuyoruz
         final_html = LIFESIM_HTML_TEMPLATE.replace(
