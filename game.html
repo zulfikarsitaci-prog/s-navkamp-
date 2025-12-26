@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; overflow: hidden; margin: 0; height: 100vh; }
+        canvas { background: #1e293b; border: 2px solid #334155; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); display: block; }
+        .score-board { margin-bottom: 10px; font-size: 20px; font-weight: bold; color: #38bdf8; }
+        .btn { background: #38bdf8; color: #0f172a; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn:hover { background: #7dd3fc; }
+    </style>
+</head>
+<body>
+    <div class="score-board">SKOR: <span id="score">0</span></div>
+    <canvas id="gameCanvas"></canvas>
+    <button class="btn" onclick="initGame()">YENİ OYUN</button>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const GRID_SIZE = 12;
+        let CELL_SIZE = 30; 
+        
+        let grid = [], pieces = [], dragging = null, score = 0;
+
+        function resize() {
+            // Ekran boyutuna göre canvas'ı ayarla
+            const size = Math.min(window.innerWidth - 20, 400);
+            CELL_SIZE = Math.floor(size / GRID_SIZE);
+            canvas.width = CELL_SIZE * GRID_SIZE + 20;
+            canvas.height = CELL_SIZE * GRID_SIZE + 120;
+            if(pieces.length > 0) draw();
+        }
+
+        const SHAPES = [[[1]], [[1,1]], [[1],[1]], [[1,1],[1,1]], [[1,1,1]], [[1],[1],[1]]];
+
+        function initGame() {
+            grid = Array(GRID_SIZE).fill(0).map(()=>Array(GRID_SIZE).fill(0));
+            score = 0; spawnPieces(); draw();
+        }
+
+        function spawnPieces() {
+            pieces = [];
+            for(let i=0; i<3; i++) {
+                const m = SHAPES[Math.floor(Math.random()*SHAPES.length)];
+                const w = m[0].length * CELL_SIZE;
+                const x = 10 + i * (canvas.width/3) + (canvas.width/3 - w)/2;
+                const y = CELL_SIZE * GRID_SIZE + 30;
+                pieces.push({ m, x, y, bx: x, by: y, w, h: m.length*CELL_SIZE });
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = "#1e293b"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            
+            // Grid
+            ctx.strokeStyle = "#334155"; ctx.beginPath();
+            for(let i=0; i<=GRID_SIZE; i++) {
+                ctx.moveTo(10, 10+i*CELL_SIZE); ctx.lineTo(10+GRID_SIZE*CELL_SIZE, 10+i*CELL_SIZE);
+                ctx.moveTo(10+i*CELL_SIZE, 10); ctx.lineTo(10+i*CELL_SIZE, 10+GRID_SIZE*CELL_SIZE);
+            }
+            ctx.stroke();
+
+            // Yerleşenler
+            ctx.fillStyle = "#F59E0B"; 
+            for(let r=0; r<GRID_SIZE; r++) for(let c=0; c<GRID_SIZE; c++) 
+                if(grid[r][c]) ctx.fillRect(10+c*CELL_SIZE+1, 10+r*CELL_SIZE+1, CELL_SIZE-2, CELL_SIZE-2);
+
+            // Parçalar
+            pieces.forEach(p => {
+                ctx.fillStyle = p === dragging ? "rgba(56, 189, 248, 0.8)" : "#38bdf8";
+                p.m.forEach((row, r) => row.forEach((val, c) => {
+                    if(val) ctx.fillRect(p.x + c*CELL_SIZE, p.y + r*CELL_SIZE, CELL_SIZE-2, CELL_SIZE-2);
+                }));
+            });
+            
+            document.getElementById('score').innerText = score;
+        }
+
+        // --- EVENTS ---
+        function getPos(e) {
+            const r = canvas.getBoundingClientRect();
+            const x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            const y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+            return { x: x - r.left, y: y - r.top };
+        }
+
+        function start(e) {
+            e.preventDefault(); const p_ = getPos(e);
+            for(let i=pieces.length-1; i>=0; i--) {
+                const p = pieces[i];
+                if(p_.x>=p.x && p_.x<=p.x+p.w && p_.y>=p.y && p_.y<=p.y+p.h) {
+                    dragging = p; dragging.dx = p_.x - p.x; dragging.dy = p_.y - p.y;
+                    draw(); return;
+                }
+            }
+        }
+        function move(e) {
+            if(!dragging) return;
+            e.preventDefault(); const p = getPos(e);
+            dragging.x = p.x - dragging.dx; dragging.y = p.y - dragging.dy;
+            draw();
+        }
+        function end(e) {
+            if(!dragging) return;
+            e.preventDefault();
+            const gx = Math.round((dragging.x-10)/CELL_SIZE);
+            const gy = Math.round((dragging.y-10)/CELL_SIZE);
+            
+            if(canPlace(dragging.m, gx, gy)) {
+                place(dragging.m, gx, gy);
+                pieces = pieces.filter(p => p !== dragging);
+                if(pieces.length === 0) spawnPieces();
+            } else {
+                dragging.x = dragging.bx; dragging.y = dragging.by;
+            }
+            dragging = null; draw();
+        }
+
+        function canPlace(m, gx, gy) {
+            return m.every((row, r) => row.every((val, c) => {
+                if(!val) return true;
+                const tx = gx+c, ty = gy+r;
+                return tx>=0 && tx<GRID_SIZE && ty>=0 && ty<GRID_SIZE && !grid[ty][tx];
+            }));
+        }
+
+        function place(m, gx, gy) {
+            m.forEach((row, r) => row.forEach((val, c) => { if(val) grid[gy+r][gx+c] = 1; }));
+            score += 10;
+            // Satır Silme
+            let rows=[], cols=[];
+            for(let r=0; r<GRID_SIZE; r++) if(grid[r].every(v=>v)) rows.push(r);
+            for(let c=0; c<GRID_SIZE; c++) if(grid.map(r=>r[c]).every(v=>v)) cols.push(c);
+            
+            if(rows.length+cols.length > 0) {
+                rows.forEach(r => grid[r].fill(0));
+                cols.forEach(c => grid.forEach(r => r[c]=0));
+                score += (rows.length+cols.length) * 50;
+            }
+        }
+
+        ['mousedown','touchstart'].forEach(e=>canvas.addEventListener(e, start, {passive:false}));
+        ['mousemove','touchmove'].forEach(e=>canvas.addEventListener(e, move, {passive:false}));
+        ['mouseup','touchend'].forEach(e=>canvas.addEventListener(e, end, {passive:false}));
+        
+        window.onload = () => { resize(); initGame(); };
+        window.onresize = resize;
+    </script>
+</body>
+</html>
