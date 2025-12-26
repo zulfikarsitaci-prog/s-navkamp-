@@ -2,57 +2,25 @@
   {
     "category": "Finans",
     "title": "Enflasyonist Ortamda Borçlanma",
-    "text": "Telefonun peşin fiyatı 30.000 TL, 12 taksitli fiyatı 36.000 TL (%20 Vade Farkı). Yıllık enflasyon beklentisi %60. Hangi seçeneği seçersin ve neden?",
+    "text": "Telefonun peşin fiyatı 30.000 TL, 12 taksitli fiyatı 36.000 TL (%20 Vade Farkı). Yıllık enflasyon beklentisi %60. Hangi seçeneği seçersin?",
     "data": ["Peşin: 30k", "Taksitli: 36k", "Enflasyon: %60"],
     "money_reward": 1500,
     "keywords": {
-      "enflasyon": "Enflasyonun paranın alım gücüne etkisinden hiç bahsetmedin.",
-      "reel": "Görünürdeki faiz ile reel faiz (enflasyondan arındırılmış maliyet) arasındaki farka değinmedin.",
-      "nakit": "Ehindeki nakit parayı peşin vermek yerine, o parayı başka yerde değerlendirme (Fırsat Maliyeti) ihtimalini düşündün mü?",
-      "değer": "Paranın zaman değerini (Time Value of Money) hesaba kattın mı?"
+      "reel": "Reel faiz ile nominal faiz farkını düşündün mü?",
+      "nakit": "Nakit paranın zaman değerini (Time Value of Money) hesaba kattın mı?"
     },
-    "hapBilgi": "Enflasyon oranının (%60), borçlanma maliyetinden (%20) yüksek olduğu durumlarda; borçlanmak karlıdır. Çünkü ödeyeceğiniz taksitlerin reel değeri aylar geçtikçe eriyecektir. Nakit kraldır."
-  },
-  {
-    "category": "Yönetim",
-    "title": "Düşük Performanslı Sadık Çalışan",
-    "text": "Şirketin kuruluşundan beri var olan, herkesin sevdiği Ahmet Bey'in performansı çok düştü. Dijitalleşmeye ayak uyduramıyor. Kovmak ekibi yıkar, tutmak işi batırır. Ne yaparsın?",
-    "data": ["Kıdem: 15 Yıl", "Etki: Moral Lideri", "Sorun: Dijital Yetersizlik"],
-    "money_reward": 2000,
-    "keywords": {
-      "eğitim": "Onu göndermeden önce kazanmayı denedin mi? Eğitim veya mentorluk?",
-      "pozisyon": "Onun teknik yetersizliğinin sorun olmayacağı, ancak 'moral liderliği'nin işe yarayacağı başka bir departman düşündün mü?",
-      "vefa": "Şirket kültüründe vefanın yeri nedir? Bunu atlamak diğer çalışanlara ne mesaj verir?",
-      "iletişim": "Ahmet Bey ile açıkça konuştun mu? Belki o da durumun farkındadır."
-    },
-    "hapBilgi": "Liderlik, sadece kar-zarar hesabı değil, insan yönetimidir. Sadık ama yetersiz çalışanı kovmak yerine, 'Kültür Elçisi' veya 'Mentor' gibi yeteneklerine uygun pasif bir role çekmek (Yatay Geçiş), hem işi kurtarır hem de kurum içi güveni zedelemez."
-  },
-  {
-    "category": "Etik",
-    "title": "Tedarikçi Rüşveti mi, Hediye mi?",
-    "text": "Büyük bir ihaleyi kazandırmak üzere olduğun tedarikçi, sana 'teşekkür amaçlı' son model bir laptop ve tatil hediye etti. İhaleyi zaten hak etmişlerdi. Kabul eder misin?",
-    "data": ["Değer: Yüksek", "Durum: İhale Bitmedi", "Vicdan: ?"],
-    "money_reward": 1000,
-    "keywords": {
-      "çıkar çatışması": "Bu hediyeyi kabul etmen, gelecekte o tedarikçiye karşı tarafsızlığını etkiler mi? (Conflict of Interest)",
-      "şeffaflık": "Bu hediyeyi aldığını patronuna veya tüm ofise açıkça söyleyebilir misin? Söyleyemezsen sorun var demektir.",
-      "algı": "Dışarıdan biri buna baktığında 'rüşvet' mi der 'hediye' mi? Kurum itibarı nasıl etkilenir?",
-      "iade": "Nazikçe reddetmenin profesyonel yollarını düşündün mü?"
-    },
-    "hapBilgi": "Etik sınır şudur: 'Bu durumu yarın gazete manşetinde görsem utanır mıyım?' İş hayatında, kararınızı etkilemese bile, etkileme ihtimali olan (veya öyle görünen) her türlü değerli hediye, çıkar çatışmasıdır ve reddedilmelidir."
+    "hapBilgi": "Enflasyon (%60) kredi maliyetinden (%20) yüksekse borçlanmak karlıdır."
   },
   {
     "category": "Girişimcilik",
     "title": "MVP vs Mükemmel Ürün",
-    "text": "Uygulamanın ana fonksiyonu çalışıyor ama tasarımı kötü. Rakip piyasaya girmek üzere. Tasarımı mükemmelleştirip mi çıkmalı (3 ay gecikme), yoksa hemen mi?",
-    "data": ["Risk: Rakip", "Süre: +3 Ay", "Durum: Çalışıyor"],
+    "text": "Ürün çalışıyor ama tasarımı kötü. Rakip çıkmak üzere. 3 ay tasarım mı çalışmalı, hemen mi çıkmalı?",
+    "data": ["Rakip: Var", "Süre: +3 Ay"],
     "money_reward": 5000,
     "keywords": {
-      "geri bildirim": "Mükemmel ürün yapana kadar müşterinin ne istediğini nereden bileceksin? Feedback döngüsü?",
-      "pazar": "Pazara ilk giren olmanın (First Mover Advantage) avantajını kaybetmeyi göze alıyor musun?",
-      "maliyet": "3 ay daha gelir elde etmeden çalışacak bütçen (Burn Rate) var mı?",
-      "mvp": "Minimum Viable Product (MVP) kavramının amacı tam olarak nedir sence?"
+      "geri bildirim": "Müşteri geri bildirimi (Feedback) olmadan mükemmele ulaşamazsın.",
+      "pazar": "Pazara ilk giren (First Mover) avantajını kaybetme."
     },
-    "hapBilgi": "Mükemmel, iyinin düşmanıdır. Girişimcilikte hız, mükemmeliyetten önemlidir. Ürün 'temel sorunu' çözüyorsa (MVP), hemen piyasaya çıkıp kullanıcı verisiyle geliştirmek (Iterasyon), karanlıkta 3 ay tasarım yapmaktan daha değerlidir."
+    "hapBilgi": "Mükemmel iyinin düşmanıdır. MVP ile hemen çıkıp veriye göre geliştirmek esastır."
   }
 ]
