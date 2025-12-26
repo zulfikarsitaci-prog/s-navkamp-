@@ -3,45 +3,155 @@ import streamlit.components.v1 as components
 import json
 import os
 
-# Sayfa Ayarları
-st.set_page_config(
-    page_title="Finans İmparatoru & Blok Oyunu",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
+# Sayfa Ayarları (Tam Ekran)
+st.set_page_config(page_title="Finans İmparatoru", layout="wide")
 
-# Başlık ve Açıklama (İstersen kaldırabilirsin)
-# st.title("Finans İmparatoru") 
+# --- CSS İLE GÖRÜNÜMÜ GÜZELLEŞTİR ---
+st.markdown("""
+<style>
+    [data-testid="stSidebar"] { background-color: #0f172a; }
+    .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; }
+    h1, h2, h3 { color: #fff; }
+    .stat-box { background: #1e293b; padding: 15px; border-radius: 10px; border: 1px solid #334155; text-align: center; }
+    .stat-val { font-size: 24px; font-weight: bold; color: #34d399; }
+</style>
+""", unsafe_allow_html=True)
 
-def load_game():
-    # 1. JSON Verisini Oku (Python Tarafında)
-    try:
-        with open('lifesim_data.json', 'r', encoding='utf-8') as f:
-            game_data = json.load(f)
-        # JSON'ı string formatına çevir (HTML içine gömmek için)
-        json_str = json.dumps(game_data)
-    except FileNotFoundError:
+# --- VERİ YÜKLEME ---
+def load_data():
+    if not os.path.exists('lifesim_data.json'):
+        return []
+    with open('lifesim_data.json', 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+scenarios = load_data()
+
+# --- SESSION STATE (GEÇİCİ HAFIZA) ---
+if 'balance' not in st.session_state: st.session_state.balance = 0
+if 'bank' not in st.session_state: st.session_state.bank = 0
+
+# --- YAN MENÜ (SIDEBAR) ---
+with st.sidebar:
+    st.title("🏛️ FİNANS İMPARATORU")
+    st.write(f"💰 **Nakit:** {st.session_state.balance} TL")
+    st.write(f"🏦 **Banka:** {st.session_state.bank} TL")
+    st.markdown("---")
+    
+    menu = st.radio("MENÜ", [
+        "👤 Profil", 
+        "🎓 Soru Çözüm Merkezi", 
+        "💼 LifeSim (Kariyer)", 
+        "🎮 Eğlence (Oyunlar)", 
+        "💎 Premium", 
+        "🏆 Skor Tablosu"
+    ])
+
+# --- 1. PROFIL SAYFASI ---
+if menu == "👤 Profil":
+    st.header("👤 Oyuncu Profili")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.info(f"**Kullanıcı Adı:** Yatırımcı Adayı")
+        st.info(f"**Unvan:** Başlangıç Seviyesi")
+    with col2:
+        st.success(f"**Toplam Varlık:** {st.session_state.balance + st.session_state.bank} TL")
+        st.warning(f"**Çözülen Soru:** 0")
+
+# --- 2. SORU ÇÖZÜM MERKEZİ ---
+elif menu == "🎓 Soru Çözüm Merkezi":
+    st.header("🎓 TYT & Meslek Senaryoları")
+    
+    if not scenarios:
         st.error("lifesim_data.json bulunamadı!")
-        return
+    else:
+        # Senaryo Seçimi
+        secilen_baslik = st.selectbox("Bir Görev Seçin:", [s['title'] for s in scenarios])
+        secilen_senaryo = next(s for s in scenarios if s['title'] == secilen_baslik)
+        
+        # İçerik Gösterimi
+        with st.container():
+            st.subheader(f"📌 {secilen_senaryo['category']}")
+            st.write(secilen_senaryo['text'])
+            st.markdown(f"**Ödül:** :green[{secilen_senaryo.get('money_reward', 1000)} TL]")
+            
+            # Veri Parametreleri
+            st.code("\n".join(secilen_senaryo.get('data', [])), language="yaml")
+            
+            # Cevap Alanı
+            cevap = st.text_area("Çözüm stratejinizi yazın:", height=100)
+            if st.button("Analiz Et ⚡"):
+                puan = 0
+                keywords = secilen_senaryo.get('keywords', {})
+                for k in keywords:
+                    if k in cevap.lower(): puan += 1
+                
+                basari = len(keywords) == 0 or (puan / len(keywords) >= 0.5)
+                
+                if basari:
+                    odul = secilen_senaryo.get('money_reward', 1000)
+                    st.session_state.balance += odul
+                    st.success(f"✅ BAŞARILI! Analiziniz doğru. **+{odul} TL** kazandınız.")
+                    st.info(f"💡 **Hap Bilgi:** {secilen_senaryo['hapBilgi']}")
+                    st.rerun()
+                else:
+                    st.warning("⚠️ Eksikler var. Biraz daha detaylandır.")
 
-    # 2. HTML Dosyasını Oku
+# --- 3. LIFESIM (BANKA) ---
+elif menu == "💼 LifeSim (Kariyer)":
+    st.header("💼 Kariyer ve Varlık Yönetimi")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("### 🏦 Banka İşlemleri")
+        miktar = st.number_input("Tutar Girin:", min_value=0, step=100)
+        c1, c2 = st.columns(2)
+        if c1.button("Para Yatır (Faiz Başlar)"):
+            if miktar <= st.session_state.balance:
+                st.session_state.balance -= miktar
+                st.session_state.bank += miktar
+                st.success("Yatırıldı!")
+                st.rerun()
+            else:
+                st.error("Yetersiz Bakiye")
+        if c2.button("Para Çek"):
+            if miktar <= st.session_state.bank:
+                st.session_state.bank -= miktar
+                st.session_state.balance += miktar
+                st.success("Çekildi!")
+                st.rerun()
+            else:
+                st.error("Yetersiz Banka Bakiyesi")
+                
+    with col2:
+        st.markdown("### 📊 Varlık Özeti")
+        st.write(f"Cüzdan: {st.session_state.balance} TL")
+        st.write(f"Banka: {st.session_state.bank} TL")
+        st.metric(label="Net Varlık", value=f"{st.session_state.balance + st.session_state.bank} TL")
+
+# --- 4. EĞLENCE (BLOK OYUNU) ---
+elif menu == "🎮 Eğlence (Oyunlar)":
+    st.header("🎮 Blok Simülasyonu")
+    st.caption("Blokları yerleştir, satırları sil ve para kazan!")
+    
+    # HTML DOSYASINI OKU VE GÖM
     try:
-        with open('game.html', 'r', encoding='utf-8') as f:
-            html_content = f.read()
+        with open("game.html", "r", encoding="utf-8") as f:
+            html_code = f.read()
+            components.html(html_code, height=650, scrolling=False)
     except FileNotFoundError:
-        st.error("game.html bulunamadı!")
-        return
+        st.error("game.html dosyası bulunamadı!")
 
-    # 3. Python'daki Veriyi HTML'in İçine Enjekte Et
-    # HTML kodunda '// PYTHON_DATA_HERE' yazan yeri bulup gerçek veriyle değiştiriyoruz.
-    # Bu sayede 'fetch' hatası almazsın, veri garanti yüklenir.
-    injected_html = html_content.replace(
-        '// PYTHON_DATA_HERE', 
-        f'let scenarios = {json_str}; console.log("Veri Python üzerinden yüklendi");'
-    )
+# --- 5. PREMIUM ---
+elif menu == "💎 Premium":
+    st.header("💎 Premium Üyelik")
+    st.warning("Bu özellik yakında aktif olacak!")
+    st.info("Avantajlar: 2x Pasif Gelir, Özel Sorular, Reklamsız Deneyim")
 
-    # 4. Oyunu Ekrana Bas (Tam Ekran gibi)
-    components.html(injected_html, height=800, scrolling=False)
-
-if __name__ == "__main__":
-    load_game()
+# --- 6. SKOR TABLOSU ---
+elif menu == "🏆 Skor Tablosu":
+    st.header("🏆 Liderlik Tablosu")
+    st.table([
+        {"Sıra": 1, "Oyuncu": "Elon M.", "Varlık": "₺999,000,000"},
+        {"Sıra": 2, "Oyuncu": "Jeff B.", "Varlık": "₺500,000,000"},
+        {"Sıra": 3, "Oyuncu": "SİZ", "Varlık": f"₺{st.session_state.balance + st.session_state.bank}"},
+    ])
