@@ -1,107 +1,158 @@
 import streamlit as st
-import streamlit.components.v1 as components
-import json
-import os
+import pandas as pd
 
 # 1. SAYFA AYARLARI
 st.set_page_config(
-    page_title="Finans İmparatoru & Kampüs",
+    page_title="Finans Kampüsü",
     page_icon="🏛️",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed" # Yan menüyü kapalı başlatıyoruz
 )
 
-# 2. CSS STİLLERİ (Görünüm)
+# 2. CSS TASARIMI (Üst Menü ve Görünüm İçin)
 st.markdown("""
 <style>
-    [data-testid="stSidebar"] { background-color: #0f172a; border-right: 1px solid #334155; }
+    /* Yan Menüyü Tamamen Gizle (İsteğe bağlı, üst menü kullanacağımız için) */
+    [data-testid="stSidebar"] { display: none; }
+    
+    /* Genel Arka Plan */
     .stApp { background-color: #0a0a12; color: white; }
-    h1, h2, h3 { color: #f1c40f !important; font-family: 'Segoe UI', sans-serif; }
-    .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; background: #1e293b; color: white; border: 1px solid #334155; }
-    .stButton>button:hover { border-color: #f1c40f; color: #f1c40f; }
-    .info-box { padding: 15px; background: #16213e; border-radius: 10px; border-left: 5px solid #f1c40f; margin-bottom: 20px; }
+    
+    /* Giriş Kutusu Stili */
+    .login-container {
+        background-color: #16213e;
+        padding: 40px;
+        border-radius: 15px;
+        border: 2px solid #f1c40f;
+        text-align: center;
+        max-width: 500px;
+        margin: 100px auto;
+    }
+    
+    /* Tab (Sekme) Stilleri */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+        background-color: #16213e;
+        padding: 10px;
+        border-radius: 10px;
+        border-bottom: 2px solid #f1c40f;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        background-color: transparent;
+        color: #aaa;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #f1c40f !important;
+        color: #000 !important;
+        border-radius: 5px;
+    }
+    
+    /* Skor Tablosu Stili */
+    .score-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #334155;
+        text-align: center;
+        margin-bottom: 20px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# 3. OTURUM VE PUAN YÖNETİMİ (Session State)
+# 3. OTURUM YÖNETİMİ (Session State)
+if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+if 'user_name' not in st.session_state: st.session_state.user_name = ""
+if 'user_no' not in st.session_state: st.session_state.user_no = ""
 if 'balance' not in st.session_state: st.session_state.balance = 0
-if 'bank' not in st.session_state: st.session_state.bank = 0
-if 'inventory' not in st.session_state: st.session_state.inventory = []
 
-# 4. YARDIMCI FONKSİYON: HTML OYUN YÜKLEME
-def load_html_game(filename, height=700):
-    """HTML dosyasını okur ve ekrana basar. Dosya yoksa uyarı verir."""
-    if os.path.exists(filename):
-        with open(filename, 'r', encoding='utf-8') as f:
-            html_content = f.read()
-            # LifeSim verisi için özel durum: JSON verisini enjekte etme yeri
-            if filename == "game_lifesim.html" and os.path.exists("lifesim_data.json"):
-                with open("lifesim_data.json", 'r', encoding='utf-8') as jf:
-                    json_data = jf.read()
-                    # HTML içindeki placeholder'ı gerçek veriyle değiştir
-                    html_content = html_content.replace("// PYTHON_DATA_HERE", f"let scenarios = {json_data};")
+# ==========================================
+# EKRAN 1: GİRİŞ EKRANI
+# ==========================================
+if not st.session_state.logged_in:
+    c1, c2, c3 = st.columns([1, 2, 1])
+    with c2:
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        # Basit bir kutu görünümü için container
+        with st.container(border=True):
+            st.markdown("<h1 style='text-align:center; color:#f1c40f;'>🏛️ FİNANS KAMPÜSÜ</h1>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align:center; color:#aaa;'>Öğrenci Giriş Portalı</p>", unsafe_allow_html=True)
             
-            components.html(html_content, height=height, scrolling=False)
-    else:
-        st.warning(f"⚠️ {filename} dosyası henüz yüklenmedi. Lütfen GitHub'a yükleyin.")
+            with st.form("login_form"):
+                ad_soyad = st.text_input("Ad Soyad")
+                okul_no = st.text_input("Okul Numarası")
+                
+                submitted = st.form_submit_button("SİSTEME GİRİŞ YAP", use_container_width=True, type="primary")
+                
+                if submitted:
+                    if ad_soyad and okul_no:
+                        st.session_state.user_name = ad_soyad
+                        st.session_state.user_no = okul_no
+                        st.session_state.logged_in = True
+                        st.rerun() # Sayfayı yenile ve içeri al
+                    else:
+                        st.error("Lütfen bilgileri eksiksiz giriniz.")
 
-# 5. YAN MENÜ (SIDEBAR)
-with st.sidebar:
-    st.title("🏛️ FİNANS KAMPÜSÜ")
-    st.markdown("---")
+# ==========================================
+# EKRAN 2: ANA MENÜ VE İÇERİK
+# ==========================================
+else:
+    # Üst Bilgi Çubuğu (Kullanıcı Adı ve Bakiye)
+    col_user, col_empty, col_bal = st.columns([2, 4, 2])
+    with col_user:
+        st.markdown(f"👤 **{st.session_state.user_name}** ({st.session_state.user_no})")
+    with col_bal:
+        st.markdown(f"💰 Bakiye: **{st.session_state.balance} ₺**")
     
-    menu = st.radio("MENÜ", [
-        "👤 Profil",
-        "🎓 Soru Çözüm (TYT/Meslek)",
-        "💼 LifeSim (Kariyer)",
-        "📈 Finans İmparatoru",
-        "🧩 Asset Matrix (Blok)",
-        "🏆 Skor Tablosu"
-    ])
-    
     st.markdown("---")
-    # Mini Cüzdan Görünümü
-    c1, c2 = st.columns(2)
-    c1.metric("Cüzdan", f"{st.session_state.balance} ₺")
-    c2.metric("Banka", f"{st.session_state.bank} ₺")
 
-# 6. SAYFA İÇERİKLERİ
-
-# --- PROFİL ---
-if menu == "👤 Profil":
-    st.header("👤 Oyuncu Profili")
-    st.info("Hoş geldin, Yatırımcı Adayı.")
-    st.write(f"Toplam Net Varlık: **{st.session_state.balance + st.session_state.bank} ₺**")
-
-# --- SORU ÇÖZÜM ---
-elif menu == "🎓 Soru Çözüm (TYT/Meslek)":
-    st.header("🎓 Soru Çözüm Merkezi")
-    st.write("Burada TYT ve Meslek dersleri testleri olacak.")
-    # İleride buraya soru kodları eklenecek
-
-# --- LIFESIM ---
-elif menu == "💼 LifeSim (Kariyer)":
-    st.header("💼 LifeSim: Kariyer Yönetimi")
-    # game_lifesim.html dosyasını çağırır
-    load_html_game("game_lifesim.html", height=800)
-
-# --- FİNANS İMPARATORU ---
-elif menu == "📈 Finans İmparatoru":
-    st.header("📈 Finans İmparatoru (Pasif Gelir)")
-    # game_finance.html dosyasını çağırır
-    load_html_game("game_finance.html", height=650)
-
-# --- ASSET MATRIX ---
-elif menu == "🧩 Asset Matrix (Blok)":
-    st.header("🧩 Asset Matrix: Blok Oyunu")
-    # game_matrix.html dosyasını çağırır
-    load_html_game("game_matrix.html", height=700)
-
-# --- SKOR TABLOSU ---
-elif menu == "🏆 Skor Tablosu":
-    st.header("🏆 Liderlik Tablosu")
-    st.table([
-        {"Sıra": 1, "Oyuncu": "Elon M.", "Puan": "999M"},
-        {"Sıra": 2, "Oyuncu": "Jeff B.", "Puan": "500M"},
-        {"Sıra": 3, "Oyuncu": "SİZ", "Puan": f"{st.session_state.balance}"}
+    # ÜST MENÜ (TABS)
+    tab_profil, tab_soru, tab_eglence, tab_lifesim, tab_premium = st.tabs([
+        "👤 PROFİL", 
+        "📚 SORU ÇÖZÜM", 
+        "🎮 EĞLENCE", 
+        "💼 LIFESIM", 
+        "💎 PREMIUM"
     ])
+
+    # --- 1. PROFİL & SKOR TABELASI ---
+    with tab_profil:
+        st.header("🏆 Skor Tabelası")
+        
+        # Örnek Skor Verisi
+        data = {
+            "Sıra": [1, 2, 3, 4, 5],
+            "Öğrenci Adı": ["Ahmet Y.", "Ayşe K.", "Mehmet T.", st.session_state.user_name, "Zeynep B."],
+            "Toplam Varlık": ["1.500.000 ₺", "1.200.000 ₺", "900.000 ₺", f"{st.session_state.balance} ₺", "50.000 ₺"]
+        }
+        df = pd.DataFrame(data)
+        st.table(df)
+        
+        if st.button("Çıkış Yap", type="secondary"):
+            st.session_state.logged_in = False
+            st.rerun()
+
+    # --- 2. SORU ÇÖZÜM ---
+    with tab_soru:
+        st.header("📚 TYT ve Meslek Soruları")
+        st.info("Buraya TYT ve Mesleki soru modülleri gelecek.")
+        # İleride buraya soru kodlarını ekleyeceğiz
+
+    # --- 3. EĞLENCE (Finans & Matrix) ---
+    with tab_eglence:
+        st.header("🎮 Oyun Bölümü")
+        st.info("Buraya Finans İmparatoru ve Asset Matrix oyunları gelecek.")
+        # İleride buraya oyun HTML'lerini gömeceğiz
+
+    # --- 4. LIFESIM ---
+    with tab_lifesim:
+        st.header("💼 LifeSim Kariyer Simülasyonu")
+        st.info("Buraya LifeSim simülasyonu gelecek.")
+        # İleride buraya LifeSim HTML'ini gömeceğiz
+
+    # --- 5. PREMIUM ---
+    with tab_premium:
+        st.header("💎 Premium Üyelik")
+        st.warning("Bu alan yapım aşamasındadır.")
