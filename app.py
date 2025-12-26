@@ -1,157 +1,171 @@
 import streamlit as st
 import time
 import pandas as pd
-from datetime import datetime
 
-# --- 1. AYARLAR & TASARIM ---
-st.set_page_config(page_title="Finans Kampüsü", page_icon="🎓", layout="centered")
+# --- 1. AYARLAR & CSS TASARIMI ---
+st.set_page_config(page_title="Finans Kampüsü", page_icon="🎓", layout="wide")
 
-# Renk Paleti ve CSS
 st.markdown("""
     <style>
-    .stApp { background-color: #f0f2f6; }
-    .main-header { 
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-        padding: 30px; border-radius: 20px; color: white; text-align: center; 
-        margin-bottom: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    /* Genel Sayfa Stili */
+    .stApp { background-color: #f8f9fa; }
+    
+    /* Sekme (Tab) Tasarımı */
+    .stTabs [data-baseweb="tab-list"] { gap: 10px; }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px; white-space: pre-wrap; background-color: #fff; border-radius: 10px 10px 0 0;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.05); border: none; font-weight: 600;
     }
-    .score-card {
-        background: white; padding: 20px; border-radius: 15px; 
-        text-align: center; border-left: 5px solid #764ba2;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px;
-    }
-    .big-score { font-size: 32px; font-weight: bold; color: #764ba2; }
-    .game-btn { 
-        width: 100%; padding: 20px; border-radius: 15px; border: none; 
-        background: white; color: #444; font-weight: bold; font-size: 18px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; margin-bottom: 15px;
-    }
-    .game-btn:hover { transform: translateY(-5px); background: #764ba2; color: white; }
+    .stTabs [aria-selected="true"] { background-color: #6c5ce7; color: white !important; }
+    
+    /* Kart Tasarımları */
+    .info-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; text-align: center; }
+    .score-title { color: #888; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+    .score-val { color: #6c5ce7; font-size: 42px; font-weight: 900; }
+    
+    /* Butonlar */
+    div.stButton > button { border-radius: 12px; height: 50px; font-weight: bold; border: none; transition: 0.3s; }
+    div.stButton > button:hover { transform: scale(1.02); }
     </style>
 """, unsafe_allow_html=True)
 
 # --- 2. VERİTABANI SİMÜLASYONU (Şimdilik Yerel) ---
-# Gerçek sistemde burası Google Sheets API olacak.
+# Gerçekte burası Google Sheets'e bağlanacak.
 if 'db' not in st.session_state:
     st.session_state.db = {
-        "Ahmet Yılmaz": 1250,
-        "Ayşe Demir": 3400,
-        "Mehmet Kaya": 0
+        "101_Ahmet Yılmaz": 1250, # OkulNo_AdSoyad formatı benzersizlik sağlar
+        "102_Ayşe Demir": 3400
     }
 
-def get_player_data(username):
-    """Veritabanından öğrenciyi bulur veya oluşturur"""
-    # Burada Google Sheets'e bağlanacağız
-    name = username.strip().title()
-    if name in st.session_state.db:
-        return st.session_state.db[name]
-    else:
-        # Yeni kayıt oluştur
-        st.session_state.db[name] = 0
-        return 0
+def get_player_score(user_key):
+    """Veritabanından puanı çeker"""
+    return st.session_state.db.get(user_key, 0)
 
-def update_player_score(username, points):
-    """Puanı veritabanına yazar (OTO-KAYIT)"""
-    name = username.strip().title()
-    current = st.session_state.db.get(name, 0)
-    new_score = current + points
-    st.session_state.db[name] = new_score
-    # Burada Google Sheets'e update komutu gidecek
-    return new_score
+def update_score(user_key, points):
+    """Puanı artırır ve kaydeder (AUTO-SAVE)"""
+    current = st.session_state.db.get(user_key, 0)
+    st.session_state.db[user_key] = current + points
+    return st.session_state.db[user_key]
 
-# --- 3. UYGULAMA AKIŞI (SESSION STATE) ---
-if 'user' not in st.session_state: st.session_state.user = None
-if 'score' not in st.session_state: st.session_state.score = 0
-if 'page' not in st.session_state: st.session_state.page = 'login'
+# --- 3. OTURUM YÖNETİMİ ---
+if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+if 'user_info' not in st.session_state: st.session_state.user_info = {} # {"name": "", "no": "", "key": ""}
 
-# --- EKRAN 1: GİRİŞ (LOGIN) ---
-if st.session_state.page == 'login':
-    st.markdown("<div class='main-header'><h1>🎓 Finans Kampüsü</h1><p>Giriş Yap ve Puanlarını Koru</p></div>", unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns([1,2,1])
-    with col2:
+# --- EKRAN: GİRİŞ YAP ---
+if not st.session_state.logged_in:
+    c1, c2, c3 = st.columns([1, 1, 1])
+    with c2:
+        st.markdown("<div style='text-align:center; margin-top:50px;'><h1 style='color:#6c5ce7;'>🎓 Finans Kampüsü</h1><p>Öğrenci Giriş Paneli</p></div>", unsafe_allow_html=True)
         with st.form("login_form"):
-            ad = st.text_input("Adın Soyadın:", placeholder="Örn: Ali Veli")
-            # İstersen buraya numara veya basit bir şifre de ekleriz
-            # sifre = st.text_input("Okul No:", type="password") 
-            
-            submit = st.form_submit_button("GİRİŞ YAP 🚀")
+            ad = st.text_input("Adınız Soyadınız")
+            no = st.text_input("Okul Numaranız")
+            submit = st.form_submit_button("GİRİŞ YAP", type="primary")
             
             if submit:
-                if len(ad) > 3:
-                    st.session_state.user = ad
-                    # Veritabanından puanı çek
-                    puan = get_player_data(ad)
-                    st.session_state.score = puan
-                    st.session_state.page = 'dashboard'
+                if ad and no:
+                    unique_key = f"{no}_{ad.strip()}" # Benzersiz Anahtar
+                    st.session_state.user_info = {"name": ad, "no": no, "key": unique_key}
+                    st.session_state.logged_in = True
+                    
+                    # Eğer yeni kullanıcıysa veritabanına 0 puanla ekle
+                    if unique_key not in st.session_state.db:
+                        st.session_state.db[unique_key] = 0
+                        
                     st.rerun()
                 else:
-                    st.error("Lütfen geçerli bir isim gir.")
+                    st.error("Lütfen bilgileri eksiksiz girin.")
 
-# --- EKRAN 2: ÖĞRENCİ PANELİ (DASHBOARD) ---
-elif st.session_state.page == 'dashboard':
-    # Üst Bilgi
-    st.markdown(f"""
-        <div class='main-header'>
-            <h2>Merhaba, {st.session_state.user} 👋</h2>
-        </div>
-    """, unsafe_allow_html=True)
+# --- EKRAN: ANA PANEL (SEKMELİ YAPI) ---
+else:
+    # Kullanıcı verilerini çek
+    user = st.session_state.user_info
+    current_score = get_player_score(user['key'])
     
-    c1, c2 = st.columns(2)
-    with c1:
+    # Üst Menü (Profil Özeti - Küçük)
+    with st.sidebar:
+        st.write(f"👤 **{user['name']}**")
+        st.write(f"🏫 No: {user['no']}")
+        st.write(f"🏆 Puan: {current_score}")
+        if st.button("Çıkış Yap"):
+            st.session_state.logged_in = False
+            st.rerun()
+
+    # --- SEKMELER (TABS) ---
+    tab1, tab2, tab3, tab4 = st.tabs(["🏠 Profil", "📚 Dersler", "🎮 Oyunlar", "🏆 Sıralama"])
+
+    # 1. TAB: PROFİL (ANA EKRAN)
+    with tab1:
+        st.markdown(f"### Hoşgeldin, {user['name']} 👋")
+        
+        # Puan Kartı
         st.markdown(f"""
-            <div class='score-card'>
-                <p>🏆 TOPLAM PUANIN</p>
-                <div class='big-score'>{st.session_state.score}</div>
+            <div class="info-card">
+                <div class="score-title">GÜNCEL VARLIK</div>
+                <div class="score-val">{current_score} ₺</div>
+                <p style="color:#999; font-size:12px;">Tüm oyunlardan ve testlerden kazandığın toplam puan.</p>
             </div>
         """, unsafe_allow_html=True)
-    with c2:
-        st.info("💡 **Bilgi:** Puanların her işlemden sonra otomatik olarak sisteme kaydedilir. Kaydet butonuna basmana gerek yoktur.")
+        
+        st.info("💡 **İpucu:** Puanların yaptığın her işlemde otomatik kaydedilir.")
 
-    st.markdown("### 🎮 Oyunlar ve Dersler")
-    
-    col_a, col_b = st.columns(2)
-    
-    with col_a:
-        if st.button("📘 TYT Kampı", key="go_tyt", use_container_width=True):
-            st.session_state.page = 'tyt'
+    # 2. TAB: DERSLER (TYT & MESLEK)
+    with tab2:
+        st.subheader("📚 Soru Çözüm Merkezi")
+        col_a, col_b = st.columns(2)
+        
+        with col_a:
+            with st.container(border=True):
+                st.markdown("### 📘 TYT Kampı")
+                st.caption("Matematik, Türkçe, Sosyal")
+                if st.button("Başla (TYT)", use_container_width=True):
+                    # Buraya TYT modülünü bağlayacağız
+                    st.toast("TYT Modülü Yükleniyor...")
+        
+        with col_b:
+            with st.container(border=True):
+                st.markdown("### 💼 Meslek Dersleri")
+                st.caption("Muhasebe, Finans, Ekonomi")
+                if st.button("Başla (Meslek)", use_container_width=True):
+                    # Buraya Meslek modülünü bağlayacağız
+                    st.toast("Meslek Modülü Yükleniyor...")
+                    
+        # TEST İÇİN GEÇİCİ SORU ALANI (Auto-Save Testi)
+        st.divider()
+        st.write("📝 **Hızlı Soru (Test):** Aşağıdakilerden hangisi bir varlıktır?")
+        if st.button("A) Kasa Hesabı"):
+            update_score(user['key'], 10) # 10 Puan ekle ve kaydet
+            st.success("Doğru! +10 Puan eklendi.")
+            time.sleep(1)
             st.rerun()
-            
-    with col_b:
-        if st.button("💰 Finans İmparatoru", key="go_game", use_container_width=True):
-            st.session_state.page = 'game'
-            st.rerun()
-            
-    if st.button("🚪 Çıkış Yap"):
-        st.session_state.user = None
-        st.session_state.page = 'login'
-        st.rerun()
+        st.button("B) Borçlar")
 
-# --- EKRAN 3: ÖRNEK OYUN (AUTO-SAVE TESTİ) ---
-elif st.session_state.page == 'game':
-    st.header("💰 Finans İmparatoru")
-    st.write(f"Mevcut Puan: **{st.session_state.score}**")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🍋 Limonata Sat (+50 Puan)"):
-            # --- İŞTE SİHİR BURADA ---
-            # Öğrenci butona basıyor, puan artıyor ve ARKA PLANDA KAYDEDİLİYOR
-            update_player_score(st.session_state.user, 50)
-            st.session_state.score += 50
-            st.toast("50 Puan Eklendi ve Kaydedildi! ✅")
-            time.sleep(0.5)
-            st.rerun()
-            
-    with col2:
-        if st.button("🔙 Panele Dön"):
-            st.session_state.page = 'dashboard'
-            st.rerun()
+    # 3. TAB: OYUNLAR (FİNANS & MATRIX)
+    with tab3:
+        st.subheader("🎮 Oyun Alanı")
+        
+        col_x, col_y = st.columns(2)
+        
+        with col_x:
+            with st.container(border=True):
+                st.markdown("### 💰 Finans İmparatoru")
+                st.caption("Şirketini kur, büyüt, yönet.")
+                if st.button("Oyna (Finans)", type="primary", use_container_width=True):
+                    # Buraya Finans oyununu bağlayacağız
+                    st.toast("Oyun Başlatılıyor...")
+        
+        with col_y:
+            with st.container(border=True):
+                st.markdown("### 🧩 Asset Matrix")
+                st.caption("Yatırım bloklarını yerleştir.")
+                if st.button("Oyna (Matrix)", use_container_width=True):
+                    # Buraya Matrix oyununu bağlayacağız
+                    st.toast("Matrix Açılıyor...")
 
-# --- EKRAN 4: TYT (SADECE GÖRSEL) ---
-elif st.session_state.page == 'tyt':
-    st.header("📘 TYT Çalışma")
-    st.write("Burası soru çözüm ekranı olacak.")
-    if st.button("🔙 Panele Dön"):
-        st.session_state.page = 'dashboard'
-        st.rerun()
+    # 4. TAB: SIRALAMA
+    with tab4:
+        st.subheader("🏆 Liderlik Tablosu")
+        # Veritabanını DataFrame'e çevirip gösterelim
+        leader_data = [{"Öğrenci": k.split('_')[1], "Puan": v} for k, v in st.session_state.db.items()]
+        df = pd.DataFrame(leader_data).sort_values(by="Puan", ascending=False).reset_index(drop=True)
+        df.index += 1 # Sıralama 1'den başlasın
+        st.dataframe(df, use_container_width=True)
