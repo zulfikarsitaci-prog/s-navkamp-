@@ -260,21 +260,28 @@ if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'user_name' not in st.session_state: st.session_state.user_name = ""
 if 'user_no' not in st.session_state: st.session_state.user_no = ""
 
-# --- FONKSİYON: VERİ ÇEKME ---
-# Veriyi her defasında çekmemek için önbelleğe alıyoruz (5 dakika)
+# --- FONKSİYON: VERİ ÇEKME (GÜNCELLENDİ) ---
 @st.cache_data(ttl=300)
 def fetch_lifesim_data():
+    # 1. Önce yerel dosyaya bak (En garantisi)
+    if os.path.exists("lifesim_data.json"):
+        try:
+            with open("lifesim_data.json", "r", encoding="utf-8") as f:
+                return f.read()
+        except:
+            pass # Okuyamazsa interneti dene
+
+    # 2. Yerelde yoksa GitHub'dan çekmeyi dene
     try:
-        if "githubusercontent" not in GITHUB_JSON_URL:
-            return "[]" # Geçersiz link ise boş dön
-        
-        response = requests.get(GITHUB_JSON_URL)
-        if response.status_code == 200:
-            return response.text # JSON string olarak döner
-        else:
-            return "[]"
+        if "githubusercontent" in GITHUB_JSON_URL:
+            response = requests.get(GITHUB_JSON_URL)
+            if response.status_code == 200:
+                return response.text
     except:
-        return "[]"
+        pass
+        
+    # 3. Hiçbiri olmazsa boş liste dön (Hata vermemesi için)
+    return "[]"
 
 # --- EKRAN 1: GİRİŞ EKRANI ---
 if not st.session_state.logged_in:
