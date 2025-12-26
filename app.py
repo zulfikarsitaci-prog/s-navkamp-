@@ -5,7 +5,6 @@ import requests
 import json
 import os
 import time
-import random
 
 # 1. SAYFA AYARLARI
 st.set_page_config(
@@ -16,20 +15,58 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🔗 GITHUB AYARLARI
+# 🔗 GITHUB AYARLARI (OTOMATİK)
 # ==========================================
-# Burası senin repo adresin.
-GITHUB_BASE_URL = "https://raw.githubusercontent.com/zulfikarsitaci-prog/s-navkamp-/main"
+# Senin kullanıcı ve repo bilgilerin
+GITHUB_USER = "zulfikarsitaci-prog"
+GITHUB_REPO = "s-navkamp-"
+GITHUB_BRANCH = "main"
 
-# Dosya Linkleri (Güncellendi)
+# Ana URL
+GITHUB_BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_USER}/{GITHUB_REPO}/{GITHUB_BRANCH}"
+
+# Dosya Linkleri
 URL_LIFESIM = f"{GITHUB_BASE_URL}/lifesim_data.json"
-URL_TYT_DATA = f"{GITHUB_BASE_URL}/tyt_data.json"      # TYT Soru/Cevapları
-URL_TYT_PDF = f"{GITHUB_BASE_URL}/tytson8.pdf"          # TYT PDF Kitapçığı
-URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"  # Meslek Soruları
-URL_MESLEK_KONULAR = f"{GITHUB_BASE_URL}/konular.json"  # Meslek Konu Başlıkları
+URL_TYT_DATA = f"{GITHUB_BASE_URL}/tyt_data.json"      # TYT Soruları
+URL_TYT_PDF = f"{GITHUB_BASE_URL}/tytson8.pdf"          # TYT Kitapçığı
+URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"  # Meslek Soruları (Düzeltildi)
 
 # ==========================================
-# 🎮 OYUN 1: FİNANS İMPARATORU (PASİF GELİR)
+# 3. YARDIMCI FONKSİYONLAR
+# ==========================================
+@st.cache_data(ttl=300)
+def fetch_json_data(url):
+    """Veriyi çeker, hata varsa boş liste döner."""
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = json.loads(response.text)
+            if isinstance(data, list): return data
+    except: pass
+    return []
+
+def load_lifesim_html():
+    try:
+        if os.path.exists("game.html"):
+            with open("game.html", "r", encoding="utf-8") as f: html = f.read()
+        else:
+            resp = requests.get(f"{GITHUB_BASE_URL}/game.html")
+            html = resp.text if resp.status_code == 200 else "<h3>game.html bulunamadı</h3>"
+        
+        data = fetch_json_data(URL_LIFESIM)
+        json_str = json.dumps(data)
+        return html.replace("// PYTHON_DATA_HERE", f"var scenarios = {json_str};")
+    except: return "<h3>Yükleme Hatası</h3>"
+
+def decode_transfer_code(code):
+    try:
+        parts = code.split('-')
+        if len(parts) != 3 or parts[0] != "FNK": return None
+        return int(int(parts[1], 16) / 13)
+    except: return None
+
+# ==========================================
+# 🎮 OYUN KODLARI (SABİT)
 # ==========================================
 FINANCE_GAME_HTML = """
 <!DOCTYPE html>
@@ -39,57 +76,24 @@ FINANCE_GAME_HTML = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
     body { background-color: #0f172a; color: #e2e8f0; font-family: 'Montserrat', sans-serif; user-select: none; padding: 10px; text-align: center; margin: 0; }
-    
     .container { width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: hidden; }
-
-    /* Dashboard */
     .dashboard { display: flex; flex-wrap: wrap; justify-content: space-between; background: linear-gradient(145deg, #1e293b, #0f172a); padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px; gap: 10px; }
     .stat-box { text-align: left; flex: 1; min-width: 120px; }
     .stat-label { font-size: 9px; color: #94a3b8; letter-spacing: 1px; }
     .money-val { font-size: 22px; font-weight: 900; color: #34d399; }
     .income-val { font-size: 16px; font-weight: 700; color: #facc15; }
-
-    /* Clicker Button */
-    .clicker-btn {
-        background: radial-gradient(circle, #3b82f6 0%, #1d4ed8 100%);
-        border: 4px solid #1e3a8a; border-radius: 50%; 
-        width: 110px; height: 110px;
-        font-size: 30px; cursor: pointer; 
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
-        margin: 0 auto 20px auto;
-        display: flex; align-items: center; justify-content: center;
-        transition: transform 0.1s;
-    }
+    .clicker-btn { background: radial-gradient(circle, #3b82f6 0%, #1d4ed8 100%); border: 4px solid #1e3a8a; border-radius: 50%; width: 110px; height: 110px; font-size: 30px; cursor: pointer; box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; transition: transform 0.1s; }
     .clicker-btn:active { transform: scale(0.95); }
-
-    /* Market Grid */
-    .asset-grid { 
-        display: grid; 
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
-        gap: 8px; 
-        margin-bottom: 20px; 
-    }
-    
-    .asset-card {
-        background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #334155;
-        cursor: pointer; position: relative; transition: 0.2s; text-align: left;
-    }
+    .asset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 20px; }
+    .asset-card { background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #334155; cursor: pointer; position: relative; transition: 0.2s; text-align: left; }
     .asset-card:hover { border-color: #facc15; background: #253347; }
     .asset-card.locked { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
-    
     .asset-name { font-weight: bold; font-size: 10px; color: #fff; display: block; margin-bottom: 2px;}
     .asset-cost { font-size: 10px; color: #f87171; font-weight: bold; }
     .asset-gain { font-size: 9px; color: #34d399; }
     .asset-count { position: absolute; top: 5px; right: 5px; background: #facc15; color: #000; font-weight: bold; font-size: 9px; padding: 1px 5px; border-radius: 4px; }
-
-    /* Bank Section (KÜÇÜK VE KİBAR) */
     .bank-area { margin-top: 10px; text-align: center; }
-    .bank-btn { 
-        background: #10b981; color: #fff; border: none; 
-        padding: 8px 20px; font-weight: bold; border-radius: 6px; 
-        cursor: pointer; font-size: 12px; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s;
-    }
+    .bank-btn { background: #10b981; color: #fff; border: none; padding: 8px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.2s; }
     .bank-btn:hover { background: #059669; }
     .code-display { background: #fff; color: #000; padding: 5px; margin-top: 5px; font-family: monospace; font-weight: bold; display: none; font-size: 12px; border-radius: 4px; width: 100%; box-sizing: border-box;}
 </style>
@@ -97,97 +101,54 @@ FINANCE_GAME_HTML = """
 <body>
 <div class="container">
     <div class="dashboard">
-        <div class="stat-box">
-            <div class="stat-label">NAKİT VARLIK</div>
-            <div id="money" class="money-val">0 ₺</div>
-        </div>
-        <div class="stat-box" style="text-align:right;">
-            <div class="stat-label">PASİF GELİR</div>
-            <div id="cps" class="income-val">0.0 /sn</div>
-        </div>
+        <div class="stat-box"><div class="stat-label">NAKİT VARLIK</div><div id="money" class="money-val">0 ₺</div></div>
+        <div class="stat-box" style="text-align:right;"><div class="stat-label">PASİF GELİR</div><div id="cps" class="income-val">0.0 /sn</div></div>
     </div>
-
     <div class="clicker-btn" onclick="manualWork()">👆</div>
-
     <div style="text-align:left; color:#facc15; font-size:12px; font-weight:bold; margin-bottom:5px;">YATIRIM PORTFÖYÜ</div>
     <div class="asset-grid" id="market"></div>
-
-    <div class="bank-area">
-        <button class="bank-btn" onclick="generateCode()">🏦 Bankaya Aktar</button>
-        <div id="transferCode" class="code-display"></div>
-    </div>
+    <div class="bank-area"><button class="bank-btn" onclick="generateCode()">🏦 Bankaya Aktar</button><div id="transferCode" class="code-display"></div></div>
 </div>
-
 <script>
     let money = 0;
     const assets = [
-        { name: "Limonata", cost: 150, gain: 0.5, count: 0 },
-        { name: "Simit Tezgahı", cost: 1000, gain: 3.5, count: 0 },
-        { name: "Kantin", cost: 5000, gain: 15.0, count: 0 },
-        { name: "Kırtasiye", cost: 20000, gain: 55.0, count: 0 },
-        { name: "Yazılım Ofisi", cost: 80000, gain: 200.0, count: 0 },
-        { name: "E-Ticaret", cost: 250000, gain: 750.0, count: 0 },
-        { name: "Fabrika", cost: 1000000, gain: 3500.0, count: 0 },
-        { name: "Kripto Madeni", cost: 5000000, gain: 15000.0, count: 0 },
+        { name: "Limonata", cost: 150, gain: 0.5, count: 0 }, { name: "Simit Tezgahı", cost: 1000, gain: 3.5, count: 0 },
+        { name: "Kantin", cost: 5000, gain: 15.0, count: 0 }, { name: "Kırtasiye", cost: 20000, gain: 55.0, count: 0 },
+        { name: "Yazılım Ofisi", cost: 80000, gain: 200.0, count: 0 }, { name: "E-Ticaret", cost: 250000, gain: 750.0, count: 0 },
+        { name: "Fabrika", cost: 1000000, gain: 3500.0, count: 0 }, { name: "Kripto Madeni", cost: 5000000, gain: 15000.0, count: 0 },
         { name: "Uzay İstasyonu", cost: 50000000, gain: 200000.0, count: 0 }
     ];
-
     function updateUI() {
         document.getElementById('money').innerText = Math.floor(money).toLocaleString() + ' ₺';
         let totalCps = assets.reduce((t, a) => t + (a.count * a.gain), 0);
         document.getElementById('cps').innerText = totalCps.toFixed(1) + ' /sn';
-
-        const market = document.getElementById('market');
-        market.innerHTML = '';
-
+        const market = document.getElementById('market'); market.innerHTML = '';
         assets.forEach((asset, index) => {
             let currentCost = Math.floor(asset.cost * Math.pow(1.2, asset.count));
             let div = document.createElement('div');
             div.className = 'asset-card ' + (money >= currentCost ? '' : 'locked');
             div.onclick = () => buyAsset(index);
-            div.innerHTML = `
-                <div class="asset-count">${asset.count}</div>
-                <div class="asset-name">${asset.name}</div>
-                <div class="asset-cost">${currentCost.toLocaleString()} ₺</div>
-                <div class="asset-gain">+${asset.gain}/sn</div>
-            `;
+            div.innerHTML = `<div class="asset-count">${asset.count}</div><div class="asset-name">${asset.name}</div><div class="asset-cost">${currentCost.toLocaleString()} ₺</div><div class="asset-gain">+${asset.gain}/sn</div>`;
             market.appendChild(div);
         });
     }
-
     function manualWork() { money += 1; updateUI(); }
-
     function buyAsset(index) {
-        let asset = assets[index];
-        let currentCost = Math.floor(asset.cost * Math.pow(1.2, asset.count));
+        let asset = assets[index]; let currentCost = Math.floor(asset.cost * Math.pow(1.2, asset.count));
         if (money >= currentCost) { money -= currentCost; asset.count++; updateUI(); }
     }
-
     function generateCode() {
         if (money < 100) { alert("En az 100 ₺ birikmeli."); return; }
-        let val = Math.floor(money);
-        let hex = (val * 13).toString(16).toUpperCase();
-        let rnd = Math.floor(Math.random() * 100);
-        let code = `FNK-${hex}-${rnd}`;
-        let box = document.getElementById('transferCode');
-        box.innerText = code; box.style.display = 'block';
-        money = 0; updateUI();
+        let val = Math.floor(money); let hex = (val * 13).toString(16).toUpperCase(); let rnd = Math.floor(Math.random() * 100); let code = `FNK-${hex}-${rnd}`;
+        let box = document.getElementById('transferCode'); box.innerText = code; box.style.display = 'block'; money = 0; updateUI();
     }
-
-    setInterval(() => {
-        let totalCps = assets.reduce((t, a) => t + (a.count * a.gain), 0);
-        if (totalCps > 0) { money += totalCps; updateUI(); }
-    }, 1000);
-
+    setInterval(() => { let totalCps = assets.reduce((t, a) => t + (a.count * a.gain), 0); if (totalCps > 0) { money += totalCps; updateUI(); } }, 1000);
     updateUI();
 </script>
 </body>
 </html>
 """
 
-# ==========================================
-# 🎮 OYUN 2: ASSET MATRIX (SABİT)
-# ==========================================
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -267,40 +228,6 @@ ASSET_MATRIX_HTML = """
 """
 
 # ==========================================
-# 3. YARDIMCI FONKSİYONLAR
-# ==========================================
-@st.cache_data(ttl=300)
-def fetch_json_data(url):
-    """Güvenli veri çekme (Liste formatında bekler)"""
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            data = json.loads(response.text)
-            if isinstance(data, list): return data
-    except: pass
-    return []
-
-def load_lifesim_html():
-    try:
-        if os.path.exists("game.html"):
-            with open("game.html", "r", encoding="utf-8") as f: html = f.read()
-        else:
-            resp = requests.get(f"{GITHUB_BASE_URL}/game.html")
-            html = resp.text if resp.status_code == 200 else "<h3>game.html bulunamadı</h3>"
-        
-        data = fetch_json_data(URL_LIFESIM)
-        json_str = json.dumps(data)
-        return html.replace("// PYTHON_DATA_HERE", f"var scenarios = {json_str};")
-    except: return "<h3>Yükleme Hatası</h3>"
-
-def decode_transfer_code(code):
-    try:
-        parts = code.split('-')
-        if len(parts) != 3 or parts[0] != "FNK": return None
-        return int(int(parts[1], 16) / 13)
-    except: return None
-
-# ==========================================
 # 4. ARAYÜZ (Bağarası ÇPAL Teması)
 # ==========================================
 st.markdown("""
@@ -318,8 +245,10 @@ st.markdown("""
     .bank-box { background: #e8f5e9; border: 2px dashed #27ae60; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
     
     /* Optik Form Stili */
-    .optik-row { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-    .optik-row:hover { background-color: #f1f5f9; }
+    .optik-box { background:white; padding:15px; border-radius:10px; margin-bottom:10px; border-left:4px solid #D84315; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .optik-question { font-weight:bold; margin-bottom:5px; color:#2c3e50; }
+    .correct-ans { color: #27ae60; font-weight:bold; }
+    .wrong-ans { color: #c0392b; font-weight:bold; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -327,9 +256,6 @@ if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'user_name' not in st.session_state: st.session_state.user_name = ""
 if 'user_no' not in st.session_state: st.session_state.user_no = ""
 if 'bank_balance' not in st.session_state: st.session_state.bank_balance = 0
-if 'tyt_answers' not in st.session_state: st.session_state.tyt_answers = {}
-if 'meslek_answers' not in st.session_state: st.session_state.meslek_answers = {}
-if 'tyt_questions_cache' not in st.session_state: st.session_state.tyt_questions_cache = []
 
 # --- EKRAN 1: GİRİŞ ---
 if not st.session_state.logged_in:
@@ -396,91 +322,107 @@ else:
         st.info(f"Öğrenci: {st.session_state.user_name} ({st.session_state.user_no})")
         if st.button("Çıkış Yap"): st.session_state.logged_in = False; st.rerun()
 
-    # --- SORU ÇÖZÜM MERKEZİ ---
+    # --- SORU ÇÖZÜM MERKEZİ (GÜNCELLENDİ) ---
     with tab_soru:
         st.header("📚 Soru Çözüm Merkezi")
-        t_tyt, t_meslek = st.tabs(["📘 TYT (KİTAPÇIKLI)", "📙 MESLEK (ONLİNE)"])
+        t_tyt, t_meslek = st.tabs(["📘 TYT (OPTİK FORM)", "📙 MESLEK (OPTİK FORM)"])
         
-        # 1. TYT BÖLÜMÜ (PDF + OPTİK)
+        # 1. TYT BÖLÜMÜ
         with t_tyt:
-            c_pdf, c_optik = st.columns([1, 1])
+            c_pdf, c_optik = st.columns([1, 1.2])
+            
             with c_pdf:
-                st.info("👈 Soruları PDF'ten okuyun, sağ taraftaki forma işaretleyin.")
+                st.info("👈 Soruları soldaki PDF'ten okuyun, sağ taraftaki forma işaretleyin.")
                 st.markdown(f"""
-                <iframe src="{URL_TYT_PDF}" width="100%" height="600px">
+                <iframe src="{URL_TYT_PDF}" width="100%" height="700px" style="border-radius:10px; border:1px solid #ccc;">
                 </iframe>
                 <br><br>
-                <a href="{URL_TYT_PDF}" target="_blank" style="background:#e74c3c; color:white; padding:10px 20px; text-decoration:none; border-radius:5px; font-weight:bold;">📄 PDF'i Tam Ekran Aç</a>
+                <a href="{URL_TYT_PDF}" target="_blank" style="display:block; background:#e74c3c; color:white; padding:12px; border-radius:8px; text-align:center; font-weight:bold; text-decoration:none;">📄 PDF'i Tam Ekran Aç</a>
                 """, unsafe_allow_html=True)
             
             with c_optik:
-                st.subheader("📝 Optik Cevap Formu")
                 questions = fetch_json_data(URL_TYT_DATA)
                 
-                # Sınav Modu Seçimi
-                mode = st.radio("Mod Seçiniz:", ["Ders Bazlı", "Genel Deneme (Karışık)"], horizontal=True)
-                
-                if questions:
-                    # Filtreleme Mantığı
-                    active_questions = []
-                    if mode == "Ders Bazlı":
-                        cats = list(set([q.get('category', 'Genel') for q in questions]))
-                        sel_cat = st.selectbox("Ders Seç:", cats)
-                        active_questions = [q for q in questions if q.get('category') == sel_cat]
-                    else:
-                        # Karışık modda soruları cache'le ki her tıkta değişmesin
-                        if not st.session_state.tyt_questions_cache:
-                            st.session_state.tyt_questions_cache = random.sample(questions, min(20, len(questions)))
-                        active_questions = st.session_state.tyt_questions_cache
-
-                    # Optik Form Oluşturma
-                    with st.form("tyt_form"):
+                if not questions:
+                    st.warning("TYT verileri yükleniyor... (tyt_data.json bekleniyor)")
+                else:
+                    cats = list(set([q.get('category', 'Genel') for q in questions if isinstance(q, dict)]))
+                    sel_cat = st.selectbox("Ders Seçiniz:", cats, key="tyt_cat_sel")
+                    
+                    # Seçilen dersin sorularını filtrele
+                    active_questions = [q for q in questions if isinstance(q, dict) and q.get('category') == sel_cat]
+                    
+                    st.markdown(f"### 📝 {sel_cat} Testi ({len(active_questions)} Soru)")
+                    
+                    with st.form(key=f"tyt_form_{sel_cat}"):
+                        user_answers = {}
                         for i, q in enumerate(active_questions):
-                            st.markdown(f"**{i+1}. {q.get('category', '')} Sorusu**")
-                            # Cevabı session_state'e kaydet
-                            st.radio(f"Soru {i+1} Cevabı:", ['A', 'B', 'C', 'D', 'E'], key=f"tyt_q_{i}", horizontal=True, index=None)
+                            st.markdown(f"**{i+1}. Soru**")
+                            # Optik Form Tarzı Yatay Radio
+                            user_answers[i] = st.radio(f"Soru {i+1} Cevabı:", ['A', 'B', 'C', 'D', 'E'], key=f"tyt_{sel_cat}_{i}", horizontal=True, index=None, label_visibility="collapsed")
                             st.divider()
                         
-                        submitted = st.form_submit_button("Sınavı Bitir ve Kontrol Et")
-                        
-                        if submitted:
+                        if st.form_submit_button("Sınavı Bitir ve Kontrol Et"):
                             dogru, yanlis = 0, 0
-                            results = []
+                            st.markdown("### 📊 Sonuç Analizi")
+                            
                             for i, q in enumerate(active_questions):
-                                user_ans = st.session_state.get(f"tyt_q_{i}")
-                                correct_ans = q.get('correct')
+                                u_ans = user_answers[i]
+                                c_ans = q.get('correct')
                                 
-                                if user_ans == correct_ans:
+                                if u_ans == c_ans:
                                     dogru += 1
-                                    results.append(f"✅ Soru {i+1}: Doğru")
+                                    st.success(f"✅ **Soru {i+1}:** Doğru (Cevap: {c_ans})")
                                 else:
                                     yanlis += 1
-                                    results.append(f"❌ Soru {i+1}: Yanlış (Sen: {user_ans}, Cevap: {correct_ans})")
+                                    if u_ans is None: u_ans = "Boş"
+                                    st.error(f"❌ **Soru {i+1}:** Yanlış! (Senin Cevabın: {u_ans} | Doğru Cevap: {c_ans})")
                             
-                            st.success(f"Sonuç: {dogru} Doğru, {yanlis} Yanlış")
-                            st.session_state.bank_balance += (dogru * 50) # Puan ödülü
-                            with st.expander("Detaylı Sonuç Karnesi"):
-                                for r in results: st.write(r)
+                            puan = dogru * 50
+                            st.info(f"**Toplam:** {dogru} Doğru, {yanlis} Yanlış | **Kazanılan Puan:** {puan} ₺")
+                            st.session_state.bank_balance += puan
 
         # 2. MESLEK BÖLÜMÜ
         with t_meslek:
             meslek_questions = fetch_json_data(URL_MESLEK_SORULAR)
-            if not meslek_questions: st.warning("Meslek soruları (sorular.json) bulunamadı.")
+            
+            if not meslek_questions:
+                st.warning("Meslek soruları yükleniyor... (sorular.json bekleniyor)")
             else:
-                cats = list(set([m.get('category', 'Genel') for m in meslek_questions]))
-                sel_cat = st.selectbox("Ders Seçiniz:", cats)
-                filtered_m = [m for m in meslek_questions if m.get('category') == sel_cat]
+                cats_m = list(set([m.get('category', 'Genel') for m in meslek_questions if isinstance(m, dict)]))
+                sel_cat_m = st.selectbox("Ders Seçiniz:", cats_m, key="meslek_cat_sel")
                 
-                for i, m in enumerate(filtered_m):
-                    with st.expander(f"Soru {i+1}: {m.get('text', '')[:60]}..."):
-                        st.write(m.get('text'))
-                        opts = m.get('options', [])
-                        ans = st.radio(f"Cevap:", opts, key=f"m_{i}")
-                        if st.button(f"Kontrol Et", key=f"bm_{i}"):
-                            if ans == m.get('correct'):
-                                st.success("Doğru! (+150 Puan)")
-                                st.session_state.bank_balance += 150
-                            else: st.error("Yanlış.")
+                active_questions_m = [m for m in meslek_questions if isinstance(m, dict) and m.get('category') == sel_cat_m]
+                
+                st.markdown(f"### 📙 {sel_cat_m} Testi ({len(active_questions_m)} Soru)")
+                
+                with st.form(key=f"meslek_form_{sel_cat_m}"):
+                    user_answers_m = {}
+                    for i, m in enumerate(active_questions_m):
+                        # Soru Metni ve Şıklar
+                        st.markdown(f"""<div class="optik-box"><div class="optik-question">{i+1}. {m.get('text')}</div></div>""", unsafe_allow_html=True)
+                        options = m.get('options', [])
+                        user_answers_m[i] = st.radio("Cevabınız:", options, key=f"meslek_{sel_cat_m}_{i}", index=None)
+                        st.divider()
+                    
+                    if st.form_submit_button("Testi Bitir"):
+                        dogru_m, yanlis_m = 0, 0
+                        st.markdown("### 📊 Sonuç Analizi")
+                        
+                        for i, m in enumerate(active_questions_m):
+                            u_ans_m = user_answers_m[i]
+                            c_ans_m = m.get('correct')
+                            
+                            if u_ans_m == c_ans_m:
+                                dogru_m += 1
+                                st.success(f"✅ **Soru {i+1}:** Doğru")
+                            else:
+                                yanlis_m += 1
+                                st.error(f"❌ **Soru {i+1}:** Yanlış (Doğru Cevap: {c_ans_m})")
+                        
+                        puan_m = dogru_m * 100
+                        st.info(f"**Toplam:** {dogru_m} Doğru, {yanlis_m} Yanlış | **Kazanılan Puan:** {puan_m} ₺")
+                        st.session_state.bank_balance += puan_m
 
     with tab_eglence:
         st.header("🎮 Simülasyonlar")
