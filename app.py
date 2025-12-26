@@ -1,29 +1,47 @@
-from flask import Flask, render_template, jsonify, send_from_directory
+import streamlit as st
+import streamlit.components.v1 as components
 import json
 import os
 
-app = Flask(__name__)
+# Sayfa Ayarları
+st.set_page_config(
+    page_title="Finans İmparatoru & Blok Oyunu",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
-# Anasayfa: index.html'i yükler
-@app.route('/')
-def index():
-    return render_template('index.html')
+# Başlık ve Açıklama (İstersen kaldırabilirsin)
+# st.title("Finans İmparatoru") 
 
-# JSON Verisi: LifeSim sorularını JS'e gönderir
-@app.route('/lifesim_data.json')
-def get_lifesim_data():
+def load_game():
+    # 1. JSON Verisini Oku (Python Tarafında)
     try:
-        # JSON dosyası projenin ana dizininde olmalı
         with open('lifesim_data.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        return jsonify(data)
+            game_data = json.load(f)
+        # JSON'ı string formatına çevir (HTML içine gömmek için)
+        json_str = json.dumps(game_data)
     except FileNotFoundError:
-        return jsonify({"error": "Veri dosyası bulunamadı."}), 404
+        st.error("lifesim_data.json bulunamadı!")
+        return
 
-# Statik dosyalar (Gerekirse resim/css vs. için)
-@app.route('/static/<path:path>')
-def send_static(path):
-    return send_from_directory('static', path)
+    # 2. HTML Dosyasını Oku
+    try:
+        with open('game.html', 'r', encoding='utf-8') as f:
+            html_content = f.read()
+    except FileNotFoundError:
+        st.error("game.html bulunamadı!")
+        return
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # 3. Python'daki Veriyi HTML'in İçine Enjekte Et
+    # HTML kodunda '// PYTHON_DATA_HERE' yazan yeri bulup gerçek veriyle değiştiriyoruz.
+    # Bu sayede 'fetch' hatası almazsın, veri garanti yüklenir.
+    injected_html = html_content.replace(
+        '// PYTHON_DATA_HERE', 
+        f'let scenarios = {json_str}; console.log("Veri Python üzerinden yüklendi");'
+    )
+
+    # 4. Oyunu Ekrana Bas (Tam Ekran gibi)
+    components.html(injected_html, height=800, scrolling=False)
+
+if __name__ == "__main__":
+    load_game()
