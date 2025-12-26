@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LifeSim & Block Architect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { bg: '#0f172a', surface: '#1e293b', primary: '#38bdf8', accent: '#818cf8', success: '#34d399', warning: '#fbbf24', danger: '#f87171' },
+                    animation: { 'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite' }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ORTAK STİLLER */
+        body { background-color: #050505; color: #fff; font-family: 'Montserrat', sans-serif; overflow-x: hidden; }
+        
+        /* ÜST MENÜ & BANKA */
+        #top-nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+            background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid #334155;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; z-index: 50; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        .nav-btn {
+            background: transparent; border: 1px solid #334155; color: #94a3b8;
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;
+            transition: all 0.3s; font-size: 0.9rem;
+        }
+        .nav-btn.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
+        .nav-btn:hover:not(.active) { border-color: #94a3b8; color: #fff; }
+
+        .economy-widget { display: flex; gap: 15px; align-items: center; font-family: 'Courier New', monospace; font-size: 0.9rem; }
+        .money-tag { display: flex; align-items: center; gap: 5px; }
+        .money-val { color: #34d399; font-weight: bold; }
+        
+        /* OYUN ALANLARI */
+        .game-section { padding-top: 70px; height: 100vh; box-sizing: border-box; display: none; }
+        .game-section.active { display: block; }
+
+        /* BLOK OYUNU ÖZEL */
+        #block-game-wrapper { text-align: center; overflow: hidden; }
+        canvas { box-shadow: 0 0 30px rgba(0, 0, 0, 0.9); border-radius: 4px; border: 1px solid #222; background: #080808; touch-action: none; margin: 0 auto; display: block; }
+        
+        /* LIFESIM ÖZEL */
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+        .typing::after { content: '|'; animation: blink 1s step-start infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* BANKA MODAL */
+        #bank-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #1e293b; border: 1px solid #38bdf8; padding: 20px;
+            border-radius: 12px; z-index: 100; display: none; width: 300px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 90; display: none; }
+    </style>
+</head>
+<body>
+
+    <nav id="top-nav">
+        <div class="flex gap-4">
+            <button class="nav-btn active" onclick="switchTab('block')"><i data-lucide="grid-3x3"></i> BLOKLAR</button>
+            <button class="nav-btn" onclick="switchTab('life')"><i data-lucide="briefcase"></i> KARİYER (LifeSim)</button>
+        </div>
+        <div class="economy-widget">
+            <div class="money-tag cursor-pointer" onclick="openBank()">
+                <i data-lucide="wallet" size="16"></i> Nakit: <span id="cash-display" class="money-val">0 TL</span>
+            </div>
+            <div class="money-tag cursor-pointer" onclick="openBank()">
+                <i data-lucide="landmark" size="16"></i> Banka: <span id="bank-display" class="money-val">0 TL</span>
+            </div>
+            <button onclick="openBank()" class="text-xs bg-slate-700 hover:bg-slate-600 px-2 py-1 rounded">Havale Yap</button>
+        </div>
+    </nav>
+
+    <div class="overlay" id="modal-overlay" onclick="closeBank()"></div>
+    <div id="bank-modal">
+        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2"><i data-lucide="landmark" class="text-success"></i> Mobil Bankacılık</h3>
+        <p class="text-slate-400 text-sm mb-4">Nakit paranızı bankaya yatırarak güvenceye alın.</p>
+        <div class="mb-4">
+            <label class="text-xs text-slate-500">Yatırılacak Tutar:</label>
+            <input type="number" id="deposit-amount" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white" placeholder="Miktar giriniz...">
+        </div>
+        <div class="flex justify-end gap-2">
+            <button onclick="closeBank()" class="px-4 py-2 text-slate-400 hover:text-white text-sm">İptal</button>
+            <button onclick="depositMoney()" class="px-4 py-2 bg-success text-slate-900 font-bold rounded hover:bg-green-400">YATIR</button>
+        </div>
+    </div>
+
+    <div id="block-section" class="game-section active">
+        <div id="block-game-wrapper">
+            <div class="mb-2 text-center">
+                <div class="text-xs text-slate-400 tracking-widest">NET VARLIK DEĞERİ</div>
+                <div id="score" class="text-3xl font-black text-white drop-shadow-lg transition-colors">$0</div>
+                <div id="level-indicator" class="text-xs text-yellow-500 mt-1 opacity-80">SEVİYE: BAŞLANGIÇ</div>
+            </div>
+            <canvas id="gameCanvas"></canvas>
+            
+            <div id="startScreen" class="absolute inset-0 flex flex-col justify-center items-center bg-black/90 z-20 pt-20">
+                <h1 class="text-4xl font-black mb-4">SOCRATIC <span class="text-yellow-400">MATRIX</span></h1>
+                <p class="text-slate-400 mb-8 max-w-md text-center px-4">Blokları yönet, varlıklarını büyüt.<br>Kariyer modunda para kazanarak ilerle.</p>
+                <button onclick="initGame()" class="px-8 py-3 bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 text-white font-bold rounded hover:border-yellow-400 transition-all">SİMÜLASYONU BAŞLAT</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="life-section" class="game-section">
+        <div class="p-2 md:p-6 flex flex-col md:flex-row gap-6 max-w-7xl mx-auto h-[calc(100vh-80px)]">
+            
+            <div class="w-full md:w-1/3 flex flex-col gap-4 overflow-hidden">
+                <div class="glass p-4 rounded-xl border-l-4 border-accent shrink-0">
+                    <label class="text-xs text-slate-400 uppercase font-bold flex items-center gap-2"><i data-lucide="list"></i> Senaryo Seçimi</label>
+                    <select id="scenarioSelect" onchange="loadScenario()" class="w-full mt-2 bg-slate-900 text-white p-2 rounded border border-slate-700 outline-none focus:border-accent transition-colors cursor-pointer font-mono text-sm">
+                        <option>Veriler Yükleniyor...</option>
+                    </select>
+                </div>
+
+                <div class="glass p-6 rounded-xl flex-1 flex flex-col relative overflow-hidden overflow-y-auto">
+                    <div class="flex justify-between items-start mb-4">
+                        <span id="categoryBadge" class="px-3 py-1 bg-slate-700 text-slate-400 text-xs font-bold rounded-full font-mono">YÜKLENİYOR</span>
+                    </div>
+                    <h2 id="scenarioTitle" class="text-lg font-bold text-white mb-4 leading-snug">Veritabanı Bekleniyor...</h2>
+                    <div class="prose prose-invert text-sm text-slate-300 font-light" id="scenarioText">Lütfen bir senaryo seçin.</div>
+                    
+                    <div class="mt-4 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                        <h3 class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-2 font-mono"><i data-lucide="binary" class="w-4 h-4"></i> GİRDİ PARAMETRELERİ</h3>
+                        <ul id="scenarioData" class="space-y-1 text-xs md:text-sm font-mono text-primary"></ul>
+                    </div>
+                    
+                    <div class="mt-4 text-right">
+                         <span class="text-xs text-slate-400">Ödül:</span> <span id="rewardBadge" class="text-success font-bold font-mono">0 TL</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full md:w-2/3 flex flex-col gap-4 overflow-hidden">
+                <div id="aiInteractionArea" class="glass p-5 rounded-xl border border-slate-700/80 min-h-[140px] flex gap-4 shrink-0">
+                    <div class="bg-slate-800 p-3 rounded-full shrink-0 h-12 w-12 flex items-center justify-center border border-slate-600">
+                        <i data-lucide="bot" class="text-accent w-6 h-6 animate-pulse-fast"></i>
+                    </div>
+                    <div class="flex-1 overflow-y-auto max-h-[150px]">
+                        <h4 class="text-accent text-xs font-bold mb-1 uppercase tracking-widest flex justify-between">
+                            <span>AI ANALİZ</span> <span id="scoreDisplay" class="hidden text-white">0%</span>
+                        </h4>
+                        <div id="aiFeedback" class="text-sm text-slate-200 leading-relaxed font-mono mt-2">
+                            <span class="typing">Sistem hazır. Senaryoyu seç ve stratejini yaz.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass p-1 rounded-xl flex-1 relative border border-slate-700 flex flex-col">
+                    <textarea id="inputText" class="w-full h-full bg-transparent p-6 text-base text-slate-200 resize-none outline-none font-light font-mono" placeholder="// Çözüm algoritmanı veya kararını buraya yaz..."></textarea>
+                    <div class="absolute bottom-4 right-4">
+                        <button onclick="analyzeSubmission()" id="actionBtn" class="bg-primary hover:bg-blue-400 text-slate-900 font-bold px-6 py-2 rounded-lg shadow-lg flex items-center gap-2 transition-transform active:scale-95">
+                            <i data-lucide="zap" class="w-4 h-4"></i> ANALİZ ET
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- GLOBAL EKONOMİ SİSTEMİ ---
+        let playerCash = 0;
+        let playerBank = 0;
+
+        function updateEconomyUI() {
+            document.getElementById('cash-display').innerText = playerCash.toLocaleString('tr-TR') + ' TL';
+            document.getElementById('bank-display').innerText = playerBank.toLocaleString('tr-TR') + ' TL';
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.game-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            if(tab === 'block') {
+                document.getElementById('block-section').classList.add('active');
+                document.querySelector('button[onclick="switchTab(\'block\')"]').classList.add('active');
+                resizeBlockGame(); // Canvas boyutunu düzelt
+            } else {
+                document.getElementById('life-section').classList.add('active');
+                document.querySelector('button[onclick="switchTab(\'life\')"]').classList.add('active');
+            }
+        }
+
+        function openBank() { document.getElementById('bank-modal').style.display = 'block'; document.getElementById('modal-overlay').style.display = 'block'; }
+        function closeBank() { document.getElementById('bank-modal').style.display = 'none'; document.getElementById('modal-overlay').style.display = 'none'; }
+        
+        function depositMoney() {
+            const amount = parseInt(document.getElementById('deposit-amount').value);
+            if (!amount || amount <= 0) return alert("Geçersiz miktar!");
+            if (amount > playerCash) return alert("Yetersiz bakiye!");
+            
+            playerCash -= amount;
+            playerBank += amount;
+            updateEconomyUI();
+            closeBank();
+            document.getElementById('deposit-amount').value = '';
+            alert(`${amount} TL banka hesabına aktarıldı.`);
+        }
+
+        // --- LIFESIM MANTIĞI ---
+        let scenarios = [];
+        let currentScenario = null;
+
+        // JSON VERİSİ (GITHUB FETCH FALLBACK İÇİN)
+        const LOCAL_DATA = [
+          {
+            "category": "Bireysel Finans",
+            "title": "Kredi Kartı Asgari Ödeme Tuzağı",
+            "text": "Toplam borcun 50.000 TL. Asgari ödeme tutarı 10.000 TL ödendi. Kalan 40.000 TL'ye %5 akdi faiz işliyor. Bir sonraki ay borç ne olacak?",
+            "data": ["Borç: 50.000 TL", "Faiz: %5 Aylık"],
+            "money_reward": 1500,
+            "keywords": { "bileşik": "Bileşik faizi düşündün mü?", "maliyet": "Yıllık maliyeti hesapladın mı?" },
+            "hapBilgi": "Asgari ödeme bir borç kapama değil, ertelemedir."
+          },
+          {
+            "category": "Girişimcilik",
+            "title": "Start-up Burn Rate",
+            "text": "Kasada 500.000 TL var, aylık gider 50.000 TL. Gelir yok. Ne zaman batarsın?",
+            "data": ["Kasa: 500k", "Gider: 50k"],
+            "money_reward": 5000,
+            "keywords": { "runway": "Şirketin kalan ömrünü (Runway) hesapladın mı?", "yatırım": "Para bitmeden yatırıma çıkmalı mısın?" },
+            "hapBilgi": "Runway = Kasa / Aylık Gider. Yatırımcılar en az 18 ay runway görmek ister."
+          }
+        ];
+
+        async function initLifeSim() {
+            lucide.createIcons();
+            try {
+                // GitHub Raw Linkini Buraya Gelecek. Şimdilik local veriyi kullanıyoruz.
+                // const response = await fetch('https://raw.githubusercontent.com/.../lifesim_data.json');
+                // scenarios = await response.json();
+                
+                // Demo amaçlı Local Data'yı yüklüyorum:
+                scenarios = LOCAL_DATA;
+                
+                loadScenarioDropdown();
+                loadScenario(0);
+            } catch (e) {
+                console.error("Veri yükleme hatası", e);
+                scenarios = LOCAL_DATA; // Hata olursa yedek veriyi yükle
+                loadScenarioDropdown();
+                loadScenario(0);
+            }
+        }
+
+        function loadScenarioDropdown() {
+            const select = document.getElementById('scenarioSelect');
+            select.innerHTML = "";
+            scenarios.forEach((s, idx) => {
+                let opt = document.createElement('option');
+                opt.value = idx;
+                opt.innerText = `[${s.category}] ${s.title}`;
+                select.appendChild(opt);
+            });
+        }
+
+        function loadScenario(index = null) {
+            if (index === null) index = document.getElementById('scenarioSelect').value;
+            currentScenario = scenarios[index];
+            
+            document.getElementById('categoryBadge').innerText = currentScenario.category;
+            document.getElementById('scenarioTitle').innerText = currentScenario.title;
+            document.getElementById('scenarioText').innerText = currentScenario.text;
+            document.getElementById('rewardBadge').innerText = (currentScenario.money_reward || 1000) + " TL";
+            
+            const dataList = document.getElementById('scenarioData');
+            dataList.innerHTML = "";
+            currentScenario.data.forEach(item => {
+                dataList.innerHTML += `<li class="border-b border-slate-700/50 pb-1"><span class="text-accent">> ${item}</span></li>`;
+            });
+            
+            document.getElementById('inputText').value = "";
+            document.getElementById('aiFeedback').innerHTML = `<span class="text-primary typing">Senaryo yüklendi. Analiz bekleniyor...</span>`;
+            document.getElementById('actionBtn').disabled = false;
+            document.getElementById('actionBtn').classList.remove('bg-success', 'cursor-default');
+            document.getElementById('actionBtn').classList.add('bg-primary');
+            document.getElementById('actionBtn').innerHTML = '<i data-lucide="zap" class="w-4 h-4"></i> ANALİZ ET';
+            lucide.createIcons();
+        }
+
+        function analyzeSubmission() {
+            const text = document.getElementById('inputText').value.toLowerCase();
+            const feedbackArea = document.getElementById('aiFeedback');
+            const btn = document.getElementById('actionBtn');
+
+            if (text.length < 5) return feedbackArea.innerHTML = "<span class='text-warning'>Girdi çok kısa.</span>";
+
+            btn.innerHTML = 'İŞLENİYOR...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                let score = 0;
+                let missing = [];
+                const keys = currentScenario.keywords || {};
+                const totalKeys = Object.keys(keys).length;
+
+                for (const [key, question] of Object.entries(keys)) {
+                    if (text.includes(key)) score++;
+                    else missing.push(question);
+                }
+
+                const finalScore = totalKeys > 0 ? Math.floor((score / totalKeys) * 100) : 100;
+
+                if (finalScore > 50) {
+                    const reward = currentScenario.money_reward || 1000;
+                    playerCash += reward;
+                    updateEconomyUI();
+                    
+                    feedbackArea.innerHTML = `<span class="text-success font-bold">>> BAŞARILI (%${finalScore})</span><br>Tebrikler! Stratejin doğru.<br><span class="text-yellow-400 font-bold">+${reward} TL Eklendi.</span><br><br><span class="text-white text-xs bg-slate-700 p-1 rounded">HAP BİLGİ: ${currentScenario.hapBilgi}</span>`;
+                    btn.className = "bg-success text-slate-900 font-bold px-6 py-2 rounded-lg flex items-center gap-2 cursor-default";
+                    btn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> TAMAMLANDI';
+                } else {
+                    const hint = missing.length > 0 ? missing[0] : "Daha detaylı açıkla.";
+                    feedbackArea.innerHTML = `<span class="text-warning font-bold">>> GELİŞTİRİLMELİ (%${finalScore})</span><br>Şunu düşündün mü:<br><span class="text-white italic">"${hint}"</span>`;
+                    btn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4"></i> TEKRAR DENE';
+                    btn.disabled = false;
+                }
+                lucide.createIcons();
+            }, 800);
+        }
+
+        // --- BLOK OYUNU MANTIĞI (CANVAS FIX & GAMEPLAY) ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Ayarlar
+        const GRID_SIZE = 12;
+        let CELL_SIZE = 30;
+        let BOARD_OFFSET_X = 10;
+        let BOARD_OFFSET_Y = 10;
+        
+        let grid = [];
+        let score = 0;
+        let availablePieces = [];
+        let draggingPiece = null;
+        let isGameOver = false;
+
+        // Şekiller
+        const SHAPES = [
+            [[1]], [[1, 1]], [[1], [1]], 
+            [[1, 1, 1]], [[1], [1], [1]], 
+            [[1, 1], [1, 1]], [[1, 1, 1], [0, 1, 0]]
+        ];
+
+        function resizeBlockGame() {
+            const container = document.getElementById('block-game-wrapper');
+            const maxWidth = Math.min(window.innerWidth * 0.95, 600); 
+            const maxHeight = window.innerHeight * 0.75;
+            
+            // Grid alanını hesapla
+            const availableSize = Math.min(maxWidth, maxHeight);
+            CELL_SIZE = Math.floor((availableSize - 40) / GRID_SIZE); // Kenar boşlukları için -40
+            
+            // Canvas boyutunu ayarla
+            canvas.width = CELL_SIZE * GRID_SIZE + (BOARD_OFFSET_X * 2);
+            // Alt kısımdaki spawn alanı için ekstra yükseklik
+            canvas.height = CELL_SIZE * GRID_SIZE + (BOARD_OFFSET_Y * 2) + 120; 
+
+            if (!isGameOver && availablePieces.length > 0) draw();
+        }
+
+        function initGame() {
+            grid = Array(GRID_SIZE).fill(0).map(() => Array(GRID_SIZE).fill(0));
+            score = 0;
+            document.getElementById('score').innerText = "$0";
+            document.getElementById('startScreen').style.display = 'none';
+            generateNewPieces();
+            resizeBlockGame();
+            draw();
+        }
+
+        function generateNewPieces() {
+            availablePieces = [];
+            const pieceSpacing = canvas.width / 3;
+            
+            for (let i = 0; i < 3; i++) {
+                const shapeMatrix = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+                // Spawn alanı: Gridin altı
+                const spawnY = BOARD_OFFSET_Y + (GRID_SIZE * CELL_SIZE) + 30;
+                // Her parçayı ortalayarak yerleştir
+                const spawnX = (i * pieceSpacing) + (pieceSpacing / 2) - ((shapeMatrix[0].length * CELL_SIZE) / 2); // Kabaca ortalama
+                
+                availablePieces.push({
+                    matrix: shapeMatrix,
+                    x: spawnX, y: spawnY,
+                    baseX: spawnX, baseY: spawnY,
+                    width: shapeMatrix[0].length * CELL_SIZE,
+                    height: shapeMatrix.length * CELL_SIZE,
+                    isDragging: false
+                });
+            }
+        }
+
+        function draw() {
+            // Arka plan temizle
+            ctx.fillStyle = "#080808";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawGrid();
+            drawPlacedBlocks();
+            drawAvailablePieces();
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                ctx.moveTo(BOARD_OFFSET_X, BOARD_OFFSET_Y + i * CELL_SIZE);
+                ctx.lineTo(BOARD_OFFSET_X + GRID_SIZE * CELL_SIZE, BOARD_OFFSET_Y + i * CELL_SIZE);
+                ctx.moveTo(BOARD_OFFSET_X + i * CELL_SIZE, BOARD_OFFSET_Y);
+                ctx.lineTo(BOARD_OFFSET_X + i * CELL_SIZE, BOARD_OFFSET_Y + GRID_SIZE * CELL_SIZE);
+            }
+            ctx.stroke();
+        }
+
+        function drawPlacedBlocks() {
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (grid[r][c] === 1) {
+                        drawCell(BOARD_OFFSET_X + c * CELL_SIZE, BOARD_OFFSET_Y + r * CELL_SIZE, CELL_SIZE, '#FFD700');
+                    }
+                }
+            }
+        }
+
+        function drawAvailablePieces() {
+            availablePieces.forEach(p => {
+                if (p.isDragging) return;
+                // Spawn alanındakileri biraz küçült (0.6x)
+                drawShape(p.matrix, p.x, p.y, CELL_SIZE * 0.6, '#38bdf8'); 
+            });
+
+            if (draggingPiece) {
+                // Sürüklenen parça tam boy (1.0x)
+                drawShape(draggingPiece.matrix, draggingPiece.x, draggingPiece.y, CELL_SIZE, '#38bdf8');
+                
+                // Gölge (Preview)
+                const { gx, gy } = getGridCoords(draggingPiece.x, draggingPiece.y);
+                if (canPlace(draggingPiece.matrix, gx, gy)) {
+                    drawShape(draggingPiece.matrix, BOARD_OFFSET_X + gx * CELL_SIZE, BOARD_OFFSET_Y + gy * CELL_SIZE, CELL_SIZE, 'rgba(255,255,255,0.2)');
+                }
+            }
+        }
+
+        function drawCell(x, y, size, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
+            ctx.strokeStyle = "rgba(255,255,255,0.1)";
+            ctx.strokeRect(x + 1, y + 1, size - 2, size - 2);
+        }
+
+        function drawShape(matrix, x, y, size, color) {
+            for (let r = 0; r < matrix.length; r++) {
+                for (let c = 0; c < matrix[r].length; c++) {
+                    if (matrix[r][c] === 1) {
+                        drawCell(x + c * size, y + r * size, size, color);
+                    }
+                }
+            }
+        }
+
+        // --- KOORDİNAT HESAPLAMA (ÖNEMLİ DÜZELTME) ---
+        function getEventPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+
+            // Canvas'ın CSS boyutu ile Gerçek boyutu arasındaki oran (Scaling Factor)
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function getGridCoords(px, py) {
+            // Mouse'un olduğu yerden Board Offset'i çıkarıp Cell Size'a bölüyoruz.
+            // Sürüklenen parçanın merkezinden değil, sol üst köşesinden hesaplamak daha net sonuç verir.
+            // Hassasiyeti artırmak için + (CELL_SIZE / 2) eklenebilir.
+            let gx = Math.round((px - BOARD_OFFSET_X) / CELL_SIZE);
+            let gy = Math.round((py - BOARD_OFFSET_Y) / CELL_SIZE);
+            return { gx, gy };
+        }
+
+        // --- ETKİLEŞİM HANDLERLARI ---
+        let dragOffsetX = 0, dragOffsetY = 0;
+
+        function handleStart(e) {
+            e.preventDefault(); // Sayfa kaymasını engelle
+            const pos = getEventPos(e);
+
+            // Tersten döngü: Üstteki parçayı önce tut
+            for (let i = availablePieces.length - 1; i >= 0; i--) {
+                const p = availablePieces[i];
+                // Hitbox kontrolü (Spawn alanındaki küçük boyut üzerinden)
+                const renderSize = CELL_SIZE * 0.6;
+                const width = p.matrix[0].length * renderSize;
+                const height = p.matrix.length * renderSize;
+
+                if (pos.x >= p.x && pos.x <= p.x + width && pos.y >= p.y && pos.y <= p.y + height) {
+                    draggingPiece = p;
+                    p.isDragging = true;
+                    // Sürüklemeye başladığında parmak/mouse tam parçanın ortasında gibi görünsün
+                    dragOffsetX = (p.matrix[0].length * CELL_SIZE) / 2;
+                    dragOffsetY = (p.matrix.length * CELL_SIZE) / 2;
+                    
+                    // İlk tıklamada hemen pozisyonu güncelle
+                    p.x = pos.x - dragOffsetX;
+                    p.y = pos.y - dragOffsetY;
+                    
+                    draw();
+                    return;
+                }
+            }
+        }
+
+        function handleMove(e) {
+            if (!draggingPiece) return;
+            e.preventDefault();
+            const pos = getEventPos(e);
+            draggingPiece.x = pos.x - dragOffsetX;
+            draggingPiece.y = pos.y - dragOffsetY;
+            draw();
+        }
+
+        function handleEnd(e) {
+            if (!draggingPiece) return;
+            e.preventDefault();
+            
+            const { gx, gy } = getGridCoords(draggingPiece.x, draggingPiece.y);
+            
+            if (canPlace(draggingPiece.matrix, gx, gy)) {
+                placePiece(draggingPiece.matrix, gx, gy);
+                availablePieces = availablePieces.filter(p => p !== draggingPiece);
+                if (availablePieces.length === 0) generateNewPieces();
+            } else {
+                // Yerleşemezse geri dön
+                draggingPiece.x = draggingPiece.baseX;
+                draggingPiece.y = draggingPiece.baseY;
+                draggingPiece.isDragging = false;
+            }
+            draggingPiece = null;
+            draw();
+        }
+
+        function canPlace(matrix, gx, gy) {
+            for (let r = 0; r < matrix.length; r++) {
+                for (let c = 0; c < matrix[r].length; c++) {
+                    if (matrix[r][c] === 1) {
+                        let tx = gx + c;
+                        let ty = gy + r;
+                        // Sınır kontrolü ve Doluluk kontrolü
+                        if (tx < 0 || tx >= GRID_SIZE || ty < 0 || ty >= GRID_SIZE || grid[ty][tx] === 1) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        function placePiece(matrix, gx, gy) {
+            for (let r = 0; r < matrix.length; r++) {
+                for (let c = 0; c < matrix[r].length; c++) {
+                    if (matrix[r][c] === 1) {
+                        grid[gy + r][gx + c] = 1;
+                    }
+                }
+            }
+            score += 10;
+            checkLines();
+            document.getElementById('score').innerText = "$" + score;
+        }
+
+        function checkLines() {
+            // Basit satır/sütun silme mantığı
+            let rowsToClear = [], colsToClear = [];
+            
+            // Satır kontrolü
+            for (let r = 0; r < GRID_SIZE; r++) {
+                if (grid[r].every(val => val === 1)) rowsToClear.push(r);
+            }
+            // Sütun kontrolü
+            for (let c = 0; c < GRID_SIZE; c++) {
+                let colFull = true;
+                for(let r=0; r<GRID_SIZE; r++) if(grid[r][c]===0) colFull=false;
+                if(colFull) colsToClear.push(c);
+            }
+
+            rowsToClear.forEach(r => grid[r].fill(0));
+            colsToClear.forEach(c => { for(let r=0; r<GRID_SIZE; r++) grid[r][c]=0; });
+
+            if(rowsToClear.length > 0 || colsToClear.length > 0) {
+                score += (rowsToClear.length + colsToClear.length) * 50;
+                // BONUS: Nakit ödülü
+                playerCash += 50; 
+                updateEconomyUI();
+            }
+        }
+
+        // Listener'lar
+        canvas.addEventListener('mousedown', handleStart);
+        canvas.addEventListener('mousemove', handleMove);
+        canvas.addEventListener('mouseup', handleEnd);
+        canvas.addEventListener('touchstart', handleStart, {passive: false});
+        canvas.addEventListener('touchmove', handleMove, {passive: false});
+        canvas.addEventListener('touchend', handleEnd, {passive: false});
+        
+        window.addEventListener('resize', resizeBlockGame);
+        
+        // BAŞLAT
+        window.onload = function() {
+            initLifeSim();
+            resizeBlockGame(); // Canvas ilk yüklemede hazır olsun
+        }
+
+    </script>
+</body>
+</html>
