@@ -435,7 +435,7 @@ else:
         # --- MESLEK BÖLÜMÜ ---
         with t_meslek:
             meslek_questions = fetch_json_data(URL_MESLEK_DATA)
-            if not meslek_questions: st.warning("Meslek soruları (meslek_data.json) bulunamadı.")
+            if not meslek_questions: st.warning("Meslek soruları (sorular.json) bulunamadı.")
             else:
                 cats = list(set([m.get('category', 'Genel') for m in meslek_questions]))
                 sel_cat = st.selectbox("Ders Seçiniz:", cats)
