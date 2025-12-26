@@ -1,210 +1,216 @@
 import streamlit as st
-import streamlit.components.v1 as components
-import json
-import os
+import pandas as pd
 
-st.set_page_config(page_title="Finans İmparatoru", layout="wide", initial_sidebar_state="expanded")
+# 1. SAYFA AYARLARI
+st.set_page_config(
+    page_title="Bağarası ÇPAL - Finans Ekosistemi",
+    page_icon="🎓",
+    layout="wide",
+    initial_sidebar_state="collapsed" # Sidebar kapalı başlar
+)
 
-# CSS DÜZENLEMELERİ
+# 2. CSS TASARIM (AÇIK TEMA, CINZEL FONT, MENÜ DÜZENİ)
 st.markdown("""
 <style>
-    [data-testid="stSidebar"] { background-color: #0f172a; border-right: 1px solid #334155; }
-    h1, h2, h3 { color: white; }
-    .stRadio > label { color: white; font-weight: bold; }
+    /* Font İçe Aktarma */
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap');
+
+    /* Genel Sayfa Yapısı (Açık Renk) */
+    .stApp {
+        background-color: #f8f9fa; /* Çok açık gri/beyaz */
+        color: #2c3e50; /* Koyu lacivert/siyah yazı */
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* Sidebar'ı Tamamen Gizle (İstenirse) */
+    [data-testid="stSidebar"] { display: none; }
+    
+    /* Başlıklar ve Menüler İçin Cinzel Fontu */
+    h1, h2, h3, .stTabs button {
+        font-family: 'Cinzel', serif !important;
+        color: #2c3e50 !important;
+    }
+
+    /* Üst Menü (Tabs) Tasarımı */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+        background-color: #ffffff;
+        padding: 10px 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border-bottom: 2px solid #D84315;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        border: none;
+        font-size: 16px;
+        font-weight: 700;
+        color: #555;
+        background-color: transparent;
+    }
+
+    .stTabs [aria-selected="true"] {
+        color: #D84315 !important; /* Seçili sekme rengi */
+        border-bottom: 3px solid #D84315 !important;
+    }
+
+    /* Buton Tasarımları */
+    .stButton>button {
+        background-color: #2c3e50;
+        color: white;
+        border-radius: 8px;
+        border: none;
+        padding: 10px 20px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        background-color: #D84315; /* Hover rengi */
+        color: white;
+    }
+
+    /* Giriş Ekranı Kartı */
+    .login-container {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        text-align: center;
+        border-top: 5px solid #D84315;
+    }
+    
+    /* Skor Tablosu */
+    .dataframe {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        width: 100%;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# ================= 1. GÖMÜLÜ OYUN KODLARI =================
+# 3. OTURUM YÖNETİMİ
+if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+if 'user_name' not in st.session_state: st.session_state.user_name = ""
+if 'user_no' not in st.session_state: st.session_state.user_no = ""
 
-# FİNANS İMPARATORU (HTML/JS String)
-FINANCE_GAME_HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-<style>
- body { background: #0a0a12; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; user-select: none; }
- .box { background: #16213e; padding: 20px; border-radius: 15px; border: 2px solid #f1c40f; max-width: 400px; margin: 20px auto; box-shadow: 0 0 20px rgba(241,196,15,0.2); }
- h2 { color: #f1c40f; margin: 0 0 15px 0; letter-spacing: 2px; }
- .money { font-size: 36px; font-weight: bold; color: #2ecc71; margin: 10px 0; text-shadow: 0 0 10px rgba(46,204,113,0.4); }
- .btn { background: linear-gradient(45deg, #f1c40f, #d35400); border: none; padding: 15px; width: 100%; color: #000; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 8px; margin-top: 10px; transition: transform 0.1s; }
- .btn:active { transform: scale(0.98); }
- .btn-invest { background: linear-gradient(45deg, #3498db, #2980b9); color: white; }
- .stats { display: flex; justify-content: space-between; margin-top: 15px; font-size: 12px; color: #aaa; }
-</style>
-</head>
-<body>
-<div class="box">
-  <h2>FİNANS İMPARATORU</h2>
-  <div class="money" id="money">0 ₺</div>
-  <div style="color: #aaa; font-size: 14px; margin-bottom: 20px;">Pasif Gelir: <span id="income" style="color: #fff">0</span> ₺/sn</div>
-  
-  <button class="btn" onclick="earn()">👆 TIKLA KAZAN (+100 ₺)</button>
-  <button class="btn btn-invest" onclick="invest()">🏢 DÜKKAN AL (Maliyet: <span id="cost">1000</span> ₺)</button>
-  
-  <div class="stats">
-     <span>Dükkan Sayısı: <span id="shops">0</span></span>
-     <span>Seviye: Başlangıç</span>
-  </div>
-</div>
-<script>
-  let money = 0;
-  let income = 0;
-  let shops = 0;
-  let cost = 1000;
-
-  function update() { 
-    document.getElementById('money').innerText = Math.floor(money).toLocaleString() + ' ₺'; 
-    document.getElementById('income').innerText = income.toLocaleString();
-    document.getElementById('cost').innerText = cost.toLocaleString();
-    document.getElementById('shops').innerText = shops;
-  }
-
-  function earn() { 
-    money += 100; 
-    update(); 
-  }
-
-  function invest() {
-    if(money >= cost) { 
-      money -= cost; 
-      income += 50; 
-      shops++;
-      cost = Math.floor(cost * 1.2); // Maliyet artışı
-      update(); 
-    }
-  }
-
-  // Pasif Gelir Döngüsü
-  setInterval(() => { 
-    money += income; 
-    update(); 
-  }, 1000);
-</script>
-</body>
-</html>
-"""
-
-# ASSET MATRIX (HTML/JS String)
-MATRIX_GAME_HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-<style>
- body { background: #050505; color: white; display: flex; flex-direction: column; align-items: center; font-family: monospace; margin: 0; padding: 20px; }
- canvas { background: #111; border: 2px solid #333; border-radius: 4px; box-shadow: 0 0 30px rgba(0,255,255,0.1); }
- h2 { color: #00e5ff; letter-spacing: 3px; margin-bottom: 10px; }
- button { background: #00e5ff; color: #000; border: none; padding: 10px 30px; font-weight: bold; cursor: pointer; margin-top: 15px; border-radius: 4px; }
- button:hover { background: #00b8cc; }
- #score { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #fff; }
-</style>
-</head>
-<body>
-<h2>ASSET MATRIX</h2>
-<div id="score">SKOR: 0</div>
-<canvas id="c" width="320" height="400"></canvas>
-<button onclick="init()">YENİ OYUN</button>
-
-<script>
- const c = document.getElementById('c'), ctx = c.getContext('2d');
- let pieces = [], score = 0;
-
- function init() {
-    score = 0;
-    document.getElementById('score').innerText = "SKOR: " + score;
-    spawnPieces();
-    draw();
- }
-
- function spawnPieces() {
-    pieces = [
-        {x: 30, y: 320, w: 30, h: 30, c: '#FFD700'}, // Altın
-        {x: 110, y: 320, w: 60, h: 30, c: '#00e5ff'}, // Neon Mavi
-        {x: 220, y: 320, w: 30, h: 60, c: '#ff0055'}  // Neon Pembe
-    ];
- }
-
- function draw() {
-    ctx.fillStyle = '#080808'; ctx.fillRect(0,0,320,400);
+# --- EKRAN 1: GİRİŞ EKRANI ---
+if not st.session_state.logged_in:
+    # Sayfayı ortalamak için kolonlar
+    col1, col2, col3 = st.columns([1, 2, 1])
     
-    // Grid Çizgileri
-    ctx.strokeStyle='#222'; ctx.lineWidth=1; ctx.beginPath();
-    for(let i=0;i<=320;i+=32) { ctx.moveTo(i,0); ctx.lineTo(i,300); } // Dikey
-    for(let i=0;i<=300;i+=30) { ctx.moveTo(0,i); ctx.lineTo(320,i); } // Yatay
-    ctx.stroke();
-    
-    // Alt Çizgi (Spawn Alanı Ayracı)
-    ctx.strokeStyle='#444'; ctx.beginPath(); ctx.moveTo(0,300); ctx.lineTo(320,300); ctx.stroke();
+    with col2:
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        # İSTEDİĞİN GİRİŞ HTML'İ BURADA
+        st.markdown("""
+        <div class="login-container">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0;">🎓 Bağarası ÇPAL</h1>
+            <h2 style="color: #555 !important; margin-top: 0;">Finans & Eğitim Ekosistemi</h2>
+            <hr style="border: 1px solid #eee; margin: 20px 0;">
+            <p style="font-size:18px; font-weight:bold; color:#D84315;">
+                Muhasebe ve Finansman Alanı Dijital Dönüşüm Projesi
+            </p>
+            <br>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        with st.form("login_form"):
+            ad = st.text_input("Adı Soyadı", placeholder="Örn: Ahmet Yılmaz")
+            no = st.text_input("Okul Numarası", placeholder="Örn: 1453")
+            
+            submitted = st.form_submit_button("SİSTEME GİRİŞ YAP")
+            
+            if submitted:
+                if ad and no:
+                    st.session_state.logged_in = True
+                    st.session_state.user_name = ad
+                    st.session_state.user_no = no
+                    st.rerun()
+                else:
+                    st.error("Lütfen tüm alanları doldurunuz.")
 
-    // Parçaları Çiz
-    pieces.forEach(p => {
-        ctx.fillStyle = p.c;
-        ctx.fillRect(p.x, p.y, p.w, p.h);
-        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-        ctx.strokeRect(p.x, p.y, p.w, p.h);
-    });
- }
- 
- // Basit Etkileşim (Görsel Demo)
- c.addEventListener('mousedown', () => {
-    score += 10;
-    document.getElementById('score').innerText = "SKOR: " + score;
-    // Parçaların rengini rastgele değiştir (Canlılık için)
-    pieces.forEach(p => p.c = `hsl(${Math.random()*360}, 70%, 50%)`);
-    draw();
- });
+# --- EKRAN 2: ANA MENÜ VE İÇERİK ---
+else:
+    # Üst Bilgi Çubuğu (Basit karşılama)
+    st.markdown(f"""
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 20px; background:white; border-radius:10px; margin-bottom:20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="font-family:'Cinzel'; font-weight:bold; font-size:18px; color:#2c3e50;">
+            🎓 BAĞARASI ÇPAL
+        </div>
+        <div style="font-family:'Poppins'; font-size:14px; color:#555;">
+            Hoşgeldin, <b>{st.session_state.user_name}</b> ({st.session_state.user_no})
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
- init();
-</script>
-</body>
-</html>
-"""
+    # ANA MENÜLER (ÜSTTE - TABS)
+    tab_ana, tab_profil, tab_soru, tab_eglence, tab_lifesim, tab_premium = st.tabs([
+        "🏆 ANA EKRAN (SKOR)", 
+        "👤 PROFİL", 
+        "📚 SORU ÇÖZÜM", 
+        "🎮 EĞLENCE", 
+        "💼 LIFESIM", 
+        "💎 PREMIUM"
+    ])
 
-# ================= 2. LIFESIM YÜKLEME FONKSİYONU =================
-def load_lifesim_game():
-    # 1. JSON Verisini Oku
-    try:
-        with open('lifesim_data.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            json_str = json.dumps(data) # JSON verisini String'e çevir
-    except FileNotFoundError:
-        # Dosya yoksa boş liste gönder, oyun bozulmasın
-        json_str = "[]" 
+    # --- 1. ANA EKRAN (SKOR TABLOSU) ---
+    with tab_ana:
+        st.header("🏆 Liderlik Tablosu")
+        st.info("Okul genelindeki sıralama aşağıdadır.")
+        
+        # Örnek Veri (Daha sonra veritabanından gelecek)
+        data = {
+            'Sıra': [1, 2, 3, 4, 5],
+            'Ad Soyad': ['Ayşe Y.', 'Mehmet K.', st.session_state.user_name, 'Fatma D.', 'Ali V.'],
+            'Okul No': [102, 305, st.session_state.user_no, 440, 120],
+            'Toplam Puan': [15000, 12500, 0, 9000, 8500]
+        }
+        df = pd.DataFrame(data)
+        st.table(df)
 
-    # 2. HTML Dosyasını Oku
-    try:
-        with open('game.html', 'r', encoding='utf-8') as f:
-            html = f.read()
-    except FileNotFoundError:
-        return "<h2 style='color:red'>Hata: game.html bulunamadı!</h2>"
+    # --- 2. PROFİL ---
+    with tab_profil:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("### Öğrenci Kartı")
+            st.write(f"**Ad Soyad:** {st.session_state.user_name}")
+            st.write(f"**Okul No:** {st.session_state.user_no}")
+            st.write("**Sınıf:** 11/A (Muhasebe)")
+        with col2:
+            st.markdown("### Varlık Durumu")
+            st.metric("Toplam Cüzdan", "0 ₺")
+            st.metric("Banka Hesabı", "0 ₺")
+        
+        if st.button("Çıkış Yap"):
+            st.session_state.logged_in = False
+            st.rerun()
 
-    # 3. Veriyi HTML içine yapıştır (Inject)
-    # game.html içindeki "// PYTHON_DATA_HERE" yazısını bulup gerçek veriyle değiştirir.
-    injected_html = html.replace(
-        "// PYTHON_DATA_HERE", 
-        f"scenarios = {json_str};"
-    )
-    return injected_html
+    # --- 3. SORU ÇÖZÜM ---
+    with tab_soru:
+        st.header("📚 Soru Çözüm Merkezi")
+        st.write("TYT ve Meslek dersleri testleri burada yer alacak.")
+        # Buraya soru modülleri gelecek
 
-# ================= 3. STREAMLIT ARAYÜZÜ =================
+    # --- 4. EĞLENCE ---
+    with tab_eglence:
+        st.header("🎮 Eğlence Alanı")
+        st.write("Burada Finans İmparatoru ve Asset Matrix oyunları olacak.")
+        # Buraya finans ve blok oyunu gelecek
 
-# Yan Menü
-st.sidebar.title("MENÜ")
-st.sidebar.info("Aşağıdan oynamak istediğiniz simülasyonu seçin.")
-menu = st.sidebar.radio("Seçim Yapınız:", ["💼 LifeSim (Kariyer)", "📈 Finans İmparatoru", "🧩 Asset Matrix"])
+    # --- 5. LIFESIM ---
+    with tab_lifesim:
+        st.header("💼 LifeSim: Kariyer Simülasyonu")
+        st.write("Gerçek hayat senaryoları burada çalışacak.")
+        # Buraya LifeSim HTML gelecek
 
-# Menü Mantığı
-if menu == "💼 LifeSim (Kariyer)":
-    st.header("💼 LifeSim: Kariyer Yönetimi")
-    # LifeSim'i dinamik olarak yükle ve göster
-    game_code = load_lifesim_game()
-    components.html(game_code, height=700, scrolling=False)
-
-elif menu == "📈 Finans İmparatoru":
-    st.header("📈 Finans İmparatoru")
-    # Python içindeki HTML stringi göster
-    components.html(FINANCE_GAME_HTML, height=600)
-
-elif menu == "🧩 Asset Matrix":
-    st.header("🧩 Asset Matrix")
-    # Python içindeki HTML stringi göster
-    components.html(MATRIX_GAME_HTML, height=600)
+    # --- 6. PREMIUM ---
+    with tab_premium:
+        st.header("💎 Premium Özellikler")
+        st.warning("Bu alan şu an yapım aşamasındadır.")
+        st.markdown("""
+        * 🚀 2x Puan Kazanımı
+        * 🎨 Özel Temalar
+        * 📈 Gelişmiş İstatistikler
+        """)
