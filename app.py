@@ -6,44 +6,88 @@ import pandas as pd
 import time
 import urllib.parse
 
-# --- 1. AYARLAR & CSS (TEMİZLİK VE FONT) ---
+# --- 1. AYARLAR & CSS (FERAH TEMA) ---
 st.set_page_config(page_title="Finans Kampüsü", page_icon="🏛️", layout="wide")
 
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap');
+    
+    /* GEREKSİZLERİ GİZLE */
     .stDeployButton, footer, header { display: none !important; }
     [data-testid="stToolbar"] { display: none !important; }
-    .viewerBadge_container__1QSob { display: none !important; }
     
-    .stApp { background-color: #0a0a12; color: #e0e0e0; }
-    h1, h2, h3, h4, .stTabs button { font-family: 'Cinzel', serif !important; font-weight: 700 !important; color: #f1c40f !important; }
+    /* GENEL SAYFA (FERAH AÇIK RENK) */
+    .stApp { background-color: #f4f6f9; color: #2c3e50; }
+    
+    /* FONTLAR */
+    h1, h2, h3, h4 { font-family: 'Cinzel', serif !important; font-weight: 700 !important; color: #2c3e50 !important; }
+    .stTabs button { font-family: 'Cinzel', serif !important; font-weight: 700 !important; }
     p, div, span, button, input { font-family: 'Poppins', sans-serif !important; }
     
-    /* Sekmeler */
-    .stTabs [data-baseweb="tab-list"] { gap: 8px; background: #16213e; padding: 10px; border-radius: 12px; border: 1px solid #f1c40f; box-shadow: 0 0 15px rgba(241, 196, 15, 0.1); }
-    .stTabs [data-baseweb="tab"] { height: 45px; border-radius: 8px; border: none; font-weight: 600; font-size: 16px; color: #aaa; background: #0f3460; }
-    .stTabs [aria-selected="true"] { background: linear-gradient(135deg, #f1c40f 0%, #d35400 100%) !important; color: #000 !important; font-weight: bold; }
+    /* SEKMELER (TABS) - MODERN BEYAZ */
+    .stTabs [data-baseweb="tab-list"] { 
+        gap: 10px; background: #ffffff; padding: 10px; 
+        border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    }
+    .stTabs [data-baseweb="tab"] { 
+        height: 45px; border-radius: 8px; border: none; 
+        font-weight: 600; font-size: 15px; color: #7f8c8d; 
+    }
+    .stTabs [aria-selected="true"] { 
+        background-color: #2c3e50 !important; color: #f1c40f !important; 
+        box-shadow: 0 4px 10px rgba(44, 62, 80, 0.3);
+    }
     
-    /* Kartlar */
-    .score-box { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 25px; border-radius: 15px; color: #f1c40f; text-align: center; border: 2px solid #f1c40f; box-shadow: 0 0 25px rgba(241, 196, 15, 0.2); }
-    .big-num { font-family: 'Cinzel', serif; font-size: 48px; font-weight: 900; text-shadow: 0 0 10px rgba(241, 196, 15, 0.5); }
+    /* SKOR KARTI - PREMIUM GOLD */
+    .score-box { 
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); 
+        padding: 25px; border-radius: 15px; text-align: center; 
+        border-left: 5px solid #f1c40f; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+    }
+    .big-num { 
+        font-family: 'Cinzel', serif; font-size: 48px; font-weight: 900; 
+        color: #2c3e50; 
+        text-shadow: 2px 2px 0px rgba(241, 196, 15, 0.2);
+    }
     
-    /* Banka Veznesi */
-    .bank-area { background-color: #0f3460; padding: 20px; border-radius: 12px; border: 2px dashed #27ae60; text-align: center; margin-top: 20px; color: #2ecc71; }
+    /* BANKA VEZNESİ */
+    .bank-area { 
+        background-color: #ffffff; padding: 20px; border-radius: 12px; 
+        border: 2px dashed #27ae60; text-align: center; margin-top: 20px; 
+        color: #27ae60; box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+    }
     
-    /* Yan Menü */
-    [data-testid="stSidebar"] { background-color: #16213e; border-right: 1px solid #f1c40f; }
+    /* YAN MENÜ */
+    [data-testid="stSidebar"] { 
+        background-color: #ffffff; border-right: 1px solid #eee; 
+    }
     
-    div.stButton > button { border-radius: 8px; height: 50px; font-weight: bold; border: 1px solid #f1c40f; transition: 0.3s; width: 100%; text-transform: uppercase; letter-spacing: 1px; background: #0f3460; color: #f1c40f; }
-    div.stButton > button:hover { background: #f1c40f; color: #000; box-shadow: 0 0 15px #f1c40f; }
+    /* BUTONLAR */
+    div.stButton > button { 
+        border-radius: 8px; height: 50px; font-weight: bold; 
+        border: 1px solid #ddd; transition: 0.3s; width: 100%; 
+        background: white; color: #2c3e50;
+    }
+    div.stButton > button:hover { 
+        border-color: #f1c40f; background-color: #f1c40f; color: white; 
+        box-shadow: 0 5px 15px rgba(241, 196, 15, 0.3);
+    }
     
-    .html-save-btn { display: block; width: 100%; background: linear-gradient(45deg, #27ae60, #2ecc71); color: white !important; padding: 15px; text-align: center; border-radius: 12px; font-weight: 800; font-size: 18px; text-decoration: none; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4); margin-top: 10px; transition: transform 0.2s; border: none; }
-    .html-save-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(39, 174, 96, 0.8); }
+    /* ÖZEL HTML BUTON (YEŞİL) */
+    .html-save-btn { 
+        display: block; width: 100%; background: #27ae60; 
+        color: white !important; padding: 15px; text-align: center; 
+        border-radius: 12px; font-weight: 800; font-size: 18px; 
+        text-decoration: none; margin-top: 10px; transition: transform 0.2s; 
+        box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+    }
+    .html-save-btn:hover { transform: scale(1.02); background: #219150; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 2. GÜVENLİ VERİTABANI & ŞİFRELEME ---
+# --- 2. GÜVENLİ VERİTABANI ---
 FORM_LINK_TASLAK = "https://docs.google.com/forms/d/e/1FAIpQLScshsXIM91CDKu8TgaHIelXYf3M9hzoGb7mldQCDAJ-rcuJ3w/viewform?usp=pp_url&entry.1300987443=AD_YOK&entry.598954691=9999"
 DB_FILE = "puan_veritabani.json"
 
@@ -85,46 +129,46 @@ def decode_transfer_code(code):
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'user_info' not in st.session_state: st.session_state.user_info = {}
 
-# --- 4. OYUN KODLARI (HTML/JS) ---
+# --- 4. OYUN KODLARI (HTML/JS) - Arka planlar güncellendi ---
 
-# Finans Oyunu
+# Finans Oyunu (Lacivert Dashboard Teması)
 FINANCE_GAME_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
 <style>
-body { background: #0a0a12; color: #e0e0e0; font-family: 'Poppins', sans-serif; padding: 10px; text-align: center; user-select:none; }
-.top-bar { display: flex; justify-content: space-between; background: #16213e; padding: 15px; border-radius: 12px; border: 2px solid #f1c40f; margin-bottom: 20px; box-shadow: 0 0 15px rgba(241, 196, 15, 0.1); }
-.money { font-size: 24px; font-weight: bold; color: #f1c40f; text-shadow: 0 0 5px rgba(241, 196, 15, 0.5); }
+body { background: #2c3e50; color: #ecf0f1; font-family: 'Poppins', sans-serif; padding: 10px; text-align: center; user-select:none; }
+.top-bar { display: flex; justify-content: space-between; background: #34495e; padding: 15px; border-radius: 12px; border-bottom: 3px solid #f1c40f; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+.money { font-size: 24px; font-weight: bold; color: #f1c40f; }
 .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.item { background: linear-gradient(145deg, #0f3460, #16213e); padding: 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; border: 1px solid #1a1a2e; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-.item:hover { border-color: #f1c40f; transform: translateY(-3px); box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); }
+.item { background: #34495e; padding: 12px; border-radius: 10px; cursor: pointer; transition: 0.1s; border: 1px solid #465c71; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.item:hover { border-color: #f1c40f; transform: translateY(-2px); background: #3e5871; }
 .item:active { transform: scale(0.98); }
-.item.locked { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
+.item.locked { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
 .name { font-weight: bold; color: #fff; font-size: 13px; margin-bottom: 5px; }
 .cost { color: #e74c3c; font-size: 11px; }
 .income { color: #2ecc71; font-size: 11px; font-weight: bold; }
-.count { position: absolute; top: -5px; right: -5px; background: #f1c40f; color: black; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; box-shadow: 0 0 5px #f1c40f; }
-.btn-save { background: linear-gradient(45deg, #27ae60, #2ecc71); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px; box-shadow: 0 0 10px rgba(39, 174, 96, 0.5); }
-.btn-save:hover { box-shadow: 0 0 20px rgba(39, 174, 96, 0.8); }
-.code-display { background: #16213e; color: #f1c40f; padding: 10px; border-radius: 10px; margin-top: 10px; font-family: monospace; font-size: 16px; border: 2px dashed #f1c40f; display: none; }
-.clicker-btn { width:90px; height:90px; border-radius:50%; background:radial-gradient(circle, #f1c40f 0%, #d35400 100%); border:3px solid #fff; font-size:35px; cursor:pointer; box-shadow:0 0 25px rgba(241,196,15,0.6); transition: 0.1s; }
-.clicker-btn:active { transform: scale(0.95); box-shadow:0 0 15px rgba(241,196,15,0.8); }
+.count { position: absolute; top: -5px; right: -5px; background: #f1c40f; color: #2c3e50; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+.btn-save { background: #27ae60; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px; box-shadow: 0 4px 0 #219150; }
+.btn-save:active { transform: translateY(4px); box-shadow: none; }
+.code-display { background: white; color: #2c3e50; padding: 10px; border-radius: 10px; margin-top: 10px; font-family: monospace; font-size: 16px; border: 2px dashed #f1c40f; display: none; }
+.clicker-btn { width:90px; height:90px; border-radius:50%; background:radial-gradient(circle, #f1c40f 0%, #f39c12 100%); border:4px solid #fff; font-size:35px; cursor:pointer; box-shadow:0 5px 15px rgba(0,0,0,0.2); transition: 0.1s; }
+.clicker-btn:active { transform: scale(0.95); }
 </style>
 </head>
 <body>
 <div class="top-bar">
     <div>KASA: <span id="money" class="money">0</span> ₺</div>
-    <div style="font-size:11px; color:#aaa; margin-top:5px;">GELİR: <span id="cps" style="color:#2ecc71;">0</span>/sn</div>
+    <div style="font-size:11px; color:#bdc3c7; margin-top:5px;">GELİR: <span id="cps" style="color:#2ecc71;">0</span>/sn</div>
 </div>
 <div style="margin-bottom:20px;"><button onclick="clickCoin()" class="clicker-btn">👆</button></div>
 <div class="grid" id="market"></div>
 <button class="btn-save" onclick="generateCode()">🏦 BANKAYA TRANSFER KODU AL</button>
 <div id="codeArea" class="code-display"><span id="codeVal" style="font-weight:bold;"></span></div>
-<p id="info" style="font-size:10px; color:#aaa; margin-top:5px; display:none;">Kodu kopyala ve uygulamadaki 'Banka Veznesi' kutusuna yapıştır.</p>
+<p id="info" style="font-size:10px; color:#bdc3c7; margin-top:5px; display:none;">Kodu kopyala ve uygulamadaki 'Banka Veznesi' kutusuna yapıştır.</p>
 <script>
 let money = 0;
-let assets = [{n: "Limonata Standı", c: 50, i: 0.5, cnt: 0}, {n: "Simit Tezgahı", c: 350, i: 2, cnt: 0}, {n: "Kırtasiye Dükkanı", c: 1500, i: 8, cnt: 0}, {n: "Okul Kantini Işletmesi", c: 7500, i: 35, cnt: 0}, {n: "Öğrenci Servis Filosu", c: 35000, i: 150, cnt: 0}, {n: "Yazılım & Teknoloji A.Ş.", c: 150000, i: 600, cnt: 0}, {n: "Uluslararası Holding", c: 1000000, i: 4500, cnt: 0}];
+let assets = [{n: "Limonata Standı", c: 50, i: 0.5, cnt: 0}, {n: "Simit Tezgahı", c: 350, i: 2, cnt: 0}, {n: "Kırtasiye Dükkanı", c: 1500, i: 8, cnt: 0}, {n: "Okul Kantini", c: 7500, i: 35, cnt: 0}, {n: "Servis Filosu", c: 35000, i: 150, cnt: 0}, {n: "Yazılım A.Ş.", c: 150000, i: 600, cnt: 0}, {n: "Uluslararası Holding", c: 1000000, i: 4500, cnt: 0}];
 function updateUI() {
     document.getElementById('money').innerText = Math.floor(money).toLocaleString();
     let totalCps = assets.reduce((t, a) => t + (a.cnt * a.i), 0);
@@ -161,28 +205,28 @@ updateUI();
 </script></body></html>
 """
 
-# Matrix Oyunu (Drag & Drop Block Blast)
+# Matrix Oyunu (Block Blast - Koyu Lacivert Tema)
 MATRIX_GAME_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
 <style>
-body { background: #0a0a12; color: #e0e0e0; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 98vh; font-family: 'Poppins', sans-serif; user-select: none; overflow: hidden; padding-top: 10px; }
-.board-container { padding: 5px; background: linear-gradient(145deg, #16213e, #0f3460); border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); border: 2px solid #333; }
+body { background: #2c3e50; color: #ecf0f1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 98vh; font-family: 'Poppins', sans-serif; user-select: none; overflow: hidden; padding-top: 10px; }
+.board-container { padding: 5px; background: #34495e; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 2px solid #2c3e50; }
 .board { display: grid; grid-template-columns: repeat(10, 28px); grid-template-rows: repeat(10, 28px); gap: 3px; }
-.cell { width: 28px; height: 28px; background: #0a0a12; border-radius: 4px; border: 1px solid #222; transition: background 0.2s, box-shadow 0.2s; }
+.cell { width: 28px; height: 28px; background: #2c3e50; border-radius: 4px; border: 1px solid #1a252f; transition: background 0.2s; }
 .cell.filled { border: none; }
-.cell.highlight { background: rgba(255, 255, 255, 0.2); border: 1px dashed #aaa; }
-.cell.invalid { background: rgba(231, 76, 60, 0.3); border: 1px dashed #e74c3c; }
+.cell.highlight { background: rgba(255, 255, 255, 0.3); border: 1px dashed #fff; }
+.cell.invalid { background: rgba(231, 76, 60, 0.4); border: 1px dashed #c0392b; }
 .top-ui { display: flex; justify-content: space-between; width: 320px; margin-bottom: 15px; align-items: center; }
-.score-box { background: #16213e; padding: 5px 15px; border-radius: 20px; border: 2px solid #f1c40f; font-weight: bold; color: #f1c40f; box-shadow: 0 0 10px rgba(241, 196, 15, 0.2); }
-.btn-bank { background: linear-gradient(45deg, #8e44ad, #9b59b6); color: white; border: none; padding: 8px 15px; font-weight: bold; border-radius: 20px; cursor: pointer; font-size: 12px; box-shadow: 0 0 10px rgba(142, 68, 173, 0.4); }
-.dock { display: flex; justify-content: center; gap: 20px; margin-top: 25px; height: 80px; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 15px; width: 320px; }
+.score-box { background: #34495e; padding: 5px 15px; border-radius: 20px; border: 2px solid #f1c40f; font-weight: bold; color: #f1c40f; }
+.btn-bank { background: #8e44ad; color: white; border: none; padding: 8px 15px; font-weight: bold; border-radius: 20px; cursor: pointer; font-size: 12px; }
+.dock { display: flex; justify-content: center; gap: 20px; margin-top: 25px; height: 80px; align-items: center; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 15px; width: 320px; }
 .shape-preview { display: grid; gap: 2px; cursor: grab; transition: transform 0.1s; }
 .shape-preview:active { cursor: grabbing; transform: scale(1.1); }
 .preview-cell { width: 20px; height: 20px; border-radius: 3px; }
-#drag-ghost { position: fixed; pointer-events: none; z-index: 100; display: none; opacity: 0.8; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); }
-.code-box { background: #16213e; color: #f1c40f; padding: 10px; margin-top: 10px; font-weight: bold; border: 2px dashed #f1c40f; display: none; font-size:14px; font-family: monospace; border-radius: 8px; text-align: center; width: 300px; }
+#drag-ghost { position: fixed; pointer-events: none; z-index: 100; display: none; opacity: 0.8; }
+.code-box { background: white; color: #2c3e50; padding: 10px; margin-top: 10px; font-weight: bold; border: 2px dashed #f1c40f; display: none; font-size:14px; font-family: monospace; border-radius: 8px; text-align: center; width: 300px; }
 </style>
 </head>
 <body>
@@ -198,7 +242,7 @@ body { background: #0a0a12; color: #e0e0e0; display: flex; flex-direction: colum
 const BOARD_SIZE = 10;
 let grid = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
 let score = 0; let dockShapes = []; let isDragging = false; let draggedShape = null; let dragOriginIndex = -1;
-const THEMES = [{ name: "Gold", bg: "linear-gradient(135deg, #f1c40f, #f39c12)", shadow: "#f39c12" }, { name: "Rose", bg: "linear-gradient(135deg, #e94560, #c0392b)", shadow: "#c0392b" }, { name: "Silver", bg: "linear-gradient(135deg, #bdc3c7, #7f8c8d)", shadow: "#7f8c8d" }, { name: "Purple", bg: "linear-gradient(135deg, #8e44ad, #9b59b6)", shadow: "#9b59b6" }, { name: "Cyan", bg: "linear-gradient(135deg, #00d2d3, #00cec9)", shadow: "#00cec9" }, { name: "Emerald", bg: "linear-gradient(135deg, #2ecc71, #27ae60)", shadow: "#27ae60" }];
+const THEMES = [{ name: "Gold", bg: "#f1c40f", shadow: "#f39c12" }, { name: "Rose", bg: "#e94560", shadow: "#c0392b" }, { name: "Silver", bg: "#bdc3c7", shadow: "#7f8c8d" }, { name: "Purple", bg: "#9b59b6", shadow: "#8e44ad" }, { name: "Cyan", bg: "#00cec9", shadow: "#00b894" }];
 const SHAPES = [[[1]], [[1, 1]], [[1], [1]], [[1, 1, 1]], [[1], [1], [1]], [[1, 1], [1, 1]], [[1, 0], [1, 0], [1, 1]], [[1, 1, 1], [0, 1, 0]], [[1, 1, 0], [0, 1, 1]]];
 function getTheme() { return THEMES[Math.floor(score / 50) % THEMES.length]; }
 function initBoard() {
@@ -211,7 +255,7 @@ function updateBoardView() {
         for(let c=0; c<BOARD_SIZE; c++) {
             let cell = document.getElementById(`c-${r}-${c}`);
             cell.className = "cell"; cell.style.background = ""; cell.style.boxShadow = "";
-            if(grid[r][c]) { let theme = getTheme(); cell.classList.add("filled"); cell.style.background = theme.bg; cell.style.boxShadow = `0 0 10px ${theme.shadow}`; }
+            if(grid[r][c]) { let theme = getTheme(); cell.classList.add("filled"); cell.style.background = theme.bg; cell.style.boxShadow = `0 0 5px ${theme.shadow}`; }
         }
     }
     document.getElementById("score").innerText = score;
@@ -222,7 +266,7 @@ function renderDock() {
         if(shapeMatrix === null) { dockDiv.appendChild(document.createElement("div")); return; }
         let preview = document.createElement("div"); preview.className = "shape-preview";
         preview.style.gridTemplateColumns = `repeat(${shapeMatrix[0].length}, 20px)`;
-        shapeMatrix.forEach(row => { row.forEach(cellVal => { let pCell = document.createElement("div"); pCell.className = "preview-cell"; if(cellVal) { pCell.style.background = getTheme().bg; pCell.style.boxShadow = `0 0 5px ${getTheme().shadow}`; } else { pCell.style.background = "transparent"; } preview.appendChild(pCell); }); });
+        shapeMatrix.forEach(row => { row.forEach(cellVal => { let pCell = document.createElement("div"); pCell.className = "preview-cell"; if(cellVal) { pCell.style.background = getTheme().bg; } else { pCell.style.background = "transparent"; } preview.appendChild(pCell); }); });
         preview.onmousedown = (e) => startDrag(e, shapeMatrix, index);
         dockDiv.appendChild(preview);
     });
@@ -274,11 +318,10 @@ function canPlace(shape, r, c) {
 function placeShape(shape, r, c) { for(let i=0; i<shape.length; i++) { for(let j=0; j<shape[0].length; j++) { if(shape[i][j]) grid[r+i][c+j] = 1; } } }
 function checkLines() {
     let linesCleared = 0;
-    for(let r=0; r<BOARD_SIZE; r++) { if(grid[r].every(v => v === 1)) { grid[r].fill(0); linesCleared++; animateClear(r, "row"); } }
-    for(let c=0; c<BOARD_SIZE; c++) { let full = true; for(let r=0; r<BOARD_SIZE; r++) if(grid[r][c] === 0) full = false; if(full) { for(let r=0; r<BOARD_SIZE; r++) grid[r][c] = 0; linesCleared++; animateClear(c, "col"); } }
+    for(let r=0; r<BOARD_SIZE; r++) { if(grid[r].every(v => v === 1)) { grid[r].fill(0); linesCleared++; } }
+    for(let c=0; c<BOARD_SIZE; c++) { let full = true; for(let r=0; r<BOARD_SIZE; r++) if(grid[r][c] === 0) full = false; if(full) { for(let r=0; r<BOARD_SIZE; r++) grid[r][c] = 0; linesCleared++; } }
     if(linesCleared > 0) score += linesCleared * 50 * linesCleared;
 }
-function animateClear(idx, type) { setTimeout(() => updateBoardView(), 200); }
 function getCode(){
     if(score < 10) { alert("En az 10 puan yap!"); return; }
     let secureVal = (score * 13).toString(16).toUpperCase();
@@ -297,17 +340,17 @@ if not st.session_state.logged_in:
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
         st.markdown("<br><br>", unsafe_allow_html=True)
-        st.markdown("<div style='text-align:center'><h1>🏛️ FİNANS KAMPÜSÜ</h1><p>Premium Öğrenci Portalı</p></div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align:center'><h1>🏛️ FİNANS KAMPÜSÜ</h1><p>Öğrenci Giriş Portalı</p></div>", unsafe_allow_html=True)
         with st.form("login"):
             ad = st.text_input("Ad Soyad")
             no = st.text_input("Okul No")
-            if st.form_submit_button("SİSTEME GİRİŞ YAP", type="primary"):
+            if st.form_submit_button("SİSTEME GİRİŞ", type="primary"):
                 if ad and no:
                     key = f"{no}_{ad.strip()}"
                     st.session_state.user_info = {"name": ad, "no": no, "key": key}
                     st.session_state.logged_in = True
                     st.rerun()
-                else: st.error("Lütfen bilgileri eksiksiz giriniz.")
+                else: st.error("Lütfen bilgileri giriniz.")
 
 # EKRAN 2: ANA PANEL
 else:
@@ -317,7 +360,7 @@ else:
     
     with st.sidebar:
         st.markdown(f"### 👤 {user['name'].upper()}")
-        st.markdown(f"**🎓 Okul No:** {user['no']}")
+        st.markdown(f"**🎓 No:** {user['no']}")
         st.markdown("---")
         # OTO KAYIT BUTONU
         safe_name = urllib.parse.quote(user['name'])
@@ -325,42 +368,44 @@ else:
         final_form_link = FORM_LINK_TASLAK.replace("AD_YOK", safe_name).replace("9999", safe_score)
         st.markdown(f"""<a href="{final_form_link}" target="_blank" class="html-save-btn">💾 SKORU LİSTEYE KAYDET</a>""", unsafe_allow_html=True)
         st.markdown("---")
-        if st.button("GÜVENLİ ÇIKIŞ"):
+        if st.button("ÇIKIŞ YAP", key="logout_btn"): # KEY EKLENDİ
             st.session_state.logged_in = False
             st.rerun()
 
     # Sekmeler
-    t1, t2, t3, t4 = st.tabs(["🏠 PROFİL ÖZETİ", "📚 SORU MERKEZİ", "🎮 OYUN & BANKA", "🏆 LİDERLİK TABLOSU"])
+    t1, t2, t3, t4 = st.tabs(["🏠 PROFİL", "📚 DERSLER", "🎮 OYUN & BANKA", "🏆 SIRALAMA"])
 
     # TAB 1: PROFİL
     with t1:
-        st.markdown(f"## HOŞGELDİNİZ, SAYIN {user['name'].split(' ')[0].upper()}")
+        st.markdown(f"## HOŞGELDİN, {user['name'].split(' ')[0].upper()}")
         st.markdown(f"""
             <div class="score-box">
-                <div style="font-size:16px; letter-spacing:3px; margin-bottom:15px; opacity:0.8;">TOPLAM NET VARLIK</div>
+                <div style="font-size:16px; letter-spacing:3px; margin-bottom:15px; opacity:0.8; color:#2c3e50;">TOPLAM VARLIK</div>
                 <div class="big-num">{current_score} ₺</div>
             </div>
         """, unsafe_allow_html=True)
-        st.success("✅ Verileriniz yerel veritabanında şifreli olarak saklanmaktadır. Skor tablosunda görünmek için yan menüdeki 'Listeye Kaydet' butonunu kullanınız.")
+        st.success("Bilgileriniz yerel veritabanında güvende.")
 
     # TAB 2: DERSLER
     with t2:
-        st.subheader("AKADEMİK GELİŞİM")
+        st.subheader("SORU ÇÖZÜM MERKEZİ")
         c1, c2 = st.columns(2)
         with c1.container(border=True):
             st.markdown("### 📘 TYT HAZIRLIK")
-            st.caption("Temel Yeterlilik Testi Denemeleri")
-            if st.button("TESTİ BAŞLAT (+20 Puan)", key="btn_tyt_start"): # KEY EKLENDİ
+            st.caption("Genel Yetenek Soruları")
+            # --- KRİTİK DÜZELTME: UNIQUE KEY ---
+            if st.button("TESTİ BAŞLAT (+20 Puan)", key="btn_tyt_start_fixed"): 
                 update_player_score(user_key, 20, user['name'], user['no'])
-                st.toast("🎉 Tebrikler! +20 Puan eklendi.")
+                st.toast("Tebrikler! +20 Puan eklendi.")
                 time.sleep(0.5); st.rerun()
                 
         with c2.container(border=True):
             st.markdown("### 💼 MESLEKİ ALAN")
-            st.caption("Muhasebe ve Finansman Soruları")
-            if st.button("TESTİ BAŞLAT (+20 Puan)", key="btn_meslek_start"): # KEY EKLENDİ
+            st.caption("Muhasebe Soruları")
+            # --- KRİTİK DÜZELTME: UNIQUE KEY ---
+            if st.button("TESTİ BAŞLAT (+20 Puan)", key="btn_meslek_start_fixed"): 
                 update_player_score(user_key, 20, user['name'], user['no'])
-                st.toast("🎉 Tebrikler! +20 Puan eklendi.")
+                st.toast("Tebrikler! +20 Puan eklendi.")
                 time.sleep(0.5); st.rerun()
 
     # TAB 3: OYUNLAR & BANKA
@@ -368,10 +413,10 @@ else:
         col_game, col_bank = st.columns([2, 1])
         
         with col_game:
-            st.subheader("EKONOMİ SİMÜLASYONLARI")
-            oyun = st.selectbox("Simülasyon Seçiniz:", ["Finans İmparatoru (Pasif Gelir)", "Asset Matrix (Block Blast)"])
+            st.subheader("SİMÜLASYONLAR")
+            oyun = st.selectbox("Oyun Seç:", ["Finans İmparatoru", "Asset Matrix (Block Blast)"])
             
-            if oyun == "Finans İmparatoru (Pasif Gelir)":
+            if oyun == "Finans İmparatoru":
                 components.html(FINANCE_GAME_HTML, height=650)
             else:
                 components.html(MATRIX_GAME_HTML, height=650)
@@ -380,33 +425,32 @@ else:
             st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
             st.markdown("""
                 <div class="bank-area">
-                    <h3 style="color:#2ecc71; margin:0;">🏦 MERKEZ BANKASI</h3>
-                    <p style="font-size:13px; color:#aaa;">Güvenli Transfer Noktası</p>
+                    <h3 style="color:#2ecc71; margin:0;">🏦 BANKA VEZNESİ</h3>
+                    <p style="font-size:13px; color:#aaa;">Güvenli Transfer</p>
                 </div>
             """, unsafe_allow_html=True)
             
-            st.info("Oyunlardan elde ettiğiniz 'FNK' kodunu aşağıya girerek varlıklarınızı ana hesabınıza aktarabilirsiniz.")
-            transfer_code = st.text_input("Transfer Kodu (FNK-...):", placeholder="Örn: FNK-1A4-BL")
+            transfer_code = st.text_input("Transfer Kodu:", placeholder="Örn: FNK-...")
             
-            if st.button("KODU ONAYLA VE YATIR", type="primary"):
+            if st.button("PARA YATIR", type="primary", key="btn_deposit_fixed"): # KEY EKLENDİ
                 amount = decode_transfer_code(transfer_code)
                 if amount:
                     update_player_score(user_key, amount, user['name'], user['no'])
-                    st.success(f"✅ İŞLEM BAŞARILI! Hesabınıza {amount} ₺ tanımlandı.")
+                    st.success(f"✅ Hesabına {amount} ₺ eklendi.")
                     st.balloons()
                     time.sleep(2)
                     st.rerun()
                 else:
-                    st.error("⛔ HATA: Geçersiz veya hatalı transfer kodu!")
+                    st.error("⛔ Geçersiz Kod!")
 
     # TAB 4: SIRALAMA
     with t4:
         st.subheader("🏆 LİDERLİK KÜRSÜSÜ")
         db = load_db()
-        data = [{"Öğrenci Adı": v['name'], "Okul No": v['no'], "Toplam Varlık (₺)": v['score']} for k,v in db.items()]
+        data = [{"Öğrenci": v['name'], "Puan": v['score']} for k,v in db.items()]
         if data:
-            df = pd.DataFrame(data).sort_values("Toplam Varlık (₺)", ascending=False).reset_index(drop=True)
+            df = pd.DataFrame(data).sort_values("Puan", ascending=False).reset_index(drop=True)
             df.index += 1
             st.dataframe(df, use_container_width=True, height=500)
         else:
-            st.info("Henüz kayıtlı veri bulunmamaktadır.")
+            st.info("Veri yok.")
