@@ -518,7 +518,7 @@ if not st.session_state.logged_in:
         """, unsafe_allow_html=True)
         st.markdown("<br>", unsafe_allow_html=True)
         with st.form("login_form"):
-            ad = st.text_input("Adı Soyadı", placeholder="Örn: zülfikar sıtacı")
+            ad = st.text_input("Adı Soyadı", placeholder="Örn: zülfikar Sıtacı")
             no = st.text_input("Okul Numarası", placeholder="Örn: 1453")
             if st.form_submit_button("SİSTEME GİRİŞ YAP"):
                 if ad and no:
