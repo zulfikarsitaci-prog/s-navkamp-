@@ -581,19 +581,20 @@ if not st.session_state.logged_in:
                         st.error("Ad ve numara giriniz.")
 
         # 3. ÖĞRETMEN GİRİŞİ
-with tab_teacher:
-    with st.form("teacher_login"):
-        t_pass = st.text_input("Şifre", type="password")
-        if st.form_submit_button("Panel Aç"):
-            if t_pass == "1234":
-                new_code = str(random.randint(1000, 9999))
-                server.create_class(new_code)
-                st.session_state.logged_in = True
-                st.session_state.user_role = "teacher"
-                st.session_state.class_code = new_code
-                st.rerun()
-            else:
-                st.error("Hatalı şifre")
+        with tab_teacher:
+            with st.form("teacher_login"):
+                t_pass = st.text_input("Şifre", type="password")
+                if st.form_submit_button("Panel Aç"):
+                    if t_pass == "1234":
+                        new_code = str(random.randint(1000, 9999))
+                        server.create_class(new_code)
+                        st.session_state.logged_in = True
+                        st.session_state.user_role = "teacher"
+                        st.session_state.class_code = new_code
+                        st.rerun()
+                    else:
+                        st.error("Hatalı şifre")
+
 # --- EKRAN 2: UYGULAMA İÇİ ---
 else:
     # ÖĞRETMEN PANELİ
