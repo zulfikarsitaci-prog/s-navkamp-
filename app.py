@@ -3,10 +3,11 @@ import streamlit.components.v1 as components
 import pandas as pd
 import requests
 import json
+import os
 import time
 import random
 
-# 1. SAYFA AYARLARI
+# 1. SAYFA AYARLARI (EN BAŞTA OLMALI)
 st.set_page_config(
     page_title="Bağarası ÇPAL - Dijital Kampüs",
     page_icon="🎓",
@@ -15,50 +16,43 @@ st.set_page_config(
 )
 
 # ==========================================
-# 🧠 CANLI HAFIZA SİSTEMİ (VERİTABANI YOK)
+# 🧠 CANLI HAFIZA SİSTEMİ (SUNUCU)
 # ==========================================
-# Bu kısım uygulamanın beynidir. Veriler burada canlı tutulur.
 @st.cache_resource
 class SchoolServer:
     def __init__(self):
-        # { "DERS_KODU": { "OKUL_NO": {"ad": "Ali", "puan": 100} } }
+        # Yapı: { "DERS_KODU": { "OKUL_NO": {"ad": "Ali", "puan": 0} } }
         self.classes = {} 
 
     def create_class(self, class_code):
-        """Yeni bir sınıf oturumu açar"""
         if class_code not in self.classes:
             self.classes[class_code] = {}
         return True
 
     def join_student(self, class_code, name, school_no):
-        """Öğrenciyi sınıfa kaydeder"""
         if class_code in self.classes:
-            # Eğer öğrenci yoksa sıfır puanla ekle, varsa koru
+            # Öğrenci zaten varsa puanını koru, yoksa oluştur
             if str(school_no) not in self.classes[class_code]:
                 self.classes[class_code][str(school_no)] = {"ad": name, "puan": 0}
             return True
         return False
 
     def update_score(self, class_code, school_no, points):
-        """Puanı günceller"""
         if class_code in self.classes and str(school_no) in self.classes[class_code]:
             self.classes[class_code][str(school_no)]["puan"] += points
             return self.classes[class_code][str(school_no)]["puan"]
         return 0
 
     def get_leaderboard(self, class_code):
-        """Sıralama listesini verir"""
         if class_code in self.classes:
             data = []
             for no, info in self.classes[class_code].items():
                 data.append({"Okul No": no, "Ad Soyad": info["ad"], "Puan": info["puan"]})
-            
             if data:
                 df = pd.DataFrame(data)
                 return df.sort_values(by="Puan", ascending=False).reset_index(drop=True)
-        return pd.DataFrame(columns=["Okul No", "Ad Soyad", "Puan"])
+        return pd.DataFrame(columns=["Sıra", "Okul No", "Ad Soyad", "Puan"])
 
-# Sunucuyu Başlat
 server = SchoolServer()
 
 # ==========================================
@@ -107,8 +101,10 @@ def decode_transfer_code(code):
     except: return None
 
 # ==========================================
-# 🎮 OYUN KODLARI (SABİT)
+# 🎮 OYUNLAR (ORİJİNAL VERSİYONLAR)
 # ==========================================
+
+# 1. FİNANS İMPARATORU
 FINANCE_GAME_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -190,6 +186,7 @@ FINANCE_GAME_HTML = """
 </html>
 """
 
+# 2. ASSET MATRIX (ESKİ SAĞLAM SÜRÜM - SOCRATIC)
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -623,7 +620,7 @@ else:
                         
                         c_pdf, c_optik = st.columns([1.5, 1])
                         with c_pdf:
-                            st.markdown(f'<iframe src="{URL_TYT_PDF}#page={sayfa_no}" width="100%" height="800px"></iframe>', unsafe_allow_html=True)
+                            st.markdown(f'<embed src="{URL_TYT_PDF}#page={sayfa_no}" width="100%" height="800px" type="application/pdf">', unsafe_allow_html=True)
                         
                         with c_optik:
                             st.subheader("📝 Optik Form")
