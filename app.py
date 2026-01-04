@@ -620,7 +620,7 @@ if not st.session_state.logged_in:
             with st.form("teacher_login"):
                 t_pass = st.text_input("Yönetici Şifresi", type="password")
                 if st.form_submit_button("Ders Başlat"):
-                    if t_pass == "1234": # Basit şifre (Değiştirilebilir)
+                    if t_pass == "6626": # Basit şifre (Değiştirilebilir)
                         # Rastgele 4 haneli kod üret
                         new_code = str(random.randint(1000, 9999))
                         server.create_class(new_code)
