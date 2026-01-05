@@ -211,7 +211,8 @@
     "Temel Hukuk": [
       {
         "type": "scenario",
-        "text": "SENARYO 1: Ahmet Bey tarlasını sürmek için Tariş Kooperatifi'nden traktör kiralamıştır.",
+        "text": "Bağarası’nda çiftçilik yapan Ahmet Bey, kendisine ait olan tarlasını sürmek için Söke Tariş Kooperatifinden bir traktör kiralamıştır.
+1. Bu senaryodaki "Ahmet Bey" ve "Söke Tariş Kooperatifi"ni Kişiler Hukuku bakımından karşılaştırınız. Hangisi gerçek, hangisi tüzel kişidir? ",
         "sub_questions": [
           {"q": "1. Ahmet Bey gerçek kişi mi tüzel kişi mi?", "a": "Gerçek"},
           {"q": "Söke Tariş Kooperatifi gerçek kişi mi tüzel kişi mi?", "a": "Tüzel"},
@@ -222,14 +223,15 @@
       },
       {
         "type": "text",
-        "question": "3. Tarafların karşılıklı anlaşmasına hukukta ne ad verilir?",
+        "question": "3. Ahmet Bey, gübre almak için bayiye gitmiş ve "Bana 1 ton gübre ver, parasını hasatta ödeyeceğim" diyerek bayi ile el sıkışıp anlaşmıştır. Bayi gübreyi teslim etmiş, Ahmet Bey de borçlanmıştır.
+3. Bu olayda tarafların karşılıklı anlaşmasına hukukta ne ad verilir?",
         "answer": "Sözleşme",
         "keywords": ["akit", "mukavele"],
         "points": 10
       },
       {
         "type": "text",
-        "question": "4. Borç ilişkisinde yerine getirilmesi gereken davranışa ne denir? (E ile başlar)",
+        "question": "4. Borç ilişkisinde Ahmet Bey'in yerine getirmek zorunda olduğu davranışa (Parayı ödeme davranışı) ve Bayinin yerine getirmesi gereken davranışa (Gübreyi teslim etme davranışı) ne ad verilir? ",
         "answer": "Edim",
         "points": 10
       },
@@ -237,7 +239,7 @@
         "type": "scenario",
         "text": "SENARYO 3: BORCUN KAYNAKLARI (Sözleşme / Haksız Fiil / Sebepsiz Zenginleşme)",
         "sub_questions": [
-          {"q": "A) Gübre almak için imza atması?", "a": "Sözleşme"},
+          {"q": "A) Gübre almak için imza atılması?", "a": "Sözleşme"},
           {"q": "B) Traktörle komşunun çitini yıkması?", "a": "Haksız Fiil"},
           {"q": "C) Bankanın yanlışlıkla hesaba para yatırması?", "a": "Sebepsiz Zenginleşme"}
         ],
@@ -245,7 +247,9 @@
       },
       {
         "type": "text",
-        "question": "5. Kefilin borcun tamamından sorumlu olduğu kefillik türü?",
+        "question": "5. Ahmet Bey bankadan kredi çekerken banka müdürü; "Ahmet Bey, kredi notun yetmiyor, güvenilir bir arkadaşını da bu borca ortak etmen lazım. Eğer sen ödemezsen borcun tamamını ondan isteyebileceğim" demiştir.
+Bu durumda borca imza atan arkadaşın (kefilin) üstlendiği, borcun tamamından sorumlu olduğu bu türe ne ad verilir? 
+",
         "answer": "Müteselsil",
         "points": 10
       },
