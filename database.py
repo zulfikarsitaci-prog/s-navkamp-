@@ -8,14 +8,20 @@ def connect():
 def create_database():
     conn = connect()
     cursor = conn.cursor()
+    # Temel Tablolar
     cursor.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)')
     cursor.execute('CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)')
+    
+    # YENİ: İlişkiler Tablosu (Takipleşme için)
+    # Status: 'pending' (bekliyor) veya 'accepted' (kabul edildi)
+    cursor.execute('CREATE TABLE IF NOT EXISTS relationships (id INTEGER PRIMARY KEY AUTOINCREMENT, user1 TEXT, user2 TEXT, status TEXT)')
+    
     conn.commit()
     conn.close()
 
-# --- KULLANICI ---
+# --- KULLANICI İŞLEMLERİ ---
 def add_user(username, password, role):
     conn = connect()
     try:
@@ -46,7 +52,62 @@ def delete_user(username):
     conn.commit()
     conn.close()
 
-# --- AKTİVİTE ---
+# --- TAKİPLEŞME / ARKADAŞLIK SİSTEMİ (YENİ) ---
+def send_friend_request(sender, receiver):
+    """Takip isteği gönderir"""
+    conn = connect()
+    # Zaten bir ilişki var mı kontrol et
+    check = conn.execute("SELECT * FROM relationships WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)", (sender, receiver, receiver, sender)).fetchone()
+    if not check:
+        conn.execute("INSERT INTO relationships (user1, user2, status) VALUES (?, ?, ?)", (sender, receiver, 'pending'))
+        conn.commit()
+        conn.close()
+        return True, "İstek gönderildi."
+    conn.close()
+    return False, "Zaten istek gönderilmiş veya arkadaşsınız."
+
+def get_pending_requests(username):
+    """Bana gelen bekleyen istekleri getirir"""
+    conn = connect()
+    reqs = conn.execute("SELECT id, user1 FROM relationships WHERE user2=? AND status='pending'", (username,)).fetchall()
+    conn.close()
+    return reqs
+
+def accept_request(user1, user2):
+    """İsteği kabul eder"""
+    conn = connect()
+    conn.execute("UPDATE relationships SET status='accepted' WHERE user1=? AND user2=?", (user1, user2))
+    conn.commit()
+    conn.close()
+
+def get_friends(username):
+    """Takipleştiğim (Arkadaş olduğum) kişileri getirir"""
+    conn = connect()
+    # Hem user1 hem user2 olabilirim, status='accepted' olmalı
+    friends = []
+    rows = conn.execute("SELECT user1, user2 FROM relationships WHERE (user1=? OR user2=?) AND status='accepted'", (username, username)).fetchall()
+    conn.close()
+    
+    for r in rows:
+        if r[0] == username: friends.append(r[1])
+        else: friends.append(r[0])
+    return friends
+
+def get_searchable_students(my_username):
+    """Henüz arkadaş olmadığım öğrencileri listeler"""
+    conn = connect()
+    # Tüm öğrenciler
+    all_students = [u[0] for u in conn.execute("SELECT username FROM users WHERE role='student'").fetchall()]
+    conn.close()
+    
+    # Arkadaşlarım
+    my_friends = get_friends(my_username)
+    
+    # Kendim ve arkadaşlarım hariç liste
+    searchable = [s for s in all_students if s != my_username and s not in my_friends]
+    return searchable
+
+# --- AKTİVİTE & MESAJLAŞMA ---
 def update_activity(username):
     conn = connect()
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -69,7 +130,6 @@ def get_online_users(minutes=5):
         except: pass
     return online
 
-# --- MESAJLAŞMA (DÜZELTİLDİ) ---
 def send_message(sender, receiver, message):
     conn = connect()
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -78,21 +138,18 @@ def send_message(sender, receiver, message):
     conn.close()
 
 def get_unread_messages(username):
-    # Sağ altta bildirim göstermek için okunmamış mesajları çeker
     conn = connect()
     msgs = conn.execute("SELECT id, sender, message FROM messages WHERE receiver = ? AND is_read = 0", (username,)).fetchall()
     conn.close()
     return msgs
 
 def mark_as_read(msg_id):
-    # Bildirim gösterildikten sonra o mesajı 'okundu' yapar (Hata buradaydı)
     conn = connect()
     conn.execute("UPDATE messages SET is_read = 1 WHERE id = ?", (msg_id,))
     conn.commit()
     conn.close()
 
 def mark_messages_as_read(receiver, sender):
-    # Sohbet penceresi açıldığında o kişiden gelen tüm mesajları okundu yapar
     conn = connect()
     conn.execute("UPDATE messages SET is_read = 1 WHERE receiver = ? AND sender = ?", (receiver, sender))
     conn.commit()
@@ -129,17 +186,3 @@ def get_announcements():
     anns = conn.execute("SELECT * FROM announcements ORDER BY id DESC").fetchall()
     conn.close()
     return anns
-
-# --- NOTLAR ---
-def add_grade(student_username, lesson, grade):
-    conn = connect()
-    date = datetime.now().strftime("%Y-%m-%d")
-    conn.execute("INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)", (student_username, lesson, grade, date))
-    conn.commit()
-    conn.close()
-
-def get_student_grades(student_username):
-    conn = connect()
-    grades = conn.execute("SELECT lesson, grade, date FROM grades WHERE student_username = ?", (student_username,)).fetchall()
-    conn.close()
-    return grades
