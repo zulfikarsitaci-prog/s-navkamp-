@@ -249,7 +249,9 @@
       },
       {
         "type": "text",
-        "question": "5. Kefilin borcun tamamından sorumlu olduğu kefillik türü?",
+        "question": "5. Ahmet Bey bankadan kredi çekerken banka müdürü; "Ahmet Bey, kredi notun yetmiyor, güvenilir bir arkadaşını da bu borca ortak etmen lazım. Eğer sen ödemezsen borcun tamamını ondan isteyebileceğim" demiştir.
+Bu durumda borca imza atan arkadaşın (kefilin) üstlendiği, borcun tamamından sorumlu olduğu bu türe ne ad verilir? 
+",
         "answer": "Müteselsil",
         "points": 10
       },
