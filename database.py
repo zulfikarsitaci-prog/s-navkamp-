@@ -10,9 +10,7 @@ def create_database():
     cursor = conn.cursor()
     cursor.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)')
-    # is_read sütunu mesajın okunup okunmadığını tutar
     cursor.execute('CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)')
-    cursor.execute('CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)')
     conn.commit()
     conn.close()
 
@@ -47,7 +45,7 @@ def delete_user(username):
     conn.commit()
     conn.close()
 
-# --- AKTİVİTE & MESAJLAŞMA ---
+# --- AKTİVİTE ---
 def update_activity(username):
     conn = connect()
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -70,6 +68,7 @@ def get_online_users(minutes=5):
         except: pass
     return online
 
+# --- MESAJLAŞMA (YENİLENDİ) ---
 def send_message(sender, receiver, message):
     conn = connect()
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -77,26 +76,31 @@ def send_message(sender, receiver, message):
     conn.commit()
     conn.close()
 
-def get_my_messages(username):
-    # Tüm mesajları getirir
-    conn = connect()
-    msgs = conn.execute("SELECT id, sender, message, timestamp, is_read FROM messages WHERE receiver = ? ORDER BY id DESC", (username,)).fetchall()
-    conn.close()
-    return msgs
-
 def get_unread_messages(username):
-    # Sadece okunmamış mesajları getirir
     conn = connect()
     msgs = conn.execute("SELECT id, sender, message FROM messages WHERE receiver = ? AND is_read = 0", (username,)).fetchall()
     conn.close()
     return msgs
 
-def mark_as_read(msg_id):
-    # Mesajı okundu işaretler
+def mark_messages_as_read(receiver, sender):
+    """Belirli bir göndericiden gelen mesajları okundu yapar"""
     conn = connect()
-    conn.execute("UPDATE messages SET is_read = 1 WHERE id = ?", (msg_id,))
+    conn.execute("UPDATE messages SET is_read = 1 WHERE receiver = ? AND sender = ?", (receiver, sender))
     conn.commit()
     conn.close()
+
+def get_conversation(user1, user2):
+    """İki kullanıcı arasındaki tüm mesajlaşmayı zaman sırasına göre getirir"""
+    conn = connect()
+    sql = """
+        SELECT sender, message, timestamp 
+        FROM messages 
+        WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) 
+        ORDER BY id ASC
+    """
+    msgs = conn.execute(sql, (user1, user2, user2, user1)).fetchall()
+    conn.close()
+    return msgs
 
 # --- DUYURU ---
 def add_announcement(title, content, author):
