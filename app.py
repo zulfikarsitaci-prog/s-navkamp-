@@ -29,7 +29,7 @@ if "logged_in" in st.session_state and st.session_state.logged_in:
     database.update_activity(st.session_state.username)
 
 # ==========================================
-# 2. SABİTLER VE OYUN KODLARI (DÜZELTİLMİŞ)
+# 2. SABİTLER VE VERİ KAYNAKLARI
 # ==========================================
 GITHUB_BASE_URL = "https://raw.githubusercontent.com/zulfikarsitaci-prog/s-navkamp-/main"
 URL_TYT_DATA = f"{GITHUB_BASE_URL}/tyt_data.json"
@@ -37,7 +37,11 @@ URL_TYT_PDF = f"{GITHUB_BASE_URL}/tytson8.pdf"
 URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
 URL_LIFESIM = f"{GITHUB_BASE_URL}/lifesim_data.json"
 
-# --- OYUN 1: FINANS İMPARATORU ---
+# ==========================================
+# 3. OYUN KODLARI
+# ==========================================
+
+# --- OYUN 1: FINANS İMPARATORU (Clicker) ---
 FINANCE_GAME_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -106,258 +110,158 @@ FINANCE_GAME_HTML = """
 </html>
 """
 
-# --- OYUN 2: SOCRATIC ASSET MATRIX (DÜZELTİLMİŞ) ---
+# --- OYUN 2: SOCRATIC ASSET MATRIX (8x16 - UZUN VERSİYON) ---
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
-<html lang="tr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Socratic Asset Matrix</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
-        body { margin: 0; overflow: hidden; background-color: #050505; color: #FFD700; font-family: 'Cinzel', serif; text-align: center; touch-action: none; }
-        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .header { margin-bottom: 10px; display: flex; justify-content: space-between; width: 300px; font-size:12px; }
-        .score-box { font-size: 20px; font-weight: bold; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-        canvas { background: #111; border: 3px solid #FFD700; box-shadow: 0 0 30px rgba(255,215,0,0.2); }
-        .controls { margin-top: 15px; display: flex; gap: 20px; }
-        .ctrl-btn { width: 60px; height: 60px; background: #222; border: 1px solid #FFD700; border-radius: 50%; color: #FFD700; font-size: 24px; cursor: pointer; user-select: none; }
-        .ctrl-btn:active { background: #444; transform: scale(0.95); }
-        .bank-btn { position: absolute; top: 10px; right: 10px; background: #FFD700; border: none; padding: 5px 15px; border-radius: 5px; color: #000; font-weight: bold; cursor: pointer; z-index: 100; font-family: 'Cinzel', serif; }
-        #bankCode { position: absolute; top: 40px; right: 10px; background: #111; border:1px solid #FFD700; color: #FFD700; padding: 5px; display: none; font-weight: bold; z-index: 100; }
-        #gameOver { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); padding: 30px; border: 2px solid #FFD700; display: none; z-index:200; }
-    </style>
+<style>
+body { background: #000; color: #FFD700; font-family: sans-serif; text-align: center; overflow: hidden; }
+/* Canvas boyutu 8x16 oranına uygun ayarlandı */
+canvas { background: #111; border: 2px solid #FFD700; display: block; margin: 10px auto; }
+button { background: #333; color: #FFD700; border: 1px solid #FFD700; padding: 10px 20px; font-size: 18px; margin: 5px; cursor: pointer; border-radius: 5px; }
+button:active { background: #555; }
+#ui { display: flex; justify-content: space-between; width: 320px; margin: 0 auto; font-weight: bold; }
+#bankCode { background: white; color: black; padding: 5px; display: none; margin: 5px auto; width: 200px; }
+</style>
 </head>
 <body>
-    <div id="game-container">
-        <button class="bank-btn" onclick="getTransferCode()">🏦 HAZİNE</button>
-        <div id="bankCode"></div>
-        
-        <div class="header">
-            <div class="score-box">VARLIK: <span id="score">0</span></div>
-            <div class="score-box" style="color:#aaa">SEVİYE: <span id="level">1</span></div>
-        </div>
-        
-        <canvas id="gameCanvas" width="320" height="320"></canvas>
-        
-        <div class="controls">
-            <button class="ctrl-btn" onmousedown="move(-1)" ontouchstart="move(-1)">⬅️</button>
-            <button class="ctrl-btn" onmousedown="rotate()" ontouchstart="rotate()">🔄</button>
-            <button class="ctrl-btn" onmousedown="move(1)" ontouchstart="move(1)">➡️</button>
-            <button class="ctrl-btn" onmousedown="drop()" ontouchstart="drop()">⬇️</button>
-        </div>
+<div id="ui"><span>VARLIK: <span id="score">0</span></span><span>SEVİYE: <span id="level">1</span></span></div>
+<canvas id="gameCanvas" width="320" height="640"></canvas>
+<div>
+  <button onmousedown="move(-1)">⬅️</button>
+  <button onmousedown="rotate()">🔄</button>
+  <button onmousedown="move(1)">➡️</button>
+  <button onmousedown="drop()">⬇️</button>
+</div>
+<button onclick="getTransferCode()" style="background:#FFD700; color:#000;">🏦 HAZİNE</button>
+<div id="bankCode"></div>
 
-        <div id="gameOver">
-            <h2 style="color:#FFD700">İFLAS ETTİNİZ</h2>
-            <p>Bilgi, tek gerçek hazinedir.</p>
-            <button onclick="resetGame()" style="padding:10px 20px; cursor:pointer; background:#FFD700; border:none; font-weight:bold;">YENİDEN DENE</button>
-        </div>
-    </div>
+<script>
+const cvs = document.getElementById("gameCanvas");
+const ctx = cvs.getContext("2d");
+// 8 Sütun x 16 Satır
+const ROW = 16, COL = 8, SQ = 40, VACANT = "#111";
+let board = [], score = 0;
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const ROW = 8;
-        const COL = 8;
-        const SQ = 40;
-        const VACANT = "#111";
-        
-        let board = [];
-        let score = 0;
-        let gameOver = false;
-        
-        // Şekilleri önce tanımlıyoruz (HATA BURADAYDI)
-        const Z = [[[1,1,0],[0,1,1],[0,0,0]], [[0,0,1],[0,1,1],[0,1,0]], [[0,0,0],[1,1,0],[0,1,1]], [[0,1,0],[1,1,0],[1,0,0]]];
-        const S = [[[0,1,1],[1,1,0],[0,0,0]], [[0,1,0],[0,1,1],[0,0,1]], [[0,0,0],[0,1,1],[1,1,0]], [[1,0,0],[1,1,0],[0,1,0]]];
-        const T = [[[0,1,0],[1,1,1],[0,0,0]], [[0,1,0],[0,1,1],[0,1,0]], [[0,0,0],[1,1,1],[0,1,0]], [[0,1,0],[1,1,0],[0,1,0]]];
-        const O = [[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]], [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]], [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]], [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]]];
-        const L = [[[0,0,1],[1,1,1],[0,0,0]], [[0,1,0],[0,1,0],[0,1,1]], [[0,0,0],[1,1,1],[1,0,0]], [[1,1,0],[0,1,0],[0,1,0]]];
-        const I = [[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]], [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], [[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]], [[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]]];
-        const J = [[[1,0,0],[1,1,1],[0,0,0]], [[0,1,1],[0,1,0],[0,1,0]], [[0,0,0],[1,1,1],[0,0,1]], [[0,1,0],[0,1,0],[1,1,0]]];
+for(let r=0; r<ROW; r++){ board[r] = []; for(let c=0; c<COL; c++){ board[r][c] = VACANT; } }
 
-        // Parçalar listesi (Tanımlardan sonra)
-        const PIECES = [
-            [Z, "#FF4444"], [S, "#44FF44"], [T, "#FFFF44"], [O, "#44FFFF"], [L, "#FF44FF"], [I, "#4444FF"], [J, "#FFAA44"]
-        ];
+function drawSquare(x,y,color){
+    ctx.fillStyle = color; ctx.fillRect(x*SQ, y*SQ, SQ, SQ);
+    ctx.strokeStyle = "#000"; ctx.strokeRect(x*SQ, y*SQ, SQ, SQ);
+    if(color !== VACANT) { ctx.strokeStyle = "rgba(255,215,0,0.5)"; ctx.strokeRect(x*SQ+4, y*SQ+4, SQ-8, SQ-8); }
+}
 
-        function initBoard() {
-            for(let r = 0; r < ROW; r++){
-                board[r] = [];
-                for(let c = 0; c < COL; c++){
-                    board[r][c] = VACANT;
-                }
-            }
+function drawBoard(){ for(let r=0; r<ROW; r++){ for(let c=0; c<COL; c++){ drawSquare(c, r, board[r][c]); } } }
+drawBoard();
+
+const PIECES = [ [Z,"#FF4444"], [S,"#44FF44"], [T,"#FFFF44"], [O,"#44FFFF"], [L,"#FF44FF"], [I,"#4444FF"], [J,"#FFAA44"] ];
+const Z=[[[1,1,0],[0,1,1],[0,0,0]],[[0,0,1],[0,1,1],[0,1,0]],[[0,0,0],[1,1,0],[0,1,1]],[[0,1,0],[1,1,0],[1,0,0]]];
+const S=[[[0,1,1],[1,1,0],[0,0,0]],[[0,1,0],[0,1,1],[0,0,1]],[[0,0,0],[0,1,1],[1,1,0]],[[1,0,0],[1,1,0],[0,1,0]]];
+const T=[[[0,1,0],[1,1,1],[0,0,0]],[[0,1,0],[0,1,1],[0,1,0]],[[0,0,0],[1,1,1],[0,1,0]],[[0,1,0],[1,1,0],[0,1,0]]];
+const O=[[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]],[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]],[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]],[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]]];
+const L=[[[0,0,1],[1,1,1],[0,0,0]],[[0,1,0],[0,1,0],[0,1,1]],[[0,0,0],[1,1,1],[1,0,0]],[[1,1,0],[0,1,0],[0,1,0]]];
+const I=[[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],[[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]],[[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]]];
+const J=[[[1,0,0],[1,1,1],[0,0,0]],[[0,1,1],[0,1,0],[0,1,0]],[[0,0,0],[1,1,1],[0,0,1]],[[0,1,0],[0,1,0],[1,1,0]]];
+
+let p = randomPiece();
+
+function randomPiece(){
+    let r = Math.floor(Math.random() * PIECES.length);
+    return new Piece(PIECES[r][0], PIECES[r][1]);
+}
+
+function Piece(tetromino, color){
+    this.tetromino = tetromino; this.color = color;
+    this.tetrominoN = 0; this.activeTetromino = this.tetromino[this.tetrominoN];
+    this.x = 2; this.y = -2;
+}
+
+Piece.prototype.fill = function(color){
+    for(let r=0; r<this.activeTetromino.length; r++){
+        for(let c=0; c<this.activeTetromino.length; c++){
+            if(this.activeTetromino[r][c]){ drawSquare(this.x+c, this.y+r, color); }
         }
-        initBoard();
+    }
+}
 
-        function drawSquare(x,y,color){
-            ctx.fillStyle = color;
-            ctx.fillRect(x*SQ, y*SQ, SQ, SQ);
-            ctx.strokeStyle = "#000";
-            ctx.strokeRect(x*SQ, y*SQ, SQ, SQ);
-            if(color !== VACANT) {
-                ctx.strokeStyle = "rgba(255, 215, 0, 0.5)";
-                ctx.strokeRect(x*SQ+4, y*SQ+4, SQ-8, SQ-8);
-            }
+Piece.prototype.draw = function(){ this.fill(this.color); }
+Piece.prototype.unDraw = function(){ this.fill(VACANT); }
+
+Piece.prototype.moveDown = function(){
+    if(!this.collision(0,1,this.activeTetromino)){
+        this.unDraw(); this.y++; this.draw();
+    } else {
+        this.lock(); p = randomPiece();
+    }
+}
+Piece.prototype.moveRight = function(){ if(!this.collision(1,0,this.activeTetromino)){ this.unDraw(); this.x++; this.draw(); } }
+Piece.prototype.moveLeft = function(){ if(!this.collision(-1,0,this.activeTetromino)){ this.unDraw(); this.x--; this.draw(); } }
+Piece.prototype.rotate = function(){
+    let next = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
+    let kick = 0;
+    if(this.collision(0,0,next)){ kick = this.x > COL/2 ? -1 : 1; }
+    if(!this.collision(kick,0,next)){
+        this.unDraw(); this.x += kick;
+        this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length;
+        this.activeTetromino = this.tetromino[this.tetrominoN];
+        this.draw();
+    }
+}
+
+Piece.prototype.collision = function(x,y,piece){
+    for(let r=0; r<piece.length; r++){
+        for(let c=0; c<piece.length; c++){
+            if(!piece[r][c]) continue;
+            let nX = this.x + c + x; let nY = this.y + r + y;
+            if(nX < 0 || nX >= COL || nY >= ROW) return true;
+            if(nY < 0) continue;
+            if(board[nY][nX] != VACANT) return true;
         }
+    }
+    return false;
+}
 
-        function drawBoard(){
-            for(let r = 0; r < ROW; r++){
-                for(let c = 0; c < COL; c++){
-                    drawSquare(c, r, board[r][c]);
-                }
-            }
+Piece.prototype.lock = function(){
+    for(let r=0; r<this.activeTetromino.length; r++){
+        for(let c=0; c<this.activeTetromino.length; c++){
+            if(!this.activeTetromino[r][c]) continue;
+            if(this.y + r < 0){ alert("Oyun Bitti"); board=[]; for(let r=0;r<ROW;r++){board[r]=[];for(let c=0;c<COL;c++) board[r][c]=VACANT;} score=0; }
+            board[this.y+r][this.x+c] = this.color;
         }
-
-        function randomPiece(){
-            let r = Math.floor(Math.random() * PIECES.length);
-            return new Piece(PIECES[r][0], PIECES[r][1]);
+    }
+    for(let r=0; r<ROW; r++){
+        let isFull = true;
+        for(let c=0; c<COL; c++) isFull = isFull && (board[r][c] != VACANT);
+        if(isFull){
+            for(let y=r; y>1; y--){ for(let c=0; c<COL; c++) board[y][c] = board[y-1][c]; }
+            for(let c=0; c<COL; c++) board[0][c] = VACANT;
+            score += 50;
         }
+    }
+    document.getElementById("score").innerHTML = score;
+    drawBoard();
+}
 
-        let p = randomPiece();
+function drop(){ p.moveDown(); drawBoard(); }
+let dropStart = Date.now();
+function gameLoop(){
+    let now = Date.now();
+    if(now - dropStart > 1000){ p.moveDown(); dropStart = Date.now(); }
+    requestAnimationFrame(gameLoop);
+}
+gameLoop();
 
-        function Piece(tetromino, color){
-            this.tetromino = tetromino;
-            this.color = color;
-            this.tetrominoN = 0;
-            this.activeTetromino = this.tetromino[this.tetrominoN];
-            this.x = 2; // Ortadan başlasın (8x8 için 2 veya 3 uygun)
-            this.y = -2;
-        }
-
-        Piece.prototype.fill = function(color){
-            for(let r = 0; r < this.activeTetromino.length; r++){
-                for(let c = 0; c < this.activeTetromino.length; c++){
-                    if(this.activeTetromino[r][c]){
-                        drawSquare(this.x + c, this.y + r, color);
-                    }
-                }
-            }
-        }
-
-        Piece.prototype.draw = function(){ this.fill(this.color); }
-        Piece.prototype.unDraw = function(){ this.fill(VACANT); }
-
-        Piece.prototype.moveDown = function(){
-            if(!this.collision(0,1,this.activeTetromino)){
-                this.unDraw();
-                this.y++;
-                this.draw();
-            }else{
-                this.lock();
-                p = randomPiece();
-            }
-        }
-
-        Piece.prototype.moveRight = function(){
-            if(!this.collision(1,0,this.activeTetromino)){
-                this.unDraw();
-                this.x++;
-                this.draw();
-            }
-        }
-
-        Piece.prototype.moveLeft = function(){
-            if(!this.collision(-1,0,this.activeTetromino)){
-                this.unDraw();
-                this.x--;
-                this.draw();
-            }
-        }
-
-        Piece.prototype.rotate = function(){
-            let nextPattern = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
-            let kick = 0;
-            if(this.collision(0,0,nextPattern)){
-                if(this.x > COL/2) kick = -1; else kick = 1;
-            }
-            if(!this.collision(kick,0,nextPattern)){
-                this.unDraw();
-                this.x += kick;
-                this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length;
-                this.activeTetromino = this.tetromino[this.tetrominoN];
-                this.draw();
-            }
-        }
-
-        Piece.prototype.collision = function(x,y,piece){
-            for(let r = 0; r < piece.length; r++){
-                for(let c = 0; c < piece.length; c++){
-                    if(!piece[r][c]) continue;
-                    let newX = this.x + c + x;
-                    let newY = this.y + r + y;
-                    if(newX < 0 || newX >= COL || newY >= ROW) return true;
-                    if(newY < 0) continue;
-                    if(board[newY][newX] != VACANT) return true;
-                }
-            }
-            return false;
-        }
-
-        Piece.prototype.lock = function(){
-            for(let r = 0; r < this.activeTetromino.length; r++){
-                for(let c = 0; c < this.activeTetromino.length; c++){
-                    if(!this.activeTetromino[r][c]) continue;
-                    if(this.y + r < 0){
-                        document.getElementById('gameOver').style.display = "block";
-                        gameOver = true;
-                        break;
-                    }
-                    board[this.y+r][this.x+c] = this.color;
-                }
-            }
-            for(let r = 0; r < ROW; r++){
-                let isRowFull = true;
-                for(let c = 0; c < COL; c++) isRowFull = isRowFull && (board[r][c] != VACANT);
-                if(isRowFull){
-                    for(let y = r; y > 1; y--){
-                        for(let c = 0; c < COL; c++) board[y][c] = board[y-1][c];
-                    }
-                    for(let c = 0; c < COL; c++) board[0][c] = VACANT;
-                    score += 50;
-                    document.getElementById('score').innerText = score;
-                }
-            }
-            drawBoard();
-        }
-
-        let dropStart = Date.now();
-        function drop(){
-            let now = Date.now();
-            let delta = now - dropStart;
-            if(delta > 1000){
-                p.moveDown();
-                dropStart = Date.now();
-            }
-            if(!gameOver) requestAnimationFrame(drop);
-        }
-
-        function move(dir){ if(dir === 1) p.moveRight(); else p.moveLeft(); }
-        function rotate(){ p.rotate(); }
-        
-        function resetGame(){
-            board = []; initBoard(); score = 0; gameOver = false;
-            document.getElementById('gameOver').style.display = "none";
-            document.getElementById('score').innerText = "0";
-            p = randomPiece();
-            drop();
-        }
-        
-        function getTransferCode() {
-            if(score < 50) { alert("En az 50 puan gerekli."); return; }
-            let val = score; let hex = (val * 13).toString(16).toUpperCase(); 
-            let rnd = Math.floor(Math.random() * 9999);
-            let code = `FNK-${hex}-${rnd}`;
-            document.getElementById('bankCode').innerText = code; 
-            document.getElementById('bankCode').style.display = 'block';
-            score = 0; document.getElementById('score').innerText = 0;
-        }
-
-        drop();
-    </script>
-</body>
-</html>
+function move(dir){ if(dir===1) p.moveRight(); else p.moveLeft(); }
+function rotate(){ p.rotate(); }
+function getTransferCode(){
+    if(score<50){ alert("En az 50 puan gerekli"); return; }
+    let c = `FNK-${(score*13).toString(16).toUpperCase()}-${Math.floor(Math.random()*999)}`;
+    document.getElementById('bankCode').innerText = c;
+    document.getElementById('bankCode').style.display='block';
+    score=0; document.getElementById("score").innerHTML = 0;
+}
+</script></body></html>
 """
 
 # ==========================================
@@ -590,28 +494,24 @@ else:
                 st.subheader("Sıralama")
                 st.dataframe(server.get_leaderboard(st.session_state.class_code), use_container_width=True)
 
-        # 2. SOSYAL & SOHBET
+        # 2. İLETİŞİM (GENEL VE ÖZEL)
         with t2:
-            st.subheader("💬 Sosyal Ağ")
-            st_chat, st_req, st_add = st.tabs(["Sohbet Et", "Arkadaş İstekleri", "Öğrenci Ekle"])
+            sub_global, sub_private, sub_req, sub_add = st.tabs(["🌍 Genel Sohbet", "🔒 Özel Mesajlar", "Arkadaş İstekleri", "Öğrenci Ekle"])
             
-            with st_chat:
-                # Genel sohbet ve Özel Sohbet Ayrımı
-                chat_type = st.radio("Sohbet Modu:", ["🌍 Genel Sohbet (Meydan)", "🔒 Özel Mesaj"], horizontal=True)
+            with sub_global:
+                render_global_chat()
+
+            with sub_private:
+                friends = database.get_friends(st.session_state.username)
+                if st.session_state.user_role == 'student': friends.append("admin") 
                 
-                if chat_type == "🌍 Genel Sohbet (Meydan)":
-                    render_global_chat()
+                if not friends:
+                    st.info("Henüz arkadaşın yok. 'Öğrenci Ekle' sekmesinden arkadaş ekle!")
                 else:
-                    friends = database.get_friends(st.session_state.username)
-                    if st.session_state.user_role == 'student': friends.append("admin") 
-                    
-                    if not friends:
-                        st.info("Henüz arkadaşın yok.")
-                    else:
-                        target = st.selectbox("Kiminle konuşmak istersin?", friends)
-                        render_chat(target)
+                    target = st.selectbox("Kiminle konuşmak istersin?", friends)
+                    render_chat(target)
             
-            with st_req:
+            with sub_req:
                 pending = database.get_pending_requests(st.session_state.username)
                 if pending:
                     for req_id, sender in pending:
@@ -623,7 +523,7 @@ else:
                             st.rerun()
                 else: st.caption("Bekleyen istek yok.")
             
-            with st_add:
+            with sub_add:
                 st.markdown("Okuldaki diğer öğrencileri bul ve ekle.")
                 searchable = database.get_searchable_students(st.session_state.username)
                 if searchable:
@@ -634,7 +534,7 @@ else:
                         else: st.warning(msg)
                 else: st.info("Eklenebilecek kimse bulunamadı.")
 
-        # 3. DERSLER
+        # 3. DERSLER (TYT / MESLEK / JSON)
         with t3:
             ders_modu = st.radio("Çalışma Alanı Seçiniz:", ["TYT Çalışma", "Meslek Soruları", "Okul Yazılıları (JSON)"], horizontal=True)
             st.divider()
@@ -714,7 +614,7 @@ else:
         with t4:
             gm = st.selectbox("Oyun", ["Finans İmparatoru", "Asset Matrix"])
             if gm == "Finans İmparatoru": components.html(FINANCE_GAME_HTML, height=600)
-            else: components.html(ASSET_MATRIX_HTML, height=750)
+            else: components.html(ASSET_MATRIX_HTML, height=800)
 
         # 5. LIFESIM
         with t5:
