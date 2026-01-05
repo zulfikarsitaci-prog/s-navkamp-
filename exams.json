@@ -1,64 +1,122 @@
 {
   "9. Sınıf": {
-    "Temel Muhasebe": [
+    "Mesleki Gelişim Atölyesi": [
       {
-        "type": "test",
-        "question": "İşletmenin sahip olduğu varlıklar ile bu varlıkların sağlandığı kaynakları gösteren tabloya ne denir?",
-        "options": ["Gelir Tablosu", "Bilanço", "Mizan", "Yevmiye Defteri"],
-        "answer": "Bilanço",
+        "type": "scenario",
+        "text": "SENARYO 1: Bağarası’nda çiftçilik yapan Mehmet Amca, tarlasını sulamak için telefon uygulaması ve nem sensörleri kullanıyor. Akıllı saati nabzını ölçüyor.",
+        "sub_questions": [
+          {"q": "Bu saat hangi teknoloji türüne girer? (Giyilebilir vb.)", "a": "Giyilebilir"},
+          {"q": "Teknolojinin tarımdaki faydasını tek kelimeyle özetleyin (Verim, Kolaylık vb.)", "a": "Verim"}
+        ],
+        "points": 20
+      },
+      {
+        "type": "text",
+        "question": "E-Posta (E-Mail) ile WhatsApp arasındaki en temel fark nedir? (Resmiyet açısından)",
+        "answer": "Resmiyet",
         "points": 10
       },
       {
         "type": "text",
-        "question": "Muhasebenin temel denkliği nedir? (Formülü yazınız: Varlıklar = ... + ...)",
-        "answer": "Sermaye + Borçlar",
-        "keywords": ["sermaye", "borç", "özkaynak"],
+        "question": "Söke ovasında güneşli gün sayısı fazladır. Güneş paneli kullanan bir işletme hangi tür enerji kaynağı kullanmış olur?",
+        "answer": "Yenilenebilir",
+        "keywords": ["yenilenebilir", "tükenmez", "güneş"],
         "points": 10
-      }
-    ],
-    "Mesleki Gelişim Atölyesi": [
+      },
       {
         "type": "test",
-        "question": "Aşağıdakilerden hangisi etkili iletişimin unsurlarından biridir?",
-        "options": ["Empati", "Önyargı", "Emir verme", "Suçlama"],
-        "answer": "Empati",
+        "question": "Bir bankanın web sitesinde sağ altta çıkan ve soruları yanıtlayan sanal asistan hangi teknolojinin ürünüdür?",
+        "options": ["Blockchain", "Yapay Zeka", "Bulut Bilişim", "Nesnelerin İnterneti"],
+        "answer": "Yapay Zeka",
         "points": 10
       }
     ],
-    "Mesleki Matematik": [
+    "Temel Muhasebe": [
+      {
+        "type": "calculation",
+        "text": "FATURA HESAPLAMA: 50 Adet Okul Çantası, Birim Fiyat 200 TL. İskonto %10, KDV %20.",
+        "inputs": [
+          {"label": "Mal Bedeli (50x200)", "correct": 10000},
+          {"label": "İskonto Tutarı (%10)", "correct": 1000},
+          {"label": "KDV Matrahı (Mal Bedeli - İskonto)", "correct": 9000},
+          {"label": "KDV Tutarı (%20)", "correct": 1800},
+          {"label": "Genel Toplam", "correct": 10800}
+        ],
+        "points": 20
+      },
+      {
+        "type": "test",
+        "question": "Söke'de bir yazılım şirketinde maaşlı çalışan mühendisin SGK statüsü nedir?",
+        "options": ["4/a (SSK)", "4/b (Bağ-Kur)", "4/c (Emekli Sandığı)"],
+        "answer": "4/a (SSK)",
+        "points": 10
+      },
+      {
+        "type": "test",
+        "question": "Bağarası'nda kendi adına mimarlık ofisi açan bir mimarın SGK statüsü nedir?",
+        "options": ["4/a (SSK)", "4/b (Bağ-Kur)", "4/c (Emekli Sandığı)"],
+        "answer": "4/b (Bağ-Kur)",
+        "points": 10
+      },
       {
         "type": "text",
-        "question": "Bir ürünün KDV hariç fiyatı 100 TL'dir. %20 KDV dahil fiyatı kaç TL eder?",
-        "answer": "120",
+        "question": "Sevk İrsaliyesi ile Fatura arasındaki en temel fark nedir? (İrsaliyede ne yoktur?)",
+        "answer": "Fiyat",
+        "keywords": ["fiyat", "tutar", "bedel"],
         "points": 10
       }
     ]
   },
   "10. Sınıf": {
-    "Temel Hukuk": [
-      {
-        "type": "test",
-        "question": "Hukuk kurallarına aykırı davranış sonucunda karşılaşılan tepkiye ne denir?",
-        "options": ["Yaptırım (Müeyyide)", "Örf", "Ahlak", "Görgü"],
-        "answer": "Yaptırım (Müeyyide)",
-        "points": 10
-      }
-    ],
     "Ekonomi": [
       {
-        "type": "test",
-        "question": "İnsan ihtiyaçlarının sınırsız, kaynakların sınırlı olması durumuna ne ad verilir?",
-        "options": ["Enflasyon", "Kıtlık", "Deflasyon", "Devalüasyon"],
-        "answer": "Kıtlık",
-        "points": 10
-      }
-    ],
-    "Genel Muhasebe": [
+        "type": "scenario",
+        "text": "SENARYO: Sökeli çiftçi Mehmet Bey, pamuğu balya olarak satmak yerine iplik atölyesi kurup ipliğe dönüştürmüştür.",
+        "sub_questions": [
+          {"q": "Bu değer kazandırma işlemine ne ad verilir? (Üretim/Tüketim)", "a": "Üretim"},
+          {"q": "Mehmet Bey üretim faktörlerinden hangisidir?", "a": "Girişimci"}
+        ],
+        "points": 20
+      },
       {
         "type": "text",
-        "question": "Kasa hesabının kodu nedir?",
-        "answer": "100",
+        "question": "Bir ülkede fabrikaların devletin elinde olduğu, fiyatları devletin belirlediği ekonomik sistemin adı nedir?",
+        "answer": "Sosyalizm",
+        "keywords": ["sosyalizm", "komünizm", "merkezi"],
         "points": 10
+      },
+      {
+        "type": "text",
+        "question": "Atatürk döneminde Türk denizlerinde ticaret yapma hakkının sadece Türk gemilerine verilmesini sağlayan kanunun adı nedir?",
+        "answer": "Kabotaj",
+        "keywords": ["kabotaj", "denizcilik"],
+        "points": 15
+      }
+    ],
+    "Hukuk": [
+      {
+        "type": "scenario",
+        "text": "SENARYO: Ahmet Bey tarlasını sürmek için Tariş Kooperatifi'nden traktör kiralamıştır.",
+        "sub_questions": [
+          {"q": "Ahmet Bey gerçek kişi mi tüzel kişi mi?", "a": "Gerçek"},
+          {"q": "Tariş Kooperatifi gerçek kişi mi tüzel kişi mi?", "a": "Tüzel"},
+          {"q": "Tarla taşınır mı taşınmaz mı?", "a": "Taşınmaz"}
+        ],
+        "points": 30
+      },
+      {
+        "type": "test",
+        "question": "Borç ilişkisinde borcun yerine getirilerek sona ermesine ne denir?",
+        "options": ["İbra", "İfa", "Takas", "Yenileme"],
+        "answer": "İfa",
+        "points": 10
+      },
+      {
+        "type": "test",
+        "question": "Ahmet Bey ile komşusu arasındaki tarla sınırı anlaşmazlığını hangi hukuk dalı çözer?",
+        "options": ["Kamu Hukuku", "Özel Hukuk", "Karma Hukuk"],
+        "answer": "Özel Hukuk",
+        "points": 15
       }
     ]
   },
@@ -66,77 +124,111 @@
     "İş ve Sosyal Güvenlik Hukuku": [
       {
         "type": "scenario",
-        "text": "SENARYO: Söke Organize Sanayi Bölgesi'nde faaliyet gösteren 'Ege Tekstil A.Ş.' fabrikasının sahibi Ali Bey'dir. Ali Bey işlerin yoğunluğu nedeniyle fabrikanın tüm yönetimini Genel Müdür Ayşe Hanım'a bırakmıştır. Fabrikada işçi olarak çalışan Mehmet Bey, iş çıkışı fabrikanın servis aracına binerken ayağını burkup yaralanmıştır.",
+        "text": "SENARYO: Ege Tekstil A.Ş. sahibi Ali Bey, yönetimi Ayşe Hanım'a bırakmıştır. İşçi Mehmet Bey servise binerken yaralanmıştır.",
         "sub_questions": [
-          {"q": "Hukuken asıl İşveren kimdir?", "a": "Ege Tekstil A.Ş."},
-          {"q": "İşveren Vekili kimdir?", "a": "Ayşe Hanım"},
-          {"q": "Servis aracı işyeri sınırına dahil midir? (Evet/Hayır)", "a": "Evet"}
+          {"q": "Asıl İşveren kimdir?", "a": "Ege Tekstil"},
+          {"q": "İşveren Vekili kimdir?", "a": "Ayşe"},
+          {"q": "Servis aracı işyeri sayılır mı? (Evet/Hayır)", "a": "Evet"}
         ],
-        "points": 30
+        "points": 20
       },
       {
         "type": "calculation",
-        "text": "FAZLA ÇALIŞMA: Mehmet Bey haftada 50 saat çalışmıştır (Normal: 45 saat). Saatlik ücreti 200 TL'dir.",
+        "text": "FAZLA ÇALIŞMA: Mehmet Bey haftada 50 saat çalışmıştır (Normal: 45). Saatlik ücreti 200 TL.",
         "inputs": [
-          {"label": "Kaç saat fazla çalışma?", "correct": 5},
-          {"label": "1 Saatlik Zamlı (%50) Ücret (TL)?", "correct": 300},
-          {"label": "Toplam Fazla Çalışma Ücreti (TL)?", "correct": 1500}
+          {"label": "Fazla Çalışma Saati", "correct": 5},
+          {"label": "1 Saatlik Zamlı Ücret (200 x 1.5)", "correct": 300},
+          {"label": "Toplam Fazla Çalışma Ücreti", "correct": 1500}
         ],
         "points": 30
       }
     ],
     "Maliyet Muhasebesi": [
       {
-        "type": "scenario",
-        "text": "GİDER DAĞITIMI: Lale Konfeksiyon yemek gideri (20.000 TL) personel sayısına göre, temizlik gideri (30.000 TL) alana göre dağıtılacaktır. Kesim: 60 kişi, Dikim: 600 m2 (Toplam Alan: 1500 m2, Toplam Personel: 200).",
-        "sub_questions": [
-           {"q": "Kesim Bölümü Yemek Payı (TL)?", "a": "6000"},
-           {"q": "Dikim Bölümü Temizlik Payı (TL)?", "a": "12000"}
+        "type": "calculation",
+        "text": "GİDER DAĞITIMI (I. Dağıtım): Yemek (20.000 TL) personel sayısına, Temizlik (30.000 TL) alana göre dağıtılıyor. (Kesim: 60 kişi, 500 m2. Toplam: 200 kişi, 1500 m2).",
+        "inputs": [
+          {"label": "Yemek Gideri - Kesim Payı (20.000/200 * 60)", "correct": 6000},
+          {"label": "Temizlik Gideri - Kesim Payı (30.000/1500 * 500)", "correct": 10000}
         ],
         "points": 20
       },
-       {
-        "type": "text",
-        "question": "Stok değerlemede 'İlk Giren İlk Çıkar' yönteminin kısaltması nedir?",
-        "answer": "FIFO",
-        "points": 10
+      {
+        "type": "calculation",
+        "text": "FIFO STOK DEĞERLEME: 01.05 Devir: 5000kg @ 30TL. | 15.05 Alış: 5500kg @ 35TL. | Çıkışlar: 3500kg + 4000kg.",
+        "inputs": [
+           {"label": "Toplam Çıkan Miktar", "correct": 7500},
+           {"label": "Kalan Miktar (10500 - 7500)", "correct": 3000},
+           {"label": "Kalan Stok Değeri (3000kg x 35TL)", "correct": 105000}
+        ],
+        "points": 20
+      },
+      {
+         "type": "calculation",
+         "text": "BİRİM MALİYET: Toplam Maliyet: Ekmek (75.000 TL), Poğaça (80.000 TL). Üretim: Ekmek (5000 adet), Poğaça (4000 adet).",
+         "inputs": [
+            {"label": "Ekmek Birim Maliyeti", "correct": 15},
+            {"label": "Poğaça Birim Maliyeti", "correct": 20}
+         ],
+         "points": 20
       }
     ],
     "Şirketler Muhasebesi": [
-       {
-        "type": "test",
-        "question": "Sermaye şirketlerinde ortakların sorumluluğu nasıldır?",
-        "options": ["Sınırsız", "Koydukları sermaye ile sınırlı", "Sorumlulukları yoktur", "Devlete karşı sorumludurlar"],
-        "answer": "Koydukları sermaye ile sınırlı",
-        "points": 10
-      }
-    ],
-    "Bilgisayarlı Muhasebe": [
-       {
-        "type": "test",
-        "question": "ETA veya LOGO programında yeni bir şirket açmak için hangi modül kullanılır?",
-        "options": ["Fatura", "Stok", "Sistem İşletmeni / Şirket İşlemleri", "Cari"],
-        "answer": "Sistem İşletmeni / Şirket İşlemleri",
-        "points": 10
+      {
+        "type": "calculation",
+        "text": "KAR DAĞITIMI: Şirket Karı: 250.000 TL. Sermaye Payları: Yavuz (800.000), Ali (200.000). Toplam Sermaye: 1.000.000 TL. Kar sermaye oranına göre dağıtılacak.",
+        "inputs": [
+           {"label": "Yavuz'un Kar Payı (250.000 x %80)", "correct": 200000},
+           {"label": "Ali'nin Kar Payı (250.000 x %20)", "correct": 50000}
+        ],
+        "points": 30
+      },
+      {
+        "type": "calculation",
+        "text": "SERMAYE ARTIRIMI: Şirket 80.000 TL sermaye artırıyor. Merve 50.000 TL (Yarısı nakit, yarısı senet), Ayşe 30.000 TL (Tamamı banka).",
+        "inputs": [
+          {"label": "Merve'nin Nakit Ödemesi", "correct": 25000},
+          {"label": "Ayşe'nin Banka Ödemesi", "correct": 30000}
+        ],
+        "points": 20
       }
     ]
   },
   "12. Sınıf": {
     "Bankacılık": [
       {
-        "type": "test",
-        "question": "Bankalar arası para transferi sistemine ne ad verilir (Mesai saatleri içinde)?",
-        "options": ["EFT", "Havale", "Swift", "Virman"],
+        "type": "scenario",
+        "text": "SENARYO: Turist John cebindeki 500 Dolar nakiti bozduruyor. İthalatçı firma ise Almanya'ya hesaptan 50.000 Euro gönderiyor.",
+        "sub_questions": [
+          {"q": "John'un cebindeki nakit paraya ne denir? (Efektif/Döviz)", "a": "Efektif"},
+          {"q": "Hesaptan yapılan işleme ne denir? (Efektif/Döviz)", "a": "Döviz"}
+        ],
+        "points": 20
+      },
+      {
+        "type": "text",
+        "question": "Farklı bankalar arasında yapılan para transferine (mesai saatlerinde) ne ad verilir?",
         "answer": "EFT",
         "points": 10
-      }
-    ],
-    "Finansal Okuryazarlık": [
+      },
+      {
+        "type": "text",
+        "question": "Aynı bankanın şubeleri arasında yapılan para transferine ne ad verilir? (7/24 yapılabilir)",
+        "answer": "Havale",
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "Bankanın, firmanın borcunu yerine getirmemesi durumunda ödemeyi garanti ettiği belgenin adı nedir?",
+        "answer": "Teminat Mektubu",
+        "keywords": ["teminat", "mektup", "güvence"],
+        "points": 10
+      },
       {
         "type": "test",
-        "question": "Gelir ve giderlerin planlandığı tabloya ne denir?",
-        "options": ["Bütçe", "Kredi", "Faiz", "Tasarruf"],
-        "answer": "Bütçe",
+        "question": "Senet üzerine atılan 'kefillik' imzasına ne ad verilir?",
+        "options": ["Ciro", "Aval", "Keşide", "Protesto"],
+        "answer": "Aval",
         "points": 10
       }
     ]
