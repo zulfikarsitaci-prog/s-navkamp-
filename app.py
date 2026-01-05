@@ -10,7 +10,7 @@ import database
 from datetime import datetime
 
 # ==========================================
-# 1. SAYFA AYARLARI
+# 1. SAYFA VE GENEL AYARLAR
 # ==========================================
 st.set_page_config(
     page_title="Bağarası ÇPAL - Dijital Kampüs",
@@ -19,7 +19,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Veritabanı Başlat
+# Veritabanını Başlat
 database.create_database()
 if not database.login_user("admin", "6626"):
     database.add_user("admin", "6626", "admin")
@@ -37,7 +37,11 @@ URL_TYT_PDF = f"{GITHUB_BASE_URL}/tytson8.pdf"
 URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
 URL_LIFESIM = f"{GITHUB_BASE_URL}/lifesim_data.json"
 
-# --- OYUN KODLARI ---
+# ==========================================
+# 3. OYUN KODLARI (GÜNCELLENMİŞ VE TAMİR EDİLMİŞ)
+# ==========================================
+
+# --- OYUN 1: FINANS İMPARATORU (Clicker) ---
 FINANCE_GAME_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -106,42 +110,251 @@ FINANCE_GAME_HTML = """
 </html>
 """
 
+# --- OYUN 2: ASSET MATRIX (TAMİR EDİLMİŞ TETRIS) ---
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<style>
-    body { background-color: #050505; color: white; font-family: sans-serif; text-align: center; overflow: hidden; margin: 0; }
-    #gameCanvas { background: #111; border: 1px solid #333; margin-top: 10px; box-shadow: 0 0 20px rgba(255,255,255,0.1); }
-    .btn { background: #333; color: white; border: 1px solid #555; padding: 10px 20px; cursor: pointer; margin-top: 10px; font-weight: bold; }
-    .btn:hover { background: #555; }
-    #bankCodeDisplay { background: white; color: black; padding: 5px; display: none; margin: 10px auto; width: 200px; font-weight: bold; border-radius: 4px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Socratic Asset Matrix</title>
+    <style>
+        body { margin: 0; background-color: #050505; color: #fff; font-family: sans-serif; text-align: center; overflow: hidden; touch-action: none; }
+        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .header { margin-top: 10px; display: flex; justify-content: space-between; width: 300px; }
+        .score-box { font-size: 18px; font-weight: bold; color: #FFD700; }
+        canvas { background: #111; border: 2px solid #333; box-shadow: 0 0 20px rgba(255,215,0,0.1); margin-top: 10px; }
+        .controls { margin-top: 15px; display: flex; gap: 20px; }
+        .ctrl-btn { width: 60px; height: 60px; background: #333; border: 1px solid #555; border-radius: 50%; color: white; font-size: 24px; cursor: pointer; user-select: none; }
+        .ctrl-btn:active { background: #555; transform: scale(0.95); }
+        .bank-btn { position: absolute; top: 10px; right: 10px; background: #10b981; border: none; padding: 5px 10px; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; z-index: 100; }
+        #bankCode { position: absolute; top: 40px; right: 10px; background: white; color: black; padding: 5px; display: none; font-weight: bold; z-index: 100; }
+        #gameOver { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 20px; border: 2px solid #FF4444; display: none; }
+    </style>
 </head>
 <body>
-    <h3 style="margin-bottom:5px; color:#FFD700;">ASSET MATRIX</h3>
-    <div id="score" style="font-size:24px; font-weight:bold;">0</div>
-    <button class="btn" onclick="getTransferCode()">🏦 PUANI ÇEK</button>
-    <div id="bankCodeDisplay"></div>
-    <canvas id="gameCanvas" width="300" height="400"></canvas>
+    <div id="game-container">
+        <button class="bank-btn" onclick="getTransferCode()">🏦 BANKA</button>
+        <div id="bankCode"></div>
+        
+        <div class="header">
+            <div class="score-box">PUAN: <span id="score">0</span></div>
+            <div class="score-box" style="color:#aaa">SEVİYE: <span id="level">1</span></div>
+        </div>
+        
+        <canvas id="gameCanvas" width="300" height="500"></canvas>
+        
+        <div class="controls">
+            <button class="ctrl-btn" onmousedown="move(-1)" ontouchstart="move(-1)">⬅️</button>
+            <button class="ctrl-btn" onmousedown="rotate()" ontouchstart="rotate()">🔄</button>
+            <button class="ctrl-btn" onmousedown="move(1)" ontouchstart="move(1)">➡️</button>
+            <button class="ctrl-btn" onmousedown="drop()" ontouchstart="drop()">⬇️</button>
+        </div>
+
+        <div id="gameOver">
+            <h2 style="color:#ff4444">OYUN BİTTİ</h2>
+            <button onclick="resetGame()" style="padding:10px 20px; cursor:pointer;">Tekrar Oyna</button>
+        </div>
+    </div>
+
     <script>
-        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
-        let score = 0; let x = 125, y = 0;
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#3b82f6'; ctx.fillRect(x, y, 50, 50);
-            y += 2; if(y > canvas.height) { y = 0; score += 10; document.getElementById('score').innerText = score; }
-            requestAnimationFrame(draw);
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const ROW = 20, COL = 12, SQ = 25;
+        const VACANT = "#111";
+        
+        let board = [], score = 0, level = 1, gameOver = false;
+        let dropStart = Date.now();
+        
+        const PIECES = [
+            [Z, "red"], [S, "green"], [T, "yellow"], [O, "blue"], [L, "purple"], [I, "cyan"], [J, "orange"]
+        ];
+        
+        const Z = [[[1,1,0],[0,1,1],[0,0,0]], [[0,0,1],[0,1,1],[0,1,0]], [[0,0,0],[1,1,0],[0,1,1]], [[0,1,0],[1,1,0],[1,0,0]]];
+        const S = [[[0,1,1],[1,1,0],[0,0,0]], [[0,1,0],[0,1,1],[0,0,1]], [[0,0,0],[0,1,1],[1,1,0]], [[1,0,0],[1,1,0],[0,1,0]]];
+        const T = [[[0,1,0],[1,1,1],[0,0,0]], [[0,1,0],[0,1,1],[0,1,0]], [[0,0,0],[1,1,1],[0,1,0]], [[0,1,0],[1,1,0],[0,1,0]]];
+        const O = [[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]], [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]], [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]], [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]]];
+        const L = [[[0,0,1],[1,1,1],[0,0,0]], [[0,1,0],[0,1,0],[0,1,1]], [[0,0,0],[1,1,1],[1,0,0]], [[1,1,0],[0,1,0],[0,1,0]]];
+        const I = [[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]], [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], [[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]], [[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]]];
+        const J = [[[1,0,0],[1,1,1],[0,0,0]], [[0,1,1],[0,1,0],[0,1,0]], [[0,0,0],[1,1,1],[0,0,1]], [[0,1,0],[0,1,0],[1,1,0]]];
+
+        function initBoard() {
+            for(let r = 0; r < ROW; r++){
+                board[r] = [];
+                for(let c = 0; c < COL; c++){
+                    board[r][c] = VACANT;
+                }
+            }
         }
+        initBoard();
+
+        function drawSquare(x,y,color){
+            ctx.fillStyle = color;
+            ctx.fillRect(x*SQ, y*SQ, SQ, SQ);
+            ctx.strokeStyle = "#333";
+            ctx.strokeRect(x*SQ, y*SQ, SQ, SQ);
+        }
+
+        function drawBoard(){
+            for(let r = 0; r < ROW; r++){
+                for(let c = 0; c < COL; c++){
+                    drawSquare(c, r, board[r][c]);
+                }
+            }
+        }
+
+        function randomPiece(){
+            let r = Math.floor(Math.random() * PIECES.length);
+            return new Piece(PIECES[r][0], PIECES[r][1]);
+        }
+
+        let p = randomPiece();
+
+        function Piece(tetromino, color){
+            this.tetromino = tetromino;
+            this.color = color;
+            this.tetrominoN = 0;
+            this.activeTetromino = this.tetromino[this.tetrominoN];
+            this.x = 3;
+            this.y = -2;
+        }
+
+        Piece.prototype.fill = function(color){
+            for(let r = 0; r < this.activeTetromino.length; r++){
+                for(let c = 0; c < this.activeTetromino.length; c++){
+                    if(this.activeTetromino[r][c]){
+                        drawSquare(this.x + c, this.y + r, color);
+                    }
+                }
+            }
+        }
+
+        Piece.prototype.draw = function(){ this.fill(this.color); }
+        Piece.prototype.unDraw = function(){ this.fill(VACANT); }
+
+        Piece.prototype.moveDown = function(){
+            if(!this.collision(0,1,this.activeTetromino)){
+                this.unDraw();
+                this.y++;
+                this.draw();
+            }else{
+                this.lock();
+                p = randomPiece();
+            }
+        }
+
+        Piece.prototype.moveRight = function(){
+            if(!this.collision(1,0,this.activeTetromino)){
+                this.unDraw();
+                this.x++;
+                this.draw();
+            }
+        }
+
+        Piece.prototype.moveLeft = function(){
+            if(!this.collision(-1,0,this.activeTetromino)){
+                this.unDraw();
+                this.x--;
+                this.draw();
+            }
+        }
+
+        Piece.prototype.rotate = function(){
+            let nextPattern = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
+            let kick = 0;
+            if(this.collision(0,0,nextPattern)){
+                if(this.x > COL/2) kick = -1; else kick = 1;
+            }
+            if(!this.collision(kick,0,nextPattern)){
+                this.unDraw();
+                this.x += kick;
+                this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length;
+                this.activeTetromino = this.tetromino[this.tetrominoN];
+                this.draw();
+            }
+        }
+
+        Piece.prototype.collision = function(x,y,piece){
+            for(let r = 0; r < piece.length; r++){
+                for(let c = 0; c < piece.length; c++){
+                    if(!piece[r][c]) continue;
+                    let newX = this.x + c + x;
+                    let newY = this.y + r + y;
+                    if(newX < 0 || newX >= COL || newY >= ROW) return true;
+                    if(newY < 0) continue;
+                    if(board[newY][newX] != VACANT) return true;
+                }
+            }
+            return false;
+        }
+
+        Piece.prototype.lock = function(){
+            for(let r = 0; r < this.activeTetromino.length; r++){
+                for(let c = 0; c < this.activeTetromino.length; c++){
+                    if(!this.activeTetromino[r][c]) continue;
+                    if(this.y + r < 0){
+                        document.getElementById('gameOver').style.display = "block";
+                        gameOver = true;
+                        break;
+                    }
+                    board[this.y+r][this.x+c] = this.color;
+                }
+            }
+            // Satır silme
+            for(let r = 0; r < ROW; r++){
+                let isRowFull = true;
+                for(let c = 0; c < COL; c++) isRowFull = isRowFull && (board[r][c] != VACANT);
+                if(isRowFull){
+                    for(let y = r; y > 1; y--){
+                        for(let c = 0; c < COL; c++) board[y][c] = board[y-1][c];
+                    }
+                    for(let c = 0; c < COL; c++) board[0][c] = VACANT;
+                    score += 10;
+                    document.getElementById('score').innerText = score;
+                }
+            }
+            drawBoard();
+        }
+
+        function drop(){
+            let now = Date.now();
+            let delta = now - dropStart;
+            if(delta > 1000){
+                p.moveDown();
+                dropStart = Date.now();
+            }
+            if(!gameOver) requestAnimationFrame(drop);
+        }
+
+        function move(dir){ if(dir === 1) p.moveRight(); else p.moveLeft(); }
+        function rotate(){ p.rotate(); }
+        function resetGame(){
+            board = []; initBoard(); score = 0; gameOver = false;
+            document.getElementById('gameOver').style.display = "none";
+            document.getElementById('score').innerText = "0";
+            p = randomPiece();
+            drop();
+        }
+        
         function getTransferCode() {
-            let val = score > 0 ? score : 50; 
-            let hex = (val * 13).toString(16).toUpperCase(); 
-            let code = `FNK-${hex}-${Math.floor(Math.random()*999)}`;
-            document.getElementById('bankCodeDisplay').innerText = code; 
-            document.getElementById('bankCodeDisplay').style.display = 'block'; score = 0;
+            if(score < 50) { alert("En az 50 puan gerekli."); return; }
+            let val = score; let hex = (val * 13).toString(16).toUpperCase(); 
+            let rnd = Math.floor(Math.random() * 9999);
+            let code = `FNK-${hex}-${rnd}`;
+            let box = document.getElementById('bankCode');
+            box.innerText = code; box.style.display = 'block';
+            score = 0; document.getElementById('score').innerText = 0;
         }
-        draw();
+
+        drop();
+        
+        // Klavye Kontrolleri
+        document.addEventListener("keydown", function(event){
+            if(event.keyCode == 37) p.moveLeft();
+            else if(event.keyCode == 38) p.rotate();
+            else if(event.keyCode == 39) p.moveRight();
+            else if(event.keyCode == 40) p.moveDown();
+        });
     </script>
 </body>
 </html>
@@ -225,7 +438,6 @@ if not st.session_state.logged_in:
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
         tab_log, tab_reg = st.tabs(["Giriş Yap", "Kayıt Ol (Öğrenci)"])
-        
         with tab_log:
             with st.form("login"):
                 u = st.text_input("Kullanıcı Adı")
@@ -261,6 +473,12 @@ else:
         st.title(st.session_state.username)
         st.caption(f"Yetki: {st.session_state.user_role}")
         
+        with st.expander("📬 Mesaj Kutusu"):
+            msgs = database.get_my_messages(st.session_state.username)
+            if msgs:
+                for m in msgs: st.info(f"**{m[1]}**: {m[2]}\n\n*{m[3]}*")
+            else: st.caption("Kutunuz boş.")
+
         if st.session_state.user_role == "student":
             code = st.text_input("Sınıf Kodu", placeholder="Örn: 1234")
             if st.button("Sınıfa Geç"):
@@ -371,19 +589,14 @@ else:
         # 2. SOSYAL & SOHBET
         with t2:
             st.subheader("💬 Sosyal Ağ")
-            
-            # Alt Sekmeler: Sohbet, İstekler, Ekle
             st_chat, st_req, st_add = st.tabs(["Sohbet Et", "Arkadaş İstekleri", "Öğrenci Ekle"])
             
             with st_chat:
-                # Arkadaşları Listele
                 friends = database.get_friends(st.session_state.username)
-                # Öğretmenler ve Admin her zaman sohbete açık olsun
-                if st.session_state.user_role == 'student':
-                    friends.append("admin") 
+                if st.session_state.user_role == 'student': friends.append("admin") 
                 
                 if not friends:
-                    st.info("Henüz arkadaşın yok. 'Öğrenci Ekle' sekmesinden arkadaş ekle!")
+                    st.info("Henüz arkadaşın yok.")
                 else:
                     target = st.selectbox("Kiminle konuşmak istersin?", friends)
                     render_chat(target)
@@ -398,21 +611,18 @@ else:
                             database.accept_request(sender, st.session_state.username)
                             st.success(f"{sender} ile artık arkadaşsınız!")
                             st.rerun()
-                else:
-                    st.caption("Bekleyen istek yok.")
+                else: st.caption("Bekleyen istek yok.")
             
             with st_add:
                 st.markdown("Okuldaki diğer öğrencileri bul ve ekle.")
                 searchable = database.get_searchable_students(st.session_state.username)
-                
                 if searchable:
                     target_student = st.selectbox("Öğrenci Seç", searchable)
                     if st.button("Takip İsteği Gönder"):
                         res, msg = database.send_friend_request(st.session_state.username, target_student)
                         if res: st.success(msg)
                         else: st.warning(msg)
-                else:
-                    st.info("Eklenebilecek kimse bulunamadı.")
+                else: st.info("Eklenebilecek kimse bulunamadı.")
 
         # 3. DERSLER (TYT / MESLEK / JSON)
         with t3:
