@@ -1,6 +1,6 @@
 import sqlite3
 import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def connect():
     return sqlite3.connect('education_platform.db', check_same_thread=False)
@@ -8,18 +8,34 @@ def connect():
 def create_database():
     conn = connect()
     cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT)''')
-    cursor.execute('''CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)''')
-    cursor.execute('''CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)''')
+    
+    # Kullanıcılar Tablosu (last_seen eklendi)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users
+        (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT)
+    ''')
+    
+    # Duyurular
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS announcements
+        (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)
+    ''')
+    
+    # Mesajlar Tablosu (YENİ)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS messages
+        (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)
+    ''')
+    
     conn.commit()
     conn.close()
 
+# --- KULLANICI İŞLEMLERİ ---
 def add_user(username, password, role):
     conn = connect()
-    cursor = conn.cursor()
-    hashed_password = hashlib.sha256(password.encode()).hexdigest()
     try:
-        cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (username, hashed_password, role))
+        hashed = hashlib.sha256(password.encode()).hexdigest()
+        conn.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (username, hashed, role))
         conn.commit()
         return True
     except sqlite3.IntegrityError:
@@ -29,56 +45,75 @@ def add_user(username, password, role):
 
 def login_user(username, password):
     conn = connect()
-    cursor = conn.cursor()
-    hashed_password = hashlib.sha256(password.encode()).hexdigest()
-    cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, hashed_password))
+    hashed = hashlib.sha256(password.encode()).hexdigest()
+    cursor = conn.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, hashed))
     user = cursor.fetchone()
     conn.close()
     return user
 
 def get_all_users():
     conn = connect()
-    c = conn.cursor()
-    c.execute("SELECT username, role FROM users")
-    return c.fetchall()
+    users = conn.execute("SELECT username, role, last_seen FROM users").fetchall()
+    conn.close()
+    return users
 
 def delete_user(username):
     conn = connect()
-    c = conn.cursor()
-    c.execute("DELETE FROM users WHERE username = ?", (username,))
+    conn.execute("DELETE FROM users WHERE username = ?", (username,))
     conn.commit()
     conn.close()
 
-def get_students():
+# --- AKTİVİTE VE MESAJLAŞMA (YENİ) ---
+def update_activity(username):
+    """Kullanıcının son görülme zamanını günceller"""
     conn = connect()
-    c = conn.cursor()
-    c.execute("SELECT username FROM users WHERE role = 'student'")
-    return [row[0] for row in c.fetchall()]
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    conn.execute("UPDATE users SET last_seen = ? WHERE username = ?", (now, username))
+    conn.commit()
+    conn.close()
 
+def get_online_users(minutes_threshold=5):
+    """Son X dakikada aktif olan kullanıcıları getirir"""
+    conn = connect()
+    cursor = conn.cursor()
+    # SQLite'da tarih karşılaştırması string üzerinden yapılır, Python tarafında filtrelemek daha güvenlidir.
+    cursor.execute("SELECT username, role, last_seen FROM users WHERE last_seen IS NOT NULL")
+    all_users = cursor.fetchall()
+    conn.close()
+    
+    online_users = []
+    now = datetime.now()
+    for u in all_users:
+        try:
+            last_seen = datetime.strptime(u[2], "%Y-%m-%d %H:%M:%S")
+            if now - last_seen < timedelta(minutes=minutes_threshold):
+                online_users.append({"username": u[0], "role": u[1], "time": u[2]})
+        except: pass
+    return online_users
+
+def send_message(sender, receiver, message):
+    conn = connect()
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    conn.execute("INSERT INTO messages (sender, receiver, message, timestamp) VALUES (?, ?, ?, ?)", (sender, receiver, message, now))
+    conn.commit()
+    conn.close()
+
+def get_my_messages(username):
+    conn = connect()
+    msgs = conn.execute("SELECT sender, message, timestamp FROM messages WHERE receiver = ? ORDER BY id DESC", (username,)).fetchall()
+    conn.close()
+    return msgs
+
+# --- DUYURULAR ---
 def add_announcement(title, content, author):
     conn = connect()
-    c = conn.cursor()
     date = datetime.now().strftime("%Y-%m-%d %H:%M")
-    c.execute("INSERT INTO announcements (title, content, date, author) VALUES (?, ?, ?, ?)", (title, content, date, author))
+    conn.execute("INSERT INTO announcements (title, content, date, author) VALUES (?, ?, ?, ?)", (title, content, date, author))
     conn.commit()
     conn.close()
 
 def get_announcements():
     conn = connect()
-    c = conn.cursor()
-    c.execute("SELECT * FROM announcements ORDER BY id DESC")
-    return c.fetchall()
-
-def add_grade(student_username, lesson, grade):
-    conn = connect()
-    c = conn.cursor()
-    date = datetime.now().strftime("%Y-%m-%d")
-    c.execute("INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)", (student_username, lesson, grade, date))
-    conn.commit()
+    anns = conn.execute("SELECT * FROM announcements ORDER BY id DESC").fetchall()
     conn.close()
-
-def get_student_grades(student_username):
-    conn = connect()
-    c = conn.cursor()
-    c.execute("SELECT lesson, grade, date FROM grades WHERE student_username = ?", (student_username,))
-    return c.fetchall()
+    return anns
