@@ -1,0 +1,144 @@
+{
+  "9. Sınıf": {
+    "Temel Muhasebe": [
+      {
+        "type": "test",
+        "question": "İşletmenin sahip olduğu varlıklar ile bu varlıkların sağlandığı kaynakları gösteren tabloya ne denir?",
+        "options": ["Gelir Tablosu", "Bilanço", "Mizan", "Yevmiye Defteri"],
+        "answer": "Bilanço",
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "Muhasebenin temel denkliği nedir? (Formülü yazınız: Varlıklar = ... + ...)",
+        "answer": "Sermaye + Borçlar",
+        "keywords": ["sermaye", "borç", "özkaynak"],
+        "points": 10
+      }
+    ],
+    "Mesleki Gelişim Atölyesi": [
+      {
+        "type": "test",
+        "question": "Aşağıdakilerden hangisi etkili iletişimin unsurlarından biridir?",
+        "options": ["Empati", "Önyargı", "Emir verme", "Suçlama"],
+        "answer": "Empati",
+        "points": 10
+      }
+    ],
+    "Mesleki Matematik": [
+      {
+        "type": "text",
+        "question": "Bir ürünün KDV hariç fiyatı 100 TL'dir. %20 KDV dahil fiyatı kaç TL eder?",
+        "answer": "120",
+        "points": 10
+      }
+    ]
+  },
+  "10. Sınıf": {
+    "Temel Hukuk": [
+      {
+        "type": "test",
+        "question": "Hukuk kurallarına aykırı davranış sonucunda karşılaşılan tepkiye ne denir?",
+        "options": ["Yaptırım (Müeyyide)", "Örf", "Ahlak", "Görgü"],
+        "answer": "Yaptırım (Müeyyide)",
+        "points": 10
+      }
+    ],
+    "Ekonomi": [
+      {
+        "type": "test",
+        "question": "İnsan ihtiyaçlarının sınırsız, kaynakların sınırlı olması durumuna ne ad verilir?",
+        "options": ["Enflasyon", "Kıtlık", "Deflasyon", "Devalüasyon"],
+        "answer": "Kıtlık",
+        "points": 10
+      }
+    ],
+    "Genel Muhasebe": [
+      {
+        "type": "text",
+        "question": "Kasa hesabının kodu nedir?",
+        "answer": "100",
+        "points": 10
+      }
+    ]
+  },
+  "11. Sınıf": {
+    "İş ve Sosyal Güvenlik Hukuku": [
+      {
+        "type": "scenario",
+        "text": "SENARYO: Söke Organize Sanayi Bölgesi'nde faaliyet gösteren 'Ege Tekstil A.Ş.' fabrikasının sahibi Ali Bey'dir. Ali Bey işlerin yoğunluğu nedeniyle fabrikanın tüm yönetimini Genel Müdür Ayşe Hanım'a bırakmıştır. Fabrikada işçi olarak çalışan Mehmet Bey, iş çıkışı fabrikanın servis aracına binerken ayağını burkup yaralanmıştır.",
+        "sub_questions": [
+          {"q": "Hukuken asıl İşveren kimdir?", "a": "Ege Tekstil A.Ş."},
+          {"q": "İşveren Vekili kimdir?", "a": "Ayşe Hanım"},
+          {"q": "Servis aracı işyeri sınırına dahil midir? (Evet/Hayır)", "a": "Evet"}
+        ],
+        "points": 30
+      },
+      {
+        "type": "calculation",
+        "text": "FAZLA ÇALIŞMA: Mehmet Bey haftada 50 saat çalışmıştır (Normal: 45 saat). Saatlik ücreti 200 TL'dir.",
+        "inputs": [
+          {"label": "Kaç saat fazla çalışma?", "correct": 5},
+          {"label": "1 Saatlik Zamlı (%50) Ücret (TL)?", "correct": 300},
+          {"label": "Toplam Fazla Çalışma Ücreti (TL)?", "correct": 1500}
+        ],
+        "points": 30
+      }
+    ],
+    "Maliyet Muhasebesi": [
+      {
+        "type": "scenario",
+        "text": "GİDER DAĞITIMI: Lale Konfeksiyon yemek gideri (20.000 TL) personel sayısına göre, temizlik gideri (30.000 TL) alana göre dağıtılacaktır. Kesim: 60 kişi, Dikim: 600 m2 (Toplam Alan: 1500 m2, Toplam Personel: 200).",
+        "sub_questions": [
+           {"q": "Kesim Bölümü Yemek Payı (TL)?", "a": "6000"},
+           {"q": "Dikim Bölümü Temizlik Payı (TL)?", "a": "12000"}
+        ],
+        "points": 20
+      },
+       {
+        "type": "text",
+        "question": "Stok değerlemede 'İlk Giren İlk Çıkar' yönteminin kısaltması nedir?",
+        "answer": "FIFO",
+        "points": 10
+      }
+    ],
+    "Şirketler Muhasebesi": [
+       {
+        "type": "test",
+        "question": "Sermaye şirketlerinde ortakların sorumluluğu nasıldır?",
+        "options": ["Sınırsız", "Koydukları sermaye ile sınırlı", "Sorumlulukları yoktur", "Devlete karşı sorumludurlar"],
+        "answer": "Koydukları sermaye ile sınırlı",
+        "points": 10
+      }
+    ],
+    "Bilgisayarlı Muhasebe": [
+       {
+        "type": "test",
+        "question": "ETA veya LOGO programında yeni bir şirket açmak için hangi modül kullanılır?",
+        "options": ["Fatura", "Stok", "Sistem İşletmeni / Şirket İşlemleri", "Cari"],
+        "answer": "Sistem İşletmeni / Şirket İşlemleri",
+        "points": 10
+      }
+    ]
+  },
+  "12. Sınıf": {
+    "Bankacılık": [
+      {
+        "type": "test",
+        "question": "Bankalar arası para transferi sistemine ne ad verilir (Mesai saatleri içinde)?",
+        "options": ["EFT", "Havale", "Swift", "Virman"],
+        "answer": "EFT",
+        "points": 10
+      }
+    ],
+    "Finansal Okuryazarlık": [
+      {
+        "type": "test",
+        "question": "Gelir ve giderlerin planlandığı tabloya ne denir?",
+        "options": ["Bütçe", "Kredi", "Faiz", "Tasarruf"],
+        "answer": "Bütçe",
+        "points": 10
+      }
+    ]
+  }
+}
