@@ -10,7 +10,7 @@ import database
 from datetime import datetime
 
 # ==========================================
-# 1. SAYFA VE GENEL AYARLAR
+# 1. SAYFA AYARLARI
 # ==========================================
 st.set_page_config(
     page_title="Bağarası ÇPAL - Dijital Kampüs",
@@ -19,17 +19,15 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Veritabanını Başlat
 database.create_database()
 if not database.login_user("admin", "6626"):
     database.add_user("admin", "6626", "admin")
 
-# Aktivite Güncelleme
 if "logged_in" in st.session_state and st.session_state.logged_in:
     database.update_activity(st.session_state.username)
 
 # ==========================================
-# 2. SABİTLER VE VERİ KAYNAKLARI
+# 2. SABİTLER
 # ==========================================
 GITHUB_BASE_URL = "https://raw.githubusercontent.com/zulfikarsitaci-prog/s-navkamp-/main"
 URL_TYT_DATA = f"{GITHUB_BASE_URL}/tyt_data.json"
@@ -38,10 +36,10 @@ URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
 URL_LIFESIM = f"{GITHUB_BASE_URL}/lifesim_data.json"
 
 # ==========================================
-# 3. OYUN KODLARI (GÜNCELLENMİŞ VE TAMİR EDİLMİŞ)
+# 3. OYUN KODLARI
 # ==========================================
 
-# --- OYUN 1: FINANS İMPARATORU (Clicker) ---
+# --- FİNANS İMPARATORU ---
 FINANCE_GAME_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -110,7 +108,7 @@ FINANCE_GAME_HTML = """
 </html>
 """
 
-# --- OYUN 2: ASSET MATRIX (TAMİR EDİLMİŞ TETRIS) ---
+# --- OYUN 2: SOCRATIC ASSET MATRIX (8x8) ---
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -119,30 +117,31 @@ ASSET_MATRIX_HTML = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Socratic Asset Matrix</title>
     <style>
-        body { margin: 0; background-color: #050505; color: #fff; font-family: sans-serif; text-align: center; overflow: hidden; touch-action: none; }
-        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; }
-        .header { margin-top: 10px; display: flex; justify-content: space-between; width: 300px; }
-        .score-box { font-size: 18px; font-weight: bold; color: #FFD700; }
-        canvas { background: #111; border: 2px solid #333; box-shadow: 0 0 20px rgba(255,215,0,0.1); margin-top: 10px; }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+        body { margin: 0; overflow: hidden; background-color: #050505; color: #FFD700; font-family: 'Cinzel', serif; text-align: center; touch-action: none; }
+        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .header { margin-bottom: 10px; display: flex; justify-content: space-between; width: 300px; font-size:12px; }
+        .score-box { font-size: 20px; font-weight: bold; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        canvas { background: #111; border: 3px solid #FFD700; box-shadow: 0 0 30px rgba(255,215,0,0.2); }
         .controls { margin-top: 15px; display: flex; gap: 20px; }
-        .ctrl-btn { width: 60px; height: 60px; background: #333; border: 1px solid #555; border-radius: 50%; color: white; font-size: 24px; cursor: pointer; user-select: none; }
-        .ctrl-btn:active { background: #555; transform: scale(0.95); }
-        .bank-btn { position: absolute; top: 10px; right: 10px; background: #10b981; border: none; padding: 5px 10px; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; z-index: 100; }
-        #bankCode { position: absolute; top: 40px; right: 10px; background: white; color: black; padding: 5px; display: none; font-weight: bold; z-index: 100; }
-        #gameOver { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 20px; border: 2px solid #FF4444; display: none; }
+        .ctrl-btn { width: 60px; height: 60px; background: #222; border: 1px solid #FFD700; border-radius: 50%; color: #FFD700; font-size: 24px; cursor: pointer; user-select: none; }
+        .ctrl-btn:active { background: #444; transform: scale(0.95); }
+        .bank-btn { position: absolute; top: 10px; right: 10px; background: #FFD700; border: none; padding: 5px 15px; border-radius: 5px; color: #000; font-weight: bold; cursor: pointer; z-index: 100; font-family: 'Cinzel', serif; }
+        #bankCode { position: absolute; top: 40px; right: 10px; background: #111; border:1px solid #FFD700; color: #FFD700; padding: 5px; display: none; font-weight: bold; z-index: 100; }
+        #gameOver { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); padding: 30px; border: 2px solid #FFD700; display: none; z-index:200; }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <button class="bank-btn" onclick="getTransferCode()">🏦 BANKA</button>
+        <button class="bank-btn" onclick="getTransferCode()">🏦 HAZİNE</button>
         <div id="bankCode"></div>
         
         <div class="header">
-            <div class="score-box">PUAN: <span id="score">0</span></div>
+            <div class="score-box">VARLIK: <span id="score">0</span></div>
             <div class="score-box" style="color:#aaa">SEVİYE: <span id="level">1</span></div>
         </div>
         
-        <canvas id="gameCanvas" width="300" height="500"></canvas>
+        <canvas id="gameCanvas" width="320" height="320"></canvas>
         
         <div class="controls">
             <button class="ctrl-btn" onmousedown="move(-1)" ontouchstart="move(-1)">⬅️</button>
@@ -152,22 +151,28 @@ ASSET_MATRIX_HTML = """
         </div>
 
         <div id="gameOver">
-            <h2 style="color:#ff4444">OYUN BİTTİ</h2>
-            <button onclick="resetGame()" style="padding:10px 20px; cursor:pointer;">Tekrar Oyna</button>
+            <h2 style="color:#FFD700">İFLAS ETTİNİZ</h2>
+            <p>Bilgi, tek gerçek hazinedir.</p>
+            <p>Son Değer: <span id="finalScore" style="color:#fff; font-weight:bold;">$0</span></p>
+            <button onclick="resetGame()" style="padding:10px 20px; cursor:pointer; background:#FFD700; border:none; font-weight:bold;">YENİDEN DENE</button>
         </div>
     </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const ROW = 20, COL = 12, SQ = 25;
+        
+        // 8x8 GRID AYARI
+        const ROW = 8;
+        const COL = 8;
+        const SQ = 40; // Hücre boyutu büyütüldü
         const VACANT = "#111";
         
         let board = [], score = 0, level = 1, gameOver = false;
         let dropStart = Date.now();
         
         const PIECES = [
-            [Z, "red"], [S, "green"], [T, "yellow"], [O, "blue"], [L, "purple"], [I, "cyan"], [J, "orange"]
+            [Z, "#FF4444"], [S, "#44FF44"], [T, "#FFFF44"], [O, "#44FFFF"], [L, "#FF44FF"], [I, "#4444FF"], [J, "#FFAA44"]
         ];
         
         const Z = [[[1,1,0],[0,1,1],[0,0,0]], [[0,0,1],[0,1,1],[0,1,0]], [[0,0,0],[1,1,0],[0,1,1]], [[0,1,0],[1,1,0],[1,0,0]]];
@@ -191,8 +196,14 @@ ASSET_MATRIX_HTML = """
         function drawSquare(x,y,color){
             ctx.fillStyle = color;
             ctx.fillRect(x*SQ, y*SQ, SQ, SQ);
-            ctx.strokeStyle = "#333";
+            ctx.strokeStyle = "#000";
             ctx.strokeRect(x*SQ, y*SQ, SQ, SQ);
+            // Sokratik Altın Çerçeve Efekti
+            if(color !== VACANT) {
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = "rgba(255, 215, 0, 0.5)";
+                ctx.strokeRect(x*SQ+2, y*SQ+2, SQ-4, SQ-4);
+            }
         }
 
         function drawBoard(){
@@ -309,7 +320,7 @@ ASSET_MATRIX_HTML = """
                         for(let c = 0; c < COL; c++) board[y][c] = board[y-1][c];
                     }
                     for(let c = 0; c < COL; c++) board[0][c] = VACANT;
-                    score += 10;
+                    score += 50;
                     document.getElementById('score').innerText = score;
                 }
             }
@@ -348,7 +359,7 @@ ASSET_MATRIX_HTML = """
 
         drop();
         
-        // Klavye Kontrolleri
+        // Klavye
         document.addEventListener("keydown", function(event){
             if(event.keyCode == 37) p.moveLeft();
             else if(event.keyCode == 38) p.rotate();
@@ -438,6 +449,7 @@ if not st.session_state.logged_in:
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
         tab_log, tab_reg = st.tabs(["Giriş Yap", "Kayıt Ol (Öğrenci)"])
+        
         with tab_log:
             with st.form("login"):
                 u = st.text_input("Kullanıcı Adı")
@@ -487,25 +499,35 @@ else:
                 st.success(f"Sınıf: {code}"); time.sleep(0.5); st.rerun()
         if st.button("Çıkış"): st.session_state.logged_in = False; st.rerun()
 
-    # --- SOHBET ARAYÜZÜ FONKSİYONU ---
+    # --- SOHBET FONKSİYONLARI ---
     def render_chat(other_user):
         if not other_user: return
         st.markdown(f"### 💬 {other_user} ile Sohbet")
-        
-        # Geçmiş Mesajlar
         messages = database.get_conversation(st.session_state.username, other_user)
         for sender, msg, timestamp in messages:
             with st.chat_message("user" if sender == st.session_state.username else "assistant"):
                 st.write(msg)
                 st.caption(f"{sender} - {timestamp}")
         
-        # Yeni Mesaj
         if prompt := st.chat_input("Mesaj yaz..."):
             database.send_message(st.session_state.username, other_user, prompt)
             st.rerun()
-        
-        # Okundu İşaretle
         database.mark_messages_as_read(st.session_state.username, other_user)
+
+    def render_global_chat():
+        st.markdown("### 🌍 Kampüs Meydanı (Genel Sohbet)")
+        msgs = database.get_global_messages(30) # Son 30 mesaj
+        
+        # Mesajları göster
+        for m in msgs:
+            # m: (sender, message, timestamp)
+            with st.chat_message("assistant" if m[0] != st.session_state.username else "user", avatar="👤"):
+                st.markdown(f"**{m[0]}**: {m[1]}")
+                st.caption(m[2])
+        
+        if prompt := st.chat_input("Meydana seslen..."):
+            database.send_global_message(st.session_state.username, prompt)
+            st.rerun()
 
     # --- ADMIN PANELİ ---
     if st.session_state.user_role == "admin":
@@ -557,7 +579,7 @@ else:
             st.divider()
 
         st.header(f"Merhaba, {st.session_state.username}")
-        t1, t2, t3, t4, t5 = st.tabs(["🏆 Kampüs", "💬 Sosyal & Sohbet", "📚 Dersler", "🎮 Oyunlar", "💼 LifeSim"])
+        t1, t2, t3, t4, t5 = st.tabs(["🏆 Kampüs", "💬 İletişim", "📚 Dersler", "🎮 Oyunlar", "💼 LifeSim"])
         
         # 1. KAMPÜS
         with t1:
@@ -586,22 +608,24 @@ else:
                 st.subheader("Sıralama")
                 st.dataframe(server.get_leaderboard(st.session_state.class_code), use_container_width=True)
 
-        # 2. SOSYAL & SOHBET
+        # 2. İLETİŞİM (GENEL VE ÖZEL)
         with t2:
-            st.subheader("💬 Sosyal Ağ")
-            st_chat, st_req, st_add = st.tabs(["Sohbet Et", "Arkadaş İstekleri", "Öğrenci Ekle"])
+            sub_global, sub_private, sub_req, sub_add = st.tabs(["🌍 Genel Sohbet", "🔒 Özel Mesajlar", "Arkadaş İstekleri", "Öğrenci Ekle"])
             
-            with st_chat:
+            with sub_global:
+                render_global_chat()
+
+            with sub_private:
                 friends = database.get_friends(st.session_state.username)
                 if st.session_state.user_role == 'student': friends.append("admin") 
                 
                 if not friends:
-                    st.info("Henüz arkadaşın yok.")
+                    st.info("Henüz arkadaşın yok. 'Öğrenci Ekle' sekmesinden arkadaş ekle!")
                 else:
                     target = st.selectbox("Kiminle konuşmak istersin?", friends)
                     render_chat(target)
             
-            with st_req:
+            with sub_req:
                 pending = database.get_pending_requests(st.session_state.username)
                 if pending:
                     for req_id, sender in pending:
@@ -613,7 +637,7 @@ else:
                             st.rerun()
                 else: st.caption("Bekleyen istek yok.")
             
-            with st_add:
+            with sub_add:
                 st.markdown("Okuldaki diğer öğrencileri bul ve ekle.")
                 searchable = database.get_searchable_students(st.session_state.username)
                 if searchable:
@@ -629,7 +653,6 @@ else:
             ders_modu = st.radio("Çalışma Alanı Seçiniz:", ["TYT Çalışma", "Meslek Soruları", "Okul Yazılıları (JSON)"], horizontal=True)
             st.divider()
 
-            # --- TYT ---
             if ders_modu == "TYT Çalışma":
                 tyt_data = fetch_json_data(URL_TYT_DATA)
                 if tyt_data:
@@ -653,7 +676,6 @@ else:
                                     st.success(f"Puan: {sc}")
                                     if sc>0: server.join_or_update_student(st.session_state.class_code, st.session_state.username, sc)
 
-            # --- MESLEK ---
             elif ders_modu == "Meslek Soruları":
                 m_data = fetch_json_data(URL_MESLEK_SORULAR)
                 if m_data:
@@ -676,7 +698,6 @@ else:
                                         st.success(f"Puan: {pm}")
                                         if pm>0: server.join_or_update_student(st.session_state.class_code, st.session_state.username, pm)
 
-            # --- JSON ---
             elif ders_modu == "Okul Yazılıları (JSON)":
                 EXAM_DATA = load_local_exams()
                 if not EXAM_DATA: st.warning("exams.json yok!")
@@ -699,7 +720,7 @@ else:
                                 if st.form_submit_button("Bitir"):
                                     score = 0
                                     for i, q in enumerate(qs):
-                                        score += q.get('points', 0) # Demo puanlama
+                                        score += q.get('points', 0) 
                                     st.success(f"Sınav Bitti. Puan: {score}")
                                     server.join_or_update_student(st.session_state.class_code, st.session_state.username, score)
 
