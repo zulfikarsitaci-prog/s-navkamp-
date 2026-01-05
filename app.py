@@ -6,11 +6,11 @@ import json
 import os
 import time
 import random
-import database  # database.py dosyası yaninda olmalı
+import database
 from datetime import datetime
 
 # ==========================================
-# 1. SAYFA VE VERİTABANI AYARLARI
+# 1. SAYFA AYARLARI
 # ==========================================
 st.set_page_config(
     page_title="Bağarası ÇPAL - Dijital Kampüs",
@@ -19,6 +19,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Veritabanı Başlat
 database.create_database()
 if not database.login_user("admin", "6626"):
     database.add_user("admin", "6626", "admin")
@@ -36,11 +37,7 @@ URL_TYT_PDF = f"{GITHUB_BASE_URL}/tytson8.pdf"
 URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
 URL_LIFESIM = f"{GITHUB_BASE_URL}/lifesim_data.json"
 
-# ==========================================
-# 3. OYUN KODLARI (TAM VE ÇALIŞAN VERSİYONLAR)
-# ==========================================
-
-# --- OYUN 1: FINANS İMPARATORU (Clicker) ---
+# --- OYUN KODLARI (TAM VE ÇALIŞAN) ---
 FINANCE_GAME_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -109,7 +106,6 @@ FINANCE_GAME_HTML = """
 </html>
 """
 
-# --- OYUN 2: ASSET MATRIX (ORİJİNAL - Sürükle Bırak Tetris) ---
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -136,7 +132,13 @@ ASSET_MATRIX_HTML = """
         .bank-btn-overlay { position:absolute; top:10px; right:10px; z-index:100; }
         .mini-btn { background:#38bdf8; border:none; padding:5px 10px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer; color:#000; }
         #bankCodeDisplay { position:absolute; top:40px; right:10px; background:white; color:black; padding:5px; font-size:12px; font-weight:bold; display:none; z-index:101; border-radius:4px;}
+        .quiz-box { background: #111; border: 1px solid #333; padding: 30px; border-radius: 8px; max-width: 500px; box-shadow: 0 0 50px rgba(255, 215, 0, 0.1); }
+        .quiz-question { font-size: 1.2rem; color: #fff; margin-bottom: 20px; font-weight: 700; }
+        .quiz-option { display: block; width: 100%; padding: 15px; margin: 10px 0; background: #222; border: 1px solid #333; color: #ccc; cursor: pointer; transition: 0.3s; text-align: left; border-radius: 4px; }
+        .quiz-option:hover { background: #333; border-color: #666; }
+        .feedback-msg { margin-top: 15px; font-style: italic; color: #FFD700; min-height: 40px; }
         .hap-bilgi-list { text-align: left; background: #111; padding: 20px; border-radius: 8px; border-left: 4px solid #FFD700; margin-bottom: 20px; font-size: 0.85rem; color: #ddd; }
+        .hap-bilgi-list li { margin-bottom: 8px; }
     </style>
 </head>
 <body>
@@ -171,7 +173,6 @@ ASSET_MATRIX_HTML = """
         const GRID_SIZE = 8; let CELL_SIZE = 30; let BOARD_OFFSET_X = 0; let BOARD_OFFSET_Y = 0;
         const THEMES = [{ name: "GOLD (Birikim)", start: '#FFD700', end: '#C5A028' }, { name: "PURPLE (Kaldıraç)", start: '#D500F9', end: '#7B1FA2' }];
         let currentLevel = 0; let levelThreshold = 30; 
-        
         let grid = [], score = 0, availablePieces = [], draggingPiece = null, isGameOver = false;
         
         function resize() {
@@ -429,7 +430,6 @@ if not st.session_state.logged_in:
                         if user[3] == "student": server.join_or_update_student("GENEL", user[1], 0)
                         st.rerun()
                     else: st.error("Hatalı bilgi.")
-        
         with tab_reg:
             with st.form("reg"):
                 nu = st.text_input("Kullanıcı Adı")
@@ -452,12 +452,6 @@ else:
         st.title(st.session_state.username)
         st.caption(f"Yetki: {st.session_state.user_role}")
         
-        with st.expander("📬 Mesaj Kutusu"):
-            msgs = database.get_my_messages(st.session_state.username)
-            if msgs:
-                for m in msgs: st.info(f"**{m[1]}**: {m[2]}\n\n*{m[3]}*")
-            else: st.caption("Kutunuz boş.")
-
         if st.session_state.user_role == "student":
             code = st.text_input("Sınıf Kodu", placeholder="Örn: 1234")
             if st.button("Sınıfa Geç"):
@@ -466,11 +460,30 @@ else:
                 st.success(f"Sınıf: {code}"); time.sleep(0.5); st.rerun()
         if st.button("Çıkış"): st.session_state.logged_in = False; st.rerun()
 
-    # --- ADMIN ---
+    # --- SOHBET ARAYÜZÜ FONKSİYONU ---
+    def render_chat(other_user):
+        st.markdown(f"### 💬 {other_user} ile Sohbet")
+        messages = database.get_conversation(st.session_state.username, other_user)
+        
+        # Mesajları Göster
+        for sender, msg, timestamp in messages:
+            with st.chat_message("user" if sender == st.session_state.username else "assistant"):
+                st.markdown(f"**{sender}:** {msg}")
+                st.caption(timestamp)
+        
+        # Yeni Mesaj Gönder
+        if prompt := st.chat_input("Mesaj yaz..."):
+            database.send_message(st.session_state.username, other_user, prompt)
+            st.rerun()
+        
+        # Okundu İşaretle
+        database.mark_messages_as_read(st.session_state.username, other_user)
+
+    # --- ADMIN PANELİ ---
     if st.session_state.user_role == "admin":
         st.header("⚙️ Yönetim Paneli")
         
-        col_on, col_msg = st.columns([1, 1])
+        col_on, col_chat = st.columns([1, 2])
         with col_on:
             st.subheader("🟢 Online Kullanıcılar")
             online = database.get_online_users(5)
@@ -478,14 +491,12 @@ else:
             else: st.info("Kimse yok.")
             if st.button("Yenile"): st.rerun()
             
-        with col_msg:
-            st.subheader("💬 Mesaj Gönder")
+        with col_chat:
+            st.subheader("💬 Canlı Destek")
             all_users = [u[0] for u in database.get_all_users() if u[0] != "admin"]
-            target = st.selectbox("Kime:", all_users)
-            txt = st.text_area("Mesaj:")
-            if st.button("Gönder"):
-                database.send_message("Admin", target, txt)
-                st.success("İletildi")
+            target_user = st.selectbox("Sohbet Başlat:", all_users)
+            if target_user:
+                render_chat(target_user)
 
         st.divider()
         t1, t2 = st.tabs(["Kullanıcı Ekle", "Kullanıcı Sil"])
@@ -519,7 +530,7 @@ else:
             st.divider()
 
         st.header(f"Merhaba, {st.session_state.username}")
-        t1, t2, t3, t4 = st.tabs(["🏆 Kampüs", "📚 Dersler", "🎮 Oyunlar", "💼 LifeSim"])
+        t1, t2, t3, t4, t5 = st.tabs(["🏆 Kampüs", "💬 İletişim", "📚 Dersler", "🎮 Oyunlar", "💼 LifeSim"])
         
         # 1. KAMPÜS
         with t1:
@@ -548,8 +559,14 @@ else:
                 st.subheader("Sıralama")
                 st.dataframe(server.get_leaderboard(st.session_state.class_code), use_container_width=True)
 
-        # 2. DERSLER (TYT / MESLEK / JSON)
+        # 2. İLETİŞİM (YENİ SOHBET TABI)
         with t2:
+            st.info("Yönetici/Öğretmen ile canlı sohbet edebilirsin.")
+            # Varsayılan olarak Admin ile konuşur
+            render_chat("admin")
+
+        # 3. DERSLER (TYT / MESLEK / JSON)
+        with t3:
             ders_modu = st.radio("Çalışma Alanı Seçiniz:", ["TYT Çalışma", "Meslek Soruları", "Okul Yazılıları (JSON)"], horizontal=True)
             st.divider()
 
@@ -627,12 +644,12 @@ else:
                                     st.success(f"Sınav Bitti. Puan: {score}")
                                     server.join_or_update_student(st.session_state.class_code, st.session_state.username, score)
 
-        # 3. OYUNLAR
-        with t3:
+        # 4. OYUNLAR
+        with t4:
             gm = st.selectbox("Oyun", ["Finans İmparatoru", "Asset Matrix"])
-            if gm == "Finans İmparatoru": components.html(FINANCE_GAME_HTML, height=750)
+            if gm == "Finans İmparatoru": components.html(FINANCE_GAME_HTML, height=600)
             else: components.html(ASSET_MATRIX_HTML, height=750)
 
-        # 4. LIFESIM
-        with t4:
+        # 5. LIFESIM
+        with t5:
             components.html(load_lifesim(), height=800, scrolling=True)
