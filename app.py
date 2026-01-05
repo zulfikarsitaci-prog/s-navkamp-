@@ -9,171 +9,355 @@ import random
 import database
 from datetime import datetime
 
-st.set_page_config(page_title="Bağarası ÇPAL - Dijital Kampüs", page_icon="🎓", layout="wide", initial_sidebar_state="collapsed")
+# ==========================================
+# 1. SAYFA AYARLARI
+# ==========================================
+st.set_page_config(
+    page_title="Bağarası ÇPAL - Dijital Kampüs",
+    page_icon="🎓",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
+# Veritabanı Başlat
 database.create_database()
-if not database.login_user("admin", "6626"): database.add_user("admin", "6626", "admin")
-if "logged_in" in st.session_state and st.session_state.logged_in: database.update_activity(st.session_state.username)
+if not database.login_user("admin", "6626"):
+    database.add_user("admin", "6626", "admin")
 
+# Aktivite Güncelleme
+if "logged_in" in st.session_state and st.session_state.logged_in:
+    database.update_activity(st.session_state.username)
+
+# ==========================================
+# 2. SABİTLER VE OYUN KODLARI (DÜZELTİLMİŞ)
+# ==========================================
 GITHUB_BASE_URL = "https://raw.githubusercontent.com/zulfikarsitaci-prog/s-navkamp-/main"
 URL_TYT_DATA = f"{GITHUB_BASE_URL}/tyt_data.json"
 URL_TYT_PDF = f"{GITHUB_BASE_URL}/tytson8.pdf"
 URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
 URL_LIFESIM = f"{GITHUB_BASE_URL}/lifesim_data.json"
 
-# --- OYUN KODLARI ---
-FINANCE_GAME_HTML = """<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><style>body{background-color:#0f172a;color:#e2e8f0;font-family:sans-serif;text-align:center;margin:0;}.dashboard{display:flex;justify-content:space-between;background:#1e293b;padding:15px;border-radius:12px;margin-bottom:20px;}.clicker-btn{background:radial-gradient(circle,#3b82f6 0%,#1d4ed8 100%);width:110px;height:110px;border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer;}.asset-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;}.asset-card{background:#1e293b;padding:10px;border-radius:8px;border:1px solid #334155;cursor:pointer;}.asset-card:hover{border-color:#facc15;}</style></head><body><div class="dashboard"><div>NAKİT: <span id="money" style="color:#34d399;font-weight:bold;">0</span> ₺</div><div>GELİR: <span id="cps" style="color:#facc15">0.0</span> /sn</div></div><div class="clicker-btn" onclick="manualWork()">👆</div><div class="asset-grid" id="market"></div><button onclick="generateCode()" style="margin-top:10px;padding:10px;background:#10b981;border:none;color:white;border-radius:5px;cursor:pointer;">🏦 BANKA</button><div id="transferCode" style="margin-top:10px;background:white;color:black;padding:5px;display:none;"></div><script>let money=0;const assets=[{name:"Limonata",cost:150,gain:0.5,count:0},{name:"Simit",cost:1000,gain:3.5,count:0},{name:"Kantin",cost:5000,gain:15,count:0},{name:"Kırtasiye",cost:20000,gain:55,count:0},{name:"Fabrika",cost:1000000,gain:3500,count:0}];function updateUI(){document.getElementById('money').innerText=Math.floor(money).toLocaleString();let t=assets.reduce((a,b)=>a+(b.count*b.gain),0);document.getElementById('cps').innerText=t.toFixed(1);const m=document.getElementById('market');m.innerHTML='';assets.forEach((a,i)=>{let c=Math.floor(a.cost*Math.pow(1.2,a.count));let d=document.createElement('div');d.className='asset-card';d.onclick=()=>buy(i);d.innerHTML=`<b>${a.name}</b> (${a.count})<br><span style="color:#f87171">${c}</span><br><span style="color:#34d399">+${a.gain}</span>`;m.appendChild(d)})}function manualWork(){money+=1;updateUI()}function buy(i){let a=assets[i];let c=Math.floor(a.cost*Math.pow(1.2,a.count));if(money>=c){money-=c;a.count++;updateUI()}}function generateCode(){if(money<50){alert("50 TL lazim");return}let val=Math.floor(money);let c=`FNK-${(val*13).toString(16).toUpperCase()}-${Math.floor(Math.random()*999)}`;document.getElementById('transferCode').innerText=c;document.getElementById('transferCode').style.display='block';money=0;updateUI()}setInterval(()=>{let t=assets.reduce((a,b)=>a+(b.count*b.gain),0);if(t>0){money+=t;updateUI()}},1000);updateUI();</script></body></html>"""
-
-# --- ASSET MATRIX (8x8 Düzeltilmiş) ---
-ASSET_MATRIX_HTML = """
+# --- OYUN 1: FINANS İMPARATORU ---
+FINANCE_GAME_HTML = """
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
+<meta charset="UTF-8">
 <style>
-body { background: #000; color: #FFD700; font-family: sans-serif; text-align: center; overflow: hidden; }
-canvas { background: #111; border: 2px solid #FFD700; display: block; margin: 10px auto; }
-button { background: #333; color: #FFD700; border: 1px solid #FFD700; padding: 10px 20px; font-size: 18px; margin: 5px; cursor: pointer; border-radius: 5px; }
-button:active { background: #555; }
-#ui { display: flex; justify-content: space-between; width: 320px; margin: 0 auto; font-weight: bold; }
-#bankCode { background: white; color: black; padding: 5px; display: none; margin: 5px auto; width: 200px; }
+    body { background-color: #0f172a; color: #e2e8f0; font-family: sans-serif; user-select: none; padding: 10px; text-align: center; margin: 0; }
+    .dashboard { display: flex; justify-content: space-between; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px; }
+    .money-val { font-size: 22px; font-weight: 900; color: #34d399; }
+    .clicker-btn { background: radial-gradient(circle, #3b82f6 0%, #1d4ed8 100%); border: 4px solid #1e3a8a; border-radius: 50%; width: 110px; height: 110px; font-size: 30px; cursor: pointer; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+    .clicker-btn:active { transform: scale(0.95); }
+    .asset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 20px; }
+    .asset-card { background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #334155; cursor: pointer; transition: 0.2s; text-align: left; }
+    .asset-card:hover { border-color: #facc15; background: #253347; }
+    .asset-card.locked { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
+    .bank-btn { background: #10b981; color: #fff; border: none; padding: 8px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+    .code-display { background: #fff; color: #000; padding: 5px; margin-top: 5px; font-family: monospace; font-weight: bold; display: none; border-radius: 4px; }
 </style>
 </head>
 <body>
-<div id="ui"><span>VARLIK: <span id="score">0</span></span><span>SEVİYE: <span id="level">1</span></span></div>
-<canvas id="gameCanvas" width="320" height="320"></canvas>
-<div>
-  <button onmousedown="move(-1)">⬅️</button>
-  <button onmousedown="rotate()">🔄</button>
-  <button onmousedown="move(1)">➡️</button>
-  <button onmousedown="drop()">⬇️</button>
+<div class="dashboard">
+    <div>NAKİT: <div id="money" class="money-val">0 ₺</div></div>
+    <div>GELİR: <div id="cps" style="color:#facc15">0.0 /sn</div></div>
 </div>
-<button onclick="getTransferCode()" style="background:#FFD700; color:#000;">🏦 HAZİNE</button>
-<div id="bankCode"></div>
-
+<div class="clicker-btn" onclick="manualWork()">👆</div>
+<div class="asset-grid" id="market"></div>
+<button class="bank-btn" onclick="generateCode()">🏦 Bankaya Aktar</button>
+<div id="transferCode" class="code-display"></div>
 <script>
-const cvs = document.getElementById("gameCanvas");
-const ctx = cvs.getContext("2d");
-const ROW = 8, COL = 8, SQ = 40, VACANT = "#111";
-let board = [], score = 0;
+    let money = 0;
+    const assets = [
+        { name: "Limonata", cost: 150, gain: 0.5, count: 0 }, { name: "Simit Tezgahı", cost: 1000, gain: 3.5, count: 0 },
+        { name: "Kantin", cost: 5000, gain: 15.0, count: 0 }, { name: "Kırtasiye", cost: 20000, gain: 55.0, count: 0 },
+        { name: "Yazılım Ofisi", cost: 80000, gain: 200.0, count: 0 }, { name: "Fabrika", cost: 1000000, gain: 3500.0, count: 0 }
+    ];
+    function updateUI() {
+        document.getElementById('money').innerText = Math.floor(money).toLocaleString() + ' ₺';
+        let totalCps = assets.reduce((t, a) => t + (a.count * a.gain), 0);
+        document.getElementById('cps').innerText = totalCps.toFixed(1) + ' /sn';
+        const market = document.getElementById('market'); market.innerHTML = '';
+        assets.forEach((asset, index) => {
+            let currentCost = Math.floor(asset.cost * Math.pow(1.2, asset.count));
+            let div = document.createElement('div');
+            div.className = 'asset-card ' + (money >= currentCost ? '' : 'locked');
+            div.onclick = () => buyAsset(index);
+            div.innerHTML = `<b>${asset.name}</b> (${asset.count})<br><span style="color:#f87171">${currentCost.toLocaleString()} ₺</span><br><span style="color:#34d399">+${asset.gain}/sn</span>`;
+            market.appendChild(div);
+        });
+    }
+    function manualWork() { money += 1; updateUI(); }
+    function buyAsset(index) {
+        let asset = assets[index]; let currentCost = Math.floor(asset.cost * Math.pow(1.2, asset.count));
+        if (money >= currentCost) { money -= currentCost; asset.count++; updateUI(); }
+    }
+    function generateCode() {
+        if (money < 50) { alert("En az 50 ₺ birikmeli."); return; }
+        let val = Math.floor(money); let hex = (val * 13).toString(16).toUpperCase(); 
+        let rnd = Math.floor(Math.random() * 9999);
+        let code = `FNK-${hex}-${rnd}`;
+        let box = document.getElementById('transferCode'); box.innerText = code; box.style.display = 'block'; money = 0; updateUI();
+    }
+    setInterval(() => { let totalCps = assets.reduce((t, a) => t + (a.count * a.gain), 0); if (totalCps > 0) { money += totalCps; updateUI(); } }, 1000);
+    updateUI();
+</script>
+</body>
+</html>
+"""
 
-for(let r=0; r<ROW; r++){ board[r] = []; for(let c=0; c<COL; c++){ board[r][c] = VACANT; } }
+# --- OYUN 2: SOCRATIC ASSET MATRIX (DÜZELTİLMİŞ) ---
+ASSET_MATRIX_HTML = """
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Socratic Asset Matrix</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+        body { margin: 0; overflow: hidden; background-color: #050505; color: #FFD700; font-family: 'Cinzel', serif; text-align: center; touch-action: none; }
+        #game-container { position: relative; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .header { margin-bottom: 10px; display: flex; justify-content: space-between; width: 300px; font-size:12px; }
+        .score-box { font-size: 20px; font-weight: bold; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        canvas { background: #111; border: 3px solid #FFD700; box-shadow: 0 0 30px rgba(255,215,0,0.2); }
+        .controls { margin-top: 15px; display: flex; gap: 20px; }
+        .ctrl-btn { width: 60px; height: 60px; background: #222; border: 1px solid #FFD700; border-radius: 50%; color: #FFD700; font-size: 24px; cursor: pointer; user-select: none; }
+        .ctrl-btn:active { background: #444; transform: scale(0.95); }
+        .bank-btn { position: absolute; top: 10px; right: 10px; background: #FFD700; border: none; padding: 5px 15px; border-radius: 5px; color: #000; font-weight: bold; cursor: pointer; z-index: 100; font-family: 'Cinzel', serif; }
+        #bankCode { position: absolute; top: 40px; right: 10px; background: #111; border:1px solid #FFD700; color: #FFD700; padding: 5px; display: none; font-weight: bold; z-index: 100; }
+        #gameOver { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); padding: 30px; border: 2px solid #FFD700; display: none; z-index:200; }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <button class="bank-btn" onclick="getTransferCode()">🏦 HAZİNE</button>
+        <div id="bankCode"></div>
+        
+        <div class="header">
+            <div class="score-box">VARLIK: <span id="score">0</span></div>
+            <div class="score-box" style="color:#aaa">SEVİYE: <span id="level">1</span></div>
+        </div>
+        
+        <canvas id="gameCanvas" width="320" height="320"></canvas>
+        
+        <div class="controls">
+            <button class="ctrl-btn" onmousedown="move(-1)" ontouchstart="move(-1)">⬅️</button>
+            <button class="ctrl-btn" onmousedown="rotate()" ontouchstart="rotate()">🔄</button>
+            <button class="ctrl-btn" onmousedown="move(1)" ontouchstart="move(1)">➡️</button>
+            <button class="ctrl-btn" onmousedown="drop()" ontouchstart="drop()">⬇️</button>
+        </div>
 
-function drawSquare(x,y,color){
-    ctx.fillStyle = color; ctx.fillRect(x*SQ, y*SQ, SQ, SQ);
-    ctx.strokeStyle = "#000"; ctx.strokeRect(x*SQ, y*SQ, SQ, SQ);
-    if(color !== VACANT) { ctx.strokeStyle = "rgba(255,215,0,0.5)"; ctx.strokeRect(x*SQ+4, y*SQ+4, SQ-8, SQ-8); }
-}
+        <div id="gameOver">
+            <h2 style="color:#FFD700">İFLAS ETTİNİZ</h2>
+            <p>Bilgi, tek gerçek hazinedir.</p>
+            <button onclick="resetGame()" style="padding:10px 20px; cursor:pointer; background:#FFD700; border:none; font-weight:bold;">YENİDEN DENE</button>
+        </div>
+    </div>
 
-function drawBoard(){ for(let r=0; r<ROW; r++){ for(let c=0; c<COL; c++){ drawSquare(c, r, board[r][c]); } } }
-drawBoard();
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const ROW = 8;
+        const COL = 8;
+        const SQ = 40;
+        const VACANT = "#111";
+        
+        let board = [];
+        let score = 0;
+        let gameOver = false;
+        
+        // Şekilleri önce tanımlıyoruz (HATA BURADAYDI)
+        const Z = [[[1,1,0],[0,1,1],[0,0,0]], [[0,0,1],[0,1,1],[0,1,0]], [[0,0,0],[1,1,0],[0,1,1]], [[0,1,0],[1,1,0],[1,0,0]]];
+        const S = [[[0,1,1],[1,1,0],[0,0,0]], [[0,1,0],[0,1,1],[0,0,1]], [[0,0,0],[0,1,1],[1,1,0]], [[1,0,0],[1,1,0],[0,1,0]]];
+        const T = [[[0,1,0],[1,1,1],[0,0,0]], [[0,1,0],[0,1,1],[0,1,0]], [[0,0,0],[1,1,1],[0,1,0]], [[0,1,0],[1,1,0],[0,1,0]]];
+        const O = [[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]], [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]], [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]], [[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]]];
+        const L = [[[0,0,1],[1,1,1],[0,0,0]], [[0,1,0],[0,1,0],[0,1,1]], [[0,0,0],[1,1,1],[1,0,0]], [[1,1,0],[0,1,0],[0,1,0]]];
+        const I = [[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]], [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], [[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]], [[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]]];
+        const J = [[[1,0,0],[1,1,1],[0,0,0]], [[0,1,1],[0,1,0],[0,1,0]], [[0,0,0],[1,1,1],[0,0,1]], [[0,1,0],[0,1,0],[1,1,0]]];
 
-const PIECES = [ [Z,"#FF4444"], [S,"#44FF44"], [T,"#FFFF44"], [O,"#44FFFF"], [L,"#FF44FF"], [I,"#4444FF"], [J,"#FFAA44"] ];
-const Z=[[[1,1,0],[0,1,1],[0,0,0]],[[0,0,1],[0,1,1],[0,1,0]],[[0,0,0],[1,1,0],[0,1,1]],[[0,1,0],[1,1,0],[1,0,0]]];
-const S=[[[0,1,1],[1,1,0],[0,0,0]],[[0,1,0],[0,1,1],[0,0,1]],[[0,0,0],[0,1,1],[1,1,0]],[[1,0,0],[1,1,0],[0,1,0]]];
-const T=[[[0,1,0],[1,1,1],[0,0,0]],[[0,1,0],[0,1,1],[0,1,0]],[[0,0,0],[1,1,1],[0,1,0]],[[0,1,0],[1,1,0],[0,1,0]]];
-const O=[[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]],[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]],[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]],[[0,0,0,0],[0,1,1,0],[0,1,1,0],[0,0,0,0]]];
-const L=[[[0,0,1],[1,1,1],[0,0,0]],[[0,1,0],[0,1,0],[0,1,1]],[[0,0,0],[1,1,1],[1,0,0]],[[1,1,0],[0,1,0],[0,1,0]]];
-const I=[[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],[[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]],[[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]]];
-const J=[[[1,0,0],[1,1,1],[0,0,0]],[[0,1,1],[0,1,0],[0,1,0]],[[0,0,0],[1,1,1],[0,0,1]],[[0,1,0],[0,1,0],[1,1,0]]];
+        // Parçalar listesi (Tanımlardan sonra)
+        const PIECES = [
+            [Z, "#FF4444"], [S, "#44FF44"], [T, "#FFFF44"], [O, "#44FFFF"], [L, "#FF44FF"], [I, "#4444FF"], [J, "#FFAA44"]
+        ];
 
-let p = randomPiece();
-
-function randomPiece(){
-    let r = Math.floor(Math.random() * PIECES.length);
-    return new Piece(PIECES[r][0], PIECES[r][1]);
-}
-
-function Piece(tetromino, color){
-    this.tetromino = tetromino; this.color = color;
-    this.tetrominoN = 0; this.activeTetromino = this.tetromino[this.tetrominoN];
-    this.x = 2; this.y = -2;
-}
-
-Piece.prototype.fill = function(color){
-    for(let r=0; r<this.activeTetromino.length; r++){
-        for(let c=0; c<this.activeTetromino.length; c++){
-            if(this.activeTetromino[r][c]){ drawSquare(this.x+c, this.y+r, color); }
+        function initBoard() {
+            for(let r = 0; r < ROW; r++){
+                board[r] = [];
+                for(let c = 0; c < COL; c++){
+                    board[r][c] = VACANT;
+                }
+            }
         }
-    }
-}
+        initBoard();
 
-Piece.prototype.draw = function(){ this.fill(this.color); }
-Piece.prototype.unDraw = function(){ this.fill(VACANT); }
-
-Piece.prototype.moveDown = function(){
-    if(!this.collision(0,1,this.activeTetromino)){
-        this.unDraw(); this.y++; this.draw();
-    } else {
-        this.lock(); p = randomPiece();
-    }
-}
-Piece.prototype.moveRight = function(){ if(!this.collision(1,0,this.activeTetromino)){ this.unDraw(); this.x++; this.draw(); } }
-Piece.prototype.moveLeft = function(){ if(!this.collision(-1,0,this.activeTetromino)){ this.unDraw(); this.x--; this.draw(); } }
-Piece.prototype.rotate = function(){
-    let next = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
-    let kick = 0;
-    if(this.collision(0,0,next)){ kick = this.x > COL/2 ? -1 : 1; }
-    if(!this.collision(kick,0,next)){
-        this.unDraw(); this.x += kick;
-        this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length;
-        this.activeTetromino = this.tetromino[this.tetrominoN];
-        this.draw();
-    }
-}
-
-Piece.prototype.collision = function(x,y,piece){
-    for(let r=0; r<piece.length; r++){
-        for(let c=0; c<piece.length; c++){
-            if(!piece[r][c]) continue;
-            let nX = this.x + c + x; let nY = this.y + r + y;
-            if(nX < 0 || nX >= COL || nY >= ROW) return true;
-            if(nY < 0) continue;
-            if(board[nY][nX] != VACANT) return true;
+        function drawSquare(x,y,color){
+            ctx.fillStyle = color;
+            ctx.fillRect(x*SQ, y*SQ, SQ, SQ);
+            ctx.strokeStyle = "#000";
+            ctx.strokeRect(x*SQ, y*SQ, SQ, SQ);
+            if(color !== VACANT) {
+                ctx.strokeStyle = "rgba(255, 215, 0, 0.5)";
+                ctx.strokeRect(x*SQ+4, y*SQ+4, SQ-8, SQ-8);
+            }
         }
-    }
-    return false;
-}
 
-Piece.prototype.lock = function(){
-    for(let r=0; r<this.activeTetromino.length; r++){
-        for(let c=0; c<this.activeTetromino.length; c++){
-            if(!this.activeTetromino[r][c]) continue;
-            if(this.y + r < 0){ alert("Oyun Bitti"); board=[]; for(let r=0;r<ROW;r++){board[r]=[];for(let c=0;c<COL;c++) board[r][c]=VACANT;} score=0; }
-            board[this.y+r][this.x+c] = this.color;
+        function drawBoard(){
+            for(let r = 0; r < ROW; r++){
+                for(let c = 0; c < COL; c++){
+                    drawSquare(c, r, board[r][c]);
+                }
+            }
         }
-    }
-    for(let r=0; r<ROW; r++){
-        let isFull = true;
-        for(let c=0; c<COL; c++) isFull = isFull && (board[r][c] != VACANT);
-        if(isFull){
-            for(let y=r; y>1; y--){ for(let c=0; c<COL; c++) board[y][c] = board[y-1][c]; }
-            for(let c=0; c<COL; c++) board[0][c] = VACANT;
-            score += 50;
+
+        function randomPiece(){
+            let r = Math.floor(Math.random() * PIECES.length);
+            return new Piece(PIECES[r][0], PIECES[r][1]);
         }
-    }
-    document.getElementById("score").innerHTML = score;
-    drawBoard();
-}
 
-function drop(){ p.moveDown(); drawBoard(); }
-let dropStart = Date.now();
-function gameLoop(){
-    let now = Date.now();
-    if(now - dropStart > 1000){ p.moveDown(); dropStart = Date.now(); }
-    requestAnimationFrame(gameLoop);
-}
-gameLoop();
+        let p = randomPiece();
 
-function move(dir){ if(dir===1) p.moveRight(); else p.moveLeft(); }
-function rotate(){ p.rotate(); }
-function getTransferCode(){
-    if(score<50){ alert("En az 50 puan gerekli"); return; }
-    let c = `FNK-${(score*13).toString(16).toUpperCase()}-${Math.floor(Math.random()*999)}`;
-    document.getElementById('bankCode').innerText = c;
-    document.getElementById('bankCode').style.display='block';
-    score=0; document.getElementById("score").innerHTML = 0;
-}
-</script></body></html>
+        function Piece(tetromino, color){
+            this.tetromino = tetromino;
+            this.color = color;
+            this.tetrominoN = 0;
+            this.activeTetromino = this.tetromino[this.tetrominoN];
+            this.x = 2; // Ortadan başlasın (8x8 için 2 veya 3 uygun)
+            this.y = -2;
+        }
+
+        Piece.prototype.fill = function(color){
+            for(let r = 0; r < this.activeTetromino.length; r++){
+                for(let c = 0; c < this.activeTetromino.length; c++){
+                    if(this.activeTetromino[r][c]){
+                        drawSquare(this.x + c, this.y + r, color);
+                    }
+                }
+            }
+        }
+
+        Piece.prototype.draw = function(){ this.fill(this.color); }
+        Piece.prototype.unDraw = function(){ this.fill(VACANT); }
+
+        Piece.prototype.moveDown = function(){
+            if(!this.collision(0,1,this.activeTetromino)){
+                this.unDraw();
+                this.y++;
+                this.draw();
+            }else{
+                this.lock();
+                p = randomPiece();
+            }
+        }
+
+        Piece.prototype.moveRight = function(){
+            if(!this.collision(1,0,this.activeTetromino)){
+                this.unDraw();
+                this.x++;
+                this.draw();
+            }
+        }
+
+        Piece.prototype.moveLeft = function(){
+            if(!this.collision(-1,0,this.activeTetromino)){
+                this.unDraw();
+                this.x--;
+                this.draw();
+            }
+        }
+
+        Piece.prototype.rotate = function(){
+            let nextPattern = this.tetromino[(this.tetrominoN + 1) % this.tetromino.length];
+            let kick = 0;
+            if(this.collision(0,0,nextPattern)){
+                if(this.x > COL/2) kick = -1; else kick = 1;
+            }
+            if(!this.collision(kick,0,nextPattern)){
+                this.unDraw();
+                this.x += kick;
+                this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length;
+                this.activeTetromino = this.tetromino[this.tetrominoN];
+                this.draw();
+            }
+        }
+
+        Piece.prototype.collision = function(x,y,piece){
+            for(let r = 0; r < piece.length; r++){
+                for(let c = 0; c < piece.length; c++){
+                    if(!piece[r][c]) continue;
+                    let newX = this.x + c + x;
+                    let newY = this.y + r + y;
+                    if(newX < 0 || newX >= COL || newY >= ROW) return true;
+                    if(newY < 0) continue;
+                    if(board[newY][newX] != VACANT) return true;
+                }
+            }
+            return false;
+        }
+
+        Piece.prototype.lock = function(){
+            for(let r = 0; r < this.activeTetromino.length; r++){
+                for(let c = 0; c < this.activeTetromino.length; c++){
+                    if(!this.activeTetromino[r][c]) continue;
+                    if(this.y + r < 0){
+                        document.getElementById('gameOver').style.display = "block";
+                        gameOver = true;
+                        break;
+                    }
+                    board[this.y+r][this.x+c] = this.color;
+                }
+            }
+            for(let r = 0; r < ROW; r++){
+                let isRowFull = true;
+                for(let c = 0; c < COL; c++) isRowFull = isRowFull && (board[r][c] != VACANT);
+                if(isRowFull){
+                    for(let y = r; y > 1; y--){
+                        for(let c = 0; c < COL; c++) board[y][c] = board[y-1][c];
+                    }
+                    for(let c = 0; c < COL; c++) board[0][c] = VACANT;
+                    score += 50;
+                    document.getElementById('score').innerText = score;
+                }
+            }
+            drawBoard();
+        }
+
+        let dropStart = Date.now();
+        function drop(){
+            let now = Date.now();
+            let delta = now - dropStart;
+            if(delta > 1000){
+                p.moveDown();
+                dropStart = Date.now();
+            }
+            if(!gameOver) requestAnimationFrame(drop);
+        }
+
+        function move(dir){ if(dir === 1) p.moveRight(); else p.moveLeft(); }
+        function rotate(){ p.rotate(); }
+        
+        function resetGame(){
+            board = []; initBoard(); score = 0; gameOver = false;
+            document.getElementById('gameOver').style.display = "none";
+            document.getElementById('score').innerText = "0";
+            p = randomPiece();
+            drop();
+        }
+        
+        function getTransferCode() {
+            if(score < 50) { alert("En az 50 puan gerekli."); return; }
+            let val = score; let hex = (val * 13).toString(16).toUpperCase(); 
+            let rnd = Math.floor(Math.random() * 9999);
+            let code = `FNK-${hex}-${rnd}`;
+            document.getElementById('bankCode').innerText = code; 
+            document.getElementById('bankCode').style.display = 'block';
+            score = 0; document.getElementById('score').innerText = 0;
+        }
+
+        drop();
+    </script>
+</body>
+</html>
 """
 
 # ==========================================
@@ -190,7 +374,8 @@ def fetch_json_data(url):
 def load_local_exams():
     if os.path.exists("exams.json"):
         try:
-            with open("exams.json", "r", encoding="utf-8") as f: return json.load(f)
+            with open("exams.json", "r", encoding="utf-8") as f:
+                return json.load(f)
         except: return {}
     return {}
 
@@ -250,6 +435,7 @@ if not st.session_state.logged_in:
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
         tab_log, tab_reg = st.tabs(["Giriş Yap", "Kayıt Ol (Öğrenci)"])
+        
         with tab_log:
             with st.form("login"):
                 u = st.text_input("Kullanıcı Adı")
@@ -404,24 +590,28 @@ else:
                 st.subheader("Sıralama")
                 st.dataframe(server.get_leaderboard(st.session_state.class_code), use_container_width=True)
 
-        # 2. İLETİŞİM (GENEL VE ÖZEL)
+        # 2. SOSYAL & SOHBET
         with t2:
-            sub_global, sub_private, sub_req, sub_add = st.tabs(["🌍 Genel Sohbet", "🔒 Özel Mesajlar", "Arkadaş İstekleri", "Öğrenci Ekle"])
+            st.subheader("💬 Sosyal Ağ")
+            st_chat, st_req, st_add = st.tabs(["Sohbet Et", "Arkadaş İstekleri", "Öğrenci Ekle"])
             
-            with sub_global:
-                render_global_chat()
-
-            with sub_private:
-                friends = database.get_friends(st.session_state.username)
-                if st.session_state.user_role == 'student': friends.append("admin") 
+            with st_chat:
+                # Genel sohbet ve Özel Sohbet Ayrımı
+                chat_type = st.radio("Sohbet Modu:", ["🌍 Genel Sohbet (Meydan)", "🔒 Özel Mesaj"], horizontal=True)
                 
-                if not friends:
-                    st.info("Henüz arkadaşın yok. 'Öğrenci Ekle' sekmesinden arkadaş ekle!")
+                if chat_type == "🌍 Genel Sohbet (Meydan)":
+                    render_global_chat()
                 else:
-                    target = st.selectbox("Kiminle konuşmak istersin?", friends)
-                    render_chat(target)
+                    friends = database.get_friends(st.session_state.username)
+                    if st.session_state.user_role == 'student': friends.append("admin") 
+                    
+                    if not friends:
+                        st.info("Henüz arkadaşın yok.")
+                    else:
+                        target = st.selectbox("Kiminle konuşmak istersin?", friends)
+                        render_chat(target)
             
-            with sub_req:
+            with st_req:
                 pending = database.get_pending_requests(st.session_state.username)
                 if pending:
                     for req_id, sender in pending:
@@ -433,7 +623,7 @@ else:
                             st.rerun()
                 else: st.caption("Bekleyen istek yok.")
             
-            with sub_add:
+            with st_add:
                 st.markdown("Okuldaki diğer öğrencileri bul ve ekle.")
                 searchable = database.get_searchable_students(st.session_state.username)
                 if searchable:
@@ -444,7 +634,7 @@ else:
                         else: st.warning(msg)
                 else: st.info("Eklenebilecek kimse bulunamadı.")
 
-        # 3. DERSLER (TYT / MESLEK / JSON)
+        # 3. DERSLER
         with t3:
             ders_modu = st.radio("Çalışma Alanı Seçiniz:", ["TYT Çalışma", "Meslek Soruları", "Okul Yazılıları (JSON)"], horizontal=True)
             st.divider()
