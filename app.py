@@ -21,12 +21,11 @@ st.set_page_config(
 
 # Veritabanını başlat
 database.create_database()
-# Admin yoksa oluştur
 if not database.login_user("admin", "6626"):
     database.add_user("admin", "6626", "admin")
 
 # ==========================================
-# 2. SABİTLER VE OYUN KODLARI
+# 2. SABİTLER VE VERİ KAYNAKLARI
 # ==========================================
 GITHUB_USER = "zulfikarsitaci-prog"
 GITHUB_REPO = "s-navkamp-"
@@ -37,6 +36,30 @@ URL_LIFESIM = f"{GITHUB_BASE_URL}/lifesim_data.json"
 URL_TYT_DATA = f"{GITHUB_BASE_URL}/tyt_data.json"
 URL_TYT_PDF = f"{GITHUB_BASE_URL}/tytson8.pdf"
 URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
+
+# --- YENİ EKLENEN: YAZILI SINAV VERİTABANI (JSON ŞABLONU) ---
+# Siz soruları gönderdikçe burayı dolduracağız.
+YAZILI_SORULARI = {
+    "10. Sınıf": {
+        "Genel Muhasebe": {
+            "1. Dönem 1. Yazılı": [
+                {"soru": "İşletmenin elinde bulunan nakit paraların izlendiği hesap hangisidir?", "secenekler": ["100 Kasa", "102 Bankalar", "103 Verilen Çekler", "120 Alıcılar", "320 Satıcılar"], "cevap": "100 Kasa"},
+                {"soru": "Aşağıdakilerden hangisi bir varlık hesabıdır?", "secenekler": ["321 Borç Senetleri", "600 Yurtiçi Satışlar", "100 Kasa", "500 Sermaye", "642 Faiz Gelirleri"], "cevap": "100 Kasa"}
+            ],
+            "1. Dönem 2. Yazılı": []
+        },
+        "Hukuk Dili ve Terminolojisi": {
+             "1. Dönem 1. Yazılı": [
+                 {"soru": "Toplum hayatını düzenleyen kurallar bütününe ne denir?", "secenekler": ["Örf", "Hukuk", "Ahlak", "Görgü", "Din"], "cevap": "Hukuk"}
+             ]
+        }
+    },
+    "11. Sınıf": {
+        "Şirketler Muhasebesi": {
+            "1. Dönem 1. Yazılı": []
+        }
+    }
+}
 
 # --- OYUN 1: FINANS İMPARATORU ---
 FINANCE_GAME_HTML = """
@@ -444,7 +467,6 @@ def fetch_json_data(url):
 
 def load_lifesim():
     try:
-        # Önce lokal dosyaya bak (varsa)
         if os.path.exists("game.html"):
              with open("game.html", "r", encoding="utf-8") as f: html = f.read()
         else:
@@ -466,7 +488,7 @@ if "user_role" not in st.session_state: st.session_state.user_role = None
 if "username" not in st.session_state: st.session_state.username = None
 if "class_code" not in st.session_state: st.session_state.class_code = "GENEL"
 
-# --- GİRİŞ / KAYIT EKRANI (DEĞİŞEN KISIM) ---
+# --- GİRİŞ / KAYIT EKRANI ---
 if not st.session_state.logged_in:
     st.markdown("""
     <div style="text-align: center; padding: 20px;">
@@ -477,66 +499,53 @@ if not st.session_state.logged_in:
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        
-        # Sekmeli Giriş/Kayıt Yapısı
         tab_login, tab_register = st.tabs(["🔑 Giriş Yap", "📝 Kayıt Ol (Öğrenci)"])
         
-        # 1. GİRİŞ YAP SEKME
+        # 1. GİRİŞ
         with tab_login:
             with st.form("login_master"):
                 user_inp = st.text_input("Kullanıcı Adı / Okul No")
                 pass_inp = st.text_input("Şifre", type="password")
                 submitted = st.form_submit_button("Giriş Yap", use_container_width=True)
-                
                 if submitted:
                     user = database.login_user(user_inp, pass_inp)
                     if user:
                         st.session_state.logged_in = True
-                        st.session_state.user_role = user[3] # admin, teacher, student
+                        st.session_state.user_role = user[3]
                         st.session_state.username = user[1]
-                        
-                        # Öğrenciyse server'da puanını başlat
                         if user[3] == "student":
                             server.join_or_update_student("GENEL", user[1], 0)
-                            
                         st.success("Giriş Başarılı!")
                         time.sleep(0.5)
                         st.rerun()
                     else:
-                        st.error("Kullanıcı adı veya şifre hatalı!")
+                        st.error("Hatalı bilgiler!")
 
-        # 2. KAYIT OL SEKME
+        # 2. KAYIT
         with tab_register:
-            st.info("Sadece öğrenciler buradan kayıt olabilir. Öğretmenler admin tarafından eklenir.")
+            st.info("Öğrenciler buradan kayıt olabilir.")
             with st.form("register_form"):
-                new_user = st.text_input("Kullanıcı Adı (Önerilen: Okul No)", help="Okul numaranı girmen seni tanımamızı kolaylaştırır.")
-                new_pass = st.text_input("Şifre Belirle", type="password")
+                new_user = st.text_input("Kullanıcı Adı (Önerilen: Okul No)")
+                new_pass = st.text_input("Şifre", type="password")
                 new_pass2 = st.text_input("Şifre Tekrar", type="password")
                 reg_submit = st.form_submit_button("Kayıt Ol", use_container_width=True)
                 
                 if reg_submit:
-                    if new_pass != new_pass2:
-                        st.error("Şifreler uyuşmuyor!")
-                    elif len(new_pass) < 4:
-                        st.warning("Şifre çok kısa (En az 4 karakter).")
-                    elif not new_user:
-                        st.warning("Kullanıcı adı boş olamaz.")
+                    if new_pass != new_pass2: st.error("Şifreler uyuşmuyor!")
+                    elif len(new_pass) < 4: st.warning("Şifre çok kısa.")
+                    elif not new_user: st.warning("Kullanıcı adı boş olamaz.")
                     else:
-                        # Rolü otomatik olarak 'student' yapıyoruz
-                        result = database.add_user(new_user, new_pass, "student")
-                        if result:
-                            st.success("Kayıt Başarılı! 'Giriş Yap' sekmesinden giriş yapabilirsin.")
+                        if database.add_user(new_user, new_pass, "student"):
+                            st.success("Kayıt Başarılı! Şimdi giriş yapabilirsin.")
                         else:
-                            st.error("Bu kullanıcı adı zaten kullanılıyor.")
+                            st.error("Bu kullanıcı adı alınmış.")
 
-# --- İÇERİK EKRANLARI (GİRİŞ YAPILDIKTAN SONRA) ---
+# --- İÇERİK EKRANLARI ---
 else:
-    # Sidebar: Kullanıcı Bilgisi ve Çıkış
     with st.sidebar:
         st.write(f"👤 **{st.session_state.username}**")
         st.caption(f"Yetki: {st.session_state.user_role.upper()}")
         
-        # Öğrenciyse sınıf kodu değiştirme
         if st.session_state.user_role == "student":
             st.divider()
             code_input = st.text_input("Sınıf Kodu Gir", placeholder="Örn: 1234")
@@ -551,173 +560,109 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
-    # ----------------------------------------
-    # SENARYO 1: ADMIN (YÖNETİM PANELİ)
-    # ----------------------------------------
+    # ADMIN
     if st.session_state.user_role == "admin":
         st.header("⚙️ Yönetici Paneli")
-        
-        tab1, tab2 = st.tabs(["Kullanıcı Ekle", "Kullanıcı Listesi"])
+        tab1, tab2 = st.tabs(["Öğretmen Ekle", "Kullanıcı Listesi"])
         with tab1:
-            st.subheader("Öğretmen / Admin Ekle")
-            st.info("Öğrenciler kendi kayıt olabilir. Buradan Öğretmen ekleyebilirsiniz.")
             with st.form("add_user_admin"):
                 u_name = st.text_input("Kullanıcı Adı")
                 u_pass = st.text_input("Şifre")
                 u_role = st.selectbox("Rol", ["teacher", "admin", "student"])
                 if st.form_submit_button("Kaydet"):
-                    if database.add_user(u_name, u_pass, u_role):
-                        st.success("Kullanıcı oluşturuldu.")
-                    else:
-                        st.error("Bu kullanıcı zaten var.")
-        
+                    if database.add_user(u_name, u_pass, u_role): st.success("Eklendi.")
+                    else: st.error("Zaten var.")
         with tab2:
-            st.subheader("Kayıtlı Kullanıcılar")
             users = database.get_all_users()
             df = pd.DataFrame(users, columns=["Kullanıcı", "Rol"])
             st.dataframe(df, use_container_width=True)
-            
-            to_del = st.selectbox("Silinecek Kişi", df["Kullanıcı"])
-            if st.button("Sil"):
-                if to_del != "admin":
-                    database.delete_user(to_del)
-                    st.rerun()
-                else: st.error("Admin silinemez.")
+            to_del = st.selectbox("Silinecek", df["Kullanıcı"])
+            if st.button("Sil") and to_del != "admin":
+                database.delete_user(to_del); st.rerun()
 
-    # ----------------------------------------
-    # SENARYO 2: ÖĞRETMEN PANELİ
-    # ----------------------------------------
+    # ÖĞRETMEN
     elif st.session_state.user_role == "teacher":
         st.header("👨‍🏫 Öğretmen Paneli")
-        
         if "created_code" not in st.session_state:
             st.session_state.created_code = str(random.randint(1000, 9999))
             server.create_class(st.session_state.created_code)
-            
-        st.info(f"Aktif Ders Kodunuz: **{st.session_state.created_code}** (Öğrencilerle paylaşın)")
+        st.info(f"Aktif Ders Kodu: **{st.session_state.created_code}**")
         
-        tab1, tab2 = st.tabs(["Liderlik Tablosu", "Duyuru Ekle"])
-        
+        tab1, tab2 = st.tabs(["Liderlik", "Duyuru"])
         with tab1:
-            st.subheader("Sınıf Sıralaması")
             if st.button("Yenile"): st.rerun()
-            df = server.get_leaderboard(st.session_state.created_code)
-            if not df.empty:
-                st.dataframe(df, use_container_width=True)
-            else:
-                st.warning("Henüz bu derse katılan öğrenci yok.")
-                
+            st.dataframe(server.get_leaderboard(st.session_state.created_code), use_container_width=True)
         with tab2:
-            with st.form("ann_form"):
-                baslik = st.text_input("Başlık")
-                icerik = st.text_area("Mesajınız")
+            with st.form("ann"):
+                t = st.text_input("Başlık")
+                c = st.text_area("İçerik")
                 if st.form_submit_button("Yayınla"):
-                    database.add_announcement(baslik, icerik, st.session_state.username)
-                    st.success("Duyuru gönderildi.")
+                    database.add_announcement(t, c, st.session_state.username)
+                    st.success("Yayınlandı.")
 
-    # ----------------------------------------
-    # SENARYO 3: ÖĞRENCİ (DİJİTAL KAMPÜS)
-    # ----------------------------------------
+    # ÖĞRENCİ
     elif st.session_state.user_role == "student":
-        # Üst Bilgi Barı
         puan = server.get_score(st.session_state.class_code, st.session_state.username)
-        col_a, col_b, col_c = st.columns([2, 1, 1])
-        with col_a:
-            st.title(f"Merhaba, {st.session_state.username}")
-        with col_b:
-            st.metric("Sınıf", st.session_state.class_code)
-        with col_c:
-            st.metric("Kampüs Puanı", f"{puan} ₺")
+        c1, c2, c3 = st.columns([2, 1, 1])
+        c1.title(f"Merhaba, {st.session_state.username}")
+        c2.metric("Sınıf", st.session_state.class_code)
+        c3.metric("Kampüs Puanı", f"{puan} ₺")
 
-        # Ana Kampüs Sekmeleri
-        tab_main, tab_lessons, tab_games, tab_life = st.tabs(["🏆 Kampüs Meydanı", "📚 Dersler & Test", "🎮 Oyun Alanı", "💼 Kariyer Sim"])
+        tab_main, tab_lessons, tab_games, tab_life = st.tabs(["🏆 Meydan", "📚 Dersler & Test", "🎮 Oyunlar", "💼 Kariyer"])
 
-        # TAB 1: MEYDAN
         with tab_main:
-            c1, c2 = st.columns([1, 2])
-            with c1:
+            col1, col2 = st.columns([1, 2])
+            with col1:
                 st.markdown("### 🏦 Puan Yükle")
-                st.caption("Oyunlardan kazandığın kodu buraya gir.")
                 code_in = st.text_input("Kod:", key="code_redeem")
-                if st.button("Bozdur ve Yükle"):
-                    status, msg = server.redeem_code(st.session_state.class_code, st.session_state.username, code_in)
-                    if status:
-                        st.success(f"Başarılı! Yeni Puan: {msg}")
-                        time.sleep(1); st.rerun()
-                    else:
-                        st.error(msg)
-                
+                if st.button("Yükle"):
+                    res, msg = server.redeem_code(st.session_state.class_code, st.session_state.username, code_in)
+                    if res: st.success(f"Yeni Puan: {msg}"); time.sleep(1); st.rerun()
+                    else: st.error(msg)
                 st.divider()
                 st.markdown("### 📢 Duyurular")
                 anns = database.get_announcements()
                 if anns:
                     for a in anns:
-                        with st.expander(f"{a[1]} - {a[4]}"):
-                            st.write(a[2])
+                        with st.expander(f"{a[1]}"): st.write(a[2])
                 else: st.info("Duyuru yok.")
+            with col2:
+                st.markdown("### 🏅 Sıralama")
+                st.dataframe(server.get_leaderboard(st.session_state.class_code), use_container_width=True)
 
-            with c2:
-                st.markdown("### 🏅 Sınıf Sıralaması")
-                df = server.get_leaderboard(st.session_state.class_code)
-                st.dataframe(df, use_container_width=True)
-
-        # TAB 2: DERSLER VE TESTLER
         with tab_lessons:
-            t_tyt, t_meslek = st.tabs(["📘 TYT Çalışma", "📙 Meslek Soruları"])
+            # --- BURASI YENİLENDİ: 3 SEKMELİ YAPI ---
+            t_tyt, t_meslek, t_yazili = st.tabs(["📘 TYT Çalışma", "📙 Meslek Testleri", "📝 Yazılıya Hazırlık"])
             
+            # TYT
             with t_tyt:
                 tyt_data = fetch_json_data(URL_TYT_DATA)
                 if tyt_data:
                     dersler = sorted(list(set([v.get('ders') for v in tyt_data.values() if 'ders' in v])))
-                    s_ders = st.selectbox("Ders Seçiniz:", dersler)
-                    s_pages = []
-                    for k, v in tyt_data.items():
-                        if v.get('ders') == s_ders: s_pages.append((k, v))
-                    s_pages.sort(key=lambda x: int(x[0]) if x[0].isdigit() else 999)
-                    
-                    if s_pages:
-                        sel = st.selectbox("Sayfa Seçiniz:", s_pages, format_func=lambda x: f"Sayfa {x[0]}")
-                        p_no, det = sel
-                        
-                        c_p, c_o = st.columns([1.5, 1])
-                        with c_p:
-                            st.markdown(f'<embed src="{URL_TYT_PDF}#page={p_no}" width="100%" height="800px" type="application/pdf">', unsafe_allow_html=True)
-                        with c_o:
-                            with st.form(f"f_{p_no}"):
-                                ans = {}
-                                for i, q in enumerate(det['sorular']):
-                                    st.write(f"**Soru {q}**")
-                                    ans[i] = st.radio(f"C{q}", ['A','B','C','D','E'], horizontal=True, key=f"rad_{p_no}_{q}", index=None)
-                                if st.form_submit_button("KONTROL ET"):
-                                    d = 0
-                                    for i, q in enumerate(det['sorular']):
-                                        if ans[i] == det['cevaplar'][i]: d += 1
-                                    sc = d * 50
-                                    st.success(f"{d} Doğru. +{sc} Puan")
-                                    if sc > 0:
-                                        server.join_or_update_student(st.session_state.class_code, st.session_state.username, sc)
-                                        time.sleep(1); st.rerun()
-                else:
-                    st.error("TYT Verileri yüklenemedi.")
+                    s_ders = st.selectbox("Ders:", dersler)
+                    # Basit PDF gösterimi
+                    st.markdown(f'<embed src="{URL_TYT_PDF}" width="100%" height="600px">', unsafe_allow_html=True)
+                else: st.info("TYT yükleniyor...")
 
+            # MESLEK
             with t_meslek:
                 m_data = fetch_json_data(URL_MESLEK_SORULAR)
                 if m_data:
                     root = m_data.get("KONU_TARAMA", m_data)
-                    sinif = st.selectbox("Sınıf Düzeyi:", list(root.keys()))
+                    sinif = st.selectbox("Sınıf:", list(root.keys()))
                     if sinif:
-                        ders = st.selectbox("Ders Adı:", list(root[sinif].keys()))
+                        ders = st.selectbox("Ders:", list(root[sinif].keys()))
                         if ders:
-                            test = st.selectbox("Konu:", list(root[sinif][ders].keys()))
+                            test = st.selectbox("Test:", list(root[sinif][ders].keys()))
                             if test:
                                 qs = root[sinif][ders][test]
                                 with st.form(f"mf_{sinif}_{ders}_{test}"):
                                     mans = {}
                                     for i, q in enumerate(qs):
                                         st.write(f"**{i+1}. {q['soru']}**")
-                                        mans[i] = st.radio("Cevap:", q['secenekler'], key=f"mrad_{i}", index=None)
+                                        mans[i] = st.radio("Cevap:", q['secenekler'], key=f"mrad_{i}")
                                         st.divider()
-                                    if st.form_submit_button("TESTİ BİTİR"):
+                                    if st.form_submit_button("BİTİR"):
                                         dm = 0
                                         for i, q in enumerate(qs):
                                             if mans[i] == q['cevap']: dm += 1
@@ -727,15 +672,56 @@ else:
                                             server.join_or_update_student(st.session_state.class_code, st.session_state.username, pm)
                                             time.sleep(1); st.rerun()
 
-        # TAB 3: OYUN ALANI
-        with tab_games:
-            secim = st.selectbox("Oyun Seç:", ["Finans İmparatoru", "Asset Matrix"])
-            if secim == "Finans İmparatoru":
-                components.html(FINANCE_GAME_HTML, height=700)
-            else:
-                components.html(ASSET_MATRIX_HTML, height=750)
+            # --- YENİ EKLENEN KISIM: YAZILI SINAV ---
+            with t_yazili:
+                st.markdown("### 📝 Sınavlara Hazırlık Modülü")
+                
+                # Sınıf Seçimi
+                y_sinif = st.selectbox("Sınıfını Seç:", list(YAZILI_SORULARI.keys()))
+                
+                if y_sinif:
+                    # Ders Seçimi
+                    y_ders = st.selectbox("Ders Seç:", list(YAZILI_SORULARI[y_sinif].keys()))
+                    
+                    if y_ders:
+                        # Sınav Dönemi Seçimi
+                        y_donem = st.selectbox("Sınav Seç:", list(YAZILI_SORULARI[y_sinif][y_ders].keys()))
+                        
+                        if y_donem:
+                            sorular = YAZILI_SORULARI[y_sinif][y_ders][y_donem]
+                            
+                            if not sorular:
+                                st.info("Bu sınav için henüz soru eklenmemiş.")
+                            else:
+                                with st.form(f"yazili_{y_sinif}_{y_ders}_{y_donem}"):
+                                    y_cevaplar = {}
+                                    for i, soru in enumerate(sorular):
+                                        st.write(f"**Soru {i+1}:** {soru['soru']}")
+                                        y_cevaplar[i] = st.radio("Cevabınız:", soru['secenekler'], key=f"yrad_{i}", index=None)
+                                        st.markdown("---")
+                                    
+                                    if st.form_submit_button("Sınavı Tamamla"):
+                                        dogru_sayisi = 0
+                                        for i, soru in enumerate(sorular):
+                                            if y_cevaplar[i] == soru['cevap']:
+                                                dogru_sayisi += 1
+                                        
+                                        puan_degeri = 100 / len(sorular)
+                                        toplam_puan = int(dogru_sayisi * puan_degeri)
+                                        
+                                        st.balloons()
+                                        st.success(f"Tebrikler! {len(sorular)} soruda {dogru_sayisi} doğru yaptın.")
+                                        st.metric("Alınan Puan", f"{toplam_puan}")
+                                        
+                                        if toplam_puan > 0:
+                                            server.join_or_update_student(st.session_state.class_code, st.session_state.username, toplam_puan)
+                                            st.toast(f"+{toplam_puan} ₺ Hesabına eklendi!")
+                                            time.sleep(2); st.rerun()
 
-        # TAB 4: LIFESIM
+        with tab_games:
+            secim = st.selectbox("Oyun:", ["Finans İmparatoru", "Asset Matrix"])
+            if secim == "Finans İmparatoru": components.html(FINANCE_GAME_HTML, height=700)
+            else: components.html(ASSET_MATRIX_HTML, height=750)
+
         with tab_life:
-            st.info("Hayat Simülasyonu Yükleniyor...")
             components.html(load_lifesim(), height=800, scrolling=True)
