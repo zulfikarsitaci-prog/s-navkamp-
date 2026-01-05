@@ -5,38 +5,59 @@
         "type": "scenario",
         "text": "SENARYO 1: Mehmet Amca tarlasını telefon uygulamasıyla suluyor, akıllı saatiyle nabzını ölçüyor.",
         "sub_questions": [
-          {"q": "Mehmet Amca'nın saati hangi teknoloji türüne girer?", "a": "Giyilebilir"},
-          {"q": "Teknolojinin tarıma sağladığı en temel fayda nedir? (Tek kelime: Verim, Hız vb.)", "a": "Verim"}
+          {"q": "1. Mehmet Amca'nın teknolojiyi kullanma amacını tek kelimeyle özetleyiniz (Verim, Kolaylık vb.)", "a": "Verim"},
+          {"q": "2. Akıllı saat hangi teknoloji türüne girer?", "a": "Giyilebilir"}
         ],
         "points": 20
       },
       {
         "type": "text",
-        "question": "E-Posta (E-Mail) ile WhatsApp arasındaki en temel fark nedir? (Resmiyet açısından)",
-        "answer": "Resmiyet",
-        "keywords": ["resmi", "kurumsal", "yasal"],
+        "question": "3. Ofiste işlerin yürümesi için kullanılan teknolojik ürünlerden 1 tanesini yazınız.",
+        "answer": "Bilgisayar",
+        "keywords": ["bilgisayar", "yazıcı", "tarayıcı", "telefon"],
         "points": 10
       },
       {
         "type": "text",
-        "question": "Söke ovası güneşlidir. Güneş paneli kullanan bir işletme hangi tür enerji kaynağı kullanır?",
+        "question": "4. E-Posta (E-Mail) ile WhatsApp arasındaki en temel fark nedir? (Resmiyet açısından)",
+        "answer": "Resmiyet",
+        "keywords": ["resmi", "kurumsal", "yasal", "belge"],
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "5. Staj başvurusu e-postasının 'Konu' kısmına ne yazılmalıdır?",
+        "answer": "Staj Başvurusu",
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "6. Söke ovası güneşlidir. Güneş paneli kullanan bir işletme hangi tür enerji kaynağı kullanır?",
         "answer": "Yenilenebilir",
-        "keywords": ["yenilenebilir", "tükenmez"],
+        "keywords": ["yenilenebilir", "tükenmez", "güneş"],
         "points": 10
       },
       {
         "type": "scenario",
         "text": "SENARYO 5: Elinizde meyve suyu kutusu, pipet ve peçete var.",
         "sub_questions": [
-          {"q": "Meyve suyu kutusu Çöp müdür, Atık mıdır?", "a": "Atık"},
-          {"q": "Kullanılmış yağlı peçete Çöp müdür, Atık mıdır?", "a": "Çöp"}
+          {"q": "7. Meyve suyu kutusu Çöp müdür, Atık mıdır?", "a": "Atık"},
+          {"q": "Kullanılmış yağlı peçete Çöp müdür, Atık mıdır?", "a": "Çöp"},
+          {"q": "8. Atık yağların lavaboya dökülmemesi neyi kirletir?", "a": "Su"}
         ],
         "points": 20
       },
       {
+        "type": "text",
+        "question": "9. Sıfır Atık prensibine göre atığı çöp atmak yerine başka amaçla kullanmaya ne denir?",
+        "answer": "İleri Dönüşüm",
+        "keywords": ["dönüşüm", "geri kazanım"],
+        "points": 10
+      },
+      {
         "type": "test",
-        "question": "Bankaların web sitelerinde soruları yanıtlayan sanal asistanlar hangi teknolojidir?",
-        "options": ["Blockchain", "Yapay Zeka", "Bulut Bilişim", "Sanal Gerçeklik"],
+        "question": "10. Bankaların web sitelerinde soruları yanıtlayan sanal asistanlar hangi teknolojidir?",
+        "options": ["Blockchain", "Yapay Zeka", "Bulut Bilişim", "Nesnelerin İnterneti"],
         "answer": "Yapay Zeka",
         "points": 10
       }
@@ -44,38 +65,66 @@
     "Temel Muhasebe": [
       {
         "type": "calculation",
-        "text": "KIDEM TAZMİNATI: 4 Yıl 5 Ay 18 Gün çalışan işçi. Brüt Ücret: 30.000 TL.",
+        "text": "SORU 1: KIDEM TAZMİNATI HESAPLAMA: 4 Yıl 5 Ay 18 Gün çalışan işçi. Brüt Ücret: 30.000 TL.",
         "inputs": [
           {"label": "4 Yıllık Tazminat Tutarı (30.000 x 4)", "correct": 120000},
           {"label": "5 Aylık Tazminat Tutarı (30.000 / 12 x 5)", "correct": 12500},
-          {"label": "18 Günlük Tazminat Tutarı (30.000 / 360 x 18)", "correct": 1500}
+          {"label": "18 Günlük Tazminat Tutarı (30.000 / 360 x 18)", "correct": 1500},
+          {"label": "Toplam Kıdem Tazminatı", "correct": 134000}
         ],
         "points": 20
       },
       {
         "type": "scenario",
-        "text": "SGK STATÜLERİ EŞLEŞTİRME",
+        "text": "SORU 2: SGK STATÜLERİ EŞLEŞTİRME",
         "sub_questions": [
-          {"q": "Maaşlı çalışan mühendis (4a/4b/4c)?", "a": "4a"},
-          {"q": "Kendi ofisini açan mimar (4a/4b/4c)?", "a": "4b"},
-          {"q": "Devlet memuru (4a/4b/4c)?", "a": "4c"}
+          {"q": "a) Söke'de maaşlı çalışan mühendis (4a/4b/4c)?", "a": "4a"},
+          {"q": "b) Bağarası'nda kendi ofisini açan mimar (4a/4b/4c)?", "a": "4b"},
+          {"q": "c) Valilikte kadrolu memur (4a/4b/4c)?", "a": "4c"}
         ],
         "points": 10
       },
       {
         "type": "text",
-        "question": "Nakliyesi yapılan ancak henüz satılmamış mal için şoförün taşıması gereken belgenin adı nedir?",
+        "question": "SORU 3: SGK mevzuatına göre ücret bordrolarının saklanma süresi kaç yıldır?",
+        "answer": "10",
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "SORU 4: 25.12.2025'te işe başlayacak işçinin Sigortalı İşe Giriş Bildirgesi en geç ne zaman verilmeli?",
+        "answer": "24.12.2025",
+        "keywords": ["bir gün önce", "24.12"],
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "SORU 5: İşçi kendi isteğiyle istifa ederse ihbar tazminatı alabilir mi? (Evet/Hayır)",
+        "answer": "Hayır",
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "SORU 6: Nakliyesi yapılan ancak henüz satılmamış mal için şoförün taşıması gereken, üzerinde fiyat olmayan belgenin adı nedir?",
         "answer": "Sevk İrsaliyesi",
         "keywords": ["irsaliye", "sevk"],
         "points": 10
       },
       {
+        "type": "text",
+        "question": "SORU 7: Faturanın 'Kapalı Fatura' olması bedelin ne yapıldığını gösterir?",
+        "answer": "Ödendiğini",
+        "keywords": ["ödendi", "peşin", "tahsil"],
+        "points": 10
+      },
+      {
         "type": "calculation",
-        "text": "FATURA HESAPLAMA: 50 Çanta, Fiyat 200 TL, İskonto %10, KDV %20.",
+        "text": "SORU 8: FATURA HESAPLAMA: 50 Çanta, Fiyat 200 TL, İskonto %10, KDV %20.",
         "inputs": [
           {"label": "Mal Bedeli (50x200)", "correct": 10000},
           {"label": "İskonto Tutarı (%10)", "correct": 1000},
-          {"label": "KDV Matrahı", "correct": 9000},
+          {"label": "KDV Matrahı (Bedel - İskonto)", "correct": 9000},
+          {"label": "KDV Tutarı (%20)", "correct": 1800},
           {"label": "Genel Toplam", "correct": 10800}
         ],
         "points": 20
@@ -86,64 +135,138 @@
     "Ekonomi": [
       {
         "type": "scenario",
-        "text": "SENARYO: Mehmet Bey pamuğu balya olarak satmak yerine iplik atölyesi kurup ipliğe dönüştürmüştür.",
+        "text": "SENARYO 1: Mehmet Bey pamuğu balya olarak satmak yerine iplik atölyesi kurup ipliğe dönüştürmüştür.",
         "sub_questions": [
-          {"q": "Bu değer kazandırma işlemine ne ad verilir?", "a": "Üretim"},
-          {"q": "Mehmet Bey üretim faktörlerinden hangisidir?", "a": "Girişimci"}
+          {"q": "1. Bu değer kazandırma işlemine ne ad verilir?", "a": "Üretim"},
+          {"q": "2. Mehmet Bey üretim faktörlerinden hangisidir?", "a": "Girişimci"}
         ],
         "points": 20
       },
       {
         "type": "text",
-        "question": "Bir ülkede 'Neyi, Nasıl, Kimin için' sorularına devlet değil, piyasa (fiyatlar) karar veriyorsa bu sistemin adı nedir?",
-        "answer": "Kapitalizm",
-        "keywords": ["kapitalizm", "pazar ekonomisi", "serbest"],
+        "question": "3. Söke ve çevresinde yapılan Tarım Sektörünün alt dallarından birini yazınız.",
+        "answer": "Pamukçuluk",
+        "keywords": ["pamuk", "zeytin", "balıkçılık", "hayvancılık"],
         "points": 10
       },
       {
         "type": "text",
-        "question": "Atatürk döneminde Türk denizlerinde ticaret yapma hakkını düzenleyen kanunun adı nedir?",
+        "question": "4. Yatırımcının Söke'ye tekstil fabrikası kurmasındaki en önemli faktör nedir?",
+        "answer": "Hammadde",
+        "keywords": ["hammaddeye yakınlık", "pamuk"],
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "5. Hammaddenin fabrikada işlenerek mamul hale gelmesi sürecine ne denir?",
+        "answer": "Sanayi",
+        "keywords": ["sanayi", "imalat", "endüstri"],
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "6. Kıt kaynakları kullanmak için sorulan 3 temel sorudan birini yazınız.",
+        "answer": "Nasıl",
+        "keywords": ["neyi", "nasıl", "kimin için"],
+        "points": 10
+      },
+      {
+        "type": "scenario",
+        "text": "7-8. EKONOMİK SİSTEMLER",
+        "sub_questions": [
+          {"q": "Fabrikaların devlete ait olduğu, fiyatı devletin belirlediği sistem?", "a": "Sosyalizm"},
+          {"q": "Fabrikaların şahıslara ait olduğu, fiyatın piyasada belirlendiği sistem?", "a": "Kapitalizm"}
+        ],
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "9. Nazilli Basma Fabrikası'nın (1937) kuruluş amacı hangi ilke ile açıklanır?",
+        "answer": "Devletçilik",
+        "keywords": ["yerli malı", "hammadde yurt içi", "devletçilik"],
+        "points": 15
+      },
+      {
+        "type": "text",
+        "question": "10. Türk denizlerinde ticaret yapma hakkını Türk gemilerine veren kanun?",
         "answer": "Kabotaj",
-        "points": 10
+        "points": 15
       },
       {
         "type": "text",
-        "question": "Kendi çıkarını maksimize etmeye çalışan, akılcı davranan birey modeline ne ad verilir?",
+        "question": "KAVRAM: Kendi çıkarını maksimize etmeye çalışan, akılcı davranan birey?",
         "answer": "Homo Economicus",
-        "keywords": ["homo economicus", "ekonomik insan"],
+        "points": 10
+      },
+      {
+        "type": "scenario",
+        "text": "PİYASA VE FİYAT",
+        "sub_questions": [
+          {"q": "Fiyat artınca Tüketici (Talep) ne yapar? (Artar/Azalır)", "a": "Azalır"},
+          {"q": "Fiyat artınca Üretici (Arz) ne yapar? (Artar/Azalır)", "a": "Artar"}
+        ],
         "points": 10
       }
     ],
-    "Hukuk": [
+    "Temel Hukuk": [
       {
         "type": "scenario",
-        "text": "SENARYO: Ahmet Bey tarlasını sürmek için Tariş Kooperatifi'nden traktör kiralamıştır.",
+        "text": "SENARYO 1: Ahmet Bey tarlasını sürmek için Tariş Kooperatifi'nden traktör kiralamıştır.",
         "sub_questions": [
-          {"q": "Ahmet Bey gerçek kişi mi tüzel kişi mi?", "a": "Gerçek"},
-          {"q": "Tariş Kooperatifi gerçek kişi mi tüzel kişi mi?", "a": "Tüzel"},
-          {"q": "Tarla taşınır mı taşınmaz mı?", "a": "Taşınmaz"}
+          {"q": "1. Ahmet Bey gerçek kişi mi tüzel kişi mi?", "a": "Gerçek"},
+          {"q": "Söke Tariş Kooperatifi gerçek kişi mi tüzel kişi mi?", "a": "Tüzel"},
+          {"q": "2. Tarla taşınır mı taşınmaz mı?", "a": "Taşınmaz"},
+          {"q": "Traktör taşınır mı taşınmaz mı?", "a": "Taşınır"}
         ],
-        "points": 30
+        "points": 20
       },
       {
         "type": "text",
-        "question": "Borç ilişkisinde borcun yerine getirilerek sona ermesine ne denir?",
+        "question": "3. Tarafların karşılıklı anlaşmasına hukukta ne ad verilir?",
+        "answer": "Sözleşme",
+        "keywords": ["akit", "mukavele"],
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "4. Borç ilişkisinde yerine getirilmesi gereken davranışa ne denir? (E ile başlar)",
+        "answer": "Edim",
+        "points": 10
+      },
+      {
+        "type": "scenario",
+        "text": "SENARYO 3: BORCUN KAYNAKLARI (Sözleşme / Haksız Fiil / Sebepsiz Zenginleşme)",
+        "sub_questions": [
+          {"q": "A) Gübre almak için imza atması?", "a": "Sözleşme"},
+          {"q": "B) Traktörle komşunun çitini yıkması?", "a": "Haksız Fiil"},
+          {"q": "C) Bankanın yanlışlıkla hesaba para yatırması?", "a": "Sebepsiz Zenginleşme"}
+        ],
+        "points": 15
+      },
+      {
+        "type": "text",
+        "question": "5. Kefilin borcun tamamından sorumlu olduğu kefillik türü?",
+        "answer": "Müteselsil",
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "6. Borcun yerine getirilerek sona erdirilmesine ne denir?",
         "answer": "İfa",
         "points": 10
       },
       {
         "type": "text",
-        "question": "Ahmet Bey ile komşusu arasındaki tarla sınırı anlaşmazlığını hangi hukuk dalı çözer?",
-        "answer": "Özel Hukuk",
-        "keywords": ["özel", "medeni"],
+        "question": "7. Yazılı olmayan hukuk kaynaklarına ne denir? (Örf ve ...)",
+        "answer": "Adet",
         "points": 10
       },
       {
         "type": "test",
-        "question": "Kefilin borcun tamamından sorumlu olduğu kefillik türü hangisidir?",
-        "options": ["Adi Kefalet", "Müteselsil Kefalet", "Birlikte Kefalet"],
-        "answer": "Müteselsil Kefalet",
-        "points": 10
+        "question": "8. Eşit bireyler arasındaki (örn: komşu kavgası) sorunları çözen hukuk dalı?",
+        "options": ["Kamu Hukuku", "Özel Hukuk", "Karma Hukuk"],
+        "answer": "Özel Hukuk",
+        "points": 15
       }
     ]
   },
@@ -153,25 +276,48 @@
         "type": "scenario",
         "text": "SENARYO: Ege Tekstil A.Ş. sahibi Ali Bey, yönetimi Ayşe Hanım'a bırakmıştır. İşçi Mehmet Bey servis aracında kaza yapmıştır.",
         "sub_questions": [
-          {"q": "Hukuken asıl İşveren kimdir?", "a": "Ege Tekstil"},
+          {"q": "1. Hukuken asıl İşveren kimdir?", "a": "Ege Tekstil"},
           {"q": "İşveren Vekili kimdir?", "a": "Ayşe"},
-          {"q": "Servis aracı işyerinden sayılır mı? (Evet/Hayır)", "a": "Evet"}
+          {"q": "Servis aracı işyeri sayılır mı? (Evet/Hayır)", "a": "Evet"}
         ],
         "points": 20
       },
       {
+        "type": "scenario",
+        "text": "2. İŞ SÖZLEŞMESİ UNSURLARI",
+        "sub_questions": [
+          {"q": "a) İşçi ne koyar? (Emek)", "a": "İş Görme"},
+          {"q": "b) Karşılığında ne alır?", "a": "Ücret"},
+          {"q": "c) İşveren ile ilişkisi nasıldır?", "a": "Bağımlılık"}
+        ],
+        "points": 10
+      },
+      {
         "type": "text",
-        "question": "İşçinin işverenin ticari sırlarını saklaması hangi borç kapsamındadır?",
+        "question": "3. Fabrika işçiliği Sürekli iş midir, Süreksiz iş midir?",
+        "answer": "Sürekli",
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "4. İşçinin ticari sırları saklaması hangi borçtur?",
         "answer": "Sadakat",
         "points": 10
       },
       {
+        "type": "text",
+        "question": "6. İşverenin işçiyi korumak için almak zorunda olduğu önlemlerin genel adı?",
+        "answer": "İş Sağlığı ve Güvenliği",
+        "keywords": ["isg", "güvenlik"],
+        "points": 10
+      },
+      {
         "type": "calculation",
-        "text": "FAZLA ÇALIŞMA: Mehmet Bey haftada 50 saat çalıştı (Normal: 45). Saatlik ücreti 200 TL.",
+        "text": "7. FAZLA ÇALIŞMA: Mehmet Bey 50 saat çalıştı (Normal: 45). Saat ücreti 200 TL.",
         "inputs": [
-          {"label": "Fazla Çalışma Saati (50-45)", "correct": 5},
-          {"label": "1 Saatlik Zamlı Ücret (200 x 1.5)", "correct": 300},
-          {"label": "Toplam Fazla Çalışma Ücreti", "correct": 1500}
+          {"label": "A) Fazla Çalışma Saati (50-45)", "correct": 5},
+          {"label": "B) 1 Saatlik Zamlı Ücret (200 x 1.5)", "correct": 300},
+          {"label": "C) Toplam Fazla Çalışma Ücreti", "correct": 1500}
         ],
         "points": 30
       }
@@ -179,28 +325,37 @@
     "Şirketler Muhasebesi": [
       {
         "type": "calculation",
-        "text": "KURULUŞ KAYDI (ALİ KARA): Taahhüt: 900.000 TL. Nakit: 50.000, Taşıt: 700.000, Kalanı Çek.",
+        "text": "SORU 1: ALİ KARA KURULUŞ KAYDI: Taahhüt 900.000 TL. (Nakit 50.000, Taşıt 700.000, Kalan Çek)",
         "inputs": [
-          {"label": "Sermaye Hesabı Alacak Tutarı", "correct": 900000},
-          {"label": "100 Kasa Hesabı Borç Tutarı", "correct": 50000},
-          {"label": "254 Taşıtlar Hesabı Borç Tutarı", "correct": 700000},
-          {"label": "Verilen Çekler Tutarı (Kalan)", "correct": 150000}
+          {"label": "500 Sermaye (Alacak)", "correct": 900000},
+          {"label": "100 Kasa (Borç)", "correct": 50000},
+          {"label": "254 Taşıtlar (Borç)", "correct": 700000},
+          {"label": "103 Verilen Çekler (Borç - Kalan)", "correct": 150000}
         ],
         "points": 30
       },
       {
         "type": "calculation",
-        "text": "KAR DAĞITIMI: Kar: 250.000 TL. Yavuz (%80), Ali (%20). Yavuz'a 50.000 Senet, kalanı Çek.",
+        "text": "SORU 2: SERMAYE ARTIRIMI: Toplam 180.000 TL Artış. Merve: 150.000 (Yarısı Nakit, Yarısı Senet). Ayşe: 30.000 (Banka).",
         "inputs": [
-          {"label": "Yavuz'un Toplam Kar Payı", "correct": 200000},
-          {"label": "Ali'nin Toplam Kar Payı", "correct": 50000},
-          {"label": "Yavuz'a Verilen Çek Tutarı (200bin - 50bin)", "correct": 150000}
+          {"label": "Merve - Nakit Tutarı (150bin / 2)", "correct": 75000},
+          {"label": "Merve - Senet Tutarı", "correct": 75000},
+          {"label": "Ayşe - Banka Tutarı", "correct": 30000}
+        ],
+        "points": 20
+      },
+      {
+        "type": "calculation",
+        "text": "SORU 3: KAR DAĞITIMI: Kar 250.000 TL. Sermayeye göre (Yavuz 800bin, Ali 200bin).",
+        "inputs": [
+          {"label": "Yavuz'un Kar Payı (%80)", "correct": 200000},
+          {"label": "Ali'nin Kar Payı (%20)", "correct": 50000}
         ],
         "points": 30
       },
       {
         "type": "calculation",
-        "text": "ZARAR DAĞITIMI: Zarar 80.000 TL. Ortaklar Yusuf ve Mesut eşit paylaşacak.",
+        "text": "SORU 4: ZARAR DAĞITIMI: Zarar 80.000 TL. (Yusuf ve Mesut Eşit)",
         "inputs": [
           {"label": "Yusuf'un Zarar Payı", "correct": 40000},
           {"label": "Mesut'un Zarar Payı", "correct": 40000}
@@ -211,16 +366,16 @@
     "Maliyet Muhasebesi": [
       {
         "type": "calculation",
-        "text": "GİDER DAĞITIMI I: Yemek (20.000 TL -> Personel), Temizlik (30.000 TL -> Alan). Kesim: 60 Kişi, 500 m2. (Toplam 200 Kişi, 1500 m2).",
+        "text": "SORU 1: GİDER DAĞITIMI (I. Dağıtım): Yemek (20.000 TL -> Personel), Temizlik (30.000 TL -> Alan). Kesim: 60 Kişi, 500 m2. (Toplam 200 Kişi, 1500 m2).",
         "inputs": [
-          {"label": "Kesim Bölümü Yemek Payı", "correct": 6000},
-          {"label": "Kesim Bölümü Temizlik Payı", "correct": 10000}
+          {"label": "Kesim Bölümü Yemek Payı (20000/200*60)", "correct": 6000},
+          {"label": "Dikim Bölümü Temizlik Payı (30000/1500*600)", "correct": 12000}
         ],
         "points": 20
       },
       {
         "type": "calculation",
-        "text": "FIFO STOK: 01.05 Devir: 5000kg @ 30TL. | 15.05 Alış: 5500kg @ 35TL. | Çıkan: 3500 + 4000 = 7500 kg.",
+        "text": "SORU 2: FIFO STOK: 01.05 Devir: 5000kg @ 30TL. | 15.05 Alış: 5500kg @ 35TL. | Çıkan: 3500 + 4000 = 7500 kg.",
         "inputs": [
           {"label": "Kalan Stok Miktarı (10500 - 7500)", "correct": 3000},
           {"label": "Kalan Stok Değeri (3000 x 35 TL)", "correct": 105000}
@@ -229,7 +384,7 @@
       },
       {
         "type": "calculation",
-        "text": "DAĞITIM II (ABAY): Montaj Gideri 16.000 TL. Personel Sayısına göre dağıtılacak (Kesim 55, Döküm 25 kişi. Toplam 80).",
+        "text": "SORU 3: DAĞITIM II (ABAY): Montaj Gideri 16.000 TL. Personel Sayısına göre dağıtılacak (Kesim 55, Döküm 25 kişi. Toplam 80).",
         "inputs": [
           {"label": "Birim Başına Yük (16000 / 80)", "correct": 200},
           {"label": "Kesim'e Düşen Pay (55 x 200)", "correct": 11000},
@@ -239,7 +394,7 @@
       },
       {
         "type": "calculation",
-        "text": "BİRİM MALİYET: Toplam Maliyet Ekmek 75.000 (5000 adet), Poğaça 80.000 (4000 adet).",
+        "text": "SORU 4: BİRİM MALİYET: Toplam Maliyet Ekmek 75.000 (5000 adet), Poğaça 80.000 (4000 adet).",
         "inputs": [
           {"label": "Ekmek Birim Maliyet", "correct": 15},
           {"label": "Poğaça Birim Maliyet", "correct": 20}
@@ -252,42 +407,57 @@
     "Bankacılık": [
       {
         "type": "scenario",
-        "text": "SENARYO 1: Turist John 500 Dolar nakit bozduruyor (Efektif). İthalatçı firma hesaptan 50.000 Euro gönderiyor (Döviz).",
+        "text": "SENARYO 1: Turist John 500 Dolar nakit bozduruyor. İthalatçı firma hesaptan 50.000 Euro gönderiyor.",
         "sub_questions": [
-          {"q": "John'un işlemine ne denir? (Alış/Satış)", "a": "Alış"},
-          {"q": "Nakit paraya ne ad verilir?", "a": "Efektif"}
+          {"q": "1. John'un cebindeki nakit paraya ne denir?", "a": "Efektif"},
+          {"q": "Hesaptan yapılan işleme ne denir?", "a": "Döviz"},
+          {"q": "2. Dolar verip TL alma işlemine ne denir?", "a": "Alış"}
         ],
         "points": 20
       },
       {
-        "type": "text",
-        "question": "Farklı bankalar arası para transferine ne ad verilir?",
-        "answer": "EFT",
-        "points": 10
+        "type": "scenario",
+        "text": "SENARYO 2: Ali Bey para gönderecek.",
+        "sub_questions": [
+          {"q": "3. Farklı bankaya para gönderme (Durum A)?", "a": "EFT"},
+          {"q": "Aynı bankaya para gönderme (Durum B)?", "a": "Havale"},
+          {"q": "4. Hafta sonu yapılan EFT ne zaman hesaba geçer?", "a": "Pazartesi"}
+        ],
+        "points": 30
       },
       {
         "type": "text",
-        "question": "Aynı banka şubeleri arası transfere ne ad verilir?",
-        "answer": "Havale",
-        "points": 10
-      },
-      {
-        "type": "text",
-        "question": "Bankanın firmanın borcunu garanti ettiği belgeye ne denir?",
+        "question": "5. Bankanın firmanın borcunu garanti ettiği belgeye ne denir?",
         "answer": "Teminat Mektubu",
-        "keywords": ["teminat", "mektup"],
         "points": 10
       },
       {
         "type": "text",
-        "question": "Senet üzerine atılan kefillik imzasına ne ad verilir?",
+        "question": "6. Parayı bir menkul kıymeti 'geri satma taahhüdüyle' alıp kısa vadeli değerlendirme?",
+        "answer": "Repo",
+        "points": 10
+      },
+      {
+        "type": "scenario",
+        "text": "7. KREDİ EŞLEŞTİRME",
+        "sub_questions": [
+          {"q": "Ev almak için?", "a": "Konut"},
+          {"q": "Araba almak için?", "a": "Taşıt"},
+          {"q": "Mobilya/Tatil için?", "a": "İhtiyaç"}
+        ],
+        "points": 10
+      },
+      {
+        "type": "text",
+        "question": "8. Senet üzerine atılan kefillik imzasına ne ad verilir?",
         "answer": "Aval",
         "points": 10
       },
       {
         "type": "text",
-        "question": "Parayı bir menkul kıymeti 'geri satma taahhüdüyle' alıp kısa vadeli değerlendirme işlemine ne denir?",
-        "answer": "Repo",
+        "question": "9. Tüketiciler için kredi kullanmanın bir faydası?",
+        "answer": "Nakit",
+        "keywords": ["nakit akışı", "standart", "ihtiyaç"],
         "points": 10
       }
     ]
