@@ -6,7 +6,7 @@ import json
 import os
 import time
 import random
-import database  # Veritabanı modülümüz (database.py)
+import database  # Veritabanı modülümüz
 from datetime import datetime
 
 # ==========================================
@@ -21,12 +21,12 @@ st.set_page_config(
 
 # Veritabanını başlat
 database.create_database()
-# İlk kullanımda admin yoksa oluşturur
+# Admin yoksa oluştur
 if not database.login_user("admin", "6626"):
     database.add_user("admin", "6626", "admin")
 
 # ==========================================
-# 2. SABİTLER VE HTML OYUN KODLARI
+# 2. SABİTLER VE OYUN KODLARI
 # ==========================================
 GITHUB_USER = "zulfikarsitaci-prog"
 GITHUB_REPO = "s-navkamp-"
@@ -38,7 +38,7 @@ URL_TYT_DATA = f"{GITHUB_BASE_URL}/tyt_data.json"
 URL_TYT_PDF = f"{GITHUB_BASE_URL}/tytson8.pdf"
 URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
 
-# --- OYUN 1: FINANS İMPARATORU (Tam Kod) ---
+# --- OYUN 1: FINANS İMPARATORU ---
 FINANCE_GAME_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -122,7 +122,7 @@ FINANCE_GAME_HTML = """
 </html>
 """
 
-# --- OYUN 2: ASSET MATRIX (Tam Kod) ---
+# --- OYUN 2: ASSET MATRIX ---
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -466,7 +466,7 @@ if "user_role" not in st.session_state: st.session_state.user_role = None
 if "username" not in st.session_state: st.session_state.username = None
 if "class_code" not in st.session_state: st.session_state.class_code = "GENEL"
 
-# --- GİRİŞ EKRANI (TEK VE ORTAK) ---
+# --- GİRİŞ / KAYIT EKRANI (DEĞİŞEN KISIM) ---
 if not st.session_state.logged_in:
     st.markdown("""
     <div style="text-align: center; padding: 20px;">
@@ -477,31 +477,59 @@ if not st.session_state.logged_in:
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        with st.form("login_master"):
-            user_inp = st.text_input("Kullanıcı Adı / Okul No")
-            pass_inp = st.text_input("Şifre", type="password")
-            submitted = st.form_submit_button("Giriş Yap", use_container_width=True)
-            
-            if submitted:
-                user = database.login_user(user_inp, pass_inp)
-                if user:
-                    st.session_state.logged_in = True
-                    st.session_state.user_role = user[3] # admin, teacher, student
-                    st.session_state.username = user[1]
-                    
-                    # Öğrenciyse başlangıç puanını server'a tanıt
-                    if user[3] == "student":
-                        server.join_or_update_student("GENEL", user[1], 0)
-                        
-                    st.success("Giriş Başarılı!")
-                    time.sleep(0.5)
-                    st.rerun()
-                else:
-                    st.error("Kullanıcı adı veya şifre hatalı!")
         
-        st.info("Hesabınız yoksa yöneticinizle iletişime geçin.")
+        # Sekmeli Giriş/Kayıt Yapısı
+        tab_login, tab_register = st.tabs(["🔑 Giriş Yap", "📝 Kayıt Ol (Öğrenci)"])
+        
+        # 1. GİRİŞ YAP SEKME
+        with tab_login:
+            with st.form("login_master"):
+                user_inp = st.text_input("Kullanıcı Adı / Okul No")
+                pass_inp = st.text_input("Şifre", type="password")
+                submitted = st.form_submit_button("Giriş Yap", use_container_width=True)
+                
+                if submitted:
+                    user = database.login_user(user_inp, pass_inp)
+                    if user:
+                        st.session_state.logged_in = True
+                        st.session_state.user_role = user[3] # admin, teacher, student
+                        st.session_state.username = user[1]
+                        
+                        # Öğrenciyse server'da puanını başlat
+                        if user[3] == "student":
+                            server.join_or_update_student("GENEL", user[1], 0)
+                            
+                        st.success("Giriş Başarılı!")
+                        time.sleep(0.5)
+                        st.rerun()
+                    else:
+                        st.error("Kullanıcı adı veya şifre hatalı!")
 
-# --- İÇERİK EKRANLARI (ROL TABANLI) ---
+        # 2. KAYIT OL SEKME
+        with tab_register:
+            st.info("Sadece öğrenciler buradan kayıt olabilir. Öğretmenler admin tarafından eklenir.")
+            with st.form("register_form"):
+                new_user = st.text_input("Kullanıcı Adı (Önerilen: Okul No)", help="Okul numaranı girmen seni tanımamızı kolaylaştırır.")
+                new_pass = st.text_input("Şifre Belirle", type="password")
+                new_pass2 = st.text_input("Şifre Tekrar", type="password")
+                reg_submit = st.form_submit_button("Kayıt Ol", use_container_width=True)
+                
+                if reg_submit:
+                    if new_pass != new_pass2:
+                        st.error("Şifreler uyuşmuyor!")
+                    elif len(new_pass) < 4:
+                        st.warning("Şifre çok kısa (En az 4 karakter).")
+                    elif not new_user:
+                        st.warning("Kullanıcı adı boş olamaz.")
+                    else:
+                        # Rolü otomatik olarak 'student' yapıyoruz
+                        result = database.add_user(new_user, new_pass, "student")
+                        if result:
+                            st.success("Kayıt Başarılı! 'Giriş Yap' sekmesinden giriş yapabilirsin.")
+                        else:
+                            st.error("Bu kullanıcı adı zaten kullanılıyor.")
+
+# --- İÇERİK EKRANLARI (GİRİŞ YAPILDIKTAN SONRA) ---
 else:
     # Sidebar: Kullanıcı Bilgisi ve Çıkış
     with st.sidebar:
@@ -531,11 +559,12 @@ else:
         
         tab1, tab2 = st.tabs(["Kullanıcı Ekle", "Kullanıcı Listesi"])
         with tab1:
-            st.subheader("Yeni Hesap Oluştur")
-            with st.form("add_user"):
-                u_name = st.text_input("Kullanıcı Adı (Örn: ali123)")
+            st.subheader("Öğretmen / Admin Ekle")
+            st.info("Öğrenciler kendi kayıt olabilir. Buradan Öğretmen ekleyebilirsiniz.")
+            with st.form("add_user_admin"):
+                u_name = st.text_input("Kullanıcı Adı")
                 u_pass = st.text_input("Şifre")
-                u_role = st.selectbox("Rol", ["student", "teacher", "admin"])
+                u_role = st.selectbox("Rol", ["teacher", "admin", "student"])
                 if st.form_submit_button("Kaydet"):
                     if database.add_user(u_name, u_pass, u_role):
                         st.success("Kullanıcı oluşturuldu.")
@@ -632,7 +661,7 @@ else:
                 df = server.get_leaderboard(st.session_state.class_code)
                 st.dataframe(df, use_container_width=True)
 
-        # TAB 2: DERSLER VE TESTLER (Düzeltilen Kısım)
+        # TAB 2: DERSLER VE TESTLER
         with tab_lessons:
             t_tyt, t_meslek = st.tabs(["📘 TYT Çalışma", "📙 Meslek Soruları"])
             
@@ -698,7 +727,7 @@ else:
                                             server.join_or_update_student(st.session_state.class_code, st.session_state.username, pm)
                                             time.sleep(1); st.rerun()
 
-        # TAB 3: OYUN ALANI (Düzeltilen Kısım)
+        # TAB 3: OYUN ALANI
         with tab_games:
             secim = st.selectbox("Oyun Seç:", ["Finans İmparatoru", "Asset Matrix"])
             if secim == "Finans İmparatoru":
@@ -706,7 +735,7 @@ else:
             else:
                 components.html(ASSET_MATRIX_HTML, height=750)
 
-        # TAB 4: LIFESIM (Düzeltilen Kısım)
+        # TAB 4: LIFESIM
         with tab_life:
             st.info("Hayat Simülasyonu Yükleniyor...")
             components.html(load_lifesim(), height=800, scrolling=True)
