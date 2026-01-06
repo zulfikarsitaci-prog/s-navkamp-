@@ -10,7 +10,7 @@ import database
 from datetime import datetime
 
 # ==========================================
-# 1. SAYFA VE GENEL AYARLAR
+# 1. SAYFA AYARLARI
 # ==========================================
 st.set_page_config(
     page_title="Bağarası ÇPAL - Dijital Kampüs",
@@ -110,7 +110,7 @@ FINANCE_GAME_HTML = """
 </html>
 """
 
-# --- OYUN 2: SOCRATIC MATRIX (8x10 & SCROLL DÜZELTİLDİ) ---
+# --- OYUN 2: SOCRATIC MATRIX (HATA GİDERİLDİ) ---
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -127,7 +127,7 @@ ASSET_MATRIX_HTML = """
             color: #FFD700; 
             font-family: 'Cinzel', serif; 
             text-align: center; 
-            touch-action: pan-y; 
+            touch-action: pan-y; /* Dikey kaydırmaya izin ver */
             user-select: none;
             overflow-y: auto; 
         }
@@ -160,7 +160,7 @@ ASSET_MATRIX_HTML = """
             border: 2px solid #333; 
             border-radius: 4px; 
             box-shadow: 0 0 15px rgba(0,0,0,0.8); 
-            touch-action: none; 
+            touch-action: none; /* Sadece oyun alanı kilitli */
         }
 
         .bank-btn { 
@@ -235,7 +235,7 @@ ASSET_MATRIX_HTML = """
         const ctx = canvas.getContext('2d');
         const scoreEl = document.getElementById('score');
         
-        // --- AYARLAR (8x10) ---
+        // --- AYARLAR ---
         const COLS = 8;
         const ROWS = 10;
         let CELL_SIZE = 30; 
@@ -262,12 +262,11 @@ ASSET_MATRIX_HTML = """
             [[0,1,1],[1,1,0]]    
         ];
 
-        // --- BOYUTLANDIRMA (GÜVENLİ) ---
+        // --- BOYUTLANDIRMA ---
         function resize() {
             const containerW = window.innerWidth;
             const containerH = window.innerHeight * 0.70; 
             
-            // Hesaplama hatalarını önlemek için en az 20px
             CELL_SIZE = Math.max(20, Math.floor(Math.min((containerW - 20) / COLS, containerH / ROWS)));
             
             canvas.width = CELL_SIZE * COLS;
@@ -283,11 +282,7 @@ ASSET_MATRIX_HTML = """
             score = 0;
             scoreEl.innerText = score;
             
-            // Overlay'i kesinlikle gizle
-            const startSc = document.getElementById('startScreen');
-            startSc.style.display = 'none';
-            startSc.classList.add('hidden');
-            
+            document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
             document.getElementById('bankCode').style.display = 'none';
             
@@ -354,10 +349,15 @@ ASSET_MATRIX_HTML = """
 
             // Sürüklenen
             if (draggingPiece) {
+                // Izgara hesaplaması: Artık sürüklenen parçanın sol üst köşesini değil, parmağın bulunduğu yeri baz alacağız
                 const {gx, gy} = getGridPos(draggingPiece.x, draggingPiece.y);
+                
+                // Önizleme (Ghost)
                 if (canPlace(draggingPiece.shape, gx, gy)) {
                     drawShape(draggingPiece.shape, gx * CELL_SIZE, gy * CELL_SIZE, CELL_SIZE, PREVIEW_COLOR);
                 }
+                
+                // Parçanın kendisi
                 drawShape(draggingPiece.shape, draggingPiece.x, draggingPiece.y, CELL_SIZE, BLOCK_COLOR);
             }
         }
@@ -380,11 +380,16 @@ ASSET_MATRIX_HTML = """
             }
         }
 
-        // --- FİZİK ---
+        // --- FİZİK (DÜZELTİLDİ) ---
         function getGridPos(px, py) {
             if(!draggingPiece) return {gx:-1, gy:-1};
-            const gx = Math.round((px + dragOffset.x) / CELL_SIZE);
-            const gy = Math.round((py + dragOffset.y) / CELL_SIZE);
+            
+            // HATA DÜZELTME: dragOffset'i tekrar eklemek yerine direkt koordinatı kullanıyoruz.
+            // Çünkü px zaten offset eklenmiş hali.
+            // ızgara hücresini bulurken: Math.round(konum / hücre_boyutu)
+            
+            const gx = Math.round(px / CELL_SIZE);
+            const gy = Math.round(py / CELL_SIZE);
             return {gx, gy};
         }
 
@@ -455,7 +460,7 @@ ASSET_MATRIX_HTML = """
             }
         }
 
-        // --- KONTROLLER (SCROLL DOSTU) ---
+        // --- KONTROLLER ---
         function getTouchPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -468,22 +473,25 @@ ASSET_MATRIX_HTML = """
 
             for(let i=pieces.length-1; i>=0; i--) {
                 const p = pieces[i];
+                // Spawn alanındaki boyut (scale 0.6)
                 const w = p.shape[0].length * CELL_SIZE * p.scale;
                 const h = p.shape.length * CELL_SIZE * p.scale;
                 
-                if(pos.x >= p.x - 20 && pos.x <= p.x + w + 20 &&
-                   pos.y >= p.y - 20 && pos.y <= p.y + h + 20) {
+                // Çarpışma alanı (biraz genişletildi)
+                if(pos.x >= p.x - 30 && pos.x <= p.x + w + 30 &&
+                   pos.y >= p.y - 30 && pos.y <= p.y + h + 30) {
                     
                     if(e.cancelable) e.preventDefault(); 
 
                     draggingPiece = p;
                     p.isDragging = true;
                     
+                    // Sürüklemeye başlarken parmağı tam ortaya alalım
                     const realW = p.shape[0].length * CELL_SIZE;
                     const realH = p.shape.length * CELL_SIZE;
                     
                     dragOffset.x = -realW / 2;
-                    dragOffset.y = -realH / 2;
+                    dragOffset.y = -realH / 2; 
                     
                     p.x = pos.x + dragOffset.x;
                     p.y = pos.y + dragOffset.y;
@@ -544,7 +552,6 @@ ASSET_MATRIX_HTML = """
             draw();
         }
         
-        // İlk açılış
         setTimeout(resize, 100);
     </script>
 </body>
