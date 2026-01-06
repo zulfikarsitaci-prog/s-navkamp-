@@ -39,9 +39,9 @@
       },
       {
         "type": "scenario",
-        "text": "SENARYO 5: Elinizde meyve suyu kutusu, pipet ve peçete var.",
+        "text": "SENARYO 5: Elinizde geri dönüştürülebilir meyve suyu kutusu ve yağlı peçete var.",
         "sub_questions": [
-          {"q": "7. Meyve suyu kutusu Çöp müdür, Atık mıdır?", "a": "Atık"},
+          {"q": "7. Meyve suyu kutusu (Ambalaj) Çöp müdür, Atık mıdır?", "a": "Atık"},
           {"q": "Kullanılmış yağlı peçete Çöp müdür, Atık mıdır?", "a": "Çöp"},
           {"q": "8. Atık yağların lavaboya dökülmemesi neyi kirletir?", "a": "Su"}
         ],
@@ -65,12 +65,12 @@
     "Temel Muhasebe": [
       {
         "type": "calculation",
-        "text": "SORU 1: KIDEM TAZMİNATI: 4 Yıl 5 Ay 18 Gün çalışan işçi. Brüt: 30.000 TL.",
+        "text": "SORU 1: KIDEM TAZMİNATI HESAPLAMA: 4 Yıl 5 Ay 18 Gün çalışan işçi. Brüt Maaş: 30.000 TL.",
         "inputs": [
           {"label": "4 Yıllık Tutar (30.000 x 4)", "correct": 120000},
           {"label": "5 Aylık Tutar (30.000 / 12 x 5)", "correct": 12500},
-          {"label": "18 Günlük Tutar (30.000 / 360 x 18)", "correct": 1500},
-          {"label": "TOPLAM TAZMİNAT", "correct": 134000}
+          {"label": "18 Günlük Tutar (30.000 / 30 x 18)", "correct": 18000},
+          {"label": "TOPLAM TAZMİNAT", "correct": 150500}
         ],
         "points": 20
       },
@@ -79,7 +79,7 @@
         "text": "SORU 2: SGK STATÜLERİ EŞLEŞTİRME",
         "sub_questions": [
           {"q": "a) Maaşlı çalışan mühendis (4a/4b/4c)?", "a": "4a"},
-          {"q": "b) Kendi ofisini açan mimar (4a/4b/4c)?", "a": "4b"},
+          {"q": "b) Kendi ofisini açan mimar (Bağkur) (4a/4b/4c)?", "a": "4b"},
           {"q": "c) Valilikte memur (4a/4b/4c)?", "a": "4c"}
         ],
         "points": 10
@@ -92,7 +92,7 @@
       },
       {
         "type": "text",
-        "question": "SORU 4: 25.12.2025'te işe başlayacak işçinin bildirgesi en geç ne zaman verilmeli?",
+        "question": "SORU 4: 25.12.2025'te işe başlayacak işçinin sigorta bildirgesi en geç ne zaman verilmeli?",
         "answer": "24.12.2025",
         "keywords": ["24.12", "bir gün önce"],
         "points": 10
@@ -105,20 +105,20 @@
       },
       {
         "type": "text",
-        "question": "SORU 6: Nakliyesi yapılan ancak henüz satılmamış mal için şoförün taşıması gereken belge?",
+        "question": "SORU 6: Nakliyesi yapılan ancak henüz faturası kesilmemiş mal için şoförün taşıması gereken belge?",
         "answer": "Sevk İrsaliyesi",
         "points": 10
       },
       {
         "type": "text",
-        "question": "SORU 7: Faturanın 'Kapalı Fatura' olması bedelin ne yapıldığını gösterir?",
+        "question": "SORU 7: Faturanın 'Kapalı Fatura' (imzanın altta) olması bedelin ne yapıldığını gösterir?",
         "answer": "Ödendiğini",
         "keywords": ["ödendi", "peşin"],
         "points": 10
       },
       {
         "type": "calculation",
-        "text": "SORU 8: FATURA HESAPLAMA: 50 Çanta, Fiyat 200 TL, İskonto %10, KDV %20.",
+        "text": "SORU 8: FATURA HESAPLAMA: 50 Çanta, Birim Fiyat 200 TL, İskonto %10, KDV %20.",
         "inputs": [
           {"label": "Mal Bedeli (50x200)", "correct": 10000},
           {"label": "İskonto Tutarı (%10)", "correct": 1000},
@@ -317,7 +317,7 @@
       },
       {
         "type": "calculation",
-        "text": "7. FAZLA ÇALIŞMA: Mehmet Bey 50 saat çalıştı (Normal: 45). Saat ücreti 200 TL.",
+        "text": "7. FAZLA ÇALIŞMA: Mehmet Bey 50 saat çalıştı (Normal: 45). Saat ücreti 200 TL. (%50 Zamlı)",
         "inputs": [
           {"label": "A) Fazla Çalışma Saati (50-45)", "correct": 5},
           {"label": "B) 1 Saatlik Zamlı Ücret (200 x 1.5)", "correct": 300},
@@ -329,12 +329,12 @@
     "Şirketler Muhasebesi": [
       {
         "type": "calculation",
-        "text": "SORU 1: ALİ KARA KURULUŞ KAYDI: Taahhüt 900.000 TL. (Nakit 50.000, Taşıt 700.000, Kalan Çek)",
+        "text": "SORU 1: KURULUŞ KAYDI (ALİ KARA LTD): Sermaye Taahhüdü 900.000 TL. (Nakit 50.000, Taşıt 700.000, Kalanı Çek ciro ederek ödüyor)",
         "inputs": [
           {"label": "500 Sermaye (Alacak)", "correct": 900000},
           {"label": "100 Kasa (Borç)", "correct": 50000},
           {"label": "254 Taşıtlar (Borç)", "correct": 700000},
-          {"label": "103 Verilen Çekler (Borç - Kalan)", "correct": 150000}
+          {"label": "101 Alınan Çekler (Borç - Kalan)", "correct": 150000}
         ],
         "points": 30
       },
@@ -343,18 +343,18 @@
         "text": "SORU 2: SERMAYE ARTIRIMI (180.000 TL): Merve 150.000 (Yarısı Nakit, Yarısı Senet), Ayşe 30.000 (Banka).",
         "inputs": [
           {"label": "Merve - Nakit Tutarı (150bin / 2)", "correct": 75000},
-          {"label": "Merve - Senet Tutarı", "correct": 75000},
-          {"label": "Ayşe - Banka Tutarı", "correct": 30000}
+          {"label": "Merve - Senet Tutarı (121 Alacak Senetleri)", "correct": 75000},
+          {"label": "Ayşe - Banka Tutarı (102 Bankalar)", "correct": 30000}
         ],
         "points": 20
       },
       {
         "type": "calculation",
-        "text": "SORU 3: KAR DAĞITIMI (250.000 TL): Yavuz (%80), Ali (%20). Yavuz'a 50.000 Senet, kalanı Çek.",
+        "text": "SORU 3: KAR DAĞITIMI (250.000 TL): Yavuz (%80), Ali (%20). Yavuz'a 50.000 Senet, kalanı Çek verilerek ödeniyor.",
         "inputs": [
           {"label": "Yavuz'un Kar Payı (%80)", "correct": 200000},
           {"label": "Ali'nin Kar Payı (%20)", "correct": 50000},
-          {"label": "Yavuz'a Verilen Çek Tutarı", "correct": 150000}
+          {"label": "Yavuz'a Verilen Çek Tutarı (103 Verilen Çekler)", "correct": 150000}
         ],
         "points": 30
       },
@@ -371,7 +371,7 @@
     "Maliyet Muhasebesi": [
       {
         "type": "calculation",
-        "text": "SORU 1: GİDER DAĞITIMI I: Yemek (20.000 -> Personel), Temizlik (30.000 -> Alan). Kesim: 60 Kişi, 500 m2. (Toplam 200 Kişi, 1500 m2).",
+        "text": "SORU 1: GİDER DAĞITIMI I: Yemek (20.000 -> Personel), Temizlik (30.000 -> Alan). Kesim: 60 Kişi, Dikim: 600 m2. (Toplam Personel: 200, Toplam Alan: 1500 m2).",
         "inputs": [
           {"label": "Kesim Bölümü Yemek Payı (20000/200*60)", "correct": 6000},
           {"label": "Dikim Bölümü Temizlik Payı (30000/1500*600)", "correct": 12000}
@@ -380,10 +380,10 @@
       },
       {
         "type": "calculation",
-        "text": "SORU 2: FIFO STOK: 01.05 Devir: 5000kg @ 30TL. | 15.05 Alış: 5500kg @ 35TL. | Çıkan: 3500 + 4000 = 7500 kg.",
+        "text": "SORU 2: FIFO (İlk Giren İlk Çıkar) STOK: 01.05 Devir: 5000kg @ 30TL. | 15.05 Alış: 5500kg @ 35TL. | Üretime Sevk: 7500 kg.",
         "inputs": [
           {"label": "Kalan Stok Miktarı (10500 - 7500)", "correct": 3000},
-          {"label": "Kalan Stok Değeri (3000 x 35 TL)", "correct": 105000}
+          {"label": "Kalan Stok Değeri (Hepsi son alıştan: 3000 x 35 TL)", "correct": 105000}
         ],
         "points": 20
       },
@@ -401,8 +401,8 @@
         "type": "calculation",
         "text": "SORU 4: BİRİM MALİYET: Toplam Maliyet Ekmek 75.000 (5000 adet), Poğaça 80.000 (4000 adet).",
         "inputs": [
-          {"label": "Ekmek Birim Maliyet", "correct": 15},
-          {"label": "Poğaça Birim Maliyet", "correct": 20}
+          {"label": "Ekmek Birim Maliyet (75000/5000)", "correct": 15},
+          {"label": "Poğaça Birim Maliyet (80000/4000)", "correct": 20}
         ],
         "points": 20
       }
@@ -416,7 +416,7 @@
         "sub_questions": [
           {"q": "1. John'un cebindeki nakit paraya ne denir?", "a": "Efektif"},
           {"q": "Hesaptan yapılan işleme ne denir?", "a": "Döviz"},
-          {"q": "2. Dolar verip TL alma işlemine ne denir?", "a": "Alış"}
+          {"q": "2. Banka Dolar alıp TL veriyorsa bu işlem nedir?", "a": "Döviz Alış"}
         ],
         "points": 20
       },
@@ -426,13 +426,13 @@
         "sub_questions": [
           {"q": "3. Farklı bankaya para gönderme (Durum A)?", "a": "EFT"},
           {"q": "Aynı bankaya para gönderme (Durum B)?", "a": "Havale"},
-          {"q": "4. Hafta sonu yapılan EFT ne zaman hesaba geçer?", "a": "Pazartesi"}
+          {"q": "4. Mesai saati dışı yapılan EFT hesaba ne zaman geçer (FAST hariç)?", "a": "Pazartesi"}
         ],
         "points": 30
       },
       {
         "type": "text",
-        "question": "5. Bankanın firmanın borcunu garanti ettiği belgeye ne denir?",
+        "question": "5. Bankanın firmanın borcunu garanti ettiği (kefil olduğu) belgeye ne denir?",
         "answer": "Teminat Mektubu",
         "points": 10
       },
