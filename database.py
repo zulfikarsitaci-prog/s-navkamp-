@@ -1,9 +1,15 @@
 import sqlite3
 import hashlib
+import os
 from datetime import datetime, timedelta
 
+# --- VERİTABANI DOSYA YOLUNU SABİTLEME ---
+# Bu ayar, uygulamanın çalıştığı klasörü bulur ve db dosyasını oraya sabitler.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "education_platform.db")
+
 def connect():
-    return sqlite3.connect('education_platform.db', check_same_thread=False)
+    return sqlite3.connect(DB_PATH, check_same_thread=False)
 
 def create_database():
     conn = connect()
@@ -12,11 +18,12 @@ def create_database():
     cursor.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)')
     cursor.execute('CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)')
-    # YENİ: Genel Sohbet Tablosu
+    # Genel Sohbet
     cursor.execute('CREATE TABLE IF NOT EXISTS global_messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, message TEXT, timestamp TEXT)')
-    
     # İlişkiler (Arkadaşlık)
     cursor.execute('CREATE TABLE IF NOT EXISTS relationships (id INTEGER PRIMARY KEY AUTOINCREMENT, user1 TEXT, user2 TEXT, status TEXT)')
+    # Notlar/Puanlar
+    cursor.execute('CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)')
     
     conn.commit()
     conn.close()
@@ -156,7 +163,7 @@ def get_conversation(user1, user2):
     conn.close()
     return msgs
 
-# --- GENEL SOHBET (YENİ) ---
+# --- GENEL SOHBET ---
 def send_global_message(sender, message):
     conn = connect()
     now = datetime.now().strftime("%H:%M")
@@ -168,7 +175,7 @@ def get_global_messages(limit=50):
     conn = connect()
     msgs = conn.execute("SELECT sender, message, timestamp FROM global_messages ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
     conn.close()
-    return msgs[::-1] # Eskiden yeniye sırala
+    return msgs[::-1]
 
 # --- DUYURU ---
 def add_announcement(title, content, author):
