@@ -29,7 +29,7 @@ if "logged_in" in st.session_state and st.session_state.logged_in:
     database.update_activity(st.session_state.username)
 
 # ==========================================
-# 2. SABİTLER VE VERİ KAYNAKLARI
+# 2. SABİTLER
 # ==========================================
 GITHUB_BASE_URL = "https://raw.githubusercontent.com/zulfikarsitaci-prog/s-navkamp-/main"
 URL_TYT_DATA = f"{GITHUB_BASE_URL}/tyt_data.json"
@@ -38,7 +38,7 @@ URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
 URL_LIFESIM = f"{GITHUB_BASE_URL}/lifesim_data.json"
 
 # ==========================================
-# 3. OYUN KODLARI (DÜZELTİLMİŞ MATRIX)
+# 3. OYUN KODLARI
 # ==========================================
 
 # --- OYUN 1: FINANS İMPARATORU ---
@@ -110,7 +110,7 @@ FINANCE_GAME_HTML = """
 </html>
 """
 
-# --- OYUN 2: SOCRATIC MATRIX (SCROLL & START DÜZELTİLDİ) ---
+# --- OYUN 2: SOCRATIC MATRIX (8x10 & SCROLL DÜZELTİLDİ) ---
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -127,10 +127,9 @@ ASSET_MATRIX_HTML = """
             color: #FFD700; 
             font-family: 'Cinzel', serif; 
             text-align: center; 
-            /* SCROLL DÜZELTMESİ: touch-action: none kaldırıldı */
             touch-action: pan-y; 
             user-select: none;
-            overflow-y: auto; /* Sayfa kaydırılabilsin */
+            overflow-y: auto; 
         }
 
         #game-container { 
@@ -161,7 +160,6 @@ ASSET_MATRIX_HTML = """
             border: 2px solid #333; 
             border-radius: 4px; 
             box-shadow: 0 0 15px rgba(0,0,0,0.8); 
-            /* SADECE OYUN ALANINDA SCROLL'U ENGELLE */
             touch-action: none; 
         }
 
@@ -221,7 +219,7 @@ ASSET_MATRIX_HTML = """
 
         <div id="startScreen" class="overlay">
             <h1 style="color:#FFD700;">SOCRATIC MATRIX</h1>
-            <p style="color:#aaa;">8x12 Izgara. Blokları sürükle ve yok et.</p>
+            <p style="color:#aaa;">8x10 Izgara. Blokları sürükle ve yok et.</p>
             <button class="big-btn" onclick="startGame()">BAŞLA</button>
         </div>
 
@@ -237,10 +235,10 @@ ASSET_MATRIX_HTML = """
         const ctx = canvas.getContext('2d');
         const scoreEl = document.getElementById('score');
         
-        // --- AYARLAR ---
+        // --- AYARLAR (8x10) ---
         const COLS = 8;
-        const ROWS = 12;
-        let CELL_SIZE = 30; // Varsayılan değer
+        const ROWS = 10;
+        let CELL_SIZE = 30; 
         const BLOCK_COLOR = "#D500F9"; // Mor
         const PREVIEW_COLOR = "rgba(213, 0, 249, 0.3)";
         
@@ -466,8 +464,6 @@ ASSET_MATRIX_HTML = """
         }
 
         function onDown(e) {
-            // Sadece canvas üzerinde etkileşimi başlat, sayfa kaydırmayı engelle (passive: false ile)
-            
             const pos = getTouchPos(e);
 
             for(let i=pieces.length-1; i>=0; i--) {
@@ -478,7 +474,6 @@ ASSET_MATRIX_HTML = """
                 if(pos.x >= p.x - 20 && pos.x <= p.x + w + 20 &&
                    pos.y >= p.y - 20 && pos.y <= p.y + h + 20) {
                     
-                    // Parça yakalandı, artık sayfa kaymasın
                     if(e.cancelable) e.preventDefault(); 
 
                     draggingPiece = p;
@@ -501,7 +496,7 @@ ASSET_MATRIX_HTML = """
 
         function onMove(e) {
             if(!draggingPiece) return;
-            if(e.cancelable) e.preventDefault(); // Sürüklerken sayfa kaymasın
+            if(e.cancelable) e.preventDefault(); 
             
             const pos = getTouchPos(e);
             draggingPiece.x = pos.x + dragOffset.x;
@@ -679,7 +674,12 @@ else:
                 st.session_state.class_code = code
                 server.join_or_update_student(code, st.session_state.username)
                 st.success(f"Sınıf: {code}"); time.sleep(0.5); st.rerun()
+        
         if st.button("Çıkış"): st.session_state.logged_in = False; st.rerun()
+        
+        # --- ANA MENÜYE DÖN BUTONU ---
+        if st.button("🏠 Ana Menüye Dön"):
+            st.rerun()
 
     # --- SOHBET FONKSİYONLARI ---
     def render_chat(other_user):
