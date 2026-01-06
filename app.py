@@ -19,26 +19,32 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- ÖZEL CSS (Görsel Düzenlemeler) ---
+# --- ÖZEL CSS (Görsel Düzenlemeler & Mobil) ---
 st.markdown("""
 <style>
+    /* Giriş Ekranı */
     .login-container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-    .login-title { font-family: 'Helvetica', sans-serif; font-size: 2.5rem; font-weight: 700; color: #FFD700; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+    .login-title { font-family: 'Helvetica', sans-serif; font-size: 2.2rem; font-weight: 700; color: #FFD700; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
     
+    /* Sol Menü */
     div[data-testid="stSidebar"] button {
-        width: 100%; border-radius: 8px; padding: 10px 15px; font-weight: bold; transition: all 0.3s;
-        border: 1px solid rgba(255,255,255,0.1); margin-bottom: 5px;
+        width: 100%; border-radius: 8px; padding: 12px 15px; font-weight: bold; transition: all 0.3s;
+        border: 1px solid rgba(255,255,255,0.1); margin-bottom: 5px; font-size: 1rem;
     }
     div[data-testid="stSidebar"] button:first-of-type { background-color: #2563eb; color: white; } /* Ana Menü */
     div[data-testid="stSidebar"] button:last-of-type { background-color: #dc2626; color: white; margin-top: 20px; } /* Çıkış */
 
+    /* Üst Bar */
     .top-bar {
-        background-color: #1e293b; padding: 8px 15px; border-radius: 8px; 
+        background-color: #1e293b; padding: 10px 15px; border-radius: 8px; 
         display: flex; justify-content: space-between; align-items: center;
         margin-bottom: 15px; border-bottom: 2px solid #FFD700;
     }
-    .user-greeting { font-size: 0.9rem; font-weight: bold; color: #e2e8f0; }
-    .role-badge { background: #FFD700; color: #000; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 900; }
+    .user-greeting { font-size: 1rem; font-weight: bold; color: #e2e8f0; }
+    .role-badge { background: #FFD700; color: #000; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 900; }
+    
+    /* Mobilde iframe'lerin tam oturması için */
+    iframe { width: 100% !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -61,37 +67,68 @@ URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
 URL_LIFESIM = f"{GITHUB_BASE_URL}/lifesim_data.json"
 
 # ==========================================
-# 3. OYUN KODLARI
+# 3. OYUN KODLARI (MOBİL UYUMLU)
 # ==========================================
 
-# --- OYUN 1: FINANS İMPARATORU (BANKA ENTEGRASYONLU) ---
+# --- OYUN 1: FINANS İMPARATORU (MOBİL RESPONSIVE) ---
 def get_finance_game_html(start_money):
     return f"""
     <!DOCTYPE html>
     <html lang="tr">
     <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <style>
-        body {{ background-color: #0f172a; color: #e2e8f0; font-family: sans-serif; user-select: none; padding: 10px; text-align: center; margin: 0; }}
-        .dashboard {{ display: flex; justify-content: space-between; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px; }}
-        .money-val {{ font-size: 22px; font-weight: 900; color: #34d399; }}
-        .clicker-btn {{ background: radial-gradient(circle, #3b82f6 0%, #1d4ed8 100%); border: 4px solid #1e3a8a; border-radius: 50%; width: 110px; height: 110px; font-size: 30px; cursor: pointer; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }}
+        body {{ background-color: #0f172a; color: #e2e8f0; font-family: sans-serif; padding: 10px; text-align: center; margin: 0; box-sizing: border-box; }}
+        
+        .dashboard {{ 
+            display: flex; justify-content: space-between; align-items: center;
+            background: #1e293b; padding: 10px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px; 
+        }}
+        .money-val {{ font-size: 18px; font-weight: 900; color: #34d399; }}
+        .cps-val {{ font-size: 14px; font-weight: bold; color: #facc15; }}
+        
+        .clicker-btn {{ 
+            background: radial-gradient(circle, #3b82f6 0%, #1d4ed8 100%); 
+            border: 4px solid #1e3a8a; border-radius: 50%; 
+            width: 90px; height: 90px; font-size: 30px; 
+            cursor: pointer; margin: 0 auto 15px auto; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); 
+            transition: transform 0.1s;
+        }}
         .clicker-btn:active {{ transform: scale(0.95); }}
-        .asset-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 20px; }}
-        .asset-card {{ background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #334155; cursor: pointer; transition: 0.2s; text-align: left; }}
+        
+        /* Grid Mobilde Otomatik Küçülür */
+        .asset-grid {{ 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+            gap: 8px; margin-bottom: 20px; 
+        }}
+        
+        .asset-card {{ 
+            background: #1e293b; padding: 8px; border-radius: 8px; 
+            border: 1px solid #334155; cursor: pointer; text-align: left; font-size: 11px;
+            display: flex; flex-direction: column; justify-content: center;
+        }}
         .asset-card:hover {{ border-color: #facc15; background: #253347; }}
         .asset-card.locked {{ opacity: 0.5; filter: grayscale(1); pointer-events: none; }}
-        .bank-btn {{ background: #10b981; color: #fff; border: none; padding: 8px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 10px; width: 100%; }}
-        .code-display {{ background: #fff; color: #000; padding: 5px; margin-top: 5px; font-family: monospace; font-weight: bold; display: none; border-radius: 4px; }}
-        .info-bar {{ background: #334155; padding: 5px; font-size: 11px; border-radius: 4px; margin-bottom: 10px; color: #cbd5e1; }}
+        
+        .bank-btn {{ 
+            background: #10b981; color: #fff; border: none; padding: 12px; 
+            font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; font-size: 14px; 
+        }}
+        
+        .info-bar {{ background: #334155; padding: 8px; font-size: 10px; border-radius: 6px; margin-bottom: 10px; color: #cbd5e1; }}
+        .code-display {{ background: #fff; color: #000; padding: 10px; margin-top: 5px; font-family: monospace; font-weight: bold; display: none; border-radius: 4px; word-break: break-all; }}
     </style>
     </head>
     <body>
     <div class="dashboard">
-        <div>SERMAYE: <div id="money" class="money-val">{start_money} ₺</div></div>
-        <div>GELİR: <div id="cps" style="color:#facc15">0.0 /sn</div></div>
+        <div><span style="font-size:10px; color:#aaa;">SERMAYE</span><br><div id="money" class="money-val">{start_money} ₺</div></div>
+        <div style="text-align:right;"><span style="font-size:10px; color:#aaa;">GELİR</span><br><div id="cps" class="cps-val">0.0 /sn</div></div>
     </div>
-    <div class="info-bar">ℹ️ Bankadaki {start_money} TL sermayenizle oyuna başladınız. Kazancınızı çekmek için "Aktar" butonunu kullanın.</div>
+    <div class="info-bar">ℹ️ {start_money} TL ile başladın. Puanlarını biriktir ve bankaya aktar.</div>
     <div class="clicker-btn" onclick="manualWork()">👆</div>
     <div class="asset-grid" id="market"></div>
     <button class="bank-btn" onclick="generateCode()">🏦 KAZANCI BANKAYA AKTAR</button>
@@ -101,9 +138,9 @@ def get_finance_game_html(start_money):
         let startBalance = {start_money};
         
         const assets = [
-            {{ name: "Limonata", cost: 150, gain: 0.5, count: 0 }}, {{ name: "Simit Tezgahı", cost: 1000, gain: 3.5, count: 0 }},
+            {{ name: "Limonata", cost: 150, gain: 0.5, count: 0 }}, {{ name: "Simit", cost: 1000, gain: 3.5, count: 0 }},
             {{ name: "Kantin", cost: 5000, gain: 15.0, count: 0 }}, {{ name: "Kırtasiye", cost: 20000, gain: 55.0, count: 0 }},
-            {{ name: "Yazılım Ofisi", cost: 80000, gain: 200.0, count: 0 }}, {{ name: "Fabrika", cost: 1000000, gain: 3500.0, count: 0 }}
+            {{ name: "Yazılım", cost: 80000, gain: 200.0, count: 0 }}, {{ name: "Fabrika", cost: 1000000, gain: 3500.0, count: 0 }}
         ];
         function updateUI() {{
             document.getElementById('money').innerText = Math.floor(money).toLocaleString() + ' ₺';
@@ -115,7 +152,7 @@ def get_finance_game_html(start_money):
                 let div = document.createElement('div');
                 div.className = 'asset-card ' + (money >= currentCost ? '' : 'locked');
                 div.onclick = () => buyAsset(index);
-                div.innerHTML = `<b>${{asset.name}}</b> (${{asset.count}})<br><span style="color:#f87171">${{currentCost.toLocaleString()}} ₺</span><br><span style="color:#34d399">+${{asset.gain}}/sn</span>`;
+                div.innerHTML = `<b>${{asset.name}}</b> (${{asset.count}})<br><span style="color:#f87171">${{currentCost.toLocaleString()}}</span><br><span style="color:#34d399">+${{asset.gain}}/s</span>`;
                 market.appendChild(div);
             }});
         }}
@@ -142,7 +179,7 @@ def get_finance_game_html(start_money):
     </html>
     """
 
-# --- OYUN 2: SOCRATIC MATRIX (KOORDİNAT & SÜRÜKLEME DÜZELTİLDİ) ---
+# --- OYUN 2: SOCRATIC MATRIX (MOBİL OTOMATİK BOYUTLANDIRMA) ---
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -153,13 +190,44 @@ ASSET_MATRIX_HTML = """
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
         
-        body { margin: 0; background-color: #050505; color: #FFD700; font-family: 'Cinzel', serif; text-align: center; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
-        #game-container { position: relative; width: 100%; height: 100vh; display: flex; flex-direction: column; align-items: center; padding-top: 10px; }
-        .header { display: flex; justify-content: space-between; width: 90%; max-width: 350px; margin-bottom: 5px; padding: 5px; background: #111; border-bottom: 1px solid #FFD700; border-radius: 4px; }
-        .score-val { font-size: 18px; color: #FFD700; font-weight: bold; }
-        canvas { background: #0f0f0f; border: 2px solid #333; border-radius: 4px; box-shadow: 0 0 15px rgba(0,0,0,0.8); touch-action: none; }
-        .bank-btn { margin-top: 15px; background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; border: none; padding: 12px 30px; font-weight: bold; border-radius: 25px; cursor: pointer; font-size: 14px; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2); }
-        #bankCode { margin-top: 10px; background: #222; color: #fff; padding: 10px; display: none; font-family: monospace; border: 1px dashed #FFD700; }
+        body { 
+            margin: 0; background-color: #050505; color: #FFD700; font-family: 'Cinzel', serif; text-align: center; 
+            touch-action: none; /* Tüm sayfada kaydırmayı engelle (Oyun için) */
+            overflow: hidden; 
+            user-select: none; -webkit-user-select: none;
+        }
+        
+        #game-container { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding-top: 10px; box-sizing: border-box;
+        }
+
+        .header { 
+            display: flex; justify-content: space-between; width: 95%; max-width: 400px; 
+            margin-bottom: 5px; padding: 5px; background: #111; border-bottom: 1px solid #FFD700; border-radius: 4px;
+            font-size: 14px;
+        }
+        .score-val { font-size: 16px; color: #FFD700; font-weight: bold; }
+
+        canvas { 
+            background: #0f0f0f; border: 2px solid #333; border-radius: 4px; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.8); 
+            touch-action: none; 
+        }
+
+        .bank-btn { 
+            position: absolute; top: 10px; right: 10px; z-index: 100;
+            background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; border: none; 
+            padding: 8px 15px; font-weight: bold; border-radius: 20px; cursor: pointer; font-size: 12px; 
+        }
+        
+        #bankCode { 
+            position: absolute; top: 50px; right: 10px; z-index: 100;
+            background: #222; color: #fff; padding: 10px; display: none; 
+            font-family: monospace; border: 1px dashed #FFD700; font-size: 12px;
+        }
+
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 50; }
         .hidden { display: none !important; }
         .big-btn { background: transparent; border: 2px solid #FFD700; color: #FFD700; padding: 15px 40px; font-size: 18px; font-family: 'Cinzel', serif; cursor: pointer; margin-top: 20px; transition: 0.2s; }
@@ -168,22 +236,26 @@ ASSET_MATRIX_HTML = """
 </head>
 <body>
     <div id="game-container">
+        <button class="bank-btn" onclick="getTransferCode()">🏦 AKTAR</button>
+        <div id="bankCode"></div>
+        
         <div class="header">
             <div>VARLIK: <span id="score" class="score-val">0</span></div>
             <div>SEVİYE: <span id="level" class="score-val">1</span></div>
         </div>
+        
         <canvas id="gameCanvas"></canvas>
-        <button class="bank-btn" onclick="getTransferCode()">🏦 HAZİNE AKTAR</button>
-        <div id="bankCode"></div>
+        
         <div id="startScreen" class="overlay">
             <h1 style="color:#FFD700;">SOCRATIC 8x10</h1>
-            <p style="color:#aaa;">Strateji Alanı</p>
+            <p style="color:#aaa;">Mobilde Sürükle Bırak</p>
             <button class="big-btn" onclick="startGame()">BAŞLA</button>
         </div>
+        
         <div id="gameOverScreen" class="overlay hidden">
             <h1 style="color:#ff4444">İFLAS</h1>
-            <p style="color:#fff;">Toplam Varlık: <span id="finalScore">0</span></p>
-            <button class="big-btn" onclick="startGame()">TEKRAR DENE</button>
+            <p style="color:#fff;">Toplam: <span id="finalScore">0</span></p>
+            <button class="big-btn" onclick="startGame()">TEKRAR</button>
         </div>
     </div>
     <script>
@@ -197,10 +269,9 @@ ASSET_MATRIX_HTML = """
         let CELL_SIZE = 30; 
         const BLOCK_COLOR = "#D500F9"; 
         const PREVIEW_COLOR = "rgba(213, 0, 249, 0.4)";
-        const SPAWN_AREA_HEIGHT = 150; // Alt alan yüksekliği
         
         let grid = [], pieces = [], draggingPiece = null, score = 0;
-        let dragOffset = {x:0, y:0}; // Parmağın blok üzerindeki konumu
+        let dragOffset = {x:0, y:0};
 
         const SHAPES = [
             [[1]], [[1,1]], [[1],[1]], [[1,1],[1,1]], 
@@ -210,11 +281,24 @@ ASSET_MATRIX_HTML = """
         ];
 
         function resize() {
-            const containerW = window.innerWidth;
-            const containerH = window.innerHeight * 0.70; 
-            CELL_SIZE = Math.max(25, Math.floor(Math.min((containerW - 20) / COLS, containerH / ROWS)));
+            // Ekrana tam sığdırma (Header ve boşluk payı)
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            
+            // Dikey alandan header (50px) ve alt boşluk (150px) çıkar
+            const availableH = h - 200; 
+            const availableW = w - 20;
+            
+            // Hücre boyutunu hem en hem boya göre hesapla
+            CELL_SIZE = Math.floor(Math.min(availableW / COLS, availableH / ROWS));
+            
+            // En az 25px, en çok 50px olsun
+            CELL_SIZE = Math.max(25, Math.min(CELL_SIZE, 50));
+            
             canvas.width = CELL_SIZE * COLS;
-            canvas.height = (CELL_SIZE * ROWS) + SPAWN_AREA_HEIGHT;
+            // Canvas yüksekliği: Grid + Alt Spawn Alanı (3.5 hücre boyu kadar)
+            canvas.height = (CELL_SIZE * ROWS) + (CELL_SIZE * 3.5);
+            
             draw();
         }
         window.addEventListener('resize', resize);
@@ -230,19 +314,21 @@ ASSET_MATRIX_HTML = """
 
         function spawnPieces() {
             pieces = [];
-            const spawnZoneY = (ROWS * CELL_SIZE) + 20;
+            // Spawn alanı ızgaranın hemen altı
+            const spawnZoneY = (ROWS * CELL_SIZE) + (CELL_SIZE * 0.5);
             const slotWidth = canvas.width / 3;
+            
             for(let i=0; i<3; i++) {
                 const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
                 // Spawn olurken ortala
-                const pW = shape[0].length * CELL_SIZE * 0.7; 
+                const pW = shape[0].length * CELL_SIZE * 0.6; 
                 pieces.push({
                     shape: shape,
                     x: (slotWidth * i) + (slotWidth/2) - (pW/2),
                     y: spawnZoneY,
                     baseX: (slotWidth * i) + (slotWidth/2) - (pW/2),
                     baseY: spawnZoneY,
-                    scale: 0.7, // Alt tarafta biraz küçük görünsün
+                    scale: 0.6, 
                     isDragging: false
                 });
             }
@@ -266,12 +352,10 @@ ASSET_MATRIX_HTML = """
 
             // Sürüklenen
             if (draggingPiece) {
-                // Önizleme (Grid'e Snap)
                 const {gx, gy} = getGridPos(draggingPiece.x, draggingPiece.y);
                 if (canPlace(draggingPiece.shape, gx, gy)) {
                     drawShape(draggingPiece.shape, gx * CELL_SIZE, gy * CELL_SIZE, CELL_SIZE, PREVIEW_COLOR);
                 }
-                // Gerçek Parça (Parmağın altında)
                 drawShape(draggingPiece.shape, draggingPiece.x, draggingPiece.y, CELL_SIZE, BLOCK_COLOR);
             }
         }
@@ -287,9 +371,9 @@ ASSET_MATRIX_HTML = """
             }}
         }
 
-        // --- GELİŞMİŞ KOORDİNAT HESABI (SNAP FIX) ---
+        // --- GELİŞMİŞ KOORDİNAT HESABI ---
         function getGridPos(px, py) {
-            // Parça koordinatından ızgara koordinatına (En yakın hücre)
+            // Parmağın olduğu yere göre hesapla
             const gx = Math.round(px / CELL_SIZE);
             const gy = Math.round(py / CELL_SIZE);
             return {gx, gy};
@@ -333,7 +417,6 @@ ASSET_MATRIX_HTML = """
             if(!canMove) {
                 document.getElementById('finalScore').innerText = score;
                 document.getElementById('gameOverScreen').classList.remove('hidden');
-                document.getElementById('gameOverScreen').style.display = 'flex';
             }
         }
 
@@ -352,12 +435,12 @@ ASSET_MATRIX_HTML = """
                 const w = p.shape[0].length * CELL_SIZE * p.scale;
                 const h = p.shape.length * CELL_SIZE * p.scale;
                 
-                // Dokunma alanı toleransı (+20px)
-                if(pos.x >= p.x - 20 && pos.x <= p.x + w + 20 && pos.y >= p.y - 20 && pos.y <= p.y + h + 20) {
+                // Toleranslı tıklama alanı
+                if(pos.x >= p.x - 30 && pos.x <= p.x + w + 30 && pos.y >= p.y - 30 && pos.y <= p.y + h + 30) {
                     if(e.cancelable) e.preventDefault(); 
                     draggingPiece = p; p.isDragging = true;
                     
-                    // Parçayı tam parmağın ortasına hizalamak için offset hesapla
+                    // Sürüklerken tam parmağın ortasına al
                     const realW = p.shape[0].length * CELL_SIZE;
                     const realH = p.shape.length * CELL_SIZE;
                     dragOffset.x = -realW / 2; 
@@ -391,7 +474,6 @@ ASSET_MATRIX_HTML = """
                 pieces = pieces.filter(p => p !== draggingPiece);
                 if(pieces.length === 0) spawnPieces(); else checkGameOver();
             } else {
-                // Geri dön
                 draggingPiece.x = draggingPiece.baseX;
                 draggingPiece.y = draggingPiece.baseY;
                 draggingPiece.isDragging = false;
@@ -488,15 +570,12 @@ if "user_role" not in st.session_state: st.session_state.user_role = None
 if "username" not in st.session_state: st.session_state.username = None
 if "class_code" not in st.session_state: st.session_state.class_code = "GENEL"
 
-# --- A) GİRİŞ EKRANI (ORTALANMIŞ & TASARIMLI) ---
+# --- A) GİRİŞ EKRANI ---
 if not st.session_state.logged_in:
-    # Ortalanmış Logo ve Başlık
     st.markdown('<div class="login-container"><h1 class="login-title">🎓 Bağarası ÇPAL Dijital Kampüs</h1></div>', unsafe_allow_html=True)
-    
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
         tab_log, tab_reg = st.tabs(["Giriş Yap", "Kayıt Ol (Öğrenci)"])
-        
         with tab_log:
             with st.form("login"):
                 u = st.text_input("Kullanıcı Adı")
@@ -520,22 +599,17 @@ if not st.session_state.logged_in:
 
 # --- B) UYGULAMA İÇİ ---
 else:
-    # --- YENİ MESAJ KONTROLÜ (TOAST) ---
+    # --- TOAST BİLDİRİM ---
     unread_msgs = database.get_unread_messages(st.session_state.username)
     if unread_msgs:
         for m in unread_msgs:
             st.toast(f"📩 {m[1]}: {m[2]}", icon="🔔")
             database.mark_as_read(m[0])
 
-    # --- SOL MENÜ (DÜZENLENMİŞ) ---
+    # --- SOL MENÜ ---
     with st.sidebar:
-        # ANA MENÜ BUTONU (EN ÜSTTE)
-        if st.button("🏠 Ana Menüye Dön"):
-            st.rerun()
-            
+        if st.button("🏠 Ana Menüye Dön"): st.rerun()
         st.divider()
-        
-        # Kullanıcı Bilgisi
         st.title(st.session_state.username)
         st.caption(f"Yetki: {st.session_state.user_role}")
         
@@ -552,18 +626,11 @@ else:
                 server.join_or_update_student(code, st.session_state.username)
                 st.success(f"Sınıf: {code}"); time.sleep(0.5); st.rerun()
         
-        # ÇIKIŞ BUTONU (EN ALTTA, KIRMIZI STİL CSS İLE)
-        if st.button("🚪 Çıkış"): 
-            st.session_state.logged_in = False; st.rerun()
+        if st.button("🚪 Çıkış"): st.session_state.logged_in = False; st.rerun()
 
-    # --- ÜST BAR (KARŞILAMA) ---
+    # --- ÜST BAR ---
     role_tr = "Öğrenci" if st.session_state.user_role == "student" else "Öğretmen/Yönetici"
-    st.markdown(f"""
-    <div class="top-bar">
-        <div class="user-greeting">Merhaba, {st.session_state.username}</div>
-        <div class="role-badge">{role_tr}</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state.username}</div><div class="role-badge">{role_tr}</div></div>', unsafe_allow_html=True)
 
     # --- SOHBET FONKSİYONLARI ---
     def render_chat(other_user):
@@ -574,14 +641,13 @@ else:
             with st.chat_message("user" if sender == st.session_state.username else "assistant"):
                 st.write(msg)
                 st.caption(f"{sender} - {timestamp}")
-        
         if prompt := st.chat_input("Mesaj yaz..."):
             database.send_message(st.session_state.username, other_user, prompt)
             st.rerun()
         database.mark_messages_as_read(st.session_state.username, other_user)
 
     def render_global_chat():
-        st.markdown("### 🌍 Kampüs Meydanı (Genel Sohbet)")
+        st.markdown("### 🌍 Kampüs Meydanı")
         try:
             conn = database.connect()
             msgs = conn.execute("SELECT sender, message, timestamp FROM global_messages ORDER BY id DESC LIMIT 50").fetchall()
@@ -591,17 +657,13 @@ else:
                     st.markdown(f"**{m[0]}**: {m[1]}")
                     st.caption(m[2])
         except: st.warning("Sohbet yükleniyor...")
-
         if prompt := st.chat_input("Meydana seslen..."):
-            try:
-                database.send_global_message(st.session_state.username, prompt)
-                st.rerun()
+            try: database.send_global_message(st.session_state.username, prompt); st.rerun()
             except: pass
 
-    # --- ADMIN PANELİ ---
+    # --- İÇERİK ---
     if st.session_state.user_role == "admin":
         st.header("⚙️ Yönetim Paneli")
-        
         col_on, col_chat = st.columns([1, 2])
         with col_on:
             st.subheader("🟢 Online")
@@ -609,20 +671,16 @@ else:
             if online: st.dataframe(pd.DataFrame(online), use_container_width=True)
             else: st.info("Kimse yok.")
             if st.button("Yenile"): st.rerun()
-            
         with col_chat:
             st.subheader("💬 Canlı Destek")
             all_users = [u[0] for u in database.get_all_users() if u[0] != "admin"]
             target_user = st.selectbox("Sohbet Başlat:", all_users)
             render_chat(target_user)
-
         st.divider()
         t1, t2 = st.tabs(["Kullanıcı Ekle", "Kullanıcı Sil"])
         with t1:
             with st.form("admin_add"):
-                nu = st.text_input("Kullanıcı")
-                np = st.text_input("Şifre")
-                nr = st.selectbox("Rol", ["teacher", "student", "admin"])
+                nu = st.text_input("Kullanıcı"); np = st.text_input("Şifre"); nr = st.selectbox("Rol", ["teacher", "student", "admin"])
                 if st.form_submit_button("Ekle"):
                     if database.add_user(nu, np, nr): st.success("Eklendi")
                     else: st.error("Hata")
@@ -632,24 +690,20 @@ else:
             if st.button("Sil"):
                 if tod!="admin": database.delete_user(tod); st.rerun()
 
-    # --- ÖĞRETMEN / ÖĞRENCİ ---
     elif st.session_state.user_role in ["student", "teacher"]:
-        
         if st.session_state.user_role == "teacher":
             st.success("👨‍🏫 ÖĞRETMEN MODU")
             if "created_code" not in st.session_state:
                 st.session_state.created_code = str(random.randint(1000, 9999))
                 server.create_class(st.session_state.created_code)
                 st.session_state.class_code = st.session_state.created_code
-            
             c1, c2 = st.columns(2)
             with c1: st.info(f"Ders Kodu: {st.session_state.created_code}")
-            with c2: st.write(f"Aktif Öğrenciler: {server.get_active_students_in_class(st.session_state.created_code)}")
+            with c2: st.write(f"Aktif: {server.get_active_students_in_class(st.session_state.created_code)}")
             st.divider()
 
-        t1, t2, t3, t4, t5 = st.tabs(["🏆 Kampüs", "💬 Sosyal & Sohbet", "📚 Dersler", "🎮 Oyunlar", "💼 LifeSim"])
+        t1, t2, t3, t4, t5 = st.tabs(["🏆 Kampüs", "💬 Sosyal", "📚 Dersler", "🎮 Oyunlar", "💼 LifeSim"])
         
-        # 1. KAMPÜS
         with t1:
             c1, c2 = st.columns([1,2])
             with c1:
@@ -660,15 +714,10 @@ else:
                         res, msg = server.redeem_code(st.session_state.class_code, st.session_state.username, kod)
                         if res: st.success("Yüklendi"); time.sleep(1); st.rerun()
                         else: st.error(msg)
-                
                 if st.session_state.user_role == "teacher":
                     with st.form("ann"):
-                        t = st.text_input("Başlık")
-                        c = st.text_area("İçerik")
-                        if st.form_submit_button("Yayınla"):
-                            database.add_announcement(t, c, st.session_state.username)
-                            st.success("Yayınlandı")
-
+                        t = st.text_input("Başlık"); c = st.text_area("İçerik")
+                        if st.form_submit_button("Yayınla"): database.add_announcement(t, c, st.session_state.username); st.success("Yayınlandı")
             with c2:
                 st.subheader("Duyurular")
                 anns = database.get_announcements()
@@ -676,53 +725,30 @@ else:
                 st.subheader("Sıralama")
                 st.dataframe(server.get_leaderboard(st.session_state.class_code), use_container_width=True)
 
-        # 2. SOSYAL & SOHBET
         with t2:
-            st.subheader("💬 Sosyal Ağ")
-            st_chat, st_req, st_add = st.tabs(["Sohbet Et", "Arkadaş İstekleri", "Öğrenci Ekle"])
-            
-            with st_chat:
-                chat_type = st.radio("Sohbet Modu:", ["🌍 Genel Sohbet (Meydan)", "🔒 Özel Mesaj"], horizontal=True)
-                if chat_type == "🌍 Genel Sohbet (Meydan)":
-                    render_global_chat()
-                else:
-                    friends = database.get_friends(st.session_state.username)
-                    if st.session_state.user_role == 'student': friends.append("admin") 
-                    
-                    if not friends:
-                        st.info("Henüz arkadaşın yok.")
-                    else:
-                        target = st.selectbox("Kiminle konuşmak istersin?", friends)
-                        render_chat(target)
-            
-            with st_req:
+            chat_type = st.radio("Sohbet Modu:", ["🌍 Genel Sohbet", "🔒 Özel Mesaj"], horizontal=True)
+            if chat_type == "🌍 Genel Sohbet": render_global_chat()
+            else:
+                friends = database.get_friends(st.session_state.username)
+                if st.session_state.user_role == 'student': friends.append("admin") 
+                if not friends: st.info("Arkadaşın yok.")
+                else: target = st.selectbox("Kiminle?", friends); render_chat(target)
+            with st.expander("Arkadaş Ekle / İstekler"):
                 pending = database.get_pending_requests(st.session_state.username)
                 if pending:
                     for req_id, sender in pending:
                         c1, c2 = st.columns([3, 1])
-                        c1.write(f"**{sender}** seni takip etmek istiyor.")
-                        if c2.button("Kabul Et", key=f"acc_{req_id}"):
-                            database.accept_request(sender, st.session_state.username)
-                            st.success(f"{sender} ile artık arkadaşsınız!")
-                            st.rerun()
-                else: st.caption("Bekleyen istek yok.")
-            
-            with st_add:
-                st.markdown("Okuldaki diğer öğrencileri bul ve ekle.")
+                        c1.write(f"**{sender}** seni ekledi."); 
+                        if c2.button("Kabul", key=f"acc_{req_id}"): database.accept_request(sender, st.session_state.username); st.success("Oldu!"); st.rerun()
+                st.divider()
                 searchable = database.get_searchable_students(st.session_state.username)
                 if searchable:
-                    target_student = st.selectbox("Öğrenci Seç", searchable)
-                    if st.button("Takip İsteği Gönder"):
-                        res, msg = database.send_friend_request(st.session_state.username, target_student)
-                        if res: st.success(msg)
-                        else: st.warning(msg)
-                else: st.info("Eklenebilecek kimse bulunamadı.")
+                    target_s = st.selectbox("Öğrenci Seç", searchable)
+                    if st.button("İstek Gönder"): res, msg = database.send_friend_request(st.session_state.username, target_s); st.success(msg)
 
-        # 3. DERSLER
         with t3:
-            ders_modu = st.radio("Çalışma Alanı Seçiniz:", ["TYT Çalışma", "Meslek Soruları", "Okul Yazılıları (JSON)"], horizontal=True)
+            ders_modu = st.radio("Seç:", ["TYT Çalışma", "Meslek Soruları", "Okul Yazılıları (JSON)"], horizontal=True)
             st.divider()
-
             if ders_modu == "TYT Çalışma":
                 tyt_data = fetch_json_data(URL_TYT_DATA)
                 if tyt_data:
@@ -730,22 +756,17 @@ else:
                     sel = st.selectbox("Ders", dersler)
                     pages = [k for k, v in tyt_data.items() if v.get('ders') == sel]
                     if pages:
-                        pg = st.selectbox("Sayfa", pages)
-                        det = tyt_data[pg]
+                        pg = st.selectbox("Sayfa", pages); det = tyt_data[pg]
                         c_p, c_q = st.columns([1.5, 1])
                         with c_p: st.markdown(f'<embed src="{URL_TYT_PDF}#page={pg}" width="100%" height="600px">', unsafe_allow_html=True)
                         with c_q:
                             with st.form("tyt"):
                                 ans = {}
-                                for i, q in enumerate(det['sorular']):
-                                    st.write(f"Soru {q}")
-                                    ans[i] = st.radio("Cevap", ['A','B','C','D','E'], key=f"t{i}", horizontal=True)
+                                for i, q in enumerate(det['sorular']): st.write(f"Soru {q}"); ans[i] = st.radio("Cevap", ['A','B','C','D','E'], key=f"t{i}", horizontal=True)
                                 if st.form_submit_button("Kontrol"):
                                     d = sum([1 for i, q in enumerate(det['sorular']) if ans[i] == det['cevaplar'][i]])
-                                    sc = d*50
-                                    st.success(f"Puan: {sc}")
+                                    sc = d*50; st.success(f"Puan: {sc}"); 
                                     if sc>0: server.join_or_update_student(st.session_state.class_code, st.session_state.username, sc)
-
             elif ders_modu == "Meslek Soruları":
                 m_data = fetch_json_data(URL_MESLEK_SORULAR)
                 if m_data:
@@ -759,54 +780,36 @@ else:
                                 qs = root[sinif][ders][konu]
                                 with st.form("mes"):
                                     mans = {}
-                                    for i, q in enumerate(qs):
-                                        st.write(f"**{i+1}. {q['soru']}**")
-                                        mans[i] = st.radio("Cevap", q['secenekler'], key=f"m{i}")
+                                    for i, q in enumerate(qs): st.write(f"**{i+1}. {q['soru']}**"); mans[i] = st.radio("Cevap", q['secenekler'], key=f"m{i}")
                                     if st.form_submit_button("Bitir"):
                                         dm = sum([1 for i, q in enumerate(qs) if mans[i] == q['cevap']])
-                                        pm = dm*100
-                                        st.success(f"Puan: {pm}")
+                                        pm = dm*100; st.success(f"Puan: {pm}");
                                         if pm>0: server.join_or_update_student(st.session_state.class_code, st.session_state.username, pm)
-
             elif ders_modu == "Okul Yazılıları (JSON)":
                 EXAM_DATA = load_local_exams()
-                if not EXAM_DATA: st.warning("exams.json yok!")
+                if not EXAM_DATA: st.warning("Sınav yok.")
                 else:
-                    eg = st.selectbox("Sınıf Seviyesi", list(EXAM_DATA.keys()))
+                    eg = st.selectbox("Sınıf", list(EXAM_DATA.keys()))
                     if eg:
-                        el = st.selectbox("Ders Adı", list(EXAM_DATA[eg].keys()))
+                        el = st.selectbox("Ders", list(EXAM_DATA[eg].keys()))
                         if el:
-                            qs = EXAM_DATA[eg][el]
-                            st.subheader(f"{el}")
+                            qs = EXAM_DATA[eg][el]; st.subheader(f"{el}")
                             with st.form("js_ex"):
-                                ua = {}
                                 for i, q in enumerate(qs):
-                                    st.markdown(f"**Soru {i+1}:** {q.get('text') or q.get('question')}")
-                                    if q['type']=='test': ua[i] = st.radio("Seçim", q['options'], key=f"j{i}")
-                                    elif q['type']=='text': ua[i] = st.text_input("Cevap", key=f"j{i}")
-                                    elif q['type']=='scenario': ua[i] = [st.text_input(sub['q'], key=f"j{i}_{j}") for j, sub in enumerate(q['sub_questions'])]
-                                    elif q['type']=='calculation': ua[i] = [st.number_input(inp['label'], key=f"j{i}_{j}") for j, inp in enumerate(q['inputs'])]
+                                    st.markdown(f"**{i+1}:** {q.get('text') or q.get('question')}")
+                                    if q['type']=='test': st.radio("Seçim", q['options'], key=f"j{i}")
+                                    elif q['type']=='text': st.text_input("Cevap", key=f"j{i}")
+                                    elif q['type']=='scenario': [st.text_input(sub['q'], key=f"j{i}_{j}") for j, sub in enumerate(q['sub_questions'])]
+                                    elif q['type']=='calculation': [st.number_input(inp['label'], key=f"j{i}_{j}") for j, inp in enumerate(q['inputs'])]
                                     st.divider()
                                 if st.form_submit_button("Bitir"):
-                                    score = 0
-                                    for i, q in enumerate(qs):
-                                        score += q.get('points', 0) 
-                                    st.success(f"Sınav Bitti. Puan: {score}")
+                                    score = sum([q.get('points',0) for q in qs]); st.success(f"Puan: {score}")
                                     server.join_or_update_student(st.session_state.class_code, st.session_state.username, score)
 
-        # 4. OYUNLAR
         with t4:
             gm = st.selectbox("Oyun", ["Finans İmparatoru", "Asset Matrix"])
-            
-            # Güncel Bakiyeyi Al
             current_balance = server.get_score(st.session_state.class_code, st.session_state.username)
-            
-            if gm == "Finans İmparatoru": 
-                # Bakiyeyi oyuna gönder
-                components.html(get_finance_game_html(current_balance), height=600)
-            else: 
-                components.html(ASSET_MATRIX_HTML, height=750)
+            if gm == "Finans İmparatoru": components.html(get_finance_game_html(current_balance), height=600)
+            else: components.html(ASSET_MATRIX_HTML, height=750)
 
-        # 5. LIFESIM
-        with t5:
-            components.html(load_lifesim(), height=800, scrolling=True)
+        with t5: components.html(load_lifesim(), height=800, scrolling=True)
