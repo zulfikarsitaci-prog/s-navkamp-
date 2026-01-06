@@ -109,7 +109,7 @@ FINANCE_GAME_HTML = """
 </html>
 """
 
-# --- OYUN 2: SOCRATIC MATRIX (ORİJİNAL - Sürükle Bırak 8x12) ---
+# --- OYUN 2: SOCRATIC MATRIX (OPTIMİZE EDİLMİŞ - KASMAZ) ---
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -118,43 +118,135 @@ ASSET_MATRIX_HTML = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Socratic Matrix</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-        body { margin: 0; overflow: hidden; background-color: #050505; font-family: 'Montserrat', sans-serif; color: #fff; touch-action: none; text-align: center; }
-        #game-container { position: relative; width: 100%; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 10px; }
-        .header { display: flex; justify-content: space-between; width: 95%; max-width: 350px; margin-bottom: 5px; font-size: 14px; }
-        .score-box { color: #FFD700; font-weight: bold; }
-        canvas { background: #111; border: 1px solid #333; box-shadow: 0 0 20px rgba(0,0,0,0.5); border-radius: 4px; touch-action: none; }
-        .bank-btn { position: absolute; top: 10px; right: 10px; background: #FFD700; color: #000; border: none; padding: 5px 10px; font-weight: bold; border-radius: 4px; cursor: pointer; z-index: 10; }
-        #bankCode { position: absolute; top: 40px; right: 10px; background: #fff; color: #000; padding: 5px; font-weight: bold; display: none; z-index: 10; font-size: 12px; }
-        .menu-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 20; }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto:wght@400&display=swap');
+        
+        body { 
+            margin: 0; 
+            background-color: #050505; 
+            color: #FFD700; 
+            font-family: 'Cinzel', serif; 
+            text-align: center; 
+            overflow: hidden; 
+            touch-action: none; /* Mobilde kaydırmayı engeller (Kasma Çözümü) */
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #game-container { 
+            position: relative; 
+            width: 100vw; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: flex-start;
+            padding-top: 10px;
+        }
+
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            width: 90%; 
+            max-width: 350px; 
+            margin-bottom: 5px; 
+            padding: 5px;
+            background: #111;
+            border-bottom: 1px solid #FFD700;
+        }
+
+        .score-lbl { font-size: 12px; color: #888; font-family: 'Roboto', sans-serif; }
+        .score-val { font-size: 18px; color: #FFD700; font-weight: bold; }
+
+        canvas { 
+            background: #0f0f0f; 
+            border: 2px solid #333; 
+            border-radius: 4px; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.8); 
+            touch-action: none; /* Kritik */
+        }
+
+        .bank-btn { 
+            margin-top: 10px;
+            background: linear-gradient(135deg, #FFD700, #B8860B); 
+            color: #000; 
+            border: none; 
+            padding: 12px 30px; 
+            font-weight: bold; 
+            border-radius: 25px; 
+            cursor: pointer; 
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+        }
+        
+        .bank-btn:active { transform: scale(0.95); }
+
+        #bankCode { 
+            margin-top: 10px;
+            background: #222; 
+            color: #fff; 
+            padding: 8px; 
+            border: 1px dashed #FFD700; 
+            display: none; 
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        /* Modal Ekranlar */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 50;
+        }
         .hidden { display: none !important; }
-        h1 { color: #FFD700; margin-bottom: 10px; }
-        button.start-btn { background: linear-gradient(45deg, #333, #555); border: 1px solid #FFD700; color: #FFD700; padding: 15px 40px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        
+        h1 { font-size: 32px; margin-bottom: 10px; color: #FFD700; text-shadow: 0 0 10px #B8860B; }
+        p { font-family: 'Roboto', sans-serif; color: #ccc; margin-bottom: 20px; font-size: 14px; max-width: 80%; }
+        
+        .big-btn {
+            background: transparent;
+            border: 2px solid #FFD700;
+            color: #FFD700;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .big-btn:hover { background: #FFD700; color: #000; }
+
     </style>
 </head>
 <body>
+
     <div id="game-container">
-        <button class="bank-btn" onclick="getTransferCode()">🏦 HAZİNE</button>
-        <div id="bankCode"></div>
-        
         <div class="header">
-            <div class="score-box">VARLIK: <span id="score">0</span></div>
-            <div class="score-box">SEVİYE: <span id="level">1</span></div>
+            <div>
+                <div class="score-lbl">VARLIK DEĞERİ</div>
+                <div class="score-val" id="score">0</div>
+            </div>
+            <div style="text-align:right;">
+                <div class="score-lbl">SEVİYE</div>
+                <div class="score-val" id="level">MASTER</div>
+            </div>
         </div>
-        
+
         <canvas id="gameCanvas"></canvas>
-        
-        <div id="startScreen" class="menu-screen">
-            <h1>SOCRATIC 8x12</h1>
-            <p>Blokları ızgaraya yerleştir.</p>
-            <button class="start-btn" onclick="initGame()">BAŞLA</button>
+
+        <button class="bank-btn" onclick="getTransferCode()">🏦 HAZİNE AKTAR</button>
+        <div id="bankCode"></div>
+
+        <div id="startScreen" class="overlay">
+            <h1>SOCRATIC MATRIX</h1>
+            <p>8x12 Strateji Alanı.<br>Blokları sürükle, satır ve sütunları yok et.</p>
+            <button class="big-btn" onclick="startGame()">BAŞLA</button>
         </div>
-        
-        <div id="gameOverScreen" class="menu-screen hidden">
-            <h1 style="color: #ff4444;">LİKİDİTE KRİZİ</h1>
-            <p>Hamle şansı kalmadı.</p>
-            <p>Son Değer: <span id="finalScore">$0</span></p>
-            <button class="start-btn" onclick="initGame()">TEKRAR DENE</button>
+
+        <div id="gameOverScreen" class="overlay hidden">
+            <h1 style="color:#ff4444">LİKİDİTE KRİZİ</h1>
+            <p>Piyasa kilitlendi. Hamle yapacak alan kalmadı.</p>
+            <div style="margin-bottom:20px; font-size:20px; color:#fff;">Skor: <span id="finalScore">0</span></div>
+            <button class="big-btn" onclick="startGame()">TEKRAR DENE</button>
         </div>
     </div>
 
@@ -162,82 +254,85 @@ ASSET_MATRIX_HTML = """
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreEl = document.getElementById('score');
-        const levelEl = document.getElementById('level');
         
-        // 8x12 Grid Ayarı
-        const COLS = 8; 
+        // --- AYARLAR ---
+        const COLS = 8;
         const ROWS = 12;
-        let CELL_SIZE = 30;
+        let CELL_SIZE = 0; // Dinamik hesaplanacak
         let OFFSET_X = 0;
         let OFFSET_Y = 0;
+        const GRID_COLOR = "#222";
+        const BLOCK_COLOR = "#D500F9"; // Mor (User isteği)
+        const PREVIEW_COLOR = "rgba(213, 0, 249, 0.3)";
         
-        const THEMES = [
-            { start: '#FFD700', end: '#C5A028' }, // Gold
-            { start: '#D500F9', end: '#7B1FA2' }  // Purple
-        ];
-        
-        let grid = [], availablePieces = [], draggingPiece = null, score = 0, level = 0;
-        let isGameOver = false;
+        // --- DEĞİŞKENLER ---
+        let grid = [];
+        let pieces = []; // Alttaki 3 parça
+        let draggingPiece = null;
+        let score = 0;
+        let dragOffset = {x:0, y:0};
 
-        // Şekiller (Tetris parçaları ama sürükle bırak için)
+        // --- ŞEKİLLER (Tetrominolar) ---
         const SHAPES = [
             [[1]], 
-            [[1,1]], 
-            [[1],[1]], 
+            [[1,1]], [[1],[1]], 
             [[1,1],[1,1]], 
-            [[1,1,1]], 
-            [[1],[1],[1]], 
-            [[1,0],[1,0],[1,1]], 
-            [[0,1],[0,1],[1,1]]
+            [[1,1,1]], [[1],[1],[1]],
+            [[1,1,1,1]], [[1],[1],[1],[1]],
+            [[1,0],[1,0],[1,1]], // L
+            [[0,1],[0,1],[1,1]], // J
+            [[1,1,0],[0,1,1]],   // S
+            [[0,1,1],[1,1,0]]    // Z
         ];
 
+        // --- BOYUTLANDIRMA ---
         function resize() {
-            // Mobil uyumlu boyutlandırma
-            const maxWidth = window.innerWidth * 0.95;
-            const maxHeight = window.innerHeight * 0.85;
+            const containerW = window.innerWidth;
+            const containerH = window.innerHeight * 0.65; // Ekranın %65'i oyun alanı
             
-            // Hücre boyutunu hesapla (dikey alana sığacak şekilde)
-            // 12 satır + altta 3 parça spawn alanı (yaklaşık 4-5 satır yüksekliği)
-            CELL_SIZE = Math.floor(Math.min(maxWidth / COLS, maxHeight / (ROWS + 5)));
+            // Hücre boyutunu ekran genişliğine göre ayarla
+            CELL_SIZE = Math.floor(Math.min((containerW - 20) / COLS, containerH / ROWS));
             
-            canvas.width = CELL_SIZE * COLS + 20;
-            canvas.height = CELL_SIZE * ROWS + (CELL_SIZE * 5); // Izgara + Alt Alan
+            canvas.width = CELL_SIZE * COLS;
+            canvas.height = (CELL_SIZE * ROWS) + (CELL_SIZE * 4); // Alt spawn alanı için ekstra yer
             
-            OFFSET_X = 10;
-            OFFSET_Y = 10;
+            OFFSET_X = 0;
+            OFFSET_Y = 0;
             
-            if(!isGameOver && availablePieces.length > 0) draw();
+            draw();
         }
-        
         window.addEventListener('resize', resize);
 
-        function initGame() {
-            grid = Array(ROWS).fill(0).map(() => Array(COLS).fill(0));
+        // --- OYUN MANTIĞI ---
+        function startGame() {
+            grid = Array(ROWS).fill().map(() => Array(COLS).fill(0));
             score = 0;
-            updateScore(0);
+            scoreEl.innerText = score;
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
-            isGameOver = false;
+            document.getElementById('bankCode').style.display = 'none';
             resize();
-            generateNewPieces();
+            spawnPieces();
         }
 
-        function generateNewPieces() {
-            availablePieces = [];
-            for (let i = 0; i < 3; i++) {
-                const matrix = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-                // Parçaları alta yan yana diz
-                const spawnY = OFFSET_Y + (ROWS * CELL_SIZE) + 20;
-                const spawnX = OFFSET_X + (i * (canvas.width / 3)) + 10;
+        function spawnPieces() {
+            pieces = [];
+            const spawnZoneY = (ROWS * CELL_SIZE) + (CELL_SIZE * 0.5);
+            const slotWidth = canvas.width / 3;
+
+            for(let i=0; i<3; i++) {
+                const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+                // Parçayı ortala
+                const pW = shape[0].length * CELL_SIZE * 0.6; // Altta dururken %60 boyut
+                const pH = shape.length * CELL_SIZE * 0.6;
                 
-                availablePieces.push({
-                    matrix: matrix,
-                    x: spawnX,
-                    y: spawnY,
-                    baseX: spawnX,
-                    baseY: spawnY,
-                    width: matrix[0].length * CELL_SIZE,
-                    height: matrix.length * CELL_SIZE,
+                pieces.push({
+                    shape: shape,
+                    x: (slotWidth * i) + (slotWidth/2) - (pW/2),
+                    y: spawnZoneY,
+                    baseX: (slotWidth * i) + (slotWidth/2) - (pW/2),
+                    baseY: spawnZoneY,
+                    scale: 0.6, // Spawn alanında küçük görünsün
                     isDragging: false
                 });
             }
@@ -245,108 +340,90 @@ ASSET_MATRIX_HTML = """
             checkGameOver();
         }
 
-        function checkGameOver() {
-            // Eğer hiçbir parça ızgaraya sığmıyorsa oyun biter
-            let canPlaceAny = false;
-            for(let p of availablePieces) {
-                for(let r=0; r<ROWS; r++) {
-                    for(let c=0; c<COLS; c++) {
-                        if(canPlace(p.matrix, c, r)) {
-                            canPlaceAny = true;
-                            break;
-                        }
-                    }
-                    if(canPlaceAny) break;
-                }
-                if(canPlaceAny) break;
-            }
-            
-            if(!canPlaceAny && availablePieces.length > 0) {
-                isGameOver = true;
-                document.getElementById('finalScore').innerText = score;
-                document.getElementById('gameOverScreen').classList.remove('hidden');
-            }
-        }
-
+        // --- ÇİZİM FONKSİYONLARI ---
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Izgara Çizimi
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 1;
-            for(let r=0; r<=ROWS; r++) {
-                ctx.beginPath(); ctx.moveTo(OFFSET_X, OFFSET_Y + r*CELL_SIZE); ctx.lineTo(OFFSET_X + COLS*CELL_SIZE, OFFSET_Y + r*CELL_SIZE); ctx.stroke();
-            }
-            for(let c=0; c<=COLS; c++) {
-                ctx.beginPath(); ctx.moveTo(OFFSET_X + c*CELL_SIZE, OFFSET_Y); ctx.lineTo(OFFSET_X + c*CELL_SIZE, OFFSET_Y + ROWS*CELL_SIZE); ctx.stroke();
-            }
+            ctx.fillStyle = "#050505";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Dolu Kareleri Çiz
+            // 1. Izgarayı Çiz
             for(let r=0; r<ROWS; r++) {
                 for(let c=0; c<COLS; c++) {
-                    if(grid[r][c] === 1) drawCell(OFFSET_X + c*CELL_SIZE, OFFSET_Y + r*CELL_SIZE, CELL_SIZE, false);
+                    const x = c * CELL_SIZE;
+                    const y = r * CELL_SIZE;
+                    
+                    ctx.strokeStyle = "#222";
+                    ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+
+                    if (grid[r][c] === 1) {
+                        drawCell(x, y, CELL_SIZE, BLOCK_COLOR);
+                    }
                 }
             }
 
-            // Mevcut Parçaları Çiz
-            availablePieces.forEach(p => {
-                if(p.isDragging) return;
-                // Alt tarafta dururken biraz küçültelim (0.6x)
-                drawShape(p.matrix, p.x, p.y, CELL_SIZE * 0.6); 
+            // 2. Spawn Alanı Çizgisi
+            ctx.beginPath();
+            ctx.moveTo(0, ROWS * CELL_SIZE);
+            ctx.lineTo(canvas.width, ROWS * CELL_SIZE);
+            ctx.strokeStyle = "#FFD700";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 3. Parçaları Çiz
+            pieces.forEach(p => {
+                if(p.isDragging) return; // Sürükleneni en son çizeceğiz
+                drawShape(p.shape, p.x, p.y, CELL_SIZE * p.scale, "#888"); // Pasif renk
             });
 
-            // Sürüklenen Parçayı Çiz
-            if(draggingPiece) {
-                drawShape(draggingPiece.matrix, draggingPiece.x, draggingPiece.y, CELL_SIZE);
-                // Önizleme (Gölge)
-                const {gx, gy} = getGridCoords(draggingPiece.x, draggingPiece.y);
-                if(canPlace(draggingPiece.matrix, gx, gy)) {
-                    drawShape(draggingPiece.matrix, OFFSET_X + gx*CELL_SIZE, OFFSET_Y + gy*CELL_SIZE, CELL_SIZE, true);
+            // 4. Sürüklenen Parçayı ve Gölgesini Çiz
+            if (draggingPiece) {
+                // Gölge (Preview)
+                const {gx, gy} = getGridPos(draggingPiece.x, draggingPiece.y);
+                if (canPlace(draggingPiece.shape, gx, gy)) {
+                    drawShape(draggingPiece.shape, gx * CELL_SIZE, gy * CELL_SIZE, CELL_SIZE, PREVIEW_COLOR);
                 }
+                // Parçanın kendisi (Tam boyut)
+                drawShape(draggingPiece.shape, draggingPiece.x, draggingPiece.y, CELL_SIZE, BLOCK_COLOR);
             }
         }
 
-        function drawCell(x, y, size, isPreview) {
-            const theme = THEMES[level % THEMES.length];
-            const grad = ctx.createLinearGradient(x, y, x+size, y+size);
-            
-            if(isPreview) {
-                ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-            } else {
-                grad.addColorStop(0, theme.start);
-                grad.addColorStop(1, theme.end);
-                ctx.fillStyle = grad;
-            }
-            
+        function drawCell(x, y, size, color) {
+            ctx.fillStyle = color;
             ctx.fillRect(x+1, y+1, size-2, size-2);
-            if(!isPreview) {
-                ctx.strokeStyle = "rgba(255,255,255,0.5)";
-                ctx.strokeRect(x+1, y+1, size-2, size-2);
-            }
+            // Sokratik Altın Çerçeve
+            ctx.strokeStyle = "rgba(255, 215, 0, 0.4)";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x+3, y+3, size-6, size-6);
         }
 
-        function drawShape(matrix, startX, startY, size, isPreview=false) {
-            for(let r=0; r<matrix.length; r++) {
-                for(let c=0; c<matrix[r].length; c++) {
-                    if(matrix[r][c] === 1) {
-                        drawCell(startX + c*size, startY + r*size, size, isPreview);
+        function drawShape(shape, px, py, size, color) {
+            for(let r=0; r<shape.length; r++) {
+                for(let c=0; c<shape[r].length; c++) {
+                    if(shape[r][c] === 1) {
+                        drawCell(px + (c*size), py + (r*size), size, color);
                     }
                 }
             }
         }
 
-        function getGridCoords(x, y) {
-            // Mouse/Touch pozisyonunu ızgara koordinatına çevirir
-            // Sürüklerken parmağın şeklin ortasında olduğunu varsayarak sol üst köşeyi hizalarız
-            const gridX = Math.round((x - OFFSET_X) / CELL_SIZE);
-            const gridY = Math.round((y - OFFSET_Y) / CELL_SIZE);
-            return {gx: gridX, gy: gridY};
+        // --- ETKİLEŞİM VE FİZİK ---
+        function getGridPos(px, py) {
+            // Parmağın şeklin sol üst köşesinde değil, ortasında olduğunu varsayarak hizala
+            // draggingPiece şu an undefined olabilir diye kontrol ediyoruz ama çağrıldığı yerde var
+            if(!draggingPiece) return {gx:-1, gy:-1};
+            
+            // Şeklin genişliğinin yarısı kadar sola kaydırarak "merkezi tutuş" hissi verelim
+            const offsetX = (draggingPiece.shape[0].length * CELL_SIZE) / 2;
+            const offsetY = (draggingPiece.shape.length * CELL_SIZE) / 2;
+            
+            const gx = Math.round((px + dragOffset.x) / CELL_SIZE);
+            const gy = Math.round((py + dragOffset.y) / CELL_SIZE);
+            return {gx, gy};
         }
 
-        function canPlace(matrix, gx, gy) {
-            for(let r=0; r<matrix.length; r++) {
-                for(let c=0; c<matrix[r].length; c++) {
-                    if(matrix[r][c] === 1) {
+        function canPlace(shape, gx, gy) {
+            for(let r=0; r<shape.length; r++) {
+                for(let c=0; c<shape[r].length; c++) {
+                    if(shape[r][c] === 1) {
                         let tx = gx + c;
                         let ty = gy + r;
                         if(tx < 0 || tx >= COLS || ty < 0 || ty >= ROWS || grid[ty][tx] === 1) return false;
@@ -356,141 +433,179 @@ ASSET_MATRIX_HTML = """
             return true;
         }
 
-        function placePiece(matrix, gx, gy) {
-            for(let r=0; r<matrix.length; r++) {
-                for(let c=0; c<matrix[r].length; c++) {
-                    if(matrix[r][c] === 1) {
-                        grid[gy+r][gx+c] = 1;
-                    }
+        function place(shape, gx, gy) {
+            for(let r=0; r<shape.length; r++) {
+                for(let c=0; c<shape[r].length; c++) {
+                    if(shape[r][c] === 1) grid[gy+r][gx+c] = 1;
                 }
             }
-            score += matrix.flat().filter(x=>x).length;
+            score += shape.flat().filter(x=>x).length * 10;
             checkLines();
-            updateScore(0);
+            scoreEl.innerText = score;
         }
 
         function checkLines() {
-            let cleared = 0;
+            let lines = 0;
+            
             // Satır Kontrolü
             for(let r=0; r<ROWS; r++) {
-                if(grid[r].every(v => v === 1)) {
-                    grid[r].fill(0);
-                    // Satırı kaydırma YOK (1010! mantığı), sadece patlar
-                    cleared++;
+                if(grid[r].every(val => val === 1)) {
+                    grid[r].fill(0); // Satırı temizle (kaydırma yok, 1010 mantığı)
+                    lines++;
                 }
             }
+            
             // Sütun Kontrolü
             for(let c=0; c<COLS; c++) {
                 let full = true;
                 for(let r=0; r<ROWS; r++) if(grid[r][c] === 0) full = false;
                 if(full) {
                     for(let r=0; r<ROWS; r++) grid[r][c] = 0;
-                    cleared++;
+                    lines++;
                 }
             }
-            if(cleared > 0) score += cleared * 50;
+            
+            if(lines > 0) score += lines * 100;
         }
 
-        function updateScore(add) {
-            score += add;
-            scoreEl.innerText = "$" + score;
-            level = Math.floor(score / 200);
-            levelEl.innerText = level + 1;
+        function checkGameOver() {
+            // Eğer elimizdeki hiçbir parça ızgaraya sığmıyorsa oyun biter
+            let canMove = false;
+            if(pieces.length === 0) return; // Parçalar bitmişse sorun yok
+
+            for(let p of pieces) {
+                for(let r=0; r<ROWS; r++) {
+                    for(let c=0; c<COLS; c++) {
+                        if(canPlace(p.shape, c, r)) {
+                            canMove = true;
+                            break;
+                        }
+                    }
+                    if(canMove) break;
+                }
+                if(canMove) break;
+            }
+
+            if(!canMove) {
+                document.getElementById('finalScore').innerText = score;
+                document.getElementById('gameOverScreen').classList.remove('hidden');
+            }
         }
 
-        // --- GİRİŞ KONTROLLERİ ---
-        let dragOffsetX = 0, dragOffsetY = 0;
-
-        function getPos(e) {
+        // --- INPUT EVENTLERİ (Mobil & Desktop) ---
+        function getTouchPos(e) {
             const rect = canvas.getBoundingClientRect();
-            let x = e.clientX, y = e.clientY;
-            if(e.touches && e.touches[0]) { x = e.touches[0].clientX; y = e.touches[0].clientY; }
-            return {x: x - rect.left, y: y - rect.top};
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
         }
 
         function onDown(e) {
-            if(isGameOver) return;
-            e.preventDefault();
-            const pos = getPos(e);
-            
-            // Hangi parçaya tıklandı?
-            for(let i=availablePieces.length-1; i>=0; i--) {
-                const p = availablePieces[i];
-                const pW = p.width * 0.6; 
-                const pH = p.height * 0.6;
-                // Basit çarpışma testi
-                if(pos.x > p.x && pos.x < p.x + pW + 20 && pos.y > p.y && pos.y < p.y + pH + 20) {
+            e.preventDefault(); // Sayfa kaydırmayı engelle
+            const pos = getTouchPos(e);
+
+            // Parçalara tıklandı mı?
+            for(let i=pieces.length-1; i>=0; i--) {
+                const p = pieces[i];
+                // Spawn bölgesindeki ölçekli boyut
+                const w = p.shape[0].length * CELL_SIZE * p.scale;
+                const h = p.shape.length * CELL_SIZE * p.scale;
+                
+                // Basit AABB çarpışma testi (Biraz toleranslı)
+                if(pos.x >= p.x - 20 && pos.x <= p.x + w + 20 &&
+                   pos.y >= p.y - 20 && pos.y <= p.y + h + 20) {
+                    
                     draggingPiece = p;
                     p.isDragging = true;
-                    // Sürüklerken tam boyuta geçeceği için ofseti ayarla
-                    dragOffsetX = (p.matrix[0].length * CELL_SIZE) / 2;
-                    dragOffsetY = (p.matrix.length * CELL_SIZE) / 2;
-                    // Hemen parmağın altına al
-                    p.x = pos.x - dragOffsetX;
-                    p.y = pos.y - dragOffsetY;
+                    
+                    // Tutar tutmaz parmağın tam ortasına gelsin diye ofset hesaplamıyoruz,
+                    // direkt parmağın altına alıyoruz ama ızgara hizalaması için
+                    // sol üst köşe farkını tutuyoruz.
+                    // Parmağı şeklin ortasına hizalamak için:
+                    const realW = p.shape[0].length * CELL_SIZE;
+                    const realH = p.shape.length * CELL_SIZE;
+                    
+                    // Şeklin sol üst köşesi parmağın neresinde olmalı?
+                    dragOffset.x = -realW / 2;
+                    dragOffset.y = -realH / 2; // Parmağın biraz üstünde görünsün
+                    
+                    // İlk hareket
+                    p.x = pos.x + dragOffset.x;
+                    p.y = pos.y + dragOffset.y;
+                    
                     draw();
-                    return;
+                    break;
                 }
             }
         }
 
         function onMove(e) {
-            if(!draggingPiece) return;
             e.preventDefault();
-            const pos = getPos(e);
-            draggingPiece.x = pos.x - dragOffsetX;
-            draggingPiece.y = pos.y - dragOffsetY;
+            if(!draggingPiece) return;
+            
+            const pos = getTouchPos(e);
+            draggingPiece.x = pos.x + dragOffset.x;
+            draggingPiece.y = pos.y + dragOffset.y; // Parmağın biraz üstü
+            
+            // Performans için requestAnimationFrame kullanılabilir ama
+            // basit çizimlerde direkt draw() daha az gecikme hissi verir.
             draw();
         }
 
         function onUp(e) {
-            if(!draggingPiece) return;
             e.preventDefault();
-            
-            const {gx, gy} = getGridCoords(draggingPiece.x, draggingPiece.y);
-            
-            if(canPlace(draggingPiece.matrix, gx, gy)) {
-                placePiece(draggingPiece.matrix, gx, gy);
-                // Parçayı listeden sil
-                availablePieces = availablePieces.filter(p => p !== draggingPiece);
-                if(availablePieces.length === 0) generateNewPieces();
-                else {
-                    draw();
-                    checkGameOver();
-                }
+            if(!draggingPiece) return;
+
+            const {gx, gy} = getGridPos(draggingPiece.x, draggingPiece.y);
+
+            if(canPlace(draggingPiece.shape, gx, gy)) {
+                place(draggingPiece.shape, gx, gy);
+                // Parçayı sil
+                pieces = pieces.filter(p => p !== draggingPiece);
+                if(pieces.length === 0) spawnPieces();
+                else checkGameOver();
             } else {
                 // Geri yerine koy
                 draggingPiece.x = draggingPiece.baseX;
                 draggingPiece.y = draggingPiece.baseY;
                 draggingPiece.isDragging = false;
-                draw();
             }
+            
             draggingPiece = null;
+            draw();
         }
 
         canvas.addEventListener('mousedown', onDown);
-        canvas.addEventListener('mousemove', onMove);
-        canvas.addEventListener('mouseup', onUp);
-        
         canvas.addEventListener('touchstart', onDown, {passive: false});
-        canvas.addEventListener('touchmove', onMove, {passive: false});
-        canvas.addEventListener('touchend', onUp, {passive: false});
+
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('touchmove', onMove, {passive: false});
+
+        window.addEventListener('mouseup', onUp);
+        window.addEventListener('touchend', onUp, {passive: false});
 
         function getTransferCode() {
             if(score < 50) { alert("En az 50 puan gerekli."); return; }
-            let hex = (score * 13).toString(16).toUpperCase(); 
-            let rnd = Math.floor(Math.random() * 9999);
-            let code = `FNK-${hex}-${rnd}`;
+            const hex = (score * 13).toString(16).toUpperCase();
+            const code = `FNK-${hex}-${Math.floor(Math.random()*999)}`;
             const box = document.getElementById('bankCode');
-            box.innerText = code; box.style.display = 'block';
-            score = 0; updateScore(0);
-            grid = Array(ROWS).fill(0).map(() => Array(COLS).fill(0));
+            box.innerText = code;
+            box.style.display = 'block';
+            score = 0; scoreEl.innerText = 0;
+            grid = Array(ROWS).fill().map(() => Array(COLS).fill(0));
             draw();
         }
+
+        // İlk açılışta resize çağır
+        resize();
     </script>
 </body>
 </html>
 """
+
 
 # ==========================================
 # 4. YARDIMCI FONKSİYONLAR
