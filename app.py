@@ -10,7 +10,7 @@ import database
 from datetime import datetime
 
 # ==========================================
-# 1. SAYFA AYARLARI
+# 1. SAYFA VE GENEL AYARLAR
 # ==========================================
 st.set_page_config(
     page_title="Bağarası ÇPAL - Dijital Kampüs",
@@ -29,13 +29,17 @@ if "logged_in" in st.session_state and st.session_state.logged_in:
     database.update_activity(st.session_state.username)
 
 # ==========================================
-# 2. SABİTLER VE OYUN KODLARI (OPTİMİZE EDİLMİŞ)
+# 2. SABİTLER VE VERİ KAYNAKLARI
 # ==========================================
 GITHUB_BASE_URL = "https://raw.githubusercontent.com/zulfikarsitaci-prog/s-navkamp-/main"
 URL_TYT_DATA = f"{GITHUB_BASE_URL}/tyt_data.json"
 URL_TYT_PDF = f"{GITHUB_BASE_URL}/tytson8.pdf"
 URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
 URL_LIFESIM = f"{GITHUB_BASE_URL}/lifesim_data.json"
+
+# ==========================================
+# 3. OYUN KODLARI (DÜZELTİLMİŞ MATRIX)
+# ==========================================
 
 # --- OYUN 1: FINANS İMPARATORU ---
 FINANCE_GAME_HTML = """
@@ -106,7 +110,7 @@ FINANCE_GAME_HTML = """
 </html>
 """
 
-# --- OYUN 2: SOCRATIC MATRIX (8x12 Sürükle-Bırak & Kasmayan Versiyon) ---
+# --- OYUN 2: SOCRATIC MATRIX (SCROLL & START DÜZELTİLDİ) ---
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
@@ -123,14 +127,15 @@ ASSET_MATRIX_HTML = """
             color: #FFD700; 
             font-family: 'Cinzel', serif; 
             text-align: center; 
-            overflow: hidden; 
-            touch-action: none; /* Mobilde kaydırmayı kilitler */
+            /* SCROLL DÜZELTMESİ: touch-action: none kaldırıldı */
+            touch-action: pan-y; 
             user-select: none;
+            overflow-y: auto; /* Sayfa kaydırılabilsin */
         }
 
         #game-container { 
             position: relative; 
-            width: 100vw; 
+            width: 100%; 
             height: 100vh; 
             display: flex; 
             flex-direction: column; 
@@ -156,7 +161,8 @@ ASSET_MATRIX_HTML = """
             border: 2px solid #333; 
             border-radius: 4px; 
             box-shadow: 0 0 15px rgba(0,0,0,0.8); 
-            touch-action: none;
+            /* SADECE OYUN ALANINDA SCROLL'U ENGELLE */
+            touch-action: none; 
         }
 
         .bank-btn { 
@@ -234,7 +240,7 @@ ASSET_MATRIX_HTML = """
         // --- AYARLAR ---
         const COLS = 8;
         const ROWS = 12;
-        let CELL_SIZE = 0;
+        let CELL_SIZE = 30; // Varsayılan değer
         const BLOCK_COLOR = "#D500F9"; // Mor
         const PREVIEW_COLOR = "rgba(213, 0, 249, 0.3)";
         
@@ -258,12 +264,13 @@ ASSET_MATRIX_HTML = """
             [[0,1,1],[1,1,0]]    
         ];
 
-        // --- BOYUTLANDIRMA ---
+        // --- BOYUTLANDIRMA (GÜVENLİ) ---
         function resize() {
             const containerW = window.innerWidth;
             const containerH = window.innerHeight * 0.70; 
             
-            CELL_SIZE = Math.floor(Math.min((containerW - 20) / COLS, containerH / ROWS));
+            // Hesaplama hatalarını önlemek için en az 20px
+            CELL_SIZE = Math.max(20, Math.floor(Math.min((containerW - 20) / COLS, containerH / ROWS)));
             
             canvas.width = CELL_SIZE * COLS;
             canvas.height = (CELL_SIZE * ROWS) + (CELL_SIZE * 4); 
@@ -277,9 +284,15 @@ ASSET_MATRIX_HTML = """
             grid = Array(ROWS).fill().map(() => Array(COLS).fill(0));
             score = 0;
             scoreEl.innerText = score;
-            document.getElementById('startScreen').classList.add('hidden');
+            
+            // Overlay'i kesinlikle gizle
+            const startSc = document.getElementById('startScreen');
+            startSc.style.display = 'none';
+            startSc.classList.add('hidden');
+            
             document.getElementById('gameOverScreen').classList.add('hidden');
             document.getElementById('bankCode').style.display = 'none';
+            
             resize();
             spawnPieces();
         }
@@ -440,10 +453,11 @@ ASSET_MATRIX_HTML = """
             if(!canMove) {
                 document.getElementById('finalScore').innerText = score;
                 document.getElementById('gameOverScreen').classList.remove('hidden');
+                document.getElementById('gameOverScreen').style.display = 'flex';
             }
         }
 
-        // --- KONTROLLER ---
+        // --- KONTROLLER (SCROLL DOSTU) ---
         function getTouchPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -452,7 +466,8 @@ ASSET_MATRIX_HTML = """
         }
 
         function onDown(e) {
-            e.preventDefault();
+            // Sadece canvas üzerinde etkileşimi başlat, sayfa kaydırmayı engelle (passive: false ile)
+            
             const pos = getTouchPos(e);
 
             for(let i=pieces.length-1; i>=0; i--) {
@@ -463,6 +478,9 @@ ASSET_MATRIX_HTML = """
                 if(pos.x >= p.x - 20 && pos.x <= p.x + w + 20 &&
                    pos.y >= p.y - 20 && pos.y <= p.y + h + 20) {
                     
+                    // Parça yakalandı, artık sayfa kaymasın
+                    if(e.cancelable) e.preventDefault(); 
+
                     draggingPiece = p;
                     p.isDragging = true;
                     
@@ -482,8 +500,8 @@ ASSET_MATRIX_HTML = """
         }
 
         function onMove(e) {
-            e.preventDefault();
             if(!draggingPiece) return;
+            if(e.cancelable) e.preventDefault(); // Sürüklerken sayfa kaymasın
             
             const pos = getTouchPos(e);
             draggingPiece.x = pos.x + dragOffset.x;
@@ -492,8 +510,8 @@ ASSET_MATRIX_HTML = """
         }
 
         function onUp(e) {
-            e.preventDefault();
             if(!draggingPiece) return;
+            if(e.cancelable) e.preventDefault();
 
             const {gx, gy} = getGridPos(draggingPiece.x, draggingPiece.y);
 
@@ -531,7 +549,8 @@ ASSET_MATRIX_HTML = """
             draw();
         }
         
-        resize();
+        // İlk açılış
+        setTimeout(resize, 100);
     </script>
 </body>
 </html>
@@ -648,6 +667,12 @@ else:
         st.title(st.session_state.username)
         st.caption(f"Yetki: {st.session_state.user_role}")
         
+        with st.expander("📬 Mesaj Kutusu"):
+            msgs = database.get_my_messages(st.session_state.username)
+            if msgs:
+                for m in msgs: st.info(f"**{m[1]}**: {m[2]}\n\n*{m[3]}*")
+            else: st.caption("Kutunuz boş.")
+
         if st.session_state.user_role == "student":
             code = st.text_input("Sınıf Kodu", placeholder="Örn: 1234")
             if st.button("Sınıfa Geç"):
@@ -681,7 +706,7 @@ else:
                 with st.chat_message("assistant" if m[0] != st.session_state.username else "user", avatar="👤"):
                     st.markdown(f"**{m[0]}**: {m[1]}")
                     st.caption(m[2])
-        except: st.warning("Veritabanı güncelleniyor...")
+        except: st.warning("Sohbet yükleniyor...")
 
         if prompt := st.chat_input("Meydana seslen..."):
             try:
