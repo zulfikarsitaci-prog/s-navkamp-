@@ -10,7 +10,7 @@ import database
 from datetime import datetime
 
 # ==========================================
-# 1. SAYFA VE STİL AYARLARI
+# 1. SAYFA AYARLARI
 # ==========================================
 st.set_page_config(
     page_title="Bağarası ÇPAL - Dijital Kampüs",
@@ -19,7 +19,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- ÖZEL CSS (Görsel Düzenlemeler) ---
+# CSS Düzenlemeleri
 st.markdown("""
 <style>
     .login-container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-top: 50px; }
@@ -63,10 +63,72 @@ URL_MESLEK_SORULAR = f"{GITHUB_BASE_URL}/sorular.json"
 URL_LIFESIM = f"{GITHUB_BASE_URL}/lifesim_data.json"
 
 # ==========================================
-# 3. OYUN KODLARI
+# 3. CLASS & OYUN KODLARI
 # ==========================================
 
-# --- OYUN 1: FINANS İMPARATORU ---
+class SchoolServer:
+    def __init__(self):
+        self.classes = {}
+        # Kodla yükleme güvenlik açığı oluşturduğu için kaldırdık, yerine direkt transfer geldi.
+        self.create_class("GENEL")
+    
+    def create_class(self, class_code):
+        if class_code not in self.classes: self.classes[class_code] = {}
+        
+    def join_or_update_student(self, class_code, username, points_to_add=0):
+        # Gerçek veritabanı kullanımı (Kalıcı olması için)
+        # Mevcut puanı çekmek yerine, veritabanında 'score' sütunu olmadığı için 
+        # şimdilik geçici olarak hafızada tutuyoruz ama Neon entegrasyonuyla
+        # burayı veritabanına bağlamak en iyisi. 
+        # Şimdilik Grade tablosunu 'Puan' olarak kullanacağız.
+        
+        # Basit bir puan tablosu simülasyonu (grades tablosunu kullanıyoruz)
+        conn, db_type = database.get_db_connection()
+        cur = conn.cursor()
+        
+        # Mevcut puanı al
+        cur.execute("SELECT SUM(grade) FROM grades WHERE student_username = ?", (username,) if db_type=="sqlite" else (username,))
+        current = cur.fetchone()[0] or 0
+        
+        # Yeni puanı ekle (Eğer 0 değilse)
+        if points_to_add != 0:
+            date = datetime.now().strftime("%Y-%m-%d %H:%M")
+            if db_type=="postgres":
+                cur.execute("INSERT INTO grades (student_username, lesson, grade, date) VALUES (%s, %s, %s, %s)", (username, "Sistem", points_to_add, date))
+            else:
+                cur.execute("INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)", (username, "Sistem", points_to_add, date))
+            conn.commit()
+            return current + points_to_add
+        
+        conn.close()
+        return current
+
+    def get_score(self, class_code, username):
+        conn, db_type = database.get_db_connection()
+        cur = conn.cursor()
+        query = "SELECT SUM(grade) FROM grades WHERE student_username = ?"
+        if db_type == "postgres": query = query.replace("?", "%s")
+        cur.execute(query, (username,))
+        score = cur.fetchone()[0]
+        conn.close()
+        return score or 0
+
+    def get_leaderboard(self, class_code):
+        conn, db_type = database.get_db_connection()
+        query = "SELECT student_username, SUM(grade) as total FROM grades GROUP BY student_username ORDER BY total DESC"
+        df = pd.read_sql_query(query, conn)
+        conn.close()
+        if not df.empty:
+            df.columns = ["Öğrenci", "Puan"]
+            return df
+        return pd.DataFrame(columns=["Öğrenci", "Puan"])
+
+    def get_active_students_in_class(self, class_code):
+        return []
+
+server = SchoolServer()
+
+# --- OYUN 1: FINANS İMPARATORU (OTOMATİK TRANSFER) ---
 def get_finance_game_html(start_money):
     return f"""
     <!DOCTYPE html>
@@ -78,16 +140,12 @@ def get_finance_game_html(start_money):
         body {{ background-color: #0f172a; color: #e2e8f0; font-family: sans-serif; padding: 10px; text-align: center; margin: 0; box-sizing: border-box; }}
         .dashboard {{ display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px; }}
         .money-val {{ font-size: 18px; font-weight: 900; color: #34d399; }}
-        .cps-val {{ font-size: 14px; font-weight: bold; color: #facc15; }}
         .clicker-btn {{ background: radial-gradient(circle, #3b82f6 0%, #1d4ed8 100%); border: 4px solid #1e3a8a; border-radius: 50%; width: 90px; height: 90px; font-size: 30px; cursor: pointer; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); transition: transform 0.1s; }}
         .clicker-btn:active {{ transform: scale(0.95); }}
         .asset-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 20px; }}
         .asset-card {{ background: #1e293b; padding: 8px; border-radius: 8px; border: 1px solid #334155; cursor: pointer; text-align: left; font-size: 11px; display: flex; flex-direction: column; justify-content: center; }}
-        .asset-card:hover {{ border-color: #facc15; background: #253347; }}
-        .asset-card.locked {{ opacity: 0.5; filter: grayscale(1); pointer-events: none; }}
-        .bank-btn {{ background: #10b981; color: #fff; border: none; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; font-size: 14px; }}
+        .bank-btn {{ background: #10b981; color: #fff; border: none; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; font-size: 14px; margin-top:10px; }}
         .info-bar {{ background: #334155; padding: 8px; font-size: 10px; border-radius: 6px; margin-bottom: 10px; color: #cbd5e1; }}
-        .code-display {{ background: #fff; color: #000; padding: 10px; margin-top: 5px; font-family: monospace; font-weight: bold; display: none; border-radius: 4px; word-break: break-all; }}
     </style>
     </head>
     <body>
@@ -95,13 +153,14 @@ def get_finance_game_html(start_money):
         <div><span style="font-size:10px; color:#aaa;">SERMAYE</span><br><div id="money" class="money-val">{start_money} ₺</div></div>
         <div style="text-align:right;"><span style="font-size:10px; color:#aaa;">GELİR</span><br><div id="cps" class="cps-val">0.0 /sn</div></div>
     </div>
-    <div class="info-bar">ℹ️ {start_money} TL ile başladın. Puanlarını biriktir ve bankaya aktar.</div>
+    <div class="info-bar">ℹ️ {start_money} TL ile başladın. Kârını bankaya aktar.</div>
     <div class="clicker-btn" onclick="manualWork()">👆</div>
     <div class="asset-grid" id="market"></div>
-    <button class="bank-btn" onclick="generateCode()">🏦 KAZANCI BANKAYA AKTAR</button>
-    <div id="transferCode" class="code-display"></div>
+    <button class="bank-btn" onclick="autoTransfer()">🏦 KÂRI BANKAYA AKTAR</button>
     <script>
-        let money = {start_money}; let startBalance = {start_money};
+        let money = {start_money}; 
+        let startBalance = {start_money};
+        
         const assets = [
             {{ name: "Limonata", cost: 150, gain: 0.5, count: 0 }}, {{ name: "Simit", cost: 1000, gain: 3.5, count: 0 }},
             {{ name: "Kantin", cost: 5000, gain: 15.0, count: 0 }}, {{ name: "Kırtasiye", cost: 20000, gain: 55.0, count: 0 }},
@@ -115,7 +174,7 @@ def get_finance_game_html(start_money):
             assets.forEach((asset, index) => {{
                 let currentCost = Math.floor(asset.cost * Math.pow(1.2, asset.count));
                 let div = document.createElement('div');
-                div.className = 'asset-card ' + (money >= currentCost ? '' : 'locked');
+                div.className = 'asset-card';
                 div.onclick = () => buyAsset(index);
                 div.innerHTML = `<b>${{asset.name}}</b> (${{asset.count}})<br><span style="color:#f87171">${{currentCost.toLocaleString()}}</span><br><span style="color:#34d399">+${{asset.gain}}/s</span>`;
                 market.appendChild(div);
@@ -126,13 +185,15 @@ def get_finance_game_html(start_money):
             let asset = assets[index]; let currentCost = Math.floor(asset.cost * Math.pow(1.2, asset.count));
             if (money >= currentCost) {{ money -= currentCost; asset.count++; updateUI(); }}
         }}
-        function generateCode() {{
+        function autoTransfer() {{
             let profit = money - startBalance;
-            if (profit < 50) {{ alert("Henüz 50 TL üzerinde net kar elde etmediniz."); return; }}
-            let val = Math.floor(profit); let hex = (val * 13).toString(16).toUpperCase(); 
-            let rnd = Math.floor(Math.random() * 9999); let code = `FNK-${{hex}}-${{rnd}}`;
-            let box = document.getElementById('transferCode'); box.innerText = code; box.style.display = 'block'; 
-            startBalance = money; alert("Kodu kopyalayıp 'Kampüs' sekmesinde kullanın!");
+            if (profit <= 0) {{ alert("Sadece kârını çekebilirsin! Şu an kârın yok."); return; }}
+            
+            // Streamlit URL Query Param ile veri gönder
+            const url = new URL(window.parent.location.href);
+            url.searchParams.set('game_transfer', Math.floor(profit));
+            url.searchParams.set('game_source', 'finance');
+            window.parent.location.href = url.toString();
         }}
         setInterval(() => {{ let totalCps = assets.reduce((t, a) => t + (a.count * a.gain), 0); if (totalCps > 0) {{ money += totalCps; updateUI(); }} }}, 1000);
         updateUI();
@@ -141,37 +202,32 @@ def get_finance_game_html(start_money):
     </html>
     """
 
-# --- OYUN 2: SOCRATIC MATRIX ---
+# --- OYUN 2: SOCRATIC MATRIX (OTOMATİK TRANSFER) ---
 ASSET_MATRIX_HTML = """
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Socratic Matrix</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
-        body { margin: 0; background-color: #050505; color: #FFD700; font-family: 'Cinzel', serif; text-align: center; touch-action: none; overflow: hidden; user-select: none; -webkit-user-select: none; }
-        #game-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 10px; box-sizing: border-box; }
+        body { margin: 0; background-color: #050505; color: #FFD700; font-family: 'Cinzel', serif; text-align: center; touch-action: none; overflow: hidden; user-select: none; }
+        #game-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 10px; }
         .header { display: flex; justify-content: space-between; width: 95%; max-width: 400px; margin-bottom: 5px; padding: 5px; background: #111; border-bottom: 1px solid #FFD700; border-radius: 4px; font-size: 14px; }
-        .score-val { font-size: 16px; color: #FFD700; font-weight: bold; }
         canvas { background: #0f0f0f; border: 2px solid #333; border-radius: 4px; box-shadow: 0 0 15px rgba(0,0,0,0.8); touch-action: none; }
         .bank-btn { position: absolute; top: 10px; right: 10px; z-index: 100; background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; border: none; padding: 8px 15px; font-weight: bold; border-radius: 20px; cursor: pointer; font-size: 12px; }
-        #bankCode { position: absolute; top: 50px; right: 10px; z-index: 100; background: #222; color: #fff; padding: 10px; display: none; font-family: monospace; border: 1px dashed #FFD700; font-size: 12px; }
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 50; }
         .hidden { display: none !important; }
         .big-btn { background: transparent; border: 2px solid #FFD700; color: #FFD700; padding: 15px 40px; font-size: 18px; font-family: 'Cinzel', serif; cursor: pointer; margin-top: 20px; transition: 0.2s; }
-        .big-btn:active { background: #FFD700; color: #000; }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <button class="bank-btn" onclick="getTransferCode()">🏦 AKTAR</button>
-        <div id="bankCode"></div>
-        <div class="header"><div>VARLIK: <span id="score" class="score-val">0</span></div><div>SEVİYE: <span id="level" class="score-val">1</span></div></div>
+        <button class="bank-btn" onclick="autoTransfer()">🏦 AKTAR</button>
+        <div class="header"><div>VARLIK: <span id="score">0</span></div><div>SEVİYE: <span id="level">1</span></div></div>
         <canvas id="gameCanvas"></canvas>
-        <div id="startScreen" class="overlay"><h1 style="color:#FFD700;">SOCRATIC 8x10</h1><p style="color:#aaa;">Mobilde Sürükle Bırak</p><button class="big-btn" onclick="startGame()">BAŞLA</button></div>
-        <div id="gameOverScreen" class="overlay hidden"><h1 style="color:#ff4444">İFLAS</h1><p style="color:#fff;">Toplam: <span id="finalScore">0</span></p><button class="big-btn" onclick="startGame()">TEKRAR</button></div>
+        <div id="startScreen" class="overlay"><h1 style="color:#FFD700;">SOCRATIC 8x10</h1><p style="color:#aaa;">Sürükle Bırak</p><button class="big-btn" onclick="startGame()">BAŞLA</button></div>
+        <div id="gameOverScreen" class="overlay hidden"><h1 style="color:#ff4444">İFLAS</h1><p style="color:#fff;">Skor: <span id="finalScore">0</span></p><button class="big-btn" onclick="startGame()">TEKRAR</button></div>
     </div>
     <script>
         const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d'); const scoreEl = document.getElementById('score');
@@ -190,7 +246,7 @@ ASSET_MATRIX_HTML = """
         window.addEventListener('resize', resize);
         function startGame() {
             grid = Array(ROWS).fill().map(() => Array(COLS).fill(0)); score = 0; scoreEl.innerText = score;
-            document.getElementById('startScreen').classList.add('hidden'); document.getElementById('gameOverScreen').classList.add('hidden'); document.getElementById('bankCode').style.display = 'none';
+            document.getElementById('startScreen').classList.add('hidden'); document.getElementById('gameOverScreen').classList.add('hidden');
             resize(); spawnPieces();
         }
         function spawnPieces() {
@@ -239,83 +295,52 @@ ASSET_MATRIX_HTML = """
         canvas.addEventListener('mousedown', onDown); canvas.addEventListener('touchstart', onDown, {passive: false});
         window.addEventListener('mousemove', onMove); window.addEventListener('touchmove', onMove, {passive: false});
         window.addEventListener('mouseup', onUp); window.addEventListener('touchend', onUp, {passive: false});
-        function getTransferCode() { if(score < 50) { alert("En az 50 puan gerekli."); return; } const hex = (score * 13).toString(16).toUpperCase(); const code = `FNK-${hex}-${Math.floor(Math.random()*999)}`; const box = document.getElementById('bankCode'); box.innerText = code; box.style.display = 'block'; score = 0; scoreEl.innerText = 0; grid = Array(ROWS).fill().map(() => Array(COLS).fill(0)); draw(); }
+        
+        function autoTransfer() {
+            if(score < 50) { alert("En az 50 puan gerekli."); return; }
+            const url = new URL(window.parent.location.href);
+            url.searchParams.set('game_transfer', score);
+            url.searchParams.set('game_source', 'matrix');
+            window.parent.location.href = url.toString();
+        }
         setTimeout(resize, 100);
     </script>
 </body>
 </html>
 """
 
-# ==========================================
-# 4. YARDIMCI FONKSİYONLAR
-# ==========================================
-@st.cache_data
-def fetch_json_data(url):
-    try:
-        r = requests.get(url)
-        return r.json() if r.status_code == 200 else {}
-    except: return {}
-
-@st.cache_data
 def load_local_exams():
     if os.path.exists("exams.json"):
         try:
-            with open("exams.json", "r", encoding="utf-8") as f:
-                return json.load(f)
+            with open("exams.json", "r", encoding="utf-8") as f: return json.load(f)
         except: return {}
     return {}
-
-@st.cache_resource
-class SchoolServer:
-    def __init__(self):
-        self.classes = {} 
-        self.used_codes = set()
-        self.create_class("GENEL")
-    def create_class(self, class_code):
-        if class_code not in self.classes: self.classes[class_code] = {}
-    def join_or_update_student(self, class_code, username, points_to_add=0):
-        if class_code not in self.classes: self.create_class(class_code)
-        if username not in self.classes[class_code]: self.classes[class_code][username] = 0
-        self.classes[class_code][username] += points_to_add
-        return self.classes[class_code][username]
-    def get_score(self, class_code, username): return self.classes.get(class_code, {}).get(username, 0)
-    def redeem_code(self, class_code, username, code_string):
-        if code_string in self.used_codes: return False, "Kod kullanılmış!"
-        try:
-            parts = code_string.split('-')
-            if len(parts) != 3 or parts[0] != "FNK": return False, "Geçersiz kod!"
-            amount = int(int(parts[1], 16) / 13)
-            self.used_codes.add(code_string)
-            nb = self.join_or_update_student(class_code, username, amount)
-            return True, nb
-        except: return False, "Hata."
-    def get_leaderboard(self, class_code):
-        if class_code in self.classes:
-            data = [{"Öğrenci": k, "Puan": v} for k, v in self.classes[class_code].items()]
-            if data: return pd.DataFrame(data).sort_values(by="Puan", ascending=False)
-        return pd.DataFrame()
-    def get_active_students_in_class(self, class_code):
-        return list(self.classes.get(class_code, {}).keys())
-
-server = SchoolServer()
 
 def load_lifesim():
     try:
         r = requests.get(f"{GITHUB_BASE_URL}/game.html")
-        html = r.text if r.status_code == 200 else "<h3>Yüklenemedi</h3>"
-        data = requests.get(URL_LIFESIM).json()
-        return html.replace("// PYTHON_DATA_HERE", f"var scenarios = {json.dumps(data)};")
-    except: return "Simülasyon Yüklenemedi"
+        return r.text.replace("// PYTHON_DATA_HERE", f"var scenarios = {requests.get(URL_LIFESIM).text};") if r.status_code==200 else "Yüklenemedi"
+    except: return "Yüklenemedi"
 
 # ==========================================
-# 5. ARAYÜZ MANTIĞI
+# 4. ARAYÜZ MANTIĞI
 # ==========================================
 if "logged_in" not in st.session_state: st.session_state.logged_in = False
 if "user_role" not in st.session_state: st.session_state.user_role = None
 if "username" not in st.session_state: st.session_state.username = None
 if "class_code" not in st.session_state: st.session_state.class_code = "GENEL"
 
-# --- A) GİRİŞ EKRANI (ORTALANMIŞ & TASARIMLI) ---
+# --- OYUN TRANSFER YAKALAYICI (EN BAŞA) ---
+if "game_transfer" in st.query_params:
+    try:
+        amount = int(float(st.query_params["game_transfer"]))
+        if amount > 0 and st.session_state.logged_in:
+            server.join_or_update_student(st.session_state.class_code, st.session_state.username, amount)
+            st.toast(f"💰 {amount} TL Bankaya Aktarıldı!", icon="✅")
+    except: pass
+    st.query_params.clear()
+
+# --- A) GİRİŞ EKRANI ---
 if not st.session_state.logged_in:
     st.markdown('<div class="login-container"><h1 class="login-title">🎓 Bağarası ÇPAL Dijital Kampüs</h1></div>', unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1, 2, 1])
@@ -370,24 +395,23 @@ else:
                 server.join_or_update_student(code, st.session_state.username)
                 st.success(f"Sınıf: {code}"); time.sleep(0.5); st.rerun()
         
+        st.markdown("<div style='margin-top: 50px;'></div>", unsafe_allow_html=True)
         if st.button("🚪 Çıkış Yap"): st.session_state.logged_in = False; st.rerun()
 
     # --- ÜST BAR ---
     role_tr = "Öğrenci" if st.session_state.user_role == "student" else "Öğretmen/Yönetici"
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state.username}</div><div class="role-badge">{role_tr}</div></div>', unsafe_allow_html=True)
 
-    # --- SOHBET ---
+    # --- FONKSİYONLAR ---
     def render_chat(other_user):
         if not other_user: return
         st.markdown(f"### 💬 {other_user} ile Sohbet")
         messages = database.get_conversation(st.session_state.username, other_user)
         for sender, msg, timestamp in messages:
             with st.chat_message("user" if sender == st.session_state.username else "assistant"):
-                st.write(msg)
-                st.caption(f"{sender} - {timestamp}")
+                st.write(msg); st.caption(f"{sender} - {timestamp}")
         if prompt := st.chat_input("Mesaj yaz..."):
-            database.send_message(st.session_state.username, other_user, prompt)
-            st.rerun()
+            database.send_message(st.session_state.username, other_user, prompt); st.rerun()
         database.mark_messages_as_read(st.session_state.username, other_user)
 
     def render_global_chat():
@@ -396,14 +420,13 @@ else:
             msgs = database.get_global_messages(50)
             for m in msgs:
                 with st.chat_message("assistant" if m[0] != st.session_state.username else "user", avatar="👤"):
-                    st.markdown(f"**{m[0]}**: {m[1]}")
-                    st.caption(m[2])
+                    st.markdown(f"**{m[0]}**: {m[1]}"); st.caption(m[2])
         except: st.warning("Sohbet yükleniyor...")
         if prompt := st.chat_input("Meydana seslen..."):
             try: database.send_global_message(st.session_state.username, prompt); st.rerun()
             except: pass
 
-    # --- ADMIN ---
+    # --- İÇERİK ---
     if st.session_state.user_role == "admin":
         st.header("⚙️ Yönetim Paneli")
         col_on, col_chat = st.columns([1, 2])
@@ -427,8 +450,7 @@ else:
                     if database.add_user(nu, np, nr): st.success("Eklendi")
                     else: st.error("Hata")
         with t2:
-            all_u = database.get_all_users()
-            tod = st.selectbox("Silinecek", [u[0] for u in all_u])
+            all_u = database.get_all_users(); tod = st.selectbox("Silinecek", [u[0] for u in all_u])
             if st.button("Sil"):
                 if tod!="admin": database.delete_user(tod); st.rerun()
 
@@ -437,8 +459,7 @@ else:
             st.success("👨‍🏫 ÖĞRETMEN MODU")
             if "created_code" not in st.session_state:
                 st.session_state.created_code = str(random.randint(1000, 9999))
-                server.create_class(st.session_state.created_code)
-                st.session_state.class_code = st.session_state.created_code
+                server.create_class(st.session_state.created_code); st.session_state.class_code = st.session_state.created_code
             c1, c2 = st.columns(2)
             with c1: st.info(f"Ders Kodu: {st.session_state.created_code}")
             with c2: st.write(f"Aktif: {server.get_active_students_in_class(st.session_state.created_code)}")
@@ -450,22 +471,15 @@ else:
             c1, c2 = st.columns([1,2])
             with c1:
                 st.metric("Puan", f"{server.get_score(st.session_state.class_code, st.session_state.username)} ₺")
-                if st.session_state.user_role == "student":
-                    kod = st.text_input("Puan Kodu")
-                    if st.button("Yükle"):
-                        res, msg = server.redeem_code(st.session_state.class_code, st.session_state.username, kod)
-                        if res: st.success("Yüklendi"); time.sleep(1); st.rerun()
-                        else: st.error(msg)
+                # Kod girme alanı kaldırıldı (Gerekirse öğretmen paneline eklenebilir)
                 if st.session_state.user_role == "teacher":
                     with st.form("ann"):
                         t = st.text_input("Başlık"); c = st.text_area("İçerik")
                         if st.form_submit_button("Yayınla"): database.add_announcement(t, c, st.session_state.username); st.success("Yayınlandı")
             with c2:
-                st.subheader("Duyurular")
-                anns = database.get_announcements()
+                st.subheader("Duyurular"); anns = database.get_announcements()
                 for a in anns: st.info(f"**{a[1]}**: {a[2]}")
-                st.subheader("Sıralama")
-                st.dataframe(server.get_leaderboard(st.session_state.class_code), use_container_width=True)
+                st.subheader("Sıralama"); st.dataframe(server.get_leaderboard(st.session_state.class_code), use_container_width=True)
 
         with t2:
             chat_type = st.radio("Sohbet Modu:", ["🌍 Genel Sohbet", "🔒 Özel Mesaj"], horizontal=True)
@@ -479,8 +493,7 @@ else:
                 pending = database.get_pending_requests(st.session_state.username)
                 if pending:
                     for req_id, sender in pending:
-                        c1, c2 = st.columns([3, 1])
-                        c1.write(f"**{sender}** seni ekledi."); 
+                        c1, c2 = st.columns([3, 1]); c1.write(f"**{sender}** seni ekledi."); 
                         if c2.button("Kabul", key=f"acc_{req_id}"): database.accept_request(sender, st.session_state.username); st.success("Oldu!"); st.rerun()
                 st.divider()
                 searchable = database.get_searchable_students(st.session_state.username)
@@ -513,7 +526,7 @@ else:
                 m_data = fetch_json_data(URL_MESLEK_SORULAR)
                 if m_data:
                     root = m_data.get("KONU_TARAMA", m_data)
-                    sinif = st.selectbox("Sınıf", list(root.keys()))
+                    sinif = st.selectbox("Sınıf", list(root.keys())); 
                     if sinif:
                         ders = st.selectbox("Ders", list(root[sinif].keys()))
                         if ders:
@@ -538,28 +551,16 @@ else:
                             qs = EXAM_DATA[eg][el]; st.subheader(f"{el}")
                             with st.form("js_ex"):
                                 ua = {}
-                                # DÜZELTME BURADA YAPILDI:
                                 for i, q in enumerate(qs):
                                     st.markdown(f"**{i+1}:** {q.get('text') or q.get('question')}")
-                                    
-                                    if q['type']=='test': 
-                                        ua[i] = st.radio("Seçim", q['options'], key=f"j{i}")
-                                    elif q['type']=='text': 
-                                        ua[i] = st.text_input("Cevap", key=f"j{i}")
-                                    elif q['type']=='scenario':
-                                        ua[i] = []
-                                        # List comprehension kaldırıldı, döngüye çevrildi
-                                        for j, sub in enumerate(q['sub_questions']):
-                                            val = st.text_input(sub['q'], key=f"j{i}_{j}")
-                                            ua[i].append(val)
-                                            
-                                    elif q['type']=='calculation':
-                                        ua[i] = []
-                                        # List comprehension kaldırıldı
-                                        for j, inp in enumerate(q['inputs']):
-                                            val = st.number_input(inp['label'], key=f"j{i}_{j}")
-                                            ua[i].append(val)
-                                    
+                                    if q['type']=='test': ua[i] = st.radio("Seçim", q['options'], key=f"j{i}")
+                                    elif q['type']=='text': ua[i] = st.text_input("Cevap", key=f"j{i}")
+                                    elif q['type']=='scenario': 
+                                        ua[i] = []; 
+                                        for j, sub in enumerate(q['sub_questions']): val = st.text_input(sub['q'], key=f"j{i}_{j}"); ua[i].append(val)
+                                    elif q['type']=='calculation': 
+                                        ua[i] = []; 
+                                        for j, inp in enumerate(q['inputs']): val = st.number_input(inp['label'], key=f"j{i}_{j}"); ua[i].append(val)
                                     st.divider()
                                 if st.form_submit_button("Bitir"):
                                     score = sum([q.get('points',0) for q in qs]); st.success(f"Puan: {score}")
