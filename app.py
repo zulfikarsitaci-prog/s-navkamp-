@@ -10,7 +10,7 @@ import database
 from datetime import datetime
 
 # ==========================================
-# 1. SAYFA AYARLARI
+# 1. SAYFA VE STİL AYARLARI
 # ==========================================
 st.set_page_config(
     page_title="Bağarası ÇPAL - Dijital Kampüs",
@@ -19,7 +19,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CSS Düzenlemeleri
+# --- ÖZEL CSS (Görsel Düzenlemeler) ---
 st.markdown("""
 <style>
     .login-container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-top: 50px; }
@@ -69,35 +69,37 @@ URL_LIFESIM = f"{GITHUB_BASE_URL}/lifesim_data.json"
 class SchoolServer:
     def __init__(self):
         self.classes = {}
-        # Kodla yükleme güvenlik açığı oluşturduğu için kaldırdık, yerine direkt transfer geldi.
         self.create_class("GENEL")
     
     def create_class(self, class_code):
         if class_code not in self.classes: self.classes[class_code] = {}
         
     def join_or_update_student(self, class_code, username, points_to_add=0):
-        # Gerçek veritabanı kullanımı (Kalıcı olması için)
-        # Mevcut puanı çekmek yerine, veritabanında 'score' sütunu olmadığı için 
-        # şimdilik geçici olarak hafızada tutuyoruz ama Neon entegrasyonuyla
-        # burayı veritabanına bağlamak en iyisi. 
-        # Şimdilik Grade tablosunu 'Puan' olarak kullanacağız.
-        
-        # Basit bir puan tablosu simülasyonu (grades tablosunu kullanıyoruz)
+        # DÜZELTİLEN KISIM: Veritabanı tipine göre sorguyu değiştirme
         conn, db_type = database.get_db_connection()
         cur = conn.cursor()
         
-        # Mevcut puanı al
-        cur.execute("SELECT SUM(grade) FROM grades WHERE student_username = ?", (username,) if db_type=="sqlite" else (username,))
-        current = cur.fetchone()[0] or 0
+        # 1. Mevcut Puanı Al
+        query_select = "SELECT SUM(grade) FROM grades WHERE student_username = ?"
+        if db_type == "postgres": query_select = query_select.replace("?", "%s")
         
-        # Yeni puanı ekle (Eğer 0 değilse)
+        try:
+            cur.execute(query_select, (username,))
+            result = cur.fetchone()
+            current = result[0] if result and result[0] else 0
+        except Exception as e:
+            current = 0
+            # Tablo henüz yoksa hata verebilir, geçiyoruz
+        
+        # 2. Yeni Puan Ekle
         if points_to_add != 0:
             date = datetime.now().strftime("%Y-%m-%d %H:%M")
-            if db_type=="postgres":
-                cur.execute("INSERT INTO grades (student_username, lesson, grade, date) VALUES (%s, %s, %s, %s)", (username, "Sistem", points_to_add, date))
-            else:
-                cur.execute("INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)", (username, "Sistem", points_to_add, date))
+            query_insert = "INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)"
+            if db_type == "postgres": query_insert = query_insert.replace("?", "%s")
+            
+            cur.execute(query_insert, (username, "Sistem", points_to_add, date))
             conn.commit()
+            conn.close()
             return current + points_to_add
         
         conn.close()
@@ -108,19 +110,28 @@ class SchoolServer:
         cur = conn.cursor()
         query = "SELECT SUM(grade) FROM grades WHERE student_username = ?"
         if db_type == "postgres": query = query.replace("?", "%s")
-        cur.execute(query, (username,))
-        score = cur.fetchone()[0]
+        
+        try:
+            cur.execute(query, (username,))
+            result = cur.fetchone()
+            score = result[0] if result and result[0] else 0
+        except:
+            score = 0
+            
         conn.close()
-        return score or 0
+        return score
 
     def get_leaderboard(self, class_code):
         conn, db_type = database.get_db_connection()
-        query = "SELECT student_username, SUM(grade) as total FROM grades GROUP BY student_username ORDER BY total DESC"
-        df = pd.read_sql_query(query, conn)
-        conn.close()
-        if not df.empty:
-            df.columns = ["Öğrenci", "Puan"]
-            return df
+        try:
+            query = "SELECT student_username, SUM(grade) as total FROM grades GROUP BY student_username ORDER BY total DESC"
+            df = pd.read_sql_query(query, conn)
+            conn.close()
+            if not df.empty:
+                df.columns = ["Öğrenci", "Puan"]
+                return df
+        except:
+            conn.close()
         return pd.DataFrame(columns=["Öğrenci", "Puan"])
 
     def get_active_students_in_class(self, class_code):
@@ -189,7 +200,6 @@ def get_finance_game_html(start_money):
             let profit = money - startBalance;
             if (profit <= 0) {{ alert("Sadece kârını çekebilirsin! Şu an kârın yok."); return; }}
             
-            // Streamlit URL Query Param ile veri gönder
             const url = new URL(window.parent.location.href);
             url.searchParams.set('game_transfer', Math.floor(profit));
             url.searchParams.set('game_source', 'finance');
@@ -356,6 +366,7 @@ if not st.session_state.logged_in:
                         st.session_state.logged_in = True
                         st.session_state.user_role = user[3]
                         st.session_state.username = user[1]
+                        # DÜZELTME: Postgres uyumlu parametre gönderimi
                         if user[3] == "student": server.join_or_update_student("GENEL", user[1], 0)
                         st.rerun()
                     else: st.error("Hatalı bilgi.")
@@ -471,7 +482,6 @@ else:
             c1, c2 = st.columns([1,2])
             with c1:
                 st.metric("Puan", f"{server.get_score(st.session_state.class_code, st.session_state.username)} ₺")
-                # Kod girme alanı kaldırıldı (Gerekirse öğretmen paneline eklenebilir)
                 if st.session_state.user_role == "teacher":
                     with st.form("ann"):
                         t = st.text_input("Başlık"); c = st.text_area("İçerik")
