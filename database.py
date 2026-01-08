@@ -3,23 +3,38 @@ import hashlib
 import os
 import streamlit as st
 from datetime import datetime, timedelta
+import psycopg2
 
+# --- VERİTABANI BAĞLANTI AYARLARI (CACHED) ---
+# Bu fonksiyon sadece bir kere çalışır ve bağlantıyı açık tutar.
+@st.cache_resource(ttl=3600)  # 1 saat boyunca bağlantıyı canlı tut
 def get_db_connection():
     # 1. Neon (PostgreSQL) Bağlantısı
     if "DATABASE_URL" in st.secrets:
         try:
-            import psycopg2
-            return psycopg2.connect(st.secrets["DATABASE_URL"]), "postgres"
-        except ImportError:
-            pass 
+            conn = psycopg2.connect(st.secrets["DATABASE_URL"])
+            return conn, "postgres"
+        except Exception as e:
+            st.error(f"Veritabanı bağlantı hatası: {e}")
+            return None, None
             
-    # 2. Yerel (SQLite) Bağlantısı
+    # 2. Yerel (SQLite) Bağlantısı (Yedek)
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     DB_PATH = os.path.join(BASE_DIR, "education_platform.db")
     return sqlite3.connect(DB_PATH, check_same_thread=False), "sqlite"
 
 def run_query(query, params=(), fetch=False):
     conn, db_type = get_db_connection()
+    if not conn: return False
+    
+    # Bağlantı kopmuşsa (Neon bazen kapatır), önbelleği temizleyip tekrar dene
+    try:
+        if db_type == "postgres":
+            if conn.closed != 0:
+                st.cache_resource.clear()
+                conn, db_type = get_db_connection()
+    except: pass
+
     cursor = conn.cursor()
     
     if db_type == "postgres":
@@ -34,10 +49,15 @@ def run_query(query, params=(), fetch=False):
             conn.commit()
             return True
     except Exception as e:
+        # Hata olursa loglayabiliriz ama kullanıcıya yansıtmıyoruz
+        # print(f"SQL Hatası: {e}") 
         return False
     finally:
-        conn.close()
+        # ÖNEMLİ: conn.close() ARTIK YOK. Bağlantıyı açık tutuyoruz.
+        cursor.close()
 
+# Bu fonksiyonu da cache'liyoruz ki her sayfa yenilemede tabloları kontrol etmesin.
+@st.cache_resource
 def create_database():
     tables = [
         'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT)',
@@ -61,11 +81,9 @@ def login_user(u, p):
     res = run_query("SELECT * FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
     return res[0] if res else None
 
-# EKSİK OLAN FONKSİYON (EKLENDİ)
 def get_all_users():
     return run_query("SELECT username, role, last_seen FROM users", fetch=True)
 
-# EKSİK OLAN FONKSİYON (EKLENDİ)
 def delete_user(username):
     run_query("DELETE FROM users WHERE username = ?", (username,))
 
@@ -78,11 +96,12 @@ def get_online_users(minutes=5):
     users = run_query("SELECT username, role, last_seen FROM users WHERE last_seen IS NOT NULL", fetch=True)
     online = []
     now = datetime.now()
-    for u in users:
-        try:
-            last = datetime.strptime(u[2], "%Y-%m-%d %H:%M:%S")
-            if now - last < timedelta(minutes=minutes): online.append({"Kullanıcı": u[0], "Rol": u[1], "Son İşlem": last.strftime("%H:%M")})
-        except: pass
+    if users:
+        for u in users:
+            try:
+                last = datetime.strptime(u[2], "%Y-%m-%d %H:%M:%S")
+                if now - last < timedelta(minutes=minutes): online.append({"Kullanıcı": u[0], "Rol": u[1], "Son İşlem": last.strftime("%H:%M")})
+            except: pass
     return online
 
 # --- MESAJLAŞMA ---
@@ -124,6 +143,7 @@ def get_pending_requests(u): return run_query("SELECT id, user1 FROM relationshi
 def accept_request(u1, u2): run_query("UPDATE relationships SET status='accepted' WHERE user1=? AND user2=?", (u1, u2))
 def get_friends(u):
     rows = run_query("SELECT user1, user2 FROM relationships WHERE (user1=? OR user2=?) AND status='accepted'", (u, u), fetch=True)
+    if not rows: return []
     return [r[1] if r[0] == u else r[0] for r in rows]
 def get_searchable_students(my_u):
     all_s = [u[0] for u in run_query("SELECT username FROM users WHERE role='student'", fetch=True)]
