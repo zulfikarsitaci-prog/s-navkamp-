@@ -3,5 +3,5 @@ google-generativeai
 pymupdf
 gspread
 google-auth
-streamlit
 psycopg2-binary
+pandas
