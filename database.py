@@ -84,6 +84,10 @@ def send_message(s, r, m):
 def get_unread_messages(u):
     return run_query("SELECT id, sender, message FROM messages WHERE receiver = ? AND is_read = 0", (u,), fetch=True)
 
+# EKSİK OLAN FONKSİYON BUYDU (EKLENDİ)
+def get_my_messages(u):
+    return run_query("SELECT id, sender, message, timestamp, is_read FROM messages WHERE receiver = ? ORDER BY id DESC", (u,), fetch=True)
+
 def mark_messages_as_read(r, s):
     run_query("UPDATE messages SET is_read = 1 WHERE receiver = ? AND sender = ?", (r, s))
 
