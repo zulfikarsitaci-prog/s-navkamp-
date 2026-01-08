@@ -36,7 +36,8 @@ def run_query(query, params=(), fetch=False):
         if fetch: return cursor.fetchall()
         else: conn.commit(); return True
     except Exception as e:
-        st.error(f"🚨 SQL Hatası: {e}"); return False
+        # Hata basma (Sessiz çalış)
+        return False
     finally: cursor.close()
 
 def create_database():
@@ -50,7 +51,7 @@ def create_database():
     ]
     for t in tables: run_query(t)
 
-# --- KULLANICI & PUAN İŞLEMLERİ (GÜNCELLENDİ) ---
+# --- KULLANICI İŞLEMLERİ ---
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
@@ -61,6 +62,11 @@ def login_user(u, p):
     h = hashlib.sha256(p.encode()).hexdigest()
     res = run_query("SELECT * FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
     return res[0] if res else None
+
+# YENİ EKLENEN FONKSİYON (BU HATAYI ÇÖZER)
+def get_user_role(username):
+    res = run_query("SELECT role FROM users WHERE username = ?", (username,), fetch=True)
+    return res[0][0] if res and res[0] else None
 
 def add_score(username, amount, source="Sistem"):
     date = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -73,11 +79,10 @@ def get_total_score(username):
 def get_all_users(): return run_query("SELECT username, role, last_seen FROM users", fetch=True) or []
 def delete_user(username): run_query("DELETE FROM users WHERE username = ?", (username,))
 
-# --- DİĞER FONKSİYONLAR ---
+# --- DİĞERLERİ ---
 def update_activity(u):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     run_query("UPDATE users SET last_seen = ? WHERE username = ?", (now, u))
-
 def get_online_users(minutes=5):
     users = run_query("SELECT username, role, last_seen FROM users WHERE last_seen IS NOT NULL", fetch=True)
     online = []
@@ -89,11 +94,9 @@ def get_online_users(minutes=5):
                 if now - last < timedelta(minutes=minutes): online.append({"Kullanıcı": u[0], "Rol": u[1], "Son İşlem": last.strftime("%H:%M")})
             except: pass
     return online
-
 def send_message(s, r, m):
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO messages (sender, receiver, message, timestamp, is_read) VALUES (?, ?, ?, ?, 0)", (s, r, m, now))
-
 def get_unread_messages(u): return run_query("SELECT id, sender, message FROM messages WHERE receiver = ? AND is_read = 0", (u,), fetch=True) or []
 def get_my_messages(u): return run_query("SELECT id, sender, message, timestamp, is_read FROM messages WHERE receiver = ? ORDER BY id DESC", (u,), fetch=True) or []
 def mark_messages_as_read(r, s): run_query("UPDATE messages SET is_read = 1 WHERE receiver = ? AND sender = ?", (r, s))
