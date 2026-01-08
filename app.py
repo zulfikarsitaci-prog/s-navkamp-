@@ -19,7 +19,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- ÖZEL CSS (Görsel Düzenlemeler) ---
+# --- ÖZEL CSS ---
 st.markdown("""
 <style>
     .login-container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-top: 50px; }
@@ -75,11 +75,9 @@ class SchoolServer:
         if class_code not in self.classes: self.classes[class_code] = {}
         
     def join_or_update_student(self, class_code, username, points_to_add=0):
-        # DÜZELTİLEN KISIM: Veritabanı tipine göre sorguyu değiştirme
         conn, db_type = database.get_db_connection()
         cur = conn.cursor()
         
-        # 1. Mevcut Puanı Al
         query_select = "SELECT SUM(grade) FROM grades WHERE student_username = ?"
         if db_type == "postgres": query_select = query_select.replace("?", "%s")
         
@@ -87,11 +85,9 @@ class SchoolServer:
             cur.execute(query_select, (username,))
             result = cur.fetchone()
             current = result[0] if result and result[0] else 0
-        except Exception as e:
+        except Exception:
             current = 0
-            # Tablo henüz yoksa hata verebilir, geçiyoruz
         
-        # 2. Yeni Puan Ekle
         if points_to_add != 0:
             date = datetime.now().strftime("%Y-%m-%d %H:%M")
             query_insert = "INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)"
@@ -139,186 +135,23 @@ class SchoolServer:
 
 server = SchoolServer()
 
-# --- OYUN 1: FINANS İMPARATORU (OTOMATİK TRANSFER) ---
+# --- OYUN 1: FINANS İMPARATORU ---
 def get_finance_game_html(start_money):
-    return f"""
-    <!DOCTYPE html>
-    <html lang="tr">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <style>
-        body {{ background-color: #0f172a; color: #e2e8f0; font-family: sans-serif; padding: 10px; text-align: center; margin: 0; box-sizing: border-box; }}
-        .dashboard {{ display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px; }}
-        .money-val {{ font-size: 18px; font-weight: 900; color: #34d399; }}
-        .clicker-btn {{ background: radial-gradient(circle, #3b82f6 0%, #1d4ed8 100%); border: 4px solid #1e3a8a; border-radius: 50%; width: 90px; height: 90px; font-size: 30px; cursor: pointer; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); transition: transform 0.1s; }}
-        .clicker-btn:active {{ transform: scale(0.95); }}
-        .asset-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 20px; }}
-        .asset-card {{ background: #1e293b; padding: 8px; border-radius: 8px; border: 1px solid #334155; cursor: pointer; text-align: left; font-size: 11px; display: flex; flex-direction: column; justify-content: center; }}
-        .bank-btn {{ background: #10b981; color: #fff; border: none; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; font-size: 14px; margin-top:10px; }}
-        .info-bar {{ background: #334155; padding: 8px; font-size: 10px; border-radius: 6px; margin-bottom: 10px; color: #cbd5e1; }}
-    </style>
-    </head>
-    <body>
-    <div class="dashboard">
-        <div><span style="font-size:10px; color:#aaa;">SERMAYE</span><br><div id="money" class="money-val">{start_money} ₺</div></div>
-        <div style="text-align:right;"><span style="font-size:10px; color:#aaa;">GELİR</span><br><div id="cps" class="cps-val">0.0 /sn</div></div>
-    </div>
-    <div class="info-bar">ℹ️ {start_money} TL ile başladın. Kârını bankaya aktar.</div>
-    <div class="clicker-btn" onclick="manualWork()">👆</div>
-    <div class="asset-grid" id="market"></div>
-    <button class="bank-btn" onclick="autoTransfer()">🏦 KÂRI BANKAYA AKTAR</button>
-    <script>
-        let money = {start_money}; 
-        let startBalance = {start_money};
-        
-        const assets = [
-            {{ name: "Limonata", cost: 150, gain: 0.5, count: 0 }}, {{ name: "Simit", cost: 1000, gain: 3.5, count: 0 }},
-            {{ name: "Kantin", cost: 5000, gain: 15.0, count: 0 }}, {{ name: "Kırtasiye", cost: 20000, gain: 55.0, count: 0 }},
-            {{ name: "Yazılım", cost: 80000, gain: 200.0, count: 0 }}, {{ name: "Fabrika", cost: 1000000, gain: 3500.0, count: 0 }}
-        ];
-        function updateUI() {{
-            document.getElementById('money').innerText = Math.floor(money).toLocaleString() + ' ₺';
-            let totalCps = assets.reduce((t, a) => t + (a.count * a.gain), 0);
-            document.getElementById('cps').innerText = totalCps.toFixed(1) + ' /sn';
-            const market = document.getElementById('market'); market.innerHTML = '';
-            assets.forEach((asset, index) => {{
-                let currentCost = Math.floor(asset.cost * Math.pow(1.2, asset.count));
-                let div = document.createElement('div');
-                div.className = 'asset-card';
-                div.onclick = () => buyAsset(index);
-                div.innerHTML = `<b>${{asset.name}}</b> (${{asset.count}})<br><span style="color:#f87171">${{currentCost.toLocaleString()}}</span><br><span style="color:#34d399">+${{asset.gain}}/s</span>`;
-                market.appendChild(div);
-            }});
-        }}
-        function manualWork() {{ money += 1; updateUI(); }}
-        function buyAsset(index) {{
-            let asset = assets[index]; let currentCost = Math.floor(asset.cost * Math.pow(1.2, asset.count));
-            if (money >= currentCost) {{ money -= currentCost; asset.count++; updateUI(); }}
-        }}
-        function autoTransfer() {{
-            let profit = money - startBalance;
-            if (profit <= 0) {{ alert("Sadece kârını çekebilirsin! Şu an kârın yok."); return; }}
-            
-            const url = new URL(window.parent.location.href);
-            url.searchParams.set('game_transfer', Math.floor(profit));
-            url.searchParams.set('game_source', 'finance');
-            window.parent.location.href = url.toString();
-        }}
-        setInterval(() => {{ let totalCps = assets.reduce((t, a) => t + (a.count * a.gain), 0); if (totalCps > 0) {{ money += totalCps; updateUI(); }} }}, 1000);
-        updateUI();
-    </script>
-    </body>
-    </html>
-    """
+    return f"""<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><style>body{{background:#0f172a;color:#e2e8f0;font-family:sans-serif;padding:10px;margin:0;box-sizing:border-box;}}.dashboard{{display:flex;justify-content:space-between;align-items:center;background:#1e293b;padding:10px;border-radius:12px;border:1px solid #334155;margin-bottom:15px;}}.money-val{{font-size:18px;font-weight:900;color:#34d399;}}.cps-val{{font-size:14px;font-weight:bold;color:#facc15;}}.clicker-btn{{background:radial-gradient(circle,#3b82f6 0%,#1d4ed8 100%);border:4px solid #1e3a8a;border-radius:50%;width:90px;height:90px;font-size:30px;cursor:pointer;margin:0 auto 15px auto;display:flex;align-items:center;justify-content:center;box-shadow:0 0 15px rgba(59,130,246,0.4);transition:transform 0.1s;}}.clicker-btn:active{{transform:scale(0.95);}}.asset-grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:20px;}}.asset-card{{background:#1e293b;padding:8px;border-radius:8px;border:1px solid #334155;cursor:pointer;text-align:left;font-size:11px;display:flex;flex-direction:column;justify-content:center;}}.bank-btn{{background:#10b981;color:#fff;border:none;padding:12px;font-weight:bold;border-radius:8px;cursor:pointer;width:100%;font-size:14px;margin-top:10px;}}.info-bar{{background:#334155;padding:8px;font-size:10px;border-radius:6px;margin-bottom:10px;color:#cbd5e1;}}</style></head><body><div class="dashboard"><div><span style="font-size:10px;color:#aaa;">SERMAYE</span><br><div id="money" class="money-val">{start_money} ₺</div></div><div style="text-align:right;"><span style="font-size:10px;color:#aaa;">GELİR</span><br><div id="cps" class="cps-val">0.0 /sn</div></div></div><div class="info-bar">ℹ️ {start_money} TL ile başladın. Kârını bankaya aktar.</div><div class="clicker-btn" onclick="manualWork()">👆</div><div class="asset-grid" id="market"></div><button class="bank-btn" onclick="autoTransfer()">🏦 KÂRI BANKAYA AKTAR</button><script>let money={start_money};let startBalance={start_money};const assets=[{{name:"Limonata",cost:150,gain:0.5,count:0}},{{name:"Simit",cost:1000,gain:3.5,count:0}},{{name:"Kantin",cost:5000,gain:15.0,count:0}},{{name:"Kırtasiye",cost:20000,gain:55.0,count:0}},{{name:"Yazılım",cost:80000,gain:200.0,count:0}},{{name:"Fabrika",cost:1000000,gain:3500.0,count:0}}];function updateUI(){{document.getElementById('money').innerText=Math.floor(money).toLocaleString()+' ₺';let totalCps=assets.reduce((t,a)=>t+(a.count*a.gain),0);document.getElementById('cps').innerText=totalCps.toFixed(1)+' /sn';const market=document.getElementById('market');market.innerHTML='';assets.forEach((asset,index)=>{{let currentCost=Math.floor(asset.cost*Math.pow(1.2,asset.count));let div=document.createElement('div');div.className='asset-card';div.onclick=()=>buyAsset(index);div.innerHTML=`<b>${{asset.name}}</b> (${{asset.count}})<br><span style="color:#f87171">${{currentCost.toLocaleString()}}</span><br><span style="color:#34d399">+${{asset.gain}}/s</span>`;market.appendChild(div);}});}}function manualWork(){{money+=1;updateUI();}}function buyAsset(index){{let asset=assets[index];let currentCost=Math.floor(asset.cost*Math.pow(1.2,asset.count));if(money>=currentCost){{money-=currentCost;asset.count++;updateUI();}}}}function autoTransfer(){{let profit=money-startBalance;if(profit<=0){{alert("Sadece kârını çekebilirsin!");return;}}const url=new URL(window.parent.location.href);url.searchParams.set('game_transfer',Math.floor(profit));url.searchParams.set('game_source','finance');window.parent.location.href=url.toString();}}setInterval(()=>{{let totalCps=assets.reduce((t,a)=>t+(a.count*a.gain),0);if(totalCps>0){{money+=totalCps;updateUI();}}}},1000);updateUI();</script></body></html>"""
 
-# --- OYUN 2: SOCRATIC MATRIX (OTOMATİK TRANSFER) ---
+# --- OYUN 2: SOCRATIC MATRIX ---
 ASSET_MATRIX_HTML = """
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
-        body { margin: 0; background-color: #050505; color: #FFD700; font-family: 'Cinzel', serif; text-align: center; touch-action: none; overflow: hidden; user-select: none; }
-        #game-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 10px; }
-        .header { display: flex; justify-content: space-between; width: 95%; max-width: 400px; margin-bottom: 5px; padding: 5px; background: #111; border-bottom: 1px solid #FFD700; border-radius: 4px; font-size: 14px; }
-        canvas { background: #0f0f0f; border: 2px solid #333; border-radius: 4px; box-shadow: 0 0 15px rgba(0,0,0,0.8); touch-action: none; }
-        .bank-btn { position: absolute; top: 10px; right: 10px; z-index: 100; background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; border: none; padding: 8px 15px; font-weight: bold; border-radius: 20px; cursor: pointer; font-size: 12px; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 50; }
-        .hidden { display: none !important; }
-        .big-btn { background: transparent; border: 2px solid #FFD700; color: #FFD700; padding: 15px 40px; font-size: 18px; font-family: 'Cinzel', serif; cursor: pointer; margin-top: 20px; transition: 0.2s; }
-    </style>
-</head>
-<body>
-    <div id="game-container">
-        <button class="bank-btn" onclick="autoTransfer()">🏦 AKTAR</button>
-        <div class="header"><div>VARLIK: <span id="score">0</span></div><div>SEVİYE: <span id="level">1</span></div></div>
-        <canvas id="gameCanvas"></canvas>
-        <div id="startScreen" class="overlay"><h1 style="color:#FFD700;">SOCRATIC 8x10</h1><p style="color:#aaa;">Sürükle Bırak</p><button class="big-btn" onclick="startGame()">BAŞLA</button></div>
-        <div id="gameOverScreen" class="overlay hidden"><h1 style="color:#ff4444">İFLAS</h1><p style="color:#fff;">Skor: <span id="finalScore">0</span></p><button class="big-btn" onclick="startGame()">TEKRAR</button></div>
-    </div>
-    <script>
-        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d'); const scoreEl = document.getElementById('score');
-        const COLS = 8; const ROWS = 10; let CELL_SIZE = 30; 
-        const BLOCK_COLOR = "#D500F9"; const PREVIEW_COLOR = "rgba(213, 0, 249, 0.4)";
-        let grid = [], pieces = [], draggingPiece = null, score = 0, dragOffset = {x:0, y:0};
-        const SHAPES = [[[1]], [[1,1]], [[1],[1]], [[1,1],[1,1]], [[1,1,1]], [[1],[1],[1]], [[1,1,1,1]], [[1],[1],[1],[1]], [[1,0],[1,0],[1,1]], [[0,1],[0,1],[1,1]], [[1,1,0],[0,1,1]], [[0,1,1],[1,1,0]]];
-        function resize() {
-            const w = window.innerWidth; const h = window.innerHeight;
-            const availableH = h - 200; const availableW = w - 20;
-            CELL_SIZE = Math.floor(Math.min(availableW / COLS, availableH / ROWS));
-            CELL_SIZE = Math.max(25, Math.min(CELL_SIZE, 50));
-            canvas.width = CELL_SIZE * COLS; canvas.height = (CELL_SIZE * ROWS) + (CELL_SIZE * 3.5);
-            draw();
-        }
-        window.addEventListener('resize', resize);
-        function startGame() {
-            grid = Array(ROWS).fill().map(() => Array(COLS).fill(0)); score = 0; scoreEl.innerText = score;
-            document.getElementById('startScreen').classList.add('hidden'); document.getElementById('gameOverScreen').classList.add('hidden');
-            resize(); spawnPieces();
-        }
-        function spawnPieces() {
-            pieces = []; const spawnZoneY = (ROWS * CELL_SIZE) + (CELL_SIZE * 0.5); const slotWidth = canvas.width / 3;
-            for(let i=0; i<3; i++) {
-                const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)]; const pW = shape[0].length * CELL_SIZE * 0.6; 
-                pieces.push({ shape: shape, x: (slotWidth * i) + (slotWidth/2) - (pW/2), y: spawnZoneY, baseX: (slotWidth * i) + (slotWidth/2) - (pW/2), baseY: spawnZoneY, scale: 0.6, isDragging: false });
-            }
-            draw(); checkGameOver();
-        }
-        function draw() {
-            ctx.fillStyle = "#050505"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            for(let r=0; r<ROWS; r++) { for(let c=0; c<COLS; c++) {
-                const x = c * CELL_SIZE; const y = r * CELL_SIZE;
-                ctx.strokeStyle = "#222"; ctx.lineWidth=1; ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
-                if (grid[r][c] === 1) drawCell(x, y, CELL_SIZE, BLOCK_COLOR);
-            }}
-            ctx.beginPath(); ctx.moveTo(0, ROWS * CELL_SIZE); ctx.lineTo(canvas.width, ROWS * CELL_SIZE); ctx.strokeStyle = "#FFD700"; ctx.lineWidth = 2; ctx.stroke();
-            pieces.forEach(p => { if(!p.isDragging) drawShape(p.shape, p.x, p.y, CELL_SIZE * p.scale, "#888"); });
-            if (draggingPiece) {
-                const {gx, gy} = getGridPos(draggingPiece.x, draggingPiece.y);
-                if (canPlace(draggingPiece.shape, gx, gy)) drawShape(draggingPiece.shape, gx * CELL_SIZE, gy * CELL_SIZE, CELL_SIZE, PREVIEW_COLOR);
-                drawShape(draggingPiece.shape, draggingPiece.x, draggingPiece.y, CELL_SIZE, BLOCK_COLOR);
-            }
-        }
-        function drawCell(x, y, size, color) { ctx.fillStyle = color; ctx.fillRect(x+1, y+1, size-2, size-2); ctx.strokeStyle = "rgba(255, 215, 0, 0.5)"; ctx.lineWidth = 1; ctx.strokeRect(x+4, y+4, size-8, size-8); }
-        function drawShape(shape, px, py, size, color) { for(let r=0; r<shape.length; r++) { for(let c=0; c<shape[r].length; c++) { if(shape[r][c] === 1) drawCell(px + (c*size), py + (r*size), size, color); }}}
-        function getGridPos(px, py) { const gx = Math.round(px / CELL_SIZE); const gy = Math.round(py / CELL_SIZE); return {gx, gy}; }
-        function canPlace(shape, gx, gy) { for(let r=0; r<shape.length; r++) { for(let c=0; c<shape[r].length; c++) { if(shape[r][c] === 1) { let tx = gx + c; let ty = gy + r; if(tx < 0 || tx >= COLS || ty < 0 || ty >= ROWS || grid[ty][tx] === 1) return false; }}} return true; }
-        function place(shape, gx, gy) { for(let r=0; r<shape.length; r++) { for(let c=0; c<shape[r].length; c++) { if(shape[r][c] === 1) grid[gy+r][gx+c] = 1; }} score += shape.flat().filter(x=>x).length * 10; checkLines(); scoreEl.innerText = score; }
-        function checkLines() { let lines = 0; for(let r=0; r<ROWS; r++) { if(grid[r].every(val => val === 1)) { grid[r].fill(0); lines++; }} for(let c=0; c<COLS; c++) { let full = true; for(let r=0; r<ROWS; r++) if(grid[r][c] === 0) full = false; if(full) { for(let r=0; r<ROWS; r++) grid[r][c] = 0; lines++; }} if(lines > 0) score += lines * 100; }
-        function checkGameOver() { let canMove = false; if(pieces.length === 0) return; for(let p of pieces) { for(let r=0; r<ROWS; r++) { for(let c=0; c<COLS; c++) { if(canPlace(p.shape, c, r)) { canMove = true; break; } } if(canMove) break; } if(canMove) break; } if(!canMove) { document.getElementById('finalScore').innerText = score; document.getElementById('gameOverScreen').classList.remove('hidden'); } }
-        function getPos(e) { const rect = canvas.getBoundingClientRect(); const cx = e.touches ? e.touches[0].clientX : e.clientX; const cy = e.touches ? e.touches[0].clientY : e.clientY; return { x: cx - rect.left, y: cy - rect.top }; }
-        function onDown(e) {
-            const pos = getPos(e);
-            for(let i=pieces.length-1; i>=0; i--) {
-                const p = pieces[i]; const w = p.shape[0].length * CELL_SIZE * p.scale; const h = p.shape.length * CELL_SIZE * p.scale;
-                if(pos.x >= p.x - 30 && pos.x <= p.x + w + 30 && pos.y >= p.y - 30 && pos.y <= p.y + h + 30) {
-                    if(e.cancelable) e.preventDefault(); draggingPiece = p; p.isDragging = true;
-                    const realW = p.shape[0].length * CELL_SIZE; const realH = p.shape.length * CELL_SIZE;
-                    dragOffset.x = -realW / 2; dragOffset.y = -realH / 2; 
-                    p.x = pos.x + dragOffset.x; p.y = pos.y + dragOffset.y; draw(); break;
-        }}}
-        function onMove(e) { if(!draggingPiece) return; if(e.cancelable) e.preventDefault(); const pos = getPos(e); draggingPiece.x = pos.x + dragOffset.x; draggingPiece.y = pos.y + dragOffset.y; draw(); }
-        function onUp(e) { if(!draggingPiece) return; if(e.cancelable) e.preventDefault(); const {gx, gy} = getGridPos(draggingPiece.x, draggingPiece.y); if(canPlace(draggingPiece.shape, gx, gy)) { place(draggingPiece.shape, gx, gy); pieces = pieces.filter(p => p !== draggingPiece); if(pieces.length === 0) spawnPieces(); else checkGameOver(); } else { draggingPiece.x = draggingPiece.baseX; draggingPiece.y = draggingPiece.baseY; draggingPiece.isDragging = false; } draggingPiece = null; draw(); }
-        canvas.addEventListener('mousedown', onDown); canvas.addEventListener('touchstart', onDown, {passive: false});
-        window.addEventListener('mousemove', onMove); window.addEventListener('touchmove', onMove, {passive: false});
-        window.addEventListener('mouseup', onUp); window.addEventListener('touchend', onUp, {passive: false});
-        
-        function autoTransfer() {
-            if(score < 50) { alert("En az 50 puan gerekli."); return; }
-            const url = new URL(window.parent.location.href);
-            url.searchParams.set('game_transfer', score);
-            url.searchParams.set('game_source', 'matrix');
-            window.parent.location.href = url.toString();
-        }
-        setTimeout(resize, 100);
-    </script>
-</body>
-</html>
-"""
+<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><style>@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');body{margin:0;background-color:#050505;color:#FFD700;font-family:'Cinzel',serif;text-align:center;touch-action:none;overflow:hidden;user-select:none;}#game-container{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:10px;}.header{display:flex;justify-content:space-between;width:95%;max-width:400px;margin-bottom:5px;padding:5px;background:#111;border-bottom:1px solid #FFD700;border-radius:4px;font-size:14px;}canvas{background:#0f0f0f;border:2px solid #333;border-radius:4px;box-shadow:0 0 15px rgba(0,0,0,0.8);touch-action:none;}.bank-btn{position:absolute;top:10px;right:10px;z-index:100;background:linear-gradient(135deg,#FFD700,#B8860B);color:#000;border:none;padding:8px 15px;font-weight:bold;border-radius:20px;cursor:pointer;font-size:12px;}.overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.96);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:50;}.hidden{display:none !important;}.big-btn{background:transparent;border:2px solid #FFD700;color:#FFD700;padding:15px 40px;font-size:18px;font-family:'Cinzel',serif;cursor:pointer;margin-top:20px;transition:0.2s;}</style></head><body><div id="game-container"><button class="bank-btn" onclick="autoTransfer()">🏦 AKTAR</button><div class="header"><div>VARLIK: <span id="score">0</span></div><div>SEVİYE: <span id="level">1</span></div></div><canvas id="gameCanvas"></canvas><div id="startScreen" class="overlay"><h1 style="color:#FFD700;">SOCRATIC 8x10</h1><p style="color:#aaa;">Sürükle Bırak</p><button class="big-btn" onclick="startGame()">BAŞLA</button></div><div id="gameOverScreen" class="overlay hidden"><h1 style="color:#ff4444">İFLAS</h1><p style="color:#fff;">Skor: <span id="finalScore">0</span></p><button class="big-btn" onclick="startGame()">TEKRAR</button></div></div><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const scoreEl=document.getElementById('score');const COLS=8;const ROWS=10;let CELL_SIZE=30;const BLOCK_COLOR="#D500F9";const PREVIEW_COLOR="rgba(213, 0, 249, 0.4)";let grid=[],pieces=[],draggingPiece=null,score=0,dragOffset={x:0,y:0};const SHAPES=[[[1]],[[1,1]],[[1],[1]],[[1,1],[1,1]],[[1,1,1]],[[1],[1],[1]],[[1,1,1,1]],[[1],[1],[1],[1]],[[1,0],[1,0],[1,1]],[[0,1],[0,1],[1,1]],[[1,1,0],[0,1,1]],[[0,1,1],[1,1,0]]];function resize(){const w=window.innerWidth;const h=window.innerHeight;const availableH=h-200;const availableW=w-20;CELL_SIZE=Math.floor(Math.min(availableW/COLS,availableH/ROWS));CELL_SIZE=Math.max(25,Math.min(CELL_SIZE,50));canvas.width=CELL_SIZE*COLS;canvas.height=(CELL_SIZE*ROWS)+(CELL_SIZE*3.5);draw();}window.addEventListener('resize',resize);function startGame(){grid=Array(ROWS).fill().map(()=>Array(COLS).fill(0));score=0;scoreEl.innerText=score;document.getElementById('startScreen').classList.add('hidden');document.getElementById('gameOverScreen').classList.add('hidden');resize();spawnPieces();}function spawnPieces(){pieces=[];const spawnZoneY=(ROWS*CELL_SIZE)+(CELL_SIZE*0.5);const slotWidth=canvas.width/3;for(let i=0;i<3;i++){const shape=SHAPES[Math.floor(Math.random()*SHAPES.length)];const pW=shape[0].length*CELL_SIZE*0.6;pieces.push({shape:shape,x:(slotWidth*i)+(slotWidth/2)-(pW/2),y:spawnZoneY,baseX:(slotWidth*i)+(slotWidth/2)-(pW/2),baseY:spawnZoneY,scale:0.6,isDragging:false});}draw();checkGameOver();}function draw(){ctx.fillStyle="#050505";ctx.fillRect(0,0,canvas.width,canvas.height);for(let r=0;r<ROWS;r++){for(let c=0;c<COLS;c++){const x=c*CELL_SIZE;const y=r*CELL_SIZE;ctx.strokeStyle="#222";ctx.lineWidth=1;ctx.strokeRect(x,y,CELL_SIZE,CELL_SIZE);if(grid[r][c]===1)drawCell(x,y,CELL_SIZE,BLOCK_COLOR);}}ctx.beginPath();ctx.moveTo(0,ROWS*CELL_SIZE);ctx.lineTo(canvas.width,ROWS*CELL_SIZE);ctx.strokeStyle="#FFD700";ctx.lineWidth=2;ctx.stroke();pieces.forEach(p=>{if(!p.isDragging)drawShape(p.shape,p.x,p.y,CELL_SIZE*p.scale,"#888");});if(draggingPiece){const{gx,gy}=getGridPos(draggingPiece.x,draggingPiece.y);if(canPlace(draggingPiece.shape,gx,gy)){drawShape(draggingPiece.shape,gx*CELL_SIZE,gy*CELL_SIZE,CELL_SIZE,PREVIEW_COLOR);}drawShape(draggingPiece.shape,draggingPiece.x,draggingPiece.y,CELL_SIZE,BLOCK_COLOR);}}function drawCell(x,y,size,color){ctx.fillStyle=color;ctx.fillRect(x+1,y+1,size-2,size-2);ctx.strokeStyle="rgba(255, 215, 0, 0.5)";ctx.lineWidth=1;ctx.strokeRect(x+4,y+4,size-8,size-8);}function drawShape(shape,px,py,size,color){for(let r=0;r<shape.length;r++){for(let c=0;c<shape[r].length;c++){if(shape[r][c]===1)drawCell(px+(c*size),py+(r*size),size,color);}}}function getGridPos(px,py){const gx=Math.round(px/CELL_SIZE);const gy=Math.round(py/CELL_SIZE);return{gx,gy};}function canPlace(shape,gx,gy){for(let r=0;r<shape.length;r++){for(let c=0;c<shape[r].length;c++){if(shape[r][c]===1){let tx=gx+c;let ty=gy+r;if(tx<0||tx>=COLS||ty<0||ty>=ROWS||grid[ty][tx]===1)return false;}}}return true;}function place(shape,gx,gy){for(let r=0;r<shape.length;r++){for(let c=0;c<shape[r].length;c++){if(shape[r][c]===1)grid[gy+r][gx+c]=1;}}score+=shape.flat().filter(x=>x).length*10;checkLines();scoreEl.innerText=score;}function checkLines(){let lines=0;for(let r=0;r<ROWS;r++){if(grid[r].every(val=>val===1)){grid[r].fill(0);lines++;}}for(let c=0;c<COLS;c++){let full=true;for(let r=0;r<ROWS;r++)if(grid[r][c]===0)full=false;if(full){for(let r=0;r<ROWS;r++)grid[r][c]=0;lines++;}}if(lines>0)score+=lines*100;}function checkGameOver(){let canMove=false;if(pieces.length===0)return;for(let p of pieces){for(let r=0;r<ROWS;r++){for(let c=0;c<COLS;c++){if(canPlace(p.shape,c,r)){canMove=true;break;}}if(canMove)break;}if(canMove)break;}if(!canMove){document.getElementById('finalScore').innerText=score;document.getElementById('gameOverScreen').classList.remove('hidden');}}function getPos(e){const rect=canvas.getBoundingClientRect();const cx=e.touches?e.touches[0].clientX:e.clientX;const cy=e.touches?e.touches[0].clientY:e.clientY;return{x:cx-rect.left,y:cy-rect.top};}function onDown(e){const pos=getPos(e);for(let i=pieces.length-1;i>=0;i--){const p=pieces[i];const w=p.shape[0].length*CELL_SIZE*p.scale;const h=p.shape.length*CELL_SIZE*p.scale;if(pos.x>=p.x-30&&pos.x<=p.x+w+30&&pos.y>=p.y-30&&pos.y<=p.y+h+30){if(e.cancelable)e.preventDefault();draggingPiece=p;p.isDragging=true;const realW=p.shape[0].length*CELL_SIZE;const realH=p.shape.length*CELL_SIZE;dragOffset.x=-realW/2;dragOffset.y=-realH/2;p.x=pos.x+dragOffset.x;p.y=pos.y+dragOffset.y;draw();break;}}}function onMove(e){if(!draggingPiece)return;if(e.cancelable)e.preventDefault();const pos=getPos(e);draggingPiece.x=pos.x+dragOffset.x;draggingPiece.y=pos.y+dragOffset.y;draw();}function onUp(e){if(!draggingPiece)return;if(e.cancelable)e.preventDefault();const{gx,gy}=getGridPos(draggingPiece.x,draggingPiece.y);if(canPlace(draggingPiece.shape,gx,gy)){place(draggingPiece.shape,gx,gy);pieces=pieces.filter(p=>p!==draggingPiece);if(pieces.length===0)spawnPieces();else checkGameOver();}else{draggingPiece.x=draggingPiece.baseX;draggingPiece.y=draggingPiece.baseY;draggingPiece.isDragging=false;}draggingPiece=null;draw();}canvas.addEventListener('mousedown',onDown);canvas.addEventListener('touchstart',onDown,{passive:false});window.addEventListener('mousemove',onMove);window.addEventListener('touchmove',onMove,{passive:false});window.addEventListener('mouseup',onUp);window.addEventListener('touchend',onUp,{passive:false});function autoTransfer(){if(score<50){alert("En az 50 puan gerekli.");return;}const url=new URL(window.parent.location.href);url.searchParams.set('game_transfer',score);url.searchParams.set('game_source','matrix');window.parent.location.href=url.toString();}setTimeout(resize,100);</script></body></html>"""
 
+# --- EKSİK OLAN FONKSİYON BURADA ---
+@st.cache_data
+def fetch_json_data(url):
+    try:
+        r = requests.get(url)
+        return r.json() if r.status_code == 200 else {}
+    except: return {}
+
+@st.cache_data
 def load_local_exams():
     if os.path.exists("exams.json"):
         try:
@@ -326,6 +159,7 @@ def load_local_exams():
         except: return {}
     return {}
 
+@st.cache_data
 def load_lifesim():
     try:
         r = requests.get(f"{GITHUB_BASE_URL}/game.html")
@@ -366,7 +200,6 @@ if not st.session_state.logged_in:
                         st.session_state.logged_in = True
                         st.session_state.user_role = user[3]
                         st.session_state.username = user[1]
-                        # DÜZELTME: Postgres uyumlu parametre gönderimi
                         if user[3] == "student": server.join_or_update_student("GENEL", user[1], 0)
                         st.rerun()
                     else: st.error("Hatalı bilgi.")
