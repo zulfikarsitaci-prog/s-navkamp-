@@ -49,7 +49,7 @@ def create_database():
     ]
     for t in tables: run_query(t)
 
-# --- İŞLEVLER ---
+# --- KULLANICI İŞLEMLERİ ---
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
@@ -61,6 +61,15 @@ def login_user(u, p):
     res = run_query("SELECT * FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
     return res[0] if res else None
 
+# EKSİK OLAN FONKSİYON (EKLENDİ)
+def get_all_users():
+    return run_query("SELECT username, role, last_seen FROM users", fetch=True)
+
+# EKSİK OLAN FONKSİYON (EKLENDİ)
+def delete_user(username):
+    run_query("DELETE FROM users WHERE username = ?", (username,))
+
+# --- AKTİVİTE ---
 def update_activity(u):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     run_query("UPDATE users SET last_seen = ? WHERE username = ?", (now, u))
@@ -84,12 +93,14 @@ def send_message(s, r, m):
 def get_unread_messages(u):
     return run_query("SELECT id, sender, message FROM messages WHERE receiver = ? AND is_read = 0", (u,), fetch=True)
 
-# EKSİK OLAN FONKSİYON BUYDU (EKLENDİ)
 def get_my_messages(u):
     return run_query("SELECT id, sender, message, timestamp, is_read FROM messages WHERE receiver = ? ORDER BY id DESC", (u,), fetch=True)
 
 def mark_messages_as_read(r, s):
     run_query("UPDATE messages SET is_read = 1 WHERE receiver = ? AND sender = ?", (r, s))
+
+def mark_as_read(msg_id):
+    run_query("UPDATE messages SET is_read = 1 WHERE id = ?", (msg_id,))
 
 def get_conversation(u1, u2):
     return run_query("SELECT sender, message, timestamp FROM messages WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY id ASC", (u1, u2, u2, u1), fetch=True)
