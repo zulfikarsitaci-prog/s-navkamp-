@@ -18,89 +18,73 @@ def init_state():
         if k not in st.session_state: st.session_state[k] = v
 init_state()
 
-# --- CSS: Çerçeveler, Mağaza Grid ve Bildirimler ---
+# --- CSS ---
 st.markdown("""
 <style>
     .login-container { text-align: center; margin-top: 50px; }
-    .login-title { font-family: 'Helvetica', sans-serif; font-size: 2.2rem; font-weight: 700; color: #FFD700; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
     .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     .user-greeting { font-weight: bold; color: #e2e8f0; }
     .post-card { background: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155; }
-    .comment-sec { background: #0f172a; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 0.9rem; }
+    .comment-sec { background: #0f172a; padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.85rem; border-left: 2px solid #334155; }
     div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 15px; flex-wrap: wrap; }
     
-    /* MAĞAZA KARTLARI */
-    .shop-card {
-        background-color: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 15px;
-        text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
-        transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-    .shop-card:hover { transform: translateY(-5px); border-color: #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
-    .price-tag { background: linear-gradient(45deg, #10b981, #059669); color: white; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 0.8rem; margin-top: 8px; }
-    .shop-preview { height: 60px; display: flex; align-items: center; justify-content: center; width: 100%; margin-bottom: 10px; }
+    /* MAĞAZA */
+    .shop-card { background-color: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 15px; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; transition: 0.3s; }
+    .shop-card:hover { transform: translateY(-5px); border-color: #FFD700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+    .price-tag { background: #10b981; color: white; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 0.8rem; margin-top: 8px; }
 
-    /* AVATAR VE ÇERÇEVELER */
-    .avatar-container { position: relative; display: inline-block; width: 50px; height: 50px; margin-right: 10px; vertical-align: middle; }
+    /* AVATAR */
+    .avatar-container { position: relative; display: inline-block; margin-right: 10px; vertical-align: middle; }
     .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-    .frame-overlay { position: absolute; top: -5px; left: -5px; width: 60px; height: 60px; pointer-events: none; z-index: 2; }
+    .frame-overlay { position: absolute; top: -5px; left: -5px; pointer-events: none; z-index: 2; }
     
+    /* ÇERÇEVELER */
     .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 10px #FFD700; }
     .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff; }
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; animation: pulse 1.5s infinite; }
     .frame-King { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 20px #ffd700, 0 0 40px #ff0000; }
     .frame-Matrix { border: 3px dotted #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00; }
 
-    /* İSİM EFEKTLERİ */
+    /* EFEKTLER */
     .name-Glitch { color: #00ffff; text-shadow: 2px 0 #ff00ff; font-weight: bold; }
-    .name-Fire { color: #ff4500; text-shadow: 0 0 5px #ff0000, 0 0 10px #ffff00; font-weight: bold; animation: burn 1s infinite alternate; }
-    .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C); -webkit-background-clip: text; color: transparent; font-weight: 900; }
+    .name-Fire { color: #ff4500; text-shadow: 0 0 5px #ff0000; font-weight: bold; animation: burn 1s infinite alternate; }
+    .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
     .name-Rainbow { background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red); -webkit-background-clip: text; color: transparent; font-weight: bold; }
     
-    /* YAZI RENKLERİ */
     .post-Cyan { color: #00ffff !important; }
     .post-Lime { color: #00ff00 !important; }
     .post-Pink { color: #ff69b4 !important; }
     .post-Gold { color: #ffd700 !important; }
 
     @keyframes pulse { 0% { box-shadow: 0 0 5px #ff4500; } 50% { box-shadow: 0 0 20px #ff4500; } 100% { box-shadow: 0 0 5px #ff4500; } }
-    @keyframes burn { from { text-shadow: 0 0 5px #ff0000; } to { text-shadow: 0 0 20px #ffff00, 0 -5px 10px #ff4500; } }
+    @keyframes burn { from { text-shadow: 0 0 5px #ff0000; } to { text-shadow: 0 0 20px #ffff00; } }
     
     iframe { width: 100% !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# Başlat
+# Veritabanı
 try:
     database.create_database()
     if not database.login_user("admin", "6626"): database.add_user("admin", "6626", "admin")
 except: pass
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
-# --- GÖRSEL YARDIMCILAR ---
+# --- GÖRSEL YARDIMCILAR (DÜZELTİLDİ: Tek satır HTML) ---
 def get_user_display_html(username, size=50):
-    """Kullanıcının avatarını, çerçevesini ve isim efektini döndürür"""
     ava, frame, name_style, _ = database.get_user_styles(username)
     img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150?text=U"
     
-    frame_html = ""
+    f_html = ""
     if frame:
         f_size = size + 10
-        f_offset = -5
-        frame_html = f'<div class="frame-overlay frame-{frame}" style="width:{f_size}px;height:{f_size}px;top:{f_offset}px;left:{f_offset}px;"></div>'
+        f_class = f"frame-{frame}"
+        f_html = f'<div class="frame-overlay {f_class}" style="width:{f_size}px;height:{f_size}px;"></div>'
     
     n_class = f"name-{name_style}" if name_style else ""
     
-    return f"""
-    <div style="display:flex;align-items:center;">
-        <div class="avatar-container" style="width:{size}px;height:{size}px;">
-            <img src="{img_src}" class="avatar-img">
-            {frame_html}
-        </div>
-        <div style="margin-left:12px;">
-            <div class="{n_class}" style="font-size:1.1rem;">{username}</div>
-        </div>
-    </div>
-    """
+    # HTML kodunu tek satırda ve girintisiz döndürüyoruz ki Markdown kod bloğu sanmasın
+    return f'<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px;height:{size}px;"><img src="{img_src}" class="avatar-img">{f_html}</div><div style="margin-left:12px;"><div class="{n_class}" style="font-size:1.1rem;">{username}</div></div></div>'
 
 def get_post_style(username):
     _, _, _, post_style = database.get_user_styles(username)
@@ -117,7 +101,6 @@ class SchoolServer:
         return df if not df.empty else pd.DataFrame(columns=["Öğrenci","Puan"])
     def buy_item(self, u, type, name, cost):
         return database.buy_item(u, type, name, cost)
-
 server = SchoolServer()
 
 @st.cache_data
@@ -135,9 +118,9 @@ def get_transfer_js(username):
         let val = 0;
         if(typeof score !== 'undefined' && score > 0) val = score;
         else if(typeof money !== 'undefined' && typeof startBalance !== 'undefined') val = Math.floor(money-startBalance);
-        if(val <= 0){{ alert("Aktaracak puan yok!"); return; }}
+        if(val <= 0){{ alert("Puan yok!"); return; }}
         let btn = document.getElementById('bBtn') || document.getElementById('mBtn');
-        if(btn) {{ btn.innerText="GÖNDERİLİYOR..."; btn.disabled=true; }}
+        if(btn) {{ btn.innerText="..."; btn.disabled=true; }}
         let u="{username}";
         try {{
             const url = new URL(window.top.location.href);
@@ -155,7 +138,7 @@ def get_transfer_js(username):
 
 def get_finance_game_html(start, user):
     js = get_transfer_js(user)
-    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{{background:#0f172a;color:white;font-family:sans-serif;text-align:center;padding:10px}} .grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}} .card{{background:#1e293b;padding:5px;border-radius:5px;font-size:10px;cursor:pointer}} .btn{{background:#3b82f6;width:80px;height:80px;border-radius:50%;margin:15px auto;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer}} .bank{{background:#10b981;color:white;width:100%;padding:10px;border:none;border-radius:5px;margin-top:10px;font-weight:bold}}</style></head><body><div>💰 <span id="m">{start}</span></div><div class="btn" onclick="c()">👆</div><div class="grid" id="g"></div><button id="bBtn" class="bank" onclick="autoTransfer()">🏦 AKTAR</button><script>let money={start}, startBalance={start}; const a=[{{n:"Limonata",c:100,g:1,k:0}},{{n:"Simit",c:500,g:5,k:0}},{{n:"Kantin",c:2000,g:25,k:0}},{{n:"Yazılım",c:10000,g:150,k:0}},{{n:"Fabrika",c:50000,g:800,k:0}},{{n:"Banka",c:200000,g:5000,k:0}}]; function u(){{document.getElementById('m').innerText=Math.floor(money).toLocaleString(); let h=''; a.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.2,x.k)); h+=`<div class="card" onclick="b(${{i}})"><b>${{x.n}}</b> (${{x.k}})<br><span style="color:#f87171">${{p}}</span><br><span style="color:#34d399">+${{x.g}}</span></div>`}}); document.getElementById('g').innerHTML=h;}} function c(){{money++;u()}} function b(i){{let x=a[i],p=Math.floor(x.c*Math.pow(1.2,x.k)); if(money>=p){{money-=p;x.k++;u()}}}} setInterval(()=>{{let g=a.reduce((t,x)=>t+(x.k*x.g),0); if(g>0){{money+=g;u()}}}},1000); u(); {js} </script></body></html>"""
+    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{{background:#0f172a;color:white;font-family:sans-serif;text-align:center;padding:5px}} .grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}} .card{{background:#1e293b;padding:5px;border-radius:5px;font-size:10px;cursor:pointer}} .btn{{background:#3b82f6;width:70px;height:70px;border-radius:50%;margin:10px auto;display:flex;align-items:center;justify-content:center;font-size:25px;cursor:pointer}} .bank{{background:#10b981;color:white;width:100%;padding:10px;border:none;border-radius:5px;margin-top:5px;font-weight:bold}}</style></head><body><div>💰 <span id="m">{start}</span></div><div class="btn" onclick="c()">👆</div><div class="grid" id="g"></div><button id="bBtn" class="bank" onclick="autoTransfer()">🏦 AKTAR</button><script>let money={start}, startBalance={start}; const a=[{{n:"Limonata",c:100,g:1,k:0}},{{n:"Simit",c:500,g:5,k:0}},{{n:"Kantin",c:2000,g:25,k:0}},{{n:"Yazılım",c:10000,g:150,k:0}},{{n:"Fabrika",c:50000,g:800,k:0}},{{n:"Banka",c:200000,g:5000,k:0}}]; function u(){{document.getElementById('m').innerText=Math.floor(money).toLocaleString(); let h=''; a.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.2,x.k)); h+=`<div class="card" onclick="b(${{i}})"><b>${{x.n}}</b> (${{x.k}})<br><span style="color:#f87171">${{p}}</span><br><span style="color:#34d399">+${{x.g}}</span></div>`}}); document.getElementById('g').innerHTML=h;}} function c(){{money++;u()}} function b(i){{let x=a[i],p=Math.floor(x.c*Math.pow(1.2,x.k)); if(money>=p){{money-=p;x.k++;u()}}}} setInterval(()=>{{let g=a.reduce((t,x)=>t+(x.k*x.g),0); if(g>0){{money+=g;u()}}}},1000); u(); {js} </script></body></html>"""
 
 def get_matrix_game_html(user):
     js = get_transfer_js(user)
@@ -192,10 +175,9 @@ if not st.session_state['logged_in']:
 else:
     with st.sidebar:
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
-        uploaded_avatar = st.file_uploader("Profil Foto", type=['png', 'jpg'])
+        uploaded_avatar = st.file_uploader("Profil", type=['png', 'jpg', 'jpeg'])
         if uploaded_avatar:
-            if database.update_avatar(st.session_state['username'], uploaded_avatar):
-                st.success("Yüklendi!"); time.sleep(1); st.rerun()
+            if database.update_avatar(st.session_state['username'], uploaded_avatar): st.success("Yüklendi!"); time.sleep(1); st.rerun()
         if st.button("Çıkış"): st.session_state['logged_in']=False; st.rerun()
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
@@ -217,62 +199,54 @@ else:
         st.subheader("Kampüs Duvar")
         with st.expander("Paylaş", expanded=False):
             with st.form("sh"):
-                txt = st.text_area("İçerik"); img = st.file_uploader("Resim", type=['png','jpg'])
+                txt = st.text_area("İçerik"); img = st.file_uploader("Resim", type=['png','jpg','jpeg'])
                 if st.form_submit_button("Paylaş"):
                     if txt or img: database.add_post(st.session_state['username'], txt, img); st.rerun()
         for p in database.get_posts(20):
             with st.container():
-                st.markdown(f"""<div style="display:flex;align-items:center;margin-bottom:5px;">
-                                {get_user_display_html(p[1], size=40)} 
-                                <div style="margin-left:auto;color:gray;font-size:0.8rem;">{p[4]}</div>
-                            </div>""", unsafe_allow_html=True)
-                
+                st.markdown(f'<div style="margin-bottom:5px;">{get_user_display_html(p[1], size=40)} <small style="color:gray;">{p[4]}</small></div>', unsafe_allow_html=True)
                 if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
                     with st.popover("⋮"):
                         if st.button("Sil", key=f"d{p[0]}"): database.delete_post(p[0]); st.rerun()
-                
                 post_style = get_post_style(p[1])
                 if p[2]: st.markdown(f"<div class='{post_style}'>{p[2]}</div>", unsafe_allow_html=True)
                 if p[3]: st.markdown(f'<img src="data:image/jpeg;base64,{p[3]}" style="max-width:100%;border-radius:10px">', unsafe_allow_html=True)
-                
                 c1, c2 = st.columns([1,4])
                 if c1.button(f"❤️ {p[5]}", key=f"l{p[0]}"): database.like_post(p[0]); st.rerun()
                 comments = database.get_comments(p[0])
                 if comments:
                     with st.expander(f"💬 ({len(comments)})"):
-                        for c in comments: st.markdown(f"<div class='comment-sec'>{get_user_display_html(c[0], size=20)} {c[1]}</div>", unsafe_allow_html=True)
+                        for c in comments: st.markdown(f"<div class='comment-sec' style='display:flex;align-items:center'>{get_user_display_html(c[0], size=25)} <div style='margin-left:5px'>{c[1]}</div></div>", unsafe_allow_html=True)
                 with st.popover("Yorum"):
                     with st.form(f"c{p[0]}"):
-                        ct = st.text_input("Yorum"); 
+                        ct = st.text_input("Yorum")
                         if st.form_submit_button("Gönder"): database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
                 st.divider()
 
     elif sel == "🛒 Mağaza":
         st.header("Puan Mağazası 💎")
         st.metric("Bakiye", f"{server.get_score('GENEL', st.session_state['username']):,} P")
-        
         items = {
             "🖼️ Çerçeveler": [
                 {"n": "Gold", "c": 50000, "t": "frame", "v": "Gold", "css": "frame-Gold", "d": "Zenginlik"},
-                {"n": "Neon", "c": 150000, "t": "frame", "v": "Neon", "css": "frame-Neon", "d": "Işıldayan mavi"},
+                {"n": "Neon", "c": 150000, "t": "frame", "v": "Neon", "css": "frame-Neon", "d": "Mavi neon"},
                 {"n": "Alev", "c": 300000, "t": "frame", "v": "Fire", "css": "frame-Fire", "d": "Yanıyorsun!"},
                 {"n": "Matrix", "c": 500000, "t": "frame", "v": "Matrix", "css": "frame-Matrix", "d": "Kodun kendisi"},
-                {"n": "KRAL", "c": 2000000, "t": "frame", "v": "King", "css": "frame-King", "d": "Efsanelere özel"}
+                {"n": "KRAL", "c": 2000000, "t": "frame", "v": "King", "css": "frame-King", "d": "Efsane"}
             ],
             "✨ İsim Efektleri": [
                 {"n": "Glitch", "c": 100000, "t": "name", "v": "Glitch", "css": "", "d": "Siber bozulma", "preview_cls": "name-Glitch"},
-                {"n": "Alevli İsim", "c": 400000, "t": "name", "v": "Fire", "css": "", "d": "İsmin alev alsın", "preview_cls": "name-Fire"},
-                {"n": "Altın Kaplama", "c": 750000, "t": "name", "v": "Gold", "css": "", "d": "Som altın", "preview_cls": "name-Gold"},
+                {"n": "Alevli", "c": 400000, "t": "name", "v": "Fire", "css": "", "d": "İsmin alev alsın", "preview_cls": "name-Fire"},
+                {"n": "Altın", "c": 750000, "t": "name", "v": "Gold", "css": "", "d": "Som altın", "preview_cls": "name-Gold"},
                 {"n": "Gökkuşağı", "c": 1000000, "t": "name", "v": "Rainbow", "css": "", "d": "Tüm renkler", "preview_cls": "name-Rainbow"}
             ],
             "🎨 Yazı Renkleri": [
                 {"n": "Siyan", "c": 50000, "t": "post", "v": "Cyan", "css": "", "d": "Parlak mavi yazı", "preview_cls": "post-Cyan"},
                 {"n": "Limon", "c": 50000, "t": "post", "v": "Lime", "css": "", "d": "Neon yeşil yazı", "preview_cls": "post-Lime"},
                 {"n": "Pembe", "c": 100000, "t": "post", "v": "Pink", "css": "", "d": "Şeker pembe yazı", "preview_cls": "post-Pink"},
-                {"n": "Altın Yazı", "c": 500000, "t": "post", "v": "Gold", "css": "", "d": "Kraliyet yazısı", "preview_cls": "post-Gold"}
+                {"n": "Altın", "c": 500000, "t": "post", "v": "Gold", "css": "", "d": "Kraliyet yazısı", "preview_cls": "post-Gold"}
             ]
         }
-        
         tabs = st.tabs(items.keys())
         for i, (cat, products) in enumerate(items.items()):
             with tabs[i]:
@@ -286,7 +260,7 @@ else:
                                 if p['t'] == 'frame':
                                     st.markdown(f"""<div style="position:relative;width:50px;height:50px;margin:0 auto;"><img src="https://via.placeholder.com/50" style="border-radius:50%;"><div class="{p['css']}" style="position:absolute;top:-5px;left:-5px;width:60px;height:60px;"></div></div>""", unsafe_allow_html=True)
                                 elif 'preview_cls' in p:
-                                    st.markdown(f"""<div class="{p['preview_cls']}">Örnek Yazı</div>""", unsafe_allow_html=True)
+                                    st.markdown(f"""<div class="{p['preview_cls']}">Örnek</div>""", unsafe_allow_html=True)
                                 st.markdown(f"""<h4>{p['n']}</h4><small>{p['d']}</small><div class="price-tag">{p['c']:,} P</div></div>""", unsafe_allow_html=True)
                                 if st.button("AL", key=f"b_{p['v']}_{i}"):
                                     ok, msg = server.buy_item(st.session_state['username'], p['t'], p['v'], p['c'])
@@ -309,7 +283,7 @@ else:
         target = st.selectbox("Kişi", friends) if friends else None
         if target:
             for s, m, t in database.get_conversation(st.session_state['username'], target):
-                ava_html = get_avatar_html(s, size=30)
+                ava_html = get_user_display_html(s, size=30)
                 align = "flex-direction:row-reverse;background:#2563eb" if s == st.session_state['username'] else "flex-direction:row;background:#334155"
                 st.markdown(f"""<div style='display:flex;{align};align-items:center;margin:5px;'>{ava_html} <div style='padding:10px;border-radius:10px;margin:5px;color:white;background:inherit'>{m}</div></div>""", unsafe_allow_html=True)
             if txt := st.chat_input("Yaz..."): database.send_message(st.session_state['username'], target, txt); st.rerun()
