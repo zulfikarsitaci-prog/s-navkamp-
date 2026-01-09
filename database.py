@@ -11,7 +11,9 @@ def get_db_connection():
         try:
             conn = psycopg2.connect(st.secrets["DATABASE_URL"])
             return conn, "postgres"
-        except: return None, None
+        except Exception as e:
+            st.error(f"Veritabanı Bağlantı Hatası: {e}")
+            return None, None
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     DB_PATH = os.path.join(BASE_DIR, "education_platform.db")
     return sqlite3.connect(DB_PATH, check_same_thread=False), "sqlite"
@@ -19,23 +21,39 @@ def get_db_connection():
 def run_query(query, params=(), fetch=False):
     conn, db_type = get_db_connection()
     if not conn: return False
-    if db_type == "postgres" and conn.closed != 0:
-        st.cache_resource.clear(); conn, db_type = get_db_connection()
     
+    # Postgres bağlantı kontrolü
+    if db_type == "postgres" and conn.closed != 0:
+        st.cache_resource.clear()
+        conn, db_type = get_db_connection()
+
     cursor = conn.cursor()
+    
+    # SQL Dönüşümü (SQLite -> Postgres)
     if db_type == "postgres":
-        query = query.replace("?", "%s").replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
+        query = query.replace("?", "%s")
+        query = query.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
     
     try:
         cursor.execute(query, params)
-        if fetch: return cursor.fetchall()
-        else: conn.commit(); return True
-    except: return False
-    finally: cursor.close()
+        if fetch:
+            return cursor.fetchall()
+        else:
+            conn.commit()
+            return True
+    except Exception as e:
+        # Hata varsa işlemi geri al (Sistemin kilitlenmesini önler)
+        conn.rollback()
+        # Sadece kritik hataları göster (Tablo yok vs.)
+        if "relation" in str(e) or "column" in str(e):
+            st.warning(f"Veritabanı Yapılandırma Uyarısı: {e}")
+        return False
+    finally:
+        cursor.close()
 
 def create_database():
     tables = [
-        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT)',
+        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT)',
         'CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)',
         'CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS global_messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, message TEXT, timestamp TEXT)',
@@ -46,30 +64,45 @@ def create_database():
     ]
     for t in tables: run_query(t)
     
-    # MIGRATION: Avatar sütunu yoksa ekle
+    # MIGRATION: Eğer eski kullanıcılar varsa ve avatar sütunu yoksa ekle
     try: run_query("ALTER TABLE users ADD COLUMN avatar_data TEXT")
     except: pass
 
-# --- KULLANICI & AVATAR ---
+# --- ÖZEL: SİSTEM SIFIRLAMA (ONARIM) ---
+def reset_users_table():
+    run_query("DROP TABLE IF EXISTS users")
+    create_database()
+    # Admin'i tekrar oluştur
+    add_user("admin", "6626", "admin")
+
+# --- KULLANICI İŞLEMLERİ ---
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
         return run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (u, h, r))
     except: return False
+
 def login_user(u, p):
     h = hashlib.sha256(p.encode()).hexdigest()
     res = run_query("SELECT * FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
+    # Veritabanı yapısı değiştiği için index hatası olmaması adına kontrol
     return res[0] if res else None
+
 def get_user_role(u):
     res = run_query("SELECT role FROM users WHERE username = ?", (u,), fetch=True)
     return res[0][0] if res and res[0] else None
+
 def update_avatar(u, img_data):
     run_query("UPDATE users SET avatar_data = ? WHERE username = ?", (img_data, u))
-def get_avatar(u):
-    res = run_query("SELECT avatar_data FROM users WHERE username = ?", (u,), fetch=True)
-    return res[0][0] if res and res[0] else None
 
-# --- DİĞER ---
+def get_avatar(u):
+    # Eğer sütun yoksa hata vermemesi için try-except
+    try:
+        res = run_query("SELECT avatar_data FROM users WHERE username = ?", (u,), fetch=True)
+        return res[0][0] if res and res[0] else None
+    except: return None
+
+# --- DİĞER FONKSİYONLAR ---
 def add_score(u, a, s="Sistem"):
     d = datetime.now().strftime("%Y-%m-%d %H:%M")
     return run_query("INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)", (u, s, a, d))
@@ -81,7 +114,7 @@ def delete_user(u): run_query("DELETE FROM users WHERE username = ?", (u,))
 def update_activity(u):
     n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
-def get_online_users(minutes=5): return [] # Basitleştirildi
+def get_online_users(minutes=5): return [] 
 def add_post(u, c, i=None):
     t = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO posts (username, content, image_data, timestamp, likes) VALUES (?, ?, ?, ?, 0)", (u, c, i, t))
