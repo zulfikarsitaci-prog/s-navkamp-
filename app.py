@@ -10,51 +10,32 @@ import database
 import base64
 from datetime import datetime
 
-# ==========================================
-# 1. SAYFA VE STİL
-# ==========================================
-st.set_page_config(
-    page_title="Bağarası ÇPAL - Dijital Kampüs",
-    page_icon="🎓",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
 
-# --- DEVLET (STATE) ---
 def init_state():
     defaults = {"logged_in": False, "user_role": None, "username": None, "class_code": "GENEL"}
-    for key, val in defaults.items():
-        if key not in st.session_state: st.session_state[key] = val
+    for k, v in defaults.items():
+        if k not in st.session_state: st.session_state[k] = v
 init_state()
 
-# --- CSS ---
 st.markdown("""
 <style>
-    .login-container { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-top: 50px; }
-    .login-title { font-family: 'Helvetica', sans-serif; font-size: 2.2rem; font-weight: 700; color: #FFD700; text-shadow: 0 0 10px rgba(0,0,0,0.5); margin-bottom: 20px; }
-    div[data-testid="stSidebar"] button { width: 100%; border-radius: 8px; padding: 12px 15px; font-weight: bold; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 5px; font-size: 1rem; }
-    div[data-testid="stSidebar"] button:first-of-type { background-color: #2563eb; color: white; } 
-    div[data-testid="stSidebar"] button:last-of-type { background-color: #dc2626; color: white; margin-top: 20px; } 
-    .top-bar { background-color: #1e293b; padding: 10px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #FFD700; }
-    .user-greeting { font-size: 1rem; font-weight: bold; color: #e2e8f0; }
-    .role-badge { background: #FFD700; color: #000; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 900; }
-    .chat-bubble-me { background-color: #2563eb; color: white; padding: 10px; border-radius: 15px 15px 0 15px; margin: 5px; text-align: right; float: right; clear: both; max-width: 70%; }
-    .chat-bubble-other { background-color: #334155; color: white; padding: 10px; border-radius: 15px 15px 15px 0; margin: 5px; text-align: left; float: left; clear: both; max-width: 70%; }
-    .post-card { background-color: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155; }
+    .login-container { text-align: center; margin-top: 50px; }
+    .login-title { font-family: 'Helvetica', sans-serif; font-size: 2.2rem; font-weight: 700; color: #FFD700; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+    .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; }
+    .user-greeting { font-weight: bold; color: #e2e8f0; }
+    .post-card { background: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155; }
+    .comment-sec { background: #0f172a; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 0.9rem; }
     iframe { width: 100% !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# Veritabanı
 database.create_database()
 if not database.login_user("admin", "6626"): database.add_user("admin", "6626", "admin")
-if st.session_state['logged_in'] and st.session_state['username']: database.update_activity(st.session_state['username'])
+if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
-# ==========================================
-# 2. SERVER & YARDIMCILAR
-# ==========================================
+# --- SERVER ---
 class SchoolServer:
-    def __init__(self): pass
     def join_or_update_student(self, c, u, p=0): 
         if p!=0: database.add_score(u, p, "Oyun")
         return database.get_total_score(u)
@@ -64,18 +45,9 @@ class SchoolServer:
         try:
             df = pd.read_sql_query("SELECT student_username, SUM(grade) as total FROM grades GROUP BY student_username ORDER BY total DESC", conn)
             conn.close()
-            if not df.empty: df.columns=["Öğrenci","Puan"]; return df
-        except: conn.close()
-        return pd.DataFrame(columns=["Öğrenci","Puan"])
-    def get_active_students_in_class(self, c): return []
-
+            return df if not df.empty else pd.DataFrame(columns=["Öğrenci","Puan"])
+        except: conn.close(); return pd.DataFrame(columns=["Öğrenci","Puan"])
 server = SchoolServer()
-
-@st.cache_data
-def load_meslek_sorular():
-    URL = "https://raw.githubusercontent.com/zulfikarsitaci-prog/s-navkamp-/main/sorular.json"
-    try: return requests.get(URL).json()
-    except: return {}
 
 @st.cache_data
 def load_local_exams():
@@ -85,278 +57,223 @@ def load_local_exams():
         except: return {}
     return {}
 
-# --- YENİ LIFESIM (Gelişmiş Sokratik Mod) ---
+# --- LIFESIM (DÜZELTİLMİŞ JS) ---
 def get_lifesim_html():
     return """
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body { background:#0f172a; color:#e2e8f0; font-family:sans-serif; padding:20px; text-align:center; }
-.card { background:#1e293b; padding:20px; border-radius:15px; border:1px solid #334155; max-width:500px; margin:0 auto; box-shadow:0 10px 25px rgba(0,0,0,0.5); }
-.btn { display:block; width:100%; padding:15px; margin:10px 0; border:none; border-radius:8px; font-size:16px; cursor:pointer; transition:0.2s; font-weight:bold; }
-.btn-a { background:#3b82f6; color:white; } .btn-a:hover { background:#2563eb; }
-.btn-b { background:#ef4444; color:white; } .btn-b:hover { background:#dc2626; }
-.stats { display:flex; justify-content:space-around; margin-bottom:20px; font-size:14px; font-weight:bold; color:#facc15; }
-.ai-msg { font-style:italic; color:#94a3b8; margin-top:15px; font-size:13px; border-top:1px solid #334155; padding-top:10px; }
-</style>
-</head>
-<body>
-<div class="card">
-    <div class="stats">
-        <span>💰 Para: <span id="money">1000</span> TL</span>
-        <span>❤️ Sağlık: <span id="health">100</span></span>
-        <span>🧠 Bilgi: <span id="know">0</span></span>
-    </div>
-    <h2 id="q-title" style="color:#FFD700;">Girişimci Ruhu</h2>
-    <p id="q-text" style="font-size:18px; line-height:1.5;">Okul bitti. Cebinde biriktirdiğin 1000 TL var. Ne yapacaksın?</p>
-    <div id="choices">
-        <button class="btn btn-a" onclick="choose(1)">Küçük bir e-ticaret sitesi kur (-500 TL)</button>
-        <button class="btn btn-b" onclick="choose(2)">Parayı faize yatırıp bekle (+50 TL)</button>
-    </div>
-    <div id="ai-feedback" class="ai-msg">Sokrat: "Başlamak için en iyi zaman şimdidir, peki risk almaya hazır mısın?"</div>
-</div>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>body{background:#0f172a;color:#e2e8f0;font-family:sans-serif;padding:20px;text-align:center}.card{background:#1e293b;padding:20px;border-radius:15px;border:1px solid #334155;max-width:500px;margin:0 auto;box-shadow:0 10px 25px rgba(0,0,0,0.5)}.btn{display:block;width:100%;padding:15px;margin:10px 0;border:none;border-radius:8px;font-size:16px;cursor:pointer;font-weight:bold}.btn-a{background:#3b82f6;color:white}.btn-b{background:#ef4444;color:white}.stats{display:flex;justify-content:space-around;margin-bottom:20px;color:#facc15;font-weight:bold}.ai{font-style:italic;color:#94a3b8;margin-top:15px;border-top:1px solid #334155;padding-top:10px}</style>
+</head><body><div class="card"><div class="stats"><span>💰 <span id="m">1000</span></span><span>❤️ <span id="h">100</span></span><span>🧠 <span id="k">0</span></span></div><h2 id="qt" style="color:#FFD700"></h2><p id="qx" style="font-size:18px"></p><div id="chs"></div><div id="ai" class="ai"></div></div>
 <script>
-let state = { m:1000, h:100, k:0, step:0 };
-const scenarios = [
-    { t:"Girişimci Ruhu", q:"Okul bitti. Cebinde 1000 TL var. Ne yapacaksın?", 
-      a:{txt:"E-Ticaret Sitesi Kur (-500 TL)", m:-500, k:20, nxt:1, ai:"Risk aldın! Ticaret cesaret ister. Müşteri bulmak için ne yapacaksın?"}, 
-      b:{txt:"Parayı Faize Yatır (+50 TL)", m:50, k:0, nxt:2, ai:"Güvenli liman. Ama gemiler limanda çürümek için yapılmamıştır."} },
-    { t:"İlk Müşteri", q:"Siteni kurdun ama kimse gelmiyor. Reklam mı yaparsın, içerik mi üretirsin?",
-      a:{txt:"Paralı Reklam Ver (-200 TL)", m:-200, k:10, nxt:3, ai:"Para parayı çeker derler. Hızlı çözüm, ama sürdürülebilir mi?"},
-      b:{txt:"Blog Yazısı Yaz (Bedava)", m:0, k:30, nxt:3, ai:"Bilgi en büyük sermayedir. Geç olur ama güç olmaz."} },
-    { t:"Yatırımcı Teklifi", q:"İşlerin büyüdü! Bir yatırımcı %50 hisse için 50.000 TL teklif ediyor.",
-      a:{txt:"Kabul Et (+50.000 TL)", m:50000, k:0, nxt:4, ai:"Nakite kavuştun ama kontrolü paylaştın. Ortaklık evlilik gibidir."},
-      b:{txt:"Reddet, Kendi Yağında Kavrul", m:0, k:50, nxt:4, ai:"Özgürlük paha biçilemez. Zor olacak ama zafer senin olacak."} },
-    { t:"Sonuç", q:"Hayat bir yolculuktur...", a:{txt:"Yeniden Başla", nxt:0}, b:{txt:"Bitir", nxt:0} }
+let s={m:1000,h:100,k:0,idx:0};
+const d=[
+ {t:"Başlangıç",q:"Okul bitti. 1000 TL var. Ne yapacaksın?",a:{t:"E-Ticaret (-500)",m:-500,k:20,n:1,ai:"Cesurca! Risk almadan başarı gelmez."},b:{t:"Faiz (+50)",m:50,k:0,n:2,ai:"Güvenli ama yavaş."}},
+ {t:"Müşteri Yok",q:"Site boş. Ne yapmalı?",a:{t:"Reklam Ver (-200)",m:-200,k:10,n:3,ai:"Para harcamadan para kazanılmaz."},b:{t:"Blog Yaz",m:0,k:30,n:3,ai:"Bilgi güçtür, içerik kraldır."}},
+ {t:"Yatırımcı",q:"Yatırımcı %50 hisse istiyor.",a:{t:"Sat (+50000)",m:50000,k:0,n:4,ai:"Nakit kraldır ama kontrolü kaybettin."},b:{t:"Reddet",m:0,k:50,n:4,ai:"Özgürlük paha biçilemez."}},
+ {t:"Sonuç",q:"Yolun sonu...",a:{t:"Başa Dön",n:0},b:{t:"Bitir",n:0}}
 ];
-function choose(opt) {
-    let s = scenarios[state.step];
-    let ch = opt===1 ? s.a : s.b;
-    state.m += (ch.m || 0); state.k += (ch.k || 0);
-    state.step = ch.nxt || 0;
-    if(state.step >= scenarios.length) state.step = 0; 
-    update();
-    document.getElementById('ai-feedback').innerText = "Sokrat: \"" + ch.ai + "\"";
+function r(){
+ let x=d[s.idx]; document.getElementById('qt').innerText=x.t; document.getElementById('qx').innerText=x.q;
+ document.getElementById('m').innerText=s.m; document.getElementById('h').innerText=s.h; document.getElementById('k').innerText=s.k;
+ let h=`<button class="btn btn-a" onclick="c(1)">${x.a.t}</button><button class="btn btn-b" onclick="c(2)">${x.b.t}</button>`;
+ document.getElementById('chs').innerHTML=h;
 }
-function update() {
-    document.getElementById('money').innerText = state.m;
-    document.getElementById('health').innerText = state.h;
-    document.getElementById('know').innerText = state.k;
-    let s = scenarios[state.step];
-    document.getElementById('q-title').innerText = s.t;
-    document.getElementById('q-text').innerText = s.q;
-    document.querySelector('.btn-a').innerText = s.a.txt;
-    document.querySelector('.btn-b').innerText = s.b.txt;
+function c(o){
+ let x=d[s.idx], ch=o===1?x.a:x.b;
+ s.m+=(ch.m||0); s.k+=(ch.k||0); s.idx=ch.n||0;
+ document.getElementById('ai').innerText="Sokrat: "+(ch.ai||"...");
+ r();
 }
-</script>
-</body>
-</html>
-"""
+r();
+</script></body></html>"""
 
-# --- OYUN JS (ANDROID FIX) ---
-# Android WebView ve Chrome mobilde 'assign' bazen iframe içinde bloklanır.
-# 'window.top.location.href' en güvenli yöntemdir.
-JS_AUTO_TRANSFER = """
-function autoTransfer(){
-    if(score<=0){alert("Puanın yok, neyi aktaracaksın?");return;}
-    let btn = document.getElementById('mBtn') || document.getElementById('bBtn');
-    if(btn) { btn.innerText="İŞLENİYOR..."; btn.disabled=true; }
-    
-    // Kullanıcı adını al (Python'dan inject edilecek)
-    let user = "{username}";
-    
-    // Güvenli URL oluştur
-    try {
-        const url = new URL(window.top.location.href);
-        url.searchParams.set('t_user', user);
-        url.searchParams.set('t_amt', Math.floor(score || money - startBalance));
-        url.searchParams.set('ts', Date.now());
-        window.top.location.href = url.toString();
-    } catch(e) {
-        alert("Transfer hatası: " + e.message);
-    }
-}
-"""
+# --- FINANS JS (ANDROID FIX) ---
+JS_TRANSFER = """function autoTransfer(){
+ if(score<=0 && (money-startBalance)<=0){alert("Aktaracak puan yok!");return;}
+ let b=document.getElementById('bBtn')||document.getElementById('mBtn');
+ if(b){b.innerText="İŞLENİYOR...";b.disabled=true;}
+ let u="{username}", v=score>0?score:Math.floor(money-startBalance);
+ try{window.parent.location.href = window.parent.location.href.split('?')[0] + `?t_user=${u}&t_amt=${v}&ts=`+Date.now();}
+ catch(e){alert("Hata: "+e.message);}
+}"""
 
-def get_finance_game_html(start_money, username):
-    return f"""<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><style>body{{background:#0f172a;color:#e2e8f0;font-family:sans-serif;padding:10px;margin:0;}} .dashboard{{display:flex;justify-content:space-between;background:#1e293b;padding:10px;border-radius:10px;margin-bottom:10px;}} .money-val{{font-size:18px;color:#34d399;font-weight:bold;}} .asset-grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:5px;}} .asset-card{{background:#1e293b;padding:8px;border:1px solid #334155;border-radius:5px;cursor:pointer;}} .clicker-btn{{background:radial-gradient(circle,#3b82f6,#1d4ed8);width:90px;height:90px;border-radius:50%;margin:0 auto 15px;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 15px #3b82f6;}} .bank-btn{{background:#10b981;color:white;width:100%;padding:15px;border:none;border-radius:8px;font-weight:bold;margin-top:10px;font-size:16px;}}</style></head><body><div class="dashboard"><div>SERMAYE<div id="money" class="money-val">{start_money}</div></div><div>GELİR<div id="cps" style="color:#facc15">0.0</div></div></div><div class="clicker-btn" onclick="manualWork()">👆</div><div class="asset-grid" id="market"></div><button id="bBtn" class="bank-btn" onclick="autoTransfer()">🏦 KÂRI BANKAYA AKTAR</button><script>let money={start_money}, startBalance={start_money}; const assets=[{{name:"Limonata",cost:150,gain:0.5,count:0}},{{name:"Simit",cost:1000,gain:3.5,count:0}},{{name:"Kantin",cost:5000,gain:15,count:0}},{{name:"Kırtasiye",cost:20000,gain:55,count:0}},{{name:"Yazılım",cost:80000,gain:200,count:0}},{{name:"Fabrika",cost:1000000,gain:3500,count:0}}]; function updateUI(){{document.getElementById('money').innerText=Math.floor(money).toLocaleString(); let total=assets.reduce((t,a)=>t+(a.count*a.gain),0); document.getElementById('cps').innerText=total.toFixed(1); let m=document.getElementById('market'); m.innerHTML=''; assets.forEach((a,i)=>{{let c=Math.floor(a.cost*Math.pow(1.2,a.count)); let d=document.createElement('div'); d.className='asset-card'; d.onclick=()=>buy(i); d.innerHTML=`<b>${{a.name}}</b> (${{a.count}})<br><span style='color:#f87171'>${{c}}</span><br><span style='color:#34d399'>+${{a.gain}}</span>`; m.appendChild(d);}});}} function manualWork(){{money+=1;updateUI();}} function buy(i){{let a=assets[i],c=Math.floor(a.cost*Math.pow(1.2,a.count)); if(money>=c){{money-=c;a.count++;updateUI();}}}} {JS_AUTO_TRANSFER.replace('{username}', username)} setInterval(()=>{{let t=assets.reduce((x,y)=>x+(y.count*y.gain),0); if(t>0){{money+=t;updateUI();}}}},1000); updateUI();</script></body></html>"""
+def get_finance_game_html(start, user):
+    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{{background:#0f172a;color:white;font-family:sans-serif;text-align:center;padding:10px}} .dash{{background:#1e293b;padding:10px;border-radius:10px;display:flex;justify-content:space-between}} .btn{{background:radial-gradient(circle,#3b82f6,#1d4ed8);width:80px;height:80px;border-radius:50%;margin:15px auto;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer}} .grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}} .card{{background:#1e293b;padding:5px;border:1px solid #334155;border-radius:5px;font-size:10px;cursor:pointer}} .bank{{background:#10b981;color:white;width:100%;padding:10px;border:none;border-radius:5px;margin-top:10px;font-weight:bold}}</style></head><body>
+    <div class="dash"><div>💰 <span id="m">{start}</span></div><div>⚡ <span id="c">0/s</span></div></div>
+    <div class="btn" onclick="clk()">👆</div><div class="grid" id="g"></div><button id="bBtn" class="bank" onclick="autoTransfer()">🏦 AKTAR</button>
+    <script>
+    let money={start}, startBalance={start}, score=0;
+    const a=[{{n:"Limonata",c:100,g:1,k:0}},{{n:"Simit",c:500,g:5,k:0}},{{n:"Kantin",c:2000,g:25,k:0}},{{n:"Yazılım",c:10000,g:150,k:0}},{{n:"Fabrika",c:50000,g:800,k:0}},{{n:"Banka",c:200000,g:5000,k:0}}];
+    function u(){{document.getElementById('m').innerText=Math.floor(money); document.getElementById('c').innerText=a.reduce((t,x)=>t+(x.k*x.g),0)+'/s';
+    let h=''; a.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.2,x.k)); h+=`<div class="card" onclick="b(${i})"><b>${x.n}</b> (${x.k})<br><span style="color:#f87171">${p}</span><br><span style="color:#34d399">+${x.g}</span></div>`}}); document.getElementById('g').innerHTML=h;}}
+    function clk(){{money++;u()}} function b(i){{let x=a[i],p=Math.floor(x.c*Math.pow(1.2,x.k)); if(money>=p){{money-=p;x.k++;u()}}}}
+    setInterval(()=>{{let g=a.reduce((t,x)=>t+(x.k*x.g),0); if(g>0){{money+=g;u()}}}},1000); u();
+    {JS_TRANSFER.replace('{username}', user)}
+    </script></body></html>"""
 
-def get_matrix_game_html(username):
-    return f"""<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><style>body{{margin:0;background:#050505;color:#FFD700;font-family:sans-serif;text-align:center;overflow:hidden;touch-action:none;}} #game-container{{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;padding-top:10px;}} .header{{width:95%;display:flex;justify-content:space-between;padding:5px;background:#111;border-bottom:1px solid #FFD700;font-size:14px;}} canvas{{background:#0f0f0f;border:2px solid #333;box-shadow:0 0 10px rgba(0,0,0,0.8);}} .bank-btn{{position:absolute;top:10px;right:10px;z-index:100;background:#B8860B;color:black;border:none;padding:8px 15px;border-radius:20px;font-weight:bold;cursor:pointer;}} .overlay{{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;flex-direction:column;justify-content:center;z-index:50;}} .hidden{{display:none !important;}} .big-btn{{background:transparent;border:2px solid #FFD700;color:#FFD700;padding:15px;font-size:20px;cursor:pointer;margin-top:20px;}}</style></head><body><div id="game-container"><button id="mBtn" class="bank-btn" onclick="autoTransfer()">🏦 AKTAR</button><div class="header"><div>PUAN: <span id="score">0</span></div></div><canvas id="gameCanvas"></canvas><div id="start" class="overlay"><h1>MATRIX 8x10</h1><p>Sürükle & Bırak</p><button class="big-btn" onclick="init()">BAŞLA</button></div><div id="end" class="overlay hidden"><h1 style="color:red">BİTTİ</h1><button class="big-btn" onclick="init()">TEKRAR</button></div></div><script>const cvs=document.getElementById('gameCanvas'), ctx=cvs.getContext('2d'); const COLS=8,ROWS=10; let SQ=30, grid=[], pieces=[], dragP=null, score=0, dragOff={{x:0,y:0}}; const SHAPES=[[[1]],[[1,1]],[[1],[1]],[[1,1],[1,1]],[[1,1,1]],[[1,0],[1,0],[1,1]]]; function resize(){{let w=window.innerWidth, h=window.innerHeight; SQ=Math.floor(Math.min((w-20)/COLS, (h-100)/ROWS)); SQ=Math.max(20,Math.min(SQ,50)); cvs.width=SQ*COLS; cvs.height=SQ*ROWS+100; draw();}} window.addEventListener('resize',resize); function init(){{grid=Array(ROWS).fill().map(()=>Array(COLS).fill(0)); score=0; document.getElementById('score').innerText=0; document.getElementById('start').classList.add('hidden'); document.getElementById('end').classList.add('hidden'); resize(); spawn();}} function spawn(){{pieces=[]; let y=ROWS*SQ+20, w=cvs.width/3; for(let i=0;i<3;i++){{let s=SHAPES[Math.floor(Math.random()*SHAPES.length)]; pieces.push({{s:s, x:w*i+10, y:y, bx:w*i+10, by:y, sc:0.6}});}} draw(); check();}} function draw(){{ctx.fillStyle="#050505"; ctx.fillRect(0,0,cvs.width,cvs.height); for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) {{ ctx.strokeStyle="#222"; ctx.strokeRect(c*SQ,r*SQ,SQ,SQ); if(grid[r][c]) {{ctx.fillStyle="#D500F9"; ctx.fillRect(c*SQ+1,r*SQ+1,SQ-2,SQ-2);}} }} ctx.beginPath(); ctx.moveTo(0,ROWS*SQ); ctx.lineTo(cvs.width,ROWS*SQ); ctx.strokeStyle="gold"; ctx.stroke(); pieces.forEach(p=>{{if(p!==dragP) ds(p.s,p.x,p.y,SQ*p.sc,"#888");}}); if(dragP) ds(dragP.s,dragP.x,dragP.y,SQ,"#D500F9");}} function ds(s,x,y,z,c){{ctx.fillStyle=c; for(let r=0;r<s.length;r++) for(let k=0;k<s[r].length;k++) if(s[r][k]) ctx.fillRect(x+k*z,y+r*z,z,z);}} function getPos(e){{let r=cvs.getBoundingClientRect(), t=e.touches?e.touches[0]:e; return {{x:t.clientX-r.left,y:t.clientY-r.top}};}} function check(){{if(pieces.length===0) spawn();}} cvs.addEventListener('mousedown',e=>{{let p=getPos(e); pieces.forEach(pi=>{{if(p.x>=pi.x&&p.x<=pi.x+50&&p.y>=pi.y&&p.y<=pi.y+50) dragP=pi;}});}}); cvs.addEventListener('mousemove',e=>{{if(dragP){{let p=getPos(e); dragP.x=p.x-20; dragP.y=p.y-20; draw();}}}}); cvs.addEventListener('mouseup',e=>{{if(dragP){{let gx=Math.round(dragP.x/SQ), gy=Math.round(dragP.y/SQ); let fits=true; for(let r=0;r<dragP.s.length;r++) for(let c=0;c<dragP.s[r].length;c++) if(dragP.s[r][c]) {{if(gy+r>=ROWS || gx+c>=COLS || gx+c<0 || grid[gy+r][gx+c]) fits=false;}} if(fits){{for(let r=0;r<dragP.s.length;r++) for(let c=0;c<dragP.s[r].length;c++) if(dragP.s[r][c]) grid[gy+r][gx+c]=1; pieces=pieces.filter(p=>p!==dragP); score+=10; document.getElementById('score').innerText=score;}} else {{dragP.x=dragP.bx; dragP.y=dragP.by;}} dragP=null; draw(); check();}}}}); cvs.addEventListener('touchstart',e=>{{let p=getPos(e); pieces.forEach(pi=>{{if(p.x>=pi.x&&p.x<=pi.x+50&&p.y>=pi.y&&p.y<=pi.y+50) dragP=pi;}});}},{{passive:false}}); cvs.addEventListener('touchmove',e=>{{e.preventDefault(); if(dragP){{let p=getPos(e); dragP.x=p.x-20; dragP.y=p.y-20; draw();}}}},{{passive:false}}); cvs.addEventListener('touchend',e=>{{if(dragP){{let gx=Math.round(dragP.x/SQ), gy=Math.round(dragP.y/SQ); let fits=true; for(let r=0;r<dragP.s.length;r++) for(let c=0;c<dragP.s[r].length;c++) if(dragP.s[r][c]) {{if(gy+r>=ROWS || gx+c>=COLS || gx+c<0 || grid[gy+r][gx+c]) fits=false;}} if(fits){{for(let r=0;r<dragP.s.length;r++) for(let c=0;c<dragP.s[r].length;c++) if(dragP.s[r][c]) grid[gy+r][gx+c]=1; pieces=pieces.filter(p=>p!==dragP); score+=10; document.getElementById('score').innerText=score;}} else {{dragP.x=dragP.bx; dragP.y=dragP.by;}} dragP=null; draw(); check();}}}}); {JS_AUTO_TRANSFER.replace('{username}', username)} setTimeout(resize,100); </script></body></html>"""
+# --- MATRIX (KÜÇÜK KUTULAR & PATLAMA FIX) ---
+def get_matrix_game_html(user):
+    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><style>body{{background:#050505;color:#FFD700;margin:0;overflow:hidden;touch-action:none;text-align:center}} canvas{{background:#111;border:2px solid #333;margin-top:10px}} .btn{{position:absolute;top:10px;right:10px;background:#B8860B;border:none;padding:5px 15px;border-radius:15px;font-weight:bold;color:#000}}</style></head><body>
+    <div style="padding:10px;display:flex;justify-content:space-between"><span>PUAN: <span id="s">0</span></span><button id="mBtn" class="btn" onclick="autoTransfer()">AKTAR</button></div>
+    <canvas id="c"></canvas>
+    <script>
+    const cvs=document.getElementById('c'), ctx=cvs.getContext('2d');
+    const R=10, C=8; let SQ=25, grid=[], pieces=[], drag=null, score=0, money=0, startBalance=0;
+    const SHAPES=[[[1]],[[1,1]],[[1],[1]],[[1,1],[1,1]],[[1,1,1]],[[1,0],[1,0],[1,1]]];
+    function rs(){{let w=window.innerWidth, h=window.innerHeight; SQ=Math.floor(Math.min((w-20)/C,(h-100)/R)); SQ=Math.min(SQ,35); cvs.width=SQ*C; cvs.height=SQ*R+120; d();}}
+    window.addEventListener('resize',rs);
+    function init(){{grid=Array(R).fill().map(()=>Array(C).fill(0)); score=0; document.getElementById('s').innerText=0; rs(); sp();}}
+    function sp(){{pieces=[]; let y=R*SQ+20, w=cvs.width/3; for(let i=0;i<3;i++){{let s=SHAPES[Math.floor(Math.random()*SHAPES.length)]; pieces.push({{s:s,x:w*i+5,y:y,bx:w*i+5,by:y,sc:0.6}});}} d();}}
+    function d(){{
+     ctx.fillStyle="#050505"; ctx.fillRect(0,0,cvs.width,cvs.height);
+     for(let r=0;r<R;r++) for(let c=0;c<C;c++) {{ctx.strokeStyle="#222"; ctx.strokeRect(c*SQ,r*SQ,SQ,SQ); if(grid[r][c]) {{ctx.fillStyle="#D500F9"; ctx.fillRect(c*SQ+1,r*SQ+1,SQ-2,SQ-2)}}}}
+     ctx.strokeStyle="gold"; ctx.beginPath(); ctx.moveTo(0,R*SQ); ctx.lineTo(cvs.width,R*SQ); ctx.stroke();
+     pieces.forEach(p=>{{if(p!==drag) ds(p.s,p.x,p.y,SQ*p.sc,"#888")}});
+     if(drag) ds(drag.s,drag.x,drag.y,SQ,"#D500F9");
+    }}
+    function ds(s,x,y,z,c){{ctx.fillStyle=c; for(let r=0;r<s.length;r++) for(let k=0;k<s[r].length;k++) if(s[r][k]) ctx.fillRect(x+k*z,y+r*z,z,z);}}
+    function gp(e){{let r=cvs.getBoundingClientRect(),t=e.touches?e.touches[0]:e; return {{x:t.clientX-r.left,y:t.clientY-r.top}}}}
+    function chk(){{
+     for(let r=0;r<R;r++) if(grid[r].every(x=>x)) {{grid[r].fill(0); score+=50;}} // Satır temizle
+     for(let c=0;c<C;c++) {{let f=true; for(let r=0;r<R;r++) if(!grid[r][c]) f=false; if(f) {{for(let r=0;r<R;r++) grid[r][c]=0; score+=50;}}}} // Sütun temizle
+     document.getElementById('s').innerText=score;
+     if(pieces.length===0) sp();
+    }}
+    cvs.addEventListener('touchstart',e=>{{let p=gp(e); pieces.forEach(pi=>{{if(p.x>=pi.x&&p.x<=pi.x+60&&p.y>=pi.y&&p.y<=pi.y+60) drag=pi;}});}},{{passive:false}});
+    cvs.addEventListener('touchmove',e=>{{e.preventDefault(); if(drag){{let p=gp(e); drag.x=p.x-20; drag.y=p.y-20; d();}}}},{{passive:false}});
+    cvs.addEventListener('touchend',e=>{{if(drag){{
+     let gx=Math.round(drag.x/SQ), gy=Math.round(drag.y/SQ), fit=true;
+     for(let r=0;r<drag.s.length;r++) for(let c=0;c<drag.s[r].length;c++) if(drag.s[r][c]) {{if(gx+c<0||gx+c>=C||gy+r>=R||grid[gy+r][gx+c]) fit=false;}}
+     if(fit){{for(let r=0;r<drag.s.length;r++) for(let c=0;c<drag.s[r].length;c++) if(drag.s[r][c]) grid[gy+r][gx+c]=1; pieces=pieces.filter(p=>p!==drag); score+=10; chk();}}
+     else {{drag.x=drag.bx; drag.y=drag.by;}} drag=null; d();
+    }}}},{{passive:false}});
+    init();
+    {JS_TRANSFER.replace('{username}', user)}
+    </script></body></html>"""
 
-# ==========================================
-# 3. MANTIK VE ARAYÜZ
-# ==========================================
-
-# --- OTOMATİK TRANSFER (Giriş Yapılmamışsa Bile Çalışır) ---
+# --- TRANSFER YAKALAYICI ---
 if "t_user" in st.query_params and "t_amt" in st.query_params:
     try:
-        t_user = st.query_params["t_user"]
-        t_amt = int(st.query_params["t_amt"])
-        role = database.get_user_role(t_user)
+        u, a = st.query_params["t_user"], int(st.query_params["t_amt"])
+        role = database.get_user_role(u)
         if role:
-            st.session_state['logged_in'] = True
-            st.session_state['username'] = t_user
-            st.session_state['user_role'] = role
-            if t_amt > 0:
-                database.add_score(t_user, t_amt, "Oyun")
-                st.toast(f"✅ {t_amt} Puan Eklendi!", icon="💰")
-                time.sleep(1)
-            st.query_params.clear()
-            st.rerun()
+            st.session_state['logged_in'], st.session_state['username'], st.session_state['user_role'] = True, u, role
+            if a > 0: database.add_score(u, a, "Oyun"); st.toast(f"✅ {a} Puan Eklendi!", icon="💰")
+            time.sleep(1); st.query_params.clear(); st.rerun()
     except: st.query_params.clear()
 
-# --- GİRİŞ EKRANI ---
+# --- ARAYÜZ ---
 if not st.session_state['logged_in']:
-    st.markdown('<div class="login-container"><h1 class="login-title">🎓 Bağarası ÇPAL Dijital Kampüs</h1></div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-container"><h1 class="login-title">🎓 Dijital Kampüs</h1></div>', unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
-        tab_log, tab_reg = st.tabs(["Giriş Yap", "Kayıt Ol"])
-        with tab_log:
-            with st.form("login"):
-                u = st.text_input("Kullanıcı Adı")
-                p = st.text_input("Şifre", type="password")
-                if st.form_submit_button("Giriş"):
-                    user = database.login_user(u, p)
-                    if user:
-                        st.session_state['logged_in'] = True
-                        st.session_state['user_role'] = user[3]
-                        st.session_state['username'] = user[1]
-                        if user[3] == "student": server.join_or_update_student("GENEL", user[1], 0)
-                        st.rerun()
-                    else: st.error("Hatalı bilgi.")
-        with tab_reg:
+        with st.form("login"):
+            u = st.text_input("Kullanıcı Adı")
+            p = st.text_input("Şifre", type="password")
+            if st.form_submit_button("Giriş"):
+                user = database.login_user(u, p)
+                if user:
+                    st.session_state['logged_in'], st.session_state['user_role'], st.session_state['username'] = True, user[3], user[1]
+                    if user[3]=="student": server.join_or_update_student("GENEL", user[1], 0)
+                    st.rerun()
+                else: st.error("Hata")
+        with st.expander("Kayıt Ol"):
             with st.form("reg"):
-                nu = st.text_input("Kullanıcı Adı")
+                nu = st.text_input("Yeni Kullanıcı")
                 np = st.text_input("Şifre", type="password")
-                if st.form_submit_button("Kayıt Ol"):
-                    if database.add_user(nu, np, "student"): st.success("Başarılı! Giriş yapın.")
-                    else: st.error("Kullanıcı adı dolu.")
-
-# --- ANA UYGULAMA ---
+                if st.form_submit_button("Kayıt"):
+                    if database.add_user(nu, np, "student"): st.success("Oldu! Giriş yap.")
 else:
-    # Sol Menü
     with st.sidebar:
-        if st.button("🏠 Ana Sayfa"): st.rerun()
-        st.divider()
         st.title(st.session_state['username'])
-        st.caption(f"Rol: {st.session_state['user_role']}")
-        if st.session_state['user_role'] == "student":
-            code = st.text_input("Sınıf Kodu", placeholder="1234")
-            if st.button("Sınıfa Gir"): 
-                server.join_or_update_student(code, st.session_state['username'])
-                st.success("Girdin!")
-        st.markdown("<br><br>", unsafe_allow_html=True)
-        if st.button("🚪 Çıkış"): 
-            st.session_state['logged_in'] = False; st.rerun()
+        st.caption(st.session_state['user_role'])
+        if st.button("Çıkış"): st.session_state['logged_in']=False; st.rerun()
 
-    # Üst Bar
-    role_tr = "Öğrenci" if st.session_state['user_role'] == "student" else "Yönetici"
-    st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{role_tr}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
+    
+    t1, t2, t3, t4, t5, t6 = st.tabs(["📢 Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🧬 LifeSim"])
 
-    # Sekmeler
-    t1, t2, t3, t4, t5, t6 = st.tabs([" Kampüs Duvarı", "💬 Sohbet", "🏆 Puanlar", "📚 Dersler", "🎮 Oyunlar", "🧬 LifeSim"])
-
-    # 1. KAMPÜS DUVARI (SOSYAL MEDYA)
+    # 1. KAMPÜS DUVARI
     with t1:
-        st.subheader("📢 Kampüs Duvarı")
-        with st.expander("Yeni Gönderi Paylaş", expanded=False):
-            with st.form("new_post"):
-                txt = st.text_area("Ne düşünüyorsun?")
-                img_file = st.file_uploader("Resim Ekle (İsteğe bağlı)", type=['png', 'jpg', 'jpeg'])
-                if st.form_submit_button("Paylaş"):
-                    img_str = None
-                    if img_file:
-                        try: img_str = base64.b64encode(img_file.read()).decode()
-                        except: pass
-                    if txt or img_str:
-                        database.add_post(st.session_state['username'], txt, img_str)
-                        st.success("Paylaşıldı!")
-                        time.sleep(1); st.rerun()
+        st.subheader("Kampüs Duvarı")
+        with st.expander("Paylaşım Yap", expanded=False):
+            with st.form("share"):
+                txt = st.text_area("İçerik")
+                img = st.file_uploader("Resim", type=['png','jpg'])
+                if st.form_submit_button("Gönder"):
+                    im_s = base64.b64encode(img.read()).decode() if img else None
+                    if txt or im_s: database.add_post(st.session_state['username'], txt, im_s); st.rerun()
         
-        posts = database.get_posts(20)
-        for p in posts:
+        for p in database.get_posts(15):
             with st.container():
-                st.markdown(f"**{p[1]}** <span style='color:gray;font-size:12px'>{p[4]}</span>", unsafe_allow_html=True)
+                st.markdown(f"**{p[1]}** <small>{p[4]}</small>", unsafe_allow_html=True)
                 if p[2]: st.write(p[2])
-                if p[3]: st.markdown(f'<img src="data:image/png;base64,{p[3]}" style="max-width:100%;border-radius:10px;">', unsafe_allow_html=True)
-                if st.button(f"❤️ Beğen ({p[5]})", key=f"like_{p[0]}"):
-                    database.like_post(p[0]); st.rerun()
+                if p[3]: st.markdown(f'<img src="data:image/png;base64,{p[3]}" style="width:100%;border-radius:10px">', unsafe_allow_html=True)
+                
+                c1, c2 = st.columns([1, 4])
+                if c1.button(f"❤️ {p[5]}", key=f"l{p[0]}"): database.like_post(p[0]); st.rerun()
+                
+                # Yorumlar
+                comments = database.get_comments(p[0])
+                if comments:
+                    with st.expander(f"💬 Yorumlar ({len(comments)})"):
+                        for c in comments: st.markdown(f"<div class='comment-sec'><b>{c[0]}</b>: {c[1]}</div>", unsafe_allow_html=True)
+                
+                # Yorum Yaz
+                with st.popover("Yorum Yaz"):
+                    with st.form(f"cform{p[0]}"):
+                        ctxt = st.text_input("Yorum")
+                        if st.form_submit_button("Gönder"):
+                            database.add_comment(p[0], st.session_state['username'], ctxt)
+                            st.rerun()
                 st.divider()
 
-    # 2. SOHBET (Admin herkesle, Öğrenci Admin+Arkadaşla)
+    # 2. SOHBET
     with t2:
-        st.subheader("💬 Sohbet Odası")
         friends = database.get_friends(st.session_state['username'])
-        # Öğrenciyse Admin'i ekle
-        if st.session_state['user_role'] == 'student' and 'admin' not in friends: friends.insert(0, "admin")
-        # Adminse tüm öğrencileri getir
-        if st.session_state['user_role'] == 'admin':
-            all_users = [u[0] for u in database.get_all_users() if u[0] != 'admin']
-            friends = all_users
+        if st.session_state['user_role'] == 'student' and "admin" not in friends: friends.insert(0, "admin")
+        if st.session_state['user_role'] == 'admin': friends = [u[0] for u in database.get_all_users() if u[0]!="admin"]
         
-        # Genel Sohbet ve Özel Mesaj Seçimi
-        mode = st.radio("Mod:", ["Genel Sohbet", "Özel Mesaj"], horizontal=True)
-        
-        if mode == "Genel Sohbet":
-            msgs = database.get_global_messages()
-            for m in msgs:
-                with st.chat_message("user" if m[0] == st.session_state['username'] else "assistant", avatar="👤"):
-                    st.markdown(f"**{m[0]}**: {m[1]}")
-            if p := st.chat_input("Genel sohbete yaz..."):
-                database.send_global_message(st.session_state['username'], p); st.rerun()
-        else:
-            if not friends: st.info("Mesajlaşacak kimse yok.")
-            else:
-                target = st.selectbox("Kişi Seç:", friends)
-                msgs = database.get_conversation(st.session_state['username'], target)
-                for sender, txt, ts in msgs:
-                    align = "chat-bubble-me" if sender == st.session_state['username'] else "chat-bubble-other"
-                    st.markdown(f"<div class='{align}'>{txt}</div>", unsafe_allow_html=True)
-                st.markdown("<div style='clear:both'></div>", unsafe_allow_html=True)
-                if p := st.chat_input(f"@{target} kişisine yaz..."):
-                    database.send_message(st.session_state['username'], target, p); st.rerun()
+        target = st.selectbox("Kişi Seç", friends) if friends else None
+        if target:
+            msgs = database.get_conversation(st.session_state['username'], target)
+            for s, m, t in msgs:
+                align = "chat-bubble-me" if s == st.session_state['username'] else "chat-bubble-other"
+                st.markdown(f"<div class='{align}'>{m}</div>", unsafe_allow_html=True)
+            st.markdown("<div style='clear:both'></div>", unsafe_allow_html=True)
+            if txt := st.chat_input("Mesaj..."):
+                database.send_message(st.session_state['username'], target, txt); st.rerun()
+        else: st.info("Kimse yok.")
 
-    # 3. PUANLAR
+    # 3. PUAN
     with t3:
-        sc = server.get_score("GENEL", st.session_state['username'])
-        st.metric("Toplam Puan", f"{sc} ₺")
-        st.subheader("Liderlik Tablosu")
+        score = server.get_score("GENEL", st.session_state['username'])
+        st.metric("Puan", score)
         st.dataframe(server.get_leaderboard("GENEL"), use_container_width=True)
 
-    # 4. DERSLER (TYT Yok, Sadece Meslek)
+    # 4. DERS
     with t4:
-        st.subheader("Mesleki Sınavlar")
-        EXAM_DATA = load_local_exams()
-        if EXAM_DATA:
-            eg = st.selectbox("Sınıf", list(EXAM_DATA.keys()))
-            if eg:
-                el = st.selectbox("Ders", list(EXAM_DATA[eg].keys()))
-                if el:
-                    qs = EXAM_DATA[eg][el]
-                    with st.form("exam_form"):
-                        for i, q in enumerate(qs):
-                            st.write(f"**{i+1}. {q.get('text') or q.get('question')}**")
-                            if q['type'] == 'test': st.radio("Cevap", q['options'], key=f"q{i}")
-                            elif q['type'] == 'text': st.text_input("Cevap", key=f"q{i}")
-                            st.divider()
-                        if st.form_submit_button("Sınavı Bitir"):
-                            total_p = sum([q.get('points', 0) for q in qs])
-                            server.join_or_update_student("GENEL", st.session_state['username'], total_p)
-                            st.success(f"Tebrikler! {total_p} Puan Eklendi.")
-                            time.sleep(2); st.rerun()
-        else: st.warning("Sınav yüklenemedi.")
+        st.info("Sınavlar yükleniyor...")
+        EX = load_local_exams()
+        if EX:
+            cls = st.selectbox("Sınıf", list(EX.keys()))
+            lsn = st.selectbox("Ders", list(EX[cls].keys()))
+            qs = EX[cls][lsn]
+            with st.form("ex"):
+                for i, q in enumerate(qs):
+                    st.write(f"{i+1}. {q.get('text') or q.get('question')}")
+                    if q['type']=='test': st.radio("Cevap", q['options'], key=f"q{i}")
+                    else: st.text_input("Cevap", key=f"q{i}")
+                if st.form_submit_button("Bitir"):
+                    p = sum([x.get('points',0) for x in qs])
+                    database.add_score(st.session_state['username'], p, "Sınav")
+                    st.success(f"{p} Puan Eklendi!"); time.sleep(2); st.rerun()
 
-    # 5. OYUNLAR (Düzeltilmiş)
+    # 5. OYUN
     with t5:
-        gm = st.selectbox("Oyun Seç", ["Finans İmparatoru", "Asset Matrix"])
-        curr = server.get_score("GENEL", st.session_state['username'])
-        if gm == "Finans İmparatoru": components.html(get_finance_game_html(curr, st.session_state['username']), height=600)
+        gm = st.selectbox("Oyun", ["Finans İmparatoru", "Asset Matrix"])
+        score = server.get_score("GENEL", st.session_state['username'])
+        if gm == "Finans İmparatoru": components.html(get_finance_game_html(score, st.session_state['username']), height=600)
         else: components.html(get_matrix_game_html(st.session_state['username']), height=750)
 
-    # 6. LIFESIM (YENİ SOKRATİK MOD)
-    with t6:
-        st.subheader("🧬 LifeSim: Sokratik Yolculuk")
-        components.html(get_lifesim_html(), height=600, scrolling=True)
+    # 6. LIFESIM
+    with t6: components.html(get_lifesim_html(), height=600)
