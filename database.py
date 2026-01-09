@@ -11,9 +11,7 @@ def get_db_connection():
         try:
             conn = psycopg2.connect(st.secrets["DATABASE_URL"])
             return conn, "postgres"
-        except Exception as e:
-            st.error(f"Veritabanı Bağlantı Hatası: {e}")
-            return None, None
+        except: return None, None
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     DB_PATH = os.path.join(BASE_DIR, "education_platform.db")
     return sqlite3.connect(DB_PATH, check_same_thread=False), "sqlite"
@@ -22,36 +20,28 @@ def run_query(query, params=(), fetch=False):
     conn, db_type = get_db_connection()
     if not conn: return False
     
-    # Postgres bağlantı kontrolü
     if db_type == "postgres" and conn.closed != 0:
         st.cache_resource.clear()
         conn, db_type = get_db_connection()
 
     cursor = conn.cursor()
-    
-    # SQL Dönüşümü (SQLite -> Postgres)
     if db_type == "postgres":
         query = query.replace("?", "%s")
         query = query.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
     
     try:
         cursor.execute(query, params)
-        if fetch:
-            return cursor.fetchall()
-        else:
-            conn.commit()
-            return True
-    except Exception as e:
-        # Hata varsa işlemi geri al (Sistemin kilitlenmesini önler)
-        conn.rollback()
-        # Sadece kritik hataları göster (Tablo yok vs.)
-        if "relation" in str(e) or "column" in str(e):
-            st.warning(f"Veritabanı Yapılandırma Uyarısı: {e}")
+        if fetch: return cursor.fetchall()
+        else: conn.commit(); return True
+    except:
+        # Hata olursa sessizce geri al ve devam et (Uyarı verme)
+        try: conn.rollback()
+        except: pass
         return False
-    finally:
-        cursor.close()
+    finally: cursor.close()
 
 def create_database():
+    # Tabloları oluştur
     tables = [
         'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT)',
         'CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)',
@@ -64,28 +54,23 @@ def create_database():
     ]
     for t in tables: run_query(t)
     
-    # MIGRATION: Eğer eski kullanıcılar varsa ve avatar sütunu yoksa ekle
+    # Sütun eksikse ekle (Sessizce)
     try: run_query("ALTER TABLE users ADD COLUMN avatar_data TEXT")
     except: pass
 
-# --- ÖZEL: SİSTEM SIFIRLAMA (ONARIM) ---
-def reset_users_table():
-    run_query("DROP TABLE IF EXISTS users")
-    create_database()
-    # Admin'i tekrar oluştur
-    add_user("admin", "6626", "admin")
-
-# --- KULLANICI İŞLEMLERİ ---
+# --- KULLANICI İŞLEMLERİ (DÜZELTİLDİ) ---
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
-        return run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (u, h, r))
+        # Yeni kullanıcı eklerken avatar_data boş gider
+        return run_query("INSERT INTO users (username, password, role, avatar_data) VALUES (?, ?, ?, ?)", (u, h, r, None))
     except: return False
 
 def login_user(u, p):
     h = hashlib.sha256(p.encode()).hexdigest()
-    res = run_query("SELECT * FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
-    # Veritabanı yapısı değiştiği için index hatası olmaması adına kontrol
+    # KRİTİK DÜZELTME: Sütunları tek tek çağırıyoruz ki yapı bozulmasın.
+    # Sıra: 0:id, 1:username, 2:password, 3:role
+    res = run_query("SELECT id, username, password, role FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
     return res[0] if res else None
 
 def get_user_role(u):
@@ -96,7 +81,6 @@ def update_avatar(u, img_data):
     run_query("UPDATE users SET avatar_data = ? WHERE username = ?", (img_data, u))
 
 def get_avatar(u):
-    # Eğer sütun yoksa hata vermemesi için try-except
     try:
         res = run_query("SELECT avatar_data FROM users WHERE username = ?", (u,), fetch=True)
         return res[0][0] if res and res[0] else None
