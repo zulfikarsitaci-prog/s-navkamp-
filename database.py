@@ -4,7 +4,6 @@ import os
 import streamlit as st
 from datetime import datetime, timedelta
 import psycopg2
-import base64
 
 @st.cache_resource(ttl=600)
 def get_db_connection():
@@ -47,40 +46,13 @@ def create_database():
         'CREATE TABLE IF NOT EXISTS global_messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, message TEXT, timestamp TEXT)',
         'CREATE TABLE IF NOT EXISTS relationships (id INTEGER PRIMARY KEY AUTOINCREMENT, user1 TEXT, user2 TEXT, status TEXT)',
         'CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)',
-        # YENİ: Sosyal Medya Tablosu
-        'CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, timestamp TEXT, likes INTEGER DEFAULT 0)'
+        'CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, timestamp TEXT, likes INTEGER DEFAULT 0)',
+        # YENİ: Yorumlar Tablosu
+        'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT)'
     ]
     for t in tables: run_query(t)
 
-# --- KULLANICI ---
-def add_user(u, p, r):
-    try:
-        h = hashlib.sha256(p.encode()).hexdigest()
-        return run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (u, h, r))
-    except: return False
-
-def login_user(u, p):
-    h = hashlib.sha256(p.encode()).hexdigest()
-    res = run_query("SELECT * FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
-    return res[0] if res else None
-
-def get_user_role(username):
-    res = run_query("SELECT role FROM users WHERE username = ?", (username,), fetch=True)
-    return res[0][0] if res and res[0] else None
-
-def get_all_users(): return run_query("SELECT username, role, last_seen FROM users", fetch=True) or []
-def delete_user(username): run_query("DELETE FROM users WHERE username = ?", (username,))
-
-# --- PUAN ---
-def add_score(username, amount, source="Sistem"):
-    date = datetime.now().strftime("%Y-%m-%d %H:%M")
-    return run_query("INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)", (username, source, amount, date))
-
-def get_total_score(username):
-    res = run_query("SELECT SUM(grade) FROM grades WHERE student_username = ?", (username,), fetch=True)
-    return res[0][0] if res and res[0][0] else 0
-
-# --- SOSYAL MEDYA (YENİ) ---
+# --- SOSYAL MEDYA (GÜNCELLENDİ) ---
 def add_post(username, content, image_data=None):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO posts (username, content, image_data, timestamp, likes) VALUES (?, ?, ?, ?, 0)", (username, content, image_data, ts))
@@ -91,7 +63,49 @@ def get_posts(limit=20):
 def like_post(post_id):
     run_query("UPDATE posts SET likes = likes + 1 WHERE id = ?", (post_id,))
 
-# --- MESAJLAŞMA & ARKADAŞLIK ---
+# YENİ: Yorum Ekleme ve Çekme
+def add_comment(post_id, username, content):
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M")
+    run_query("INSERT INTO comments (post_id, username, content, timestamp) VALUES (?, ?, ?, ?)", (post_id, username, content, ts))
+
+def get_comments(post_id):
+    return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (post_id,), fetch=True) or []
+
+# --- DİĞER FONKSİYONLAR (AYNI KALDI) ---
+def add_user(u, p, r):
+    try:
+        h = hashlib.sha256(p.encode()).hexdigest()
+        return run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (u, h, r))
+    except: return False
+def login_user(u, p):
+    h = hashlib.sha256(p.encode()).hexdigest()
+    res = run_query("SELECT * FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
+    return res[0] if res else None
+def get_user_role(username):
+    res = run_query("SELECT role FROM users WHERE username = ?", (username,), fetch=True)
+    return res[0][0] if res and res[0] else None
+def add_score(username, amount, source="Sistem"):
+    date = datetime.now().strftime("%Y-%m-%d %H:%M")
+    return run_query("INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)", (username, source, amount, date))
+def get_total_score(username):
+    res = run_query("SELECT SUM(grade) FROM grades WHERE student_username = ?", (username,), fetch=True)
+    return res[0][0] if res and res[0][0] else 0
+def get_all_users(): return run_query("SELECT username, role, last_seen FROM users", fetch=True) or []
+def delete_user(username): run_query("DELETE FROM users WHERE username = ?", (username,))
+def update_activity(u):
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    run_query("UPDATE users SET last_seen = ? WHERE username = ?", (now, u))
+def get_online_users(minutes=5):
+    users = run_query("SELECT username, role, last_seen FROM users WHERE last_seen IS NOT NULL", fetch=True)
+    online = []
+    now = datetime.now()
+    if users:
+        for u in users:
+            try:
+                last = datetime.strptime(u[2], "%Y-%m-%d %H:%M:%S")
+                if now - last < timedelta(minutes=minutes): online.append({"Kullanıcı": u[0], "Rol": u[1], "Son İşlem": last.strftime("%H:%M")})
+            except: pass
+    return online
 def send_message(s, r, m):
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO messages (sender, receiver, message, timestamp, is_read) VALUES (?, ?, ?, ?, 0)", (s, r, m, now))
@@ -122,17 +136,3 @@ def add_announcement(t, c, a):
     d = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO announcements (title, content, date, author) VALUES (?, ?, ?, ?)", (t, c, d, a))
 def get_announcements(): return run_query("SELECT * FROM announcements ORDER BY id DESC", fetch=True) or []
-def update_activity(u):
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    run_query("UPDATE users SET last_seen = ? WHERE username = ?", (now, u))
-def get_online_users(minutes=5):
-    users = run_query("SELECT username, role, last_seen FROM users WHERE last_seen IS NOT NULL", fetch=True)
-    online = []
-    now = datetime.now()
-    if users:
-        for u in users:
-            try:
-                last = datetime.strptime(u[2], "%Y-%m-%d %H:%M:%S")
-                if now - last < timedelta(minutes=minutes): online.append({"Kullanıcı": u[0], "Rol": u[1], "Son İşlem": last.strftime("%H:%M")})
-            except: pass
-    return online
