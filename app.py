@@ -18,18 +18,18 @@ def init_state():
         if k not in st.session_state: st.session_state[k] = v
 init_state()
 
-# --- GELİŞMİŞ CSS EFEKTLERİ ---
+# --- CSS: Çerçeveler, Mağaza Grid ve Bildirimler ---
 st.markdown("""
 <style>
-    /* TEMEL AYARLAR */
     .login-container { text-align: center; margin-top: 50px; }
+    .login-title { font-family: 'Helvetica', sans-serif; font-size: 2.2rem; font-weight: 700; color: #FFD700; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
     .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     .user-greeting { font-weight: bold; color: #e2e8f0; }
     .post-card { background: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155; }
     .comment-sec { background: #0f172a; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 0.9rem; }
     div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 15px; flex-wrap: wrap; }
     
-    /* MAĞAZA KARTLARI (GRID) */
+    /* MAĞAZA KARTLARI */
     .shop-card {
         background-color: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 15px;
         text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
@@ -82,17 +82,19 @@ def get_user_display_html(username, size=50):
     ava, frame, name_style, _ = database.get_user_styles(username)
     img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150?text=U"
     
-    # Çerçeve
-    f_html = f'<div class="frame-overlay frame-{frame}" style="width:{size+10}px;height:{size+10}px;top:-5px;left:-5px;"></div>' if frame else ""
+    frame_html = ""
+    if frame:
+        f_size = size + 10
+        f_offset = -5
+        frame_html = f'<div class="frame-overlay frame-{frame}" style="width:{f_size}px;height:{f_size}px;top:{f_offset}px;left:{f_offset}px;"></div>'
     
-    # İsim Stili
     n_class = f"name-{name_style}" if name_style else ""
     
     return f"""
     <div style="display:flex;align-items:center;">
         <div class="avatar-container" style="width:{size}px;height:{size}px;">
             <img src="{img_src}" class="avatar-img">
-            {f_html}
+            {frame_html}
         </div>
         <div style="margin-left:12px;">
             <div class="{n_class}" style="font-size:1.1rem;">{username}</div>
@@ -189,7 +191,6 @@ if not st.session_state['logged_in']:
                     if database.add_user(nu, np, "student"): st.success("Oldu!"); st.rerun()
 else:
     with st.sidebar:
-        # Sidebarda da efektli isim göster
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
         uploaded_avatar = st.file_uploader("Profil Foto", type=['png', 'jpg'])
         if uploaded_avatar:
@@ -221,7 +222,6 @@ else:
                     if txt or img: database.add_post(st.session_state['username'], txt, img); st.rerun()
         for p in database.get_posts(20):
             with st.container():
-                # EFEKTLİ İSİM GÖSTERİMİ
                 st.markdown(f"""<div style="display:flex;align-items:center;margin-bottom:5px;">
                                 {get_user_display_html(p[1], size=40)} 
                                 <div style="margin-left:auto;color:gray;font-size:0.8rem;">{p[4]}</div>
@@ -231,7 +231,6 @@ else:
                     with st.popover("⋮"):
                         if st.button("Sil", key=f"d{p[0]}"): database.delete_post(p[0]); st.rerun()
                 
-                # RENKLİ YAZI STİLİ UYGULAMA
                 post_style = get_post_style(p[1])
                 if p[2]: st.markdown(f"<div class='{post_style}'>{p[2]}</div>", unsafe_allow_html=True)
                 if p[3]: st.markdown(f'<img src="data:image/jpeg;base64,{p[3]}" style="max-width:100%;border-radius:10px">', unsafe_allow_html=True)
@@ -252,7 +251,6 @@ else:
         st.header("Puan Mağazası 💎")
         st.metric("Bakiye", f"{server.get_score('GENEL', st.session_state['username']):,} P")
         
-        # ÜRÜN KATALOGU
         items = {
             "🖼️ Çerçeveler": [
                 {"n": "Gold", "c": 50000, "t": "frame", "v": "Gold", "css": "frame-Gold", "d": "Zenginlik"},
@@ -278,7 +276,6 @@ else:
         tabs = st.tabs(items.keys())
         for i, (cat, products) in enumerate(items.items()):
             with tabs[i]:
-                # 4'lü Grid
                 rows = [products[j:j+4] for j in range(0, len(products), 4)]
                 for row in rows:
                     cols = st.columns(4)
@@ -286,12 +283,10 @@ else:
                         with cols[k]:
                             with st.container():
                                 st.markdown(f"""<div class="shop-card">""", unsafe_allow_html=True)
-                                # Önizleme Mantığı
                                 if p['t'] == 'frame':
                                     st.markdown(f"""<div style="position:relative;width:50px;height:50px;margin:0 auto;"><img src="https://via.placeholder.com/50" style="border-radius:50%;"><div class="{p['css']}" style="position:absolute;top:-5px;left:-5px;width:60px;height:60px;"></div></div>""", unsafe_allow_html=True)
                                 elif 'preview_cls' in p:
                                     st.markdown(f"""<div class="{p['preview_cls']}">Örnek Yazı</div>""", unsafe_allow_html=True)
-                                
                                 st.markdown(f"""<h4>{p['n']}</h4><small>{p['d']}</small><div class="price-tag">{p['c']:,} P</div></div>""", unsafe_allow_html=True)
                                 if st.button("AL", key=f"b_{p['v']}_{i}"):
                                     ok, msg = server.buy_item(st.session_state['username'], p['t'], p['v'], p['c'])
