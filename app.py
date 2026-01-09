@@ -32,8 +32,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Veritabanı Başlat
 database.create_database()
-if not database.login_user("admin", "6626"): database.add_user("admin", "6626", "admin")
+# Admin yoksa ekle (Otomatik)
+if not database.login_user("admin", "6626"): 
+    database.add_user("admin", "6626", "admin")
+
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
 # --- SERVER ---
@@ -88,7 +92,7 @@ def get_transfer_js(username):
     }}
     """
 
-# --- OYUNLAR (MATRIX GÖRSEL DÜZELTME) ---
+# --- OYUNLAR ---
 def get_finance_game_html(start, user):
     js = get_transfer_js(user)
     return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{{background:#0f172a;color:white;font-family:sans-serif;text-align:center;padding:10px}} .grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}} .card{{background:#1e293b;padding:5px;border-radius:5px;font-size:10px;cursor:pointer}} .btn{{background:#3b82f6;width:80px;height:80px;border-radius:50%;margin:15px auto;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer}} .bank{{background:#10b981;color:white;width:100%;padding:10px;border:none;border-radius:5px;margin-top:10px;font-weight:bold}}</style></head><body><div>💰 <span id="m">{start}</span></div><div class="btn" onclick="c()">👆</div><div class="grid" id="g"></div><button id="bBtn" class="bank" onclick="autoTransfer()">🏦 AKTAR</button><script>let money={start}, startBalance={start}; const a=[{{n:"Limonata",c:100,g:1,k:0}},{{n:"Simit",c:500,g:5,k:0}},{{n:"Kantin",c:2000,g:25,k:0}},{{n:"Yazılım",c:10000,g:150,k:0}},{{n:"Fabrika",c:50000,g:800,k:0}},{{n:"Banka",c:200000,g:5000,k:0}}]; function u(){{document.getElementById('m').innerText=Math.floor(money); let h=''; a.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.2,x.k)); h+=`<div class="card" onclick="b(${{i}})"><b>${{x.n}}</b> (${{x.k}})<br><span style="color:#f87171">${{p}}</span><br><span style="color:#34d399">+${{x.g}}</span></div>`}}); document.getElementById('g').innerHTML=h;}} function c(){{money++;u()}} function b(i){{let x=a[i],p=Math.floor(x.c*Math.pow(1.2,x.k)); if(money>=p){{money-=p;x.k++;u()}}}} setInterval(()=>{{let g=a.reduce((t,x)=>t+(x.k*x.g),0); if(g>0){{money+=g;u()}}}},1000); u(); {js} </script></body></html>"""
@@ -109,7 +113,7 @@ if "t_user" in st.query_params and "t_amt" in st.query_params:
             time.sleep(1); st.query_params.clear(); st.rerun()
     except: st.query_params.clear()
 
-# --- GİRİŞ ---
+# --- GİRİŞ & ARAYÜZ ---
 if not st.session_state['logged_in']:
     st.markdown('<div class="login-container"><h1 class="login-title">🎓 Dijital Kampüs</h1></div>', unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1, 2, 1])
@@ -122,35 +126,37 @@ if not st.session_state['logged_in']:
                     st.session_state['logged_in'], st.session_state['user_role'], st.session_state['username'] = True, user[3], user[1]
                     if user[3]=="student": server.join_or_update_student("GENEL", user[1], 0)
                     st.rerun()
-                else: st.error("Hata")
-        with st.expander("Kayıt"):
+                else: st.error("Hatalı bilgi veya kullanıcı bulunamadı.")
+        
+        with st.expander("Kayıt Ol"):
             with st.form("reg"):
                 nu = st.text_input("Kullanıcı"); np = st.text_input("Şifre", type="password")
                 if st.form_submit_button("Kayıt"):
-                    if database.add_user(nu, np, "student"): st.success("Oldu!"); st.rerun()
+                    if database.add_user(nu, np, "student"): st.success("Oldu! Giriş yap."); st.rerun()
+                    else: st.error("Kullanıcı adı alınmış.")
+        
+        # --- ACİL DURUM BUTONU ---
+        st.write("---")
+        if st.checkbox("Giriş Yapılamıyor mu? (Sistem Onarımı)"):
+            if st.button("Veritabanını Sıfırla ve Onar"):
+                database.reset_users_table()
+                st.success("Veritabanı onarıldı! Kullanıcılar sıfırlandı. Admin: admin / 6626")
 else:
     with st.sidebar:
         st.title(st.session_state['username'])
-        
-        # Profil Resmi Yükleme
         uploaded_avatar = st.file_uploader("Profil Resmi", type=['png', 'jpg', 'jpeg'])
         if uploaded_avatar:
             try:
                 img_str = base64.b64encode(uploaded_avatar.read()).decode()
                 database.update_avatar(st.session_state['username'], img_str)
-                st.success("Resim güncellendi!")
-                time.sleep(1); st.rerun()
+                st.success("Yüklendi!"); time.sleep(1); st.rerun()
             except: pass
-            
         current_avatar = database.get_avatar(st.session_state['username'])
-        if current_avatar:
-            st.markdown(f'<img src="data:image/png;base64,{current_avatar}" style="width:100px;border-radius:50%;display:block;margin:0 auto;">', unsafe_allow_html=True)
-        
+        if current_avatar: st.markdown(f'<img src="data:image/png;base64,{current_avatar}" style="width:100px;border-radius:50%;display:block;margin:0 auto;">', unsafe_allow_html=True)
         if st.button("Çıkış"): st.session_state['logged_in']=False; st.rerun()
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
     
-    # MENÜ
     menu_ops = ["📢 Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun"]
     if st.session_state['user_role'] == 'admin': menu_ops.append("⚙️ Admin")
     
@@ -227,8 +233,7 @@ else:
     elif sel == "⚙️ Admin":
         st.header("Admin Kontrol Paneli")
         
-        # 1. Kullanıcı Düzenle
-        st.subheader("Kullanıcı Düzenle / Puan Ver")
+        st.subheader("Kullanıcı Düzenle")
         all_u = [u[0] for u in database.get_all_users()]
         target_u = st.selectbox("Kullanıcı Seç", all_u)
         new_p = st.number_input("Puan Ekle/Çıkar", value=0)
@@ -237,22 +242,14 @@ else:
             st.success("Güncellendi!")
             
         st.divider()
-        
-        # 2. Casus Modu (Spy Mode)
-        st.subheader("🕵️ Casus Modu (Mesaj Oku)")
-        spy_target = st.selectbox("Kimin Mesajları?", all_u, key="spy_u")
-        # Bu kullanıcının konuştuğu kişileri bulmamız lazım ama basitlik için tüm kullanıcıları listeliyoruz
-        spy_partner = st.selectbox("Kiminle?", all_u, key="spy_p")
-        
-        if st.button("Konuşmayı Getir"):
-            msgs = database.get_conversation(spy_target, spy_partner)
-            if msgs:
-                for s, m, t in msgs:
-                    st.write(f"**{s}**: {m} ({t})")
-            else:
-                st.warning("Konuşma yok.")
-                
+        st.subheader("Mesaj Okuma (Casus Modu)")
+        spy_u = st.selectbox("Kimin Mesajları?", all_u, key="spu")
+        # Basitlik için spy_u'nun admin ile konuşmalarını değil, spy_u'nun herhangi biriyle konuşmalarını listelemek gerekir.
+        # Şimdilik admin tüm mesajları görebilsin diye basit bir listeleme:
+        spy_partner = st.selectbox("Kiminle Konuştu?", all_u, key="spp")
+        if st.button("Getir"):
+            msgs = database.get_conversation(spy_u, spy_partner)
+            for s, m, t in msgs: st.write(f"**{s}**: {m} ({t})")
+            
         st.divider()
-        if st.button("Kullanıcıyı Sil (DİKKAT)"):
-            database.delete_user(target_u)
-            st.error("Silindi!")
+        if st.button("Kullanıcıyı SİL"): database.delete_user(target_u); st.error("Silindi!"); st.rerun()
