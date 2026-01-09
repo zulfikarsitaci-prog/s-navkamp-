@@ -4,9 +4,15 @@ import os
 import streamlit as st
 from datetime import datetime
 import psycopg2
-from PIL import Image
-import io
 import base64
+
+# --- HATA KORUMALI IMPORT ---
+try:
+    from PIL import Image
+    import io
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False  # Kütüphane yoksa sistemi çökertme
 
 @st.cache_resource(ttl=3600)
 def get_db_connection():
@@ -50,16 +56,19 @@ def create_database():
     ]
     for t in tables: run_query(t)
     
-    # MIGRATION: Yeni sütunları güvenli şekilde ekle
-    columns = ["avatar_data", "frame", "name_style", "post_style"]
-    for col in columns:
+    # MIGRATION
+    cols = ["avatar_data", "frame", "name_style", "post_style"]
+    for col in cols:
         try: run_query(f"ALTER TABLE users ADD COLUMN {col} TEXT")
         except: pass
     try: run_query("ALTER TABLE comments ADD COLUMN is_read INTEGER DEFAULT 0")
     except: pass
 
 def compress_image(image_file, max_size=(800, 800), quality=70):
+    # Eğer kütüphane yoksa veya resim yoksa None dön
     if not image_file: return None
+    if not HAS_PIL: return base64.b64encode(image_file.read()).decode() # Sıkıştırmadan kaydet
+    
     try:
         img = Image.open(image_file).convert("RGB")
         img.thumbnail(max_size, Image.Resampling.LANCZOS)
@@ -80,7 +89,6 @@ def get_leaderboard_data(): return run_query("SELECT student_username, SUM(grade
 
 @st.cache_data(ttl=60)
 def get_user_styles(u):
-    # Avatar, Çerçeve, İsim Stili, Post Stili hepsini tek seferde çek
     try: 
         res = run_query("SELECT avatar_data, frame, name_style, post_style FROM users WHERE username = ?", (u,), fetch=True)
         return res[0] if res else (None, None, None, None)
@@ -110,6 +118,7 @@ def add_user(u, p, r):
     except: return False
 def login_user(u, p):
     h = hashlib.sha256(p.encode()).hexdigest()
+    # Sadece gerekli alanları çek
     res = run_query("SELECT id, username, password, role FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
     return res[0] if res else None
 def get_user_role(u):
@@ -128,7 +137,6 @@ def add_score(u, a, s="Sistem"):
     get_total_score.clear(u)
     get_leaderboard_data.clear()
 
-# MAĞAZA SATIN ALMA
 def buy_item(u, type, value, cost):
     current = get_total_score(u)
     if current >= cost:
