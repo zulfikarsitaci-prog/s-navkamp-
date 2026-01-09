@@ -4,9 +4,12 @@ import os
 import streamlit as st
 from datetime import datetime
 import psycopg2
+from PIL import Image
+import io
+import base64
 
 # --- BAĞLANTIYI HAFIZADA TUT (CACHE) ---
-@st.cache_resource(ttl=3600)  # 1 Saat boyunca bağlantıyı koparma
+@st.cache_resource(ttl=3600)
 def get_db_connection():
     if "DATABASE_URL" in st.secrets:
         try:
@@ -20,16 +23,11 @@ def get_db_connection():
 def run_query(query, params=(), fetch=False):
     conn, db_type = get_db_connection()
     if not conn: return False
-    
-    # Bağlantı koptuysa hafızayı temizle ve tekrar bağlan
     if db_type == "postgres" and conn.closed != 0:
-        st.cache_resource.clear()
-        conn, db_type = get_db_connection()
-
+        st.cache_resource.clear(); conn, db_type = get_db_connection()
     cursor = conn.cursor()
     if db_type == "postgres":
         query = query.replace("?", "%s").replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
-    
     try:
         cursor.execute(query, params)
         if fetch: return cursor.fetchall()
@@ -42,23 +40,42 @@ def run_query(query, params=(), fetch=False):
 
 def create_database():
     tables = [
-        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT)',
+        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT, frame TEXT)',
         'CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)',
         'CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS global_messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, message TEXT, timestamp TEXT)',
         'CREATE TABLE IF NOT EXISTS relationships (id INTEGER PRIMARY KEY AUTOINCREMENT, user1 TEXT, user2 TEXT, status TEXT)',
         'CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)',
         'CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, timestamp TEXT, likes INTEGER DEFAULT 0)',
-        'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT)'
+        'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)'
     ]
     for t in tables: run_query(t)
+    # Migrasyonlar (Eski veritabanları için yeni sütunları ekle)
     try: run_query("ALTER TABLE users ADD COLUMN avatar_data TEXT")
     except: pass
+    try: run_query("ALTER TABLE users ADD COLUMN frame TEXT")
+    except: pass
+    try: run_query("ALTER TABLE comments ADD COLUMN is_read INTEGER DEFAULT 0")
+    except: pass
 
-# --- ÖNBELLEKLİ VERİ ÇEKME FONKSİYONLARI ---
-# Bu fonksiyonlar veriyi her seferinde internetten çekmez, hafızadan getirir.
+# --- YARDIMCI: RESİM SIKIŞTIRMA ---
+def compress_image(image_file, max_size=(800, 800), quality=70):
+    """Resmi alır, yeniden boyutlandırır, sıkıştırır ve base64 döner."""
+    if not image_file: return None
+    try:
+        img = Image.open(image_file)
+        img = img.convert("RGB") # PNG şeffaflığını kaldır, JPEG yap
+        img.thumbnail(max_size, Image.Resampling.LANCZOS) # En boy oranını koruyarak küçült
+        
+        buffer = io.BytesIO()
+        img.save(buffer, format="JPEG", quality=quality) # Sıkıştırarak kaydet
+        return base64.b64encode(buffer.getvalue()).decode()
+    except Exception as e:
+        print(f"Resim sıkıştırma hatası: {e}")
+        return None
 
-@st.cache_data(ttl=3) # 3 saniyede bir yenile (Anlık hız için)
+# --- ÖNBELLEKLİ VERİ ÇEKME ---
+@st.cache_data(ttl=3)
 def get_posts(limit=20):
     return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
 
@@ -67,24 +84,49 @@ def get_comments(post_id):
     return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (post_id,), fetch=True) or []
 
 @st.cache_data(ttl=10)
-def get_leaderboard_data(): # Bu özel fonksiyonu app.py içinde kullanacağız
+def get_leaderboard_data():
     return run_query("SELECT student_username, SUM(grade) as total FROM grades GROUP BY student_username ORDER BY total DESC", fetch=True) or []
 
 @st.cache_data(ttl=60)
-def get_avatar(u):
-    try: return run_query("SELECT avatar_data FROM users WHERE username = ?", (u,), fetch=True)[0][0]
-    except: return None
+def get_avatar_and_frame(u):
+    try: 
+        res = run_query("SELECT avatar_data, frame FROM users WHERE username = ?", (u,), fetch=True)
+        return res[0] if res else (None, None)
+    except: return (None, None)
 
 @st.cache_data(ttl=5)
 def get_total_score(u):
     res = run_query("SELECT SUM(grade) FROM grades WHERE student_username = ?", (u,), fetch=True)
     return res[0][0] if res and res[0][0] else 0
 
-# --- YAZMA İŞLEMLERİ (CACHE YOK - ANINDA GİTMELİ) ---
+@st.cache_data(ttl=10)
+def get_unread_notification_count(username):
+    # Kullanıcının kendi gönderilerine yapılan, başkalarının yazdığı ve okunmamış yorumları say
+    query = """
+        SELECT COUNT(c.id) 
+        FROM comments c
+        JOIN posts p ON c.post_id = p.id
+        WHERE p.username = ? AND c.username != ? AND c.is_read = 0
+    """
+    res = run_query(query, (username, username), fetch=True)
+    return res[0][0] if res else 0
+
+@st.cache_data(ttl=10)
+def get_unread_notifications(username):
+     # Okunmamış yorumların detaylarını getir
+    query = """
+        SELECT c.username, c.content, p.content 
+        FROM comments c
+        JOIN posts p ON c.post_id = p.id
+        WHERE p.username = ? AND c.username != ? AND c.is_read = 0
+    """
+    return run_query(query, (username, username), fetch=True) or []
+
+# --- YAZMA İŞLEMLERİ (CACHE TEMİZLEMELİ) ---
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
-        return run_query("INSERT INTO users (username, password, role, avatar_data) VALUES (?, ?, ?, ?)", (u, h, r, None))
+        return run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (u, h, r))
     except: return False
 
 def login_user(u, p):
@@ -96,14 +138,31 @@ def get_user_role(u):
     res = run_query("SELECT role FROM users WHERE username = ?", (u,), fetch=True)
     return res[0][0] if res and res[0] else None
 
-def update_avatar(u, img_data):
-    run_query("UPDATE users SET avatar_data = ? WHERE username = ?", (img_data, u))
-    get_avatar.clear() # Cache'i temizle ki yeni resim görünsün
+def update_avatar(u, img_file):
+    # Sıkıştırılmış veriyi al
+    compressed_data = compress_image(img_file)
+    if compressed_data:
+        run_query("UPDATE users SET avatar_data = ? WHERE username = ?", (compressed_data, u))
+        get_avatar_and_frame.clear(u) # Sadece o kullanıcının cache'ini temizle
+        return True
+    return False
 
 def add_score(u, a, s="Sistem"):
     d = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)", (u, s, a, d))
-    get_total_score.clear() # Puan değişince hafızayı temizle
+    get_total_score.clear(u)
+    get_leaderboard_data.clear()
+
+def buy_frame(u, frame_name, cost):
+    current_score = get_total_score(u)
+    if current_score >= cost:
+        # Puanı düş (Negatif puan ekleyerek)
+        add_score(u, -cost, f"Mağaza: {frame_name}")
+        # Çerçeveyi güncelle
+        run_query("UPDATE users SET frame = ? WHERE username = ?", (frame_name, u))
+        get_avatar_and_frame.clear(u)
+        return True, "Satın alındı!"
+    return False, "Yetersiz puan."
 
 def get_all_users(): return run_query("SELECT username, role, last_seen FROM users", fetch=True) or []
 def delete_user(u): run_query("DELETE FROM users WHERE username = ?", (u,))
@@ -111,10 +170,12 @@ def update_activity(u):
     n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
 
-def add_post(u, c, i=None):
+def add_post(u, c, img_file=None):
+    # Resmi sıkıştır
+    compressed_data = compress_image(img_file) if img_file else None
     t = datetime.now().strftime("%Y-%m-%d %H:%M")
-    run_query("INSERT INTO posts (username, content, image_data, timestamp, likes) VALUES (?, ?, ?, ?, 0)", (u, c, i, t))
-    get_posts.clear() # Yeni post atılınca listeyi yenile
+    run_query("INSERT INTO posts (username, content, image_data, timestamp, likes) VALUES (?, ?, ?, ?, 0)", (u, c, compressed_data, t))
+    get_posts.clear()
 
 def like_post(id): 
     run_query("UPDATE posts SET likes = likes + 1 WHERE id = ?", (id,))
@@ -131,8 +192,26 @@ def update_post(post_id, new_content):
 
 def add_comment(pid, u, c):
     t = datetime.now().strftime("%Y-%m-%d %H:%M")
-    run_query("INSERT INTO comments (post_id, username, content, timestamp) VALUES (?, ?, ?, ?)", (pid, u, c, t))
-    get_comments.clear() # Yorum atılınca o postun yorumlarını yenile
+    # Yorum okunmadı (0) olarak eklenir
+    run_query("INSERT INTO comments (post_id, username, content, timestamp, is_read) VALUES (?, ?, ?, ?, 0)", (pid, u, c, t))
+    get_comments.clear(pid)
+    # Bildirimleri ilgilendirdiği için temizle
+    get_unread_notification_count.clear()
+    get_unread_notifications.clear()
+
+def mark_notifications_read(username):
+    # Kullanıcının gönderilerine gelen yorumları okundu yap
+    query = """
+        UPDATE comments SET is_read = 1 
+        WHERE id IN (
+            SELECT c.id FROM comments c
+            JOIN posts p ON c.post_id = p.id
+            WHERE p.username = ? AND c.username != ?
+        )
+    """
+    run_query(query, (username, username))
+    get_unread_notification_count.clear(username)
+    get_unread_notifications.clear(username)
 
 def send_message(s, r, m):
     n = datetime.now().strftime("%Y-%m-%d %H:%M")
