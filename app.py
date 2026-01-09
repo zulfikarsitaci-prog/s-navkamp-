@@ -32,7 +32,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Veritabanını Başlat (Hata verse bile devam et)
 try:
     database.create_database()
     if not database.login_user("admin", "6626"): 
@@ -110,8 +109,7 @@ if "t_user" in st.query_params and "t_amt" in st.query_params:
                 time.sleep(1)
             st.query_params.clear()
             st.rerun()
-    except Exception as e: 
-        st.query_params.clear()
+    except: st.query_params.clear()
 
 if not st.session_state['logged_in']:
     st.markdown('<div class="login-container"><h1 class="login-title">🎓 Dijital Kampüs</h1></div>', unsafe_allow_html=True)
@@ -133,7 +131,7 @@ if not st.session_state['logged_in']:
                 nu = st.text_input("Yeni Kullanıcı"); np = st.text_input("Şifre", type="password")
                 if st.form_submit_button("Kayıt"):
                     if database.add_user(nu, np, "student"): st.success("Başarılı!"); st.rerun()
-                    else: st.error("Kullanıcı adı alınmış.")
+                    else: st.error("Dolu.")
 else:
     with st.sidebar:
         st.title(st.session_state['username'])
@@ -166,19 +164,36 @@ else:
                 if st.form_submit_button("Paylaş"):
                     im = base64.b64encode(img.read()).decode() if img else None
                     if txt or im: database.add_post(st.session_state['username'], txt, im); st.rerun()
+        
+        # GÖNDERİLERİ LİSTELEME VE YETKİ KONTROLÜ
         for p in database.get_posts(20):
             with st.container():
                 author_img = database.get_avatar(p[1])
                 img_html = f'<img src="data:image/png;base64,{author_img}" class="avatar">' if author_img else '👤 '
                 st.markdown(f"{img_html} **{p[1]}** <small>{p[4]}</small>", unsafe_allow_html=True)
+                
+                # İçerik Düzenleme Modu (Eğer yetkili ise)
+                if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
+                    with st.popover("⋮ İşlemler"):
+                        new_txt = st.text_area("Düzenle", value=p[2], key=f"edit_{p[0]}")
+                        if st.button("Kaydet", key=f"save_{p[0]}"):
+                            database.update_post(p[0], new_txt)
+                            st.rerun()
+                        if st.button("🗑️ Sil", key=f"del_{p[0]}"):
+                            database.delete_post(p[0])
+                            st.rerun()
+                
                 if p[2]: st.write(p[2])
                 if p[3]: st.markdown(f'<img src="data:image/png;base64,{p[3]}" style="max-width:100%;border-radius:10px">', unsafe_allow_html=True)
+                
                 c1, c2 = st.columns([1,4])
                 if c1.button(f"❤️ {p[5]}", key=f"l{p[0]}"): database.like_post(p[0]); st.rerun()
+                
                 comments = database.get_comments(p[0])
                 if comments:
                     with st.expander(f"💬 Yorumlar ({len(comments)})"):
                         for c in comments: st.markdown(f"<div class='comment-sec'><b>{c[0]}</b>: {c[1]}</div>", unsafe_allow_html=True)
+                
                 with st.popover("Yorum"):
                     with st.form(f"c{p[0]}"):
                         ct = st.text_input("Yorum")
