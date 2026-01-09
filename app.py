@@ -34,7 +34,6 @@ database.create_database()
 if not database.login_user("admin", "6626"): database.add_user("admin", "6626", "admin")
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
-# --- SERVER ---
 class SchoolServer:
     def join_or_update_student(self, c, u, p=0): 
         if p!=0: database.add_score(u, p, "Oyun")
@@ -57,7 +56,7 @@ def load_local_exams():
         except: return {}
     return {}
 
-# --- LIFESIM (DÜZELTİLMİŞ JS) ---
+# --- LIFESIM ---
 def get_lifesim_html():
     return """
 <!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -86,38 +85,49 @@ function c(o){
 r();
 </script></body></html>"""
 
-# --- FINANS JS (ANDROID FIX) ---
-JS_TRANSFER = """function autoTransfer(){
- if(score<=0 && (money-startBalance)<=0){alert("Aktaracak puan yok!");return;}
- let b=document.getElementById('bBtn')||document.getElementById('mBtn');
- if(b){b.innerText="İŞLENİYOR...";b.disabled=true;}
- let u="{username}", v=score>0?score:Math.floor(money-startBalance);
- try{window.parent.location.href = window.parent.location.href.split('?')[0] + `?t_user=${u}&t_amt=${v}&ts=`+Date.now();}
- catch(e){alert("Hata: "+e.message);}
-}"""
+# --- GÜVENLİ TRANSFER KODU ---
+def get_transfer_js(username):
+    return f"""
+    function autoTransfer(){{
+        if(score<=0 && (typeof money === 'undefined' || (money-startBalance)<=0)){{alert("Aktaracak puan yok!");return;}}
+        let b=document.getElementById('bBtn')||document.getElementById('mBtn');
+        if(b){{b.innerText="İŞLENİYOR...";b.disabled=true;}}
+        let u="{username}";
+        let v = 0;
+        if(typeof score !== 'undefined' && score > 0) v = score;
+        else if(typeof money !== 'undefined') v = Math.floor(money-startBalance);
+        
+        try{{
+            window.top.location.href = window.top.location.href.split('?')[0] + `?t_user=${{u}}&t_amt=${{v}}&ts=`+Date.now();
+        }} catch(e){{alert("Hata: "+e.message);}}
+    }}
+    """
 
+# --- FINANS HTML ---
 def get_finance_game_html(start, user):
+    js_code = get_transfer_js(user)
     return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{{background:#0f172a;color:white;font-family:sans-serif;text-align:center;padding:10px}} .dash{{background:#1e293b;padding:10px;border-radius:10px;display:flex;justify-content:space-between}} .btn{{background:radial-gradient(circle,#3b82f6,#1d4ed8);width:80px;height:80px;border-radius:50%;margin:15px auto;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer}} .grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}} .card{{background:#1e293b;padding:5px;border:1px solid #334155;border-radius:5px;font-size:10px;cursor:pointer}} .bank{{background:#10b981;color:white;width:100%;padding:10px;border:none;border-radius:5px;margin-top:10px;font-weight:bold}}</style></head><body>
     <div class="dash"><div>💰 <span id="m">{start}</span></div><div>⚡ <span id="c">0/s</span></div></div>
     <div class="btn" onclick="clk()">👆</div><div class="grid" id="g"></div><button id="bBtn" class="bank" onclick="autoTransfer()">🏦 AKTAR</button>
     <script>
     let money={start}, startBalance={start}, score=0;
     const a=[{{n:"Limonata",c:100,g:1,k:0}},{{n:"Simit",c:500,g:5,k:0}},{{n:"Kantin",c:2000,g:25,k:0}},{{n:"Yazılım",c:10000,g:150,k:0}},{{n:"Fabrika",c:50000,g:800,k:0}},{{n:"Banka",c:200000,g:5000,k:0}}];
-    function u(){{document.getElementById('m').innerText=Math.floor(money); document.getElementById('c').innerText=a.reduce((t,x)=>t+(x.k*x.g),0)+'/s';
-    let h=''; a.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.2,x.k)); h+=`<div class="card" onclick="b(${i})"><b>${x.n}</b> (${x.k})<br><span style="color:#f87171">${p}</span><br><span style="color:#34d399">+${x.g}</span></div>`}}); document.getElementById('g').innerHTML=h;}}
+    function u(){{document.getElementById('m').innerText=Math.floor(money); document.getElementById('c').innerText=a.reduce((t,x)=>t+(x.k*x.g),0).toFixed(1)+'/s';
+    let h=''; a.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.2,x.k)); h+=`<div class="card" onclick="b(${{i}})"><b>${{x.n}}</b> (${{x.k}})<br><span style="color:#f87171">${{p}}</span><br><span style="color:#34d399">+${{x.g}}</span></div>`}}); document.getElementById('g').innerHTML=h;}}
     function clk(){{money++;u()}} function b(i){{let x=a[i],p=Math.floor(x.c*Math.pow(1.2,x.k)); if(money>=p){{money-=p;x.k++;u()}}}}
     setInterval(()=>{{let g=a.reduce((t,x)=>t+(x.k*x.g),0); if(g>0){{money+=g;u()}}}},1000); u();
-    {JS_TRANSFER.replace('{username}', user)}
+    {js_code}
     </script></body></html>"""
 
-# --- MATRIX (KÜÇÜK KUTULAR & PATLAMA FIX) ---
+# --- MATRIX HTML ---
 def get_matrix_game_html(user):
+    js_code = get_transfer_js(user)
     return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><style>body{{background:#050505;color:#FFD700;margin:0;overflow:hidden;touch-action:none;text-align:center}} canvas{{background:#111;border:2px solid #333;margin-top:10px}} .btn{{position:absolute;top:10px;right:10px;background:#B8860B;border:none;padding:5px 15px;border-radius:15px;font-weight:bold;color:#000}}</style></head><body>
     <div style="padding:10px;display:flex;justify-content:space-between"><span>PUAN: <span id="s">0</span></span><button id="mBtn" class="btn" onclick="autoTransfer()">AKTAR</button></div>
     <canvas id="c"></canvas>
     <script>
     const cvs=document.getElementById('c'), ctx=cvs.getContext('2d');
-    const R=10, C=8; let SQ=25, grid=[], pieces=[], drag=null, score=0, money=0, startBalance=0;
+    const R=10, C=8; let SQ=25, grid=[], pieces=[], drag=null, score=0;
     const SHAPES=[[[1]],[[1,1]],[[1],[1]],[[1,1],[1,1]],[[1,1,1]],[[1,0],[1,0],[1,1]]];
     function rs(){{let w=window.innerWidth, h=window.innerHeight; SQ=Math.floor(Math.min((w-20)/C,(h-100)/R)); SQ=Math.min(SQ,35); cvs.width=SQ*C; cvs.height=SQ*R+120; d();}}
     window.addEventListener('resize',rs);
@@ -133,8 +143,8 @@ def get_matrix_game_html(user):
     function ds(s,x,y,z,c){{ctx.fillStyle=c; for(let r=0;r<s.length;r++) for(let k=0;k<s[r].length;k++) if(s[r][k]) ctx.fillRect(x+k*z,y+r*z,z,z);}}
     function gp(e){{let r=cvs.getBoundingClientRect(),t=e.touches?e.touches[0]:e; return {{x:t.clientX-r.left,y:t.clientY-r.top}}}}
     function chk(){{
-     for(let r=0;r<R;r++) if(grid[r].every(x=>x)) {{grid[r].fill(0); score+=50;}} // Satır temizle
-     for(let c=0;c<C;c++) {{let f=true; for(let r=0;r<R;r++) if(!grid[r][c]) f=false; if(f) {{for(let r=0;r<R;r++) grid[r][c]=0; score+=50;}}}} // Sütun temizle
+     for(let r=0;r<R;r++) if(grid[r].every(x=>x)) {{grid[r].fill(0); score+=50;}} 
+     for(let c=0;c<C;c++) {{let f=true; for(let r=0;r<R;r++) if(!grid[r][c]) f=false; if(f) {{for(let r=0;r<R;r++) grid[r][c]=0; score+=50;}}}}
      document.getElementById('s').innerText=score;
      if(pieces.length===0) sp();
     }}
@@ -147,10 +157,10 @@ def get_matrix_game_html(user):
      else {{drag.x=drag.bx; drag.y=drag.by;}} drag=null; d();
     }}}},{{passive:false}});
     init();
-    {JS_TRANSFER.replace('{username}', user)}
+    {js_code}
     </script></body></html>"""
 
-# --- TRANSFER YAKALAYICI ---
+# --- TRANSFER ---
 if "t_user" in st.query_params and "t_amt" in st.query_params:
     try:
         u, a = st.query_params["t_user"], int(st.query_params["t_amt"])
@@ -161,7 +171,7 @@ if "t_user" in st.query_params and "t_amt" in st.query_params:
             time.sleep(1); st.query_params.clear(); st.rerun()
     except: st.query_params.clear()
 
-# --- ARAYÜZ ---
+# --- GİRİŞ & ARAYÜZ ---
 if not st.session_state['logged_in']:
     st.markdown('<div class="login-container"><h1 class="login-title">🎓 Dijital Kampüs</h1></div>', unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1, 2, 1])
@@ -175,13 +185,14 @@ if not st.session_state['logged_in']:
                     st.session_state['logged_in'], st.session_state['user_role'], st.session_state['username'] = True, user[3], user[1]
                     if user[3]=="student": server.join_or_update_student("GENEL", user[1], 0)
                     st.rerun()
-                else: st.error("Hata")
+                else: st.error("Hatalı bilgi.")
         with st.expander("Kayıt Ol"):
             with st.form("reg"):
                 nu = st.text_input("Yeni Kullanıcı")
                 np = st.text_input("Şifre", type="password")
                 if st.form_submit_button("Kayıt"):
                     if database.add_user(nu, np, "student"): st.success("Oldu! Giriş yap.")
+                    else: st.error("Dolu.")
 else:
     with st.sidebar:
         st.title(st.session_state['username'])
@@ -190,11 +201,10 @@ else:
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
     
-    t1, t2, t3, t4, t5, t6 = st.tabs(["📢 Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🧬 LifeSim"])
+    t1, t2, t3, t4, t5, t6 = st.tabs([" Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🧬 LifeSim"])
 
-    # 1. KAMPÜS DUVARI
     with t1:
-        st.subheader("Kampüs Duvarı")
+        st.subheader("Kampüs Duvar")
         with st.expander("Paylaşım Yap", expanded=False):
             with st.form("share"):
                 txt = st.text_area("İçerik")
@@ -208,26 +218,18 @@ else:
                 st.markdown(f"**{p[1]}** <small>{p[4]}</small>", unsafe_allow_html=True)
                 if p[2]: st.write(p[2])
                 if p[3]: st.markdown(f'<img src="data:image/png;base64,{p[3]}" style="width:100%;border-radius:10px">', unsafe_allow_html=True)
-                
                 c1, c2 = st.columns([1, 4])
                 if c1.button(f"❤️ {p[5]}", key=f"l{p[0]}"): database.like_post(p[0]); st.rerun()
-                
-                # Yorumlar
                 comments = database.get_comments(p[0])
                 if comments:
                     with st.expander(f"💬 Yorumlar ({len(comments)})"):
                         for c in comments: st.markdown(f"<div class='comment-sec'><b>{c[0]}</b>: {c[1]}</div>", unsafe_allow_html=True)
-                
-                # Yorum Yaz
                 with st.popover("Yorum Yaz"):
                     with st.form(f"cform{p[0]}"):
                         ctxt = st.text_input("Yorum")
-                        if st.form_submit_button("Gönder"):
-                            database.add_comment(p[0], st.session_state['username'], ctxt)
-                            st.rerun()
+                        if st.form_submit_button("Gönder"): database.add_comment(p[0], st.session_state['username'], ctxt); st.rerun()
                 st.divider()
 
-    # 2. SOHBET
     with t2:
         friends = database.get_friends(st.session_state['username'])
         if st.session_state['user_role'] == 'student' and "admin" not in friends: friends.insert(0, "admin")
@@ -240,19 +242,16 @@ else:
                 align = "chat-bubble-me" if s == st.session_state['username'] else "chat-bubble-other"
                 st.markdown(f"<div class='{align}'>{m}</div>", unsafe_allow_html=True)
             st.markdown("<div style='clear:both'></div>", unsafe_allow_html=True)
-            if txt := st.chat_input("Mesaj..."):
-                database.send_message(st.session_state['username'], target, txt); st.rerun()
+            if txt := st.chat_input("Mesaj..."): database.send_message(st.session_state['username'], target, txt); st.rerun()
         else: st.info("Kimse yok.")
 
-    # 3. PUAN
     with t3:
         score = server.get_score("GENEL", st.session_state['username'])
         st.metric("Puan", score)
         st.dataframe(server.get_leaderboard("GENEL"), use_container_width=True)
 
-    # 4. DERS
     with t4:
-        st.info("Sınavlar yükleniyor...")
+        st.info("Sınavlar...")
         EX = load_local_exams()
         if EX:
             cls = st.selectbox("Sınıf", list(EX.keys()))
@@ -268,12 +267,10 @@ else:
                     database.add_score(st.session_state['username'], p, "Sınav")
                     st.success(f"{p} Puan Eklendi!"); time.sleep(2); st.rerun()
 
-    # 5. OYUN
     with t5:
         gm = st.selectbox("Oyun", ["Finans İmparatoru", "Asset Matrix"])
         score = server.get_score("GENEL", st.session_state['username'])
         if gm == "Finans İmparatoru": components.html(get_finance_game_html(score, st.session_state['username']), height=600)
         else: components.html(get_matrix_game_html(st.session_state['username']), height=750)
 
-    # 6. LIFESIM
     with t6: components.html(get_lifesim_html(), height=600)
