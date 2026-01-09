@@ -34,14 +34,12 @@ def run_query(query, params=(), fetch=False):
         if fetch: return cursor.fetchall()
         else: conn.commit(); return True
     except:
-        # Hata olursa sessizce geri al ve devam et (Uyarı verme)
         try: conn.rollback()
         except: pass
         return False
     finally: cursor.close()
 
 def create_database():
-    # Tabloları oluştur
     tables = [
         'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT)',
         'CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)',
@@ -53,40 +51,49 @@ def create_database():
         'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT)'
     ]
     for t in tables: run_query(t)
-    
-    # Sütun eksikse ekle (Sessizce)
     try: run_query("ALTER TABLE users ADD COLUMN avatar_data TEXT")
     except: pass
 
-# --- KULLANICI İŞLEMLERİ (DÜZELTİLDİ) ---
+# --- KULLANICI ---
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
-        # Yeni kullanıcı eklerken avatar_data boş gider
         return run_query("INSERT INTO users (username, password, role, avatar_data) VALUES (?, ?, ?, ?)", (u, h, r, None))
     except: return False
-
 def login_user(u, p):
     h = hashlib.sha256(p.encode()).hexdigest()
-    # KRİTİK DÜZELTME: Sütunları tek tek çağırıyoruz ki yapı bozulmasın.
-    # Sıra: 0:id, 1:username, 2:password, 3:role
     res = run_query("SELECT id, username, password, role FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
     return res[0] if res else None
-
 def get_user_role(u):
     res = run_query("SELECT role FROM users WHERE username = ?", (u,), fetch=True)
     return res[0][0] if res and res[0] else None
-
-def update_avatar(u, img_data):
-    run_query("UPDATE users SET avatar_data = ? WHERE username = ?", (img_data, u))
-
+def update_avatar(u, i): run_query("UPDATE users SET avatar_data = ? WHERE username = ?", (i, u))
 def get_avatar(u):
-    try:
-        res = run_query("SELECT avatar_data FROM users WHERE username = ?", (u,), fetch=True)
-        return res[0][0] if res and res[0] else None
+    try: return run_query("SELECT avatar_data FROM users WHERE username = ?", (u,), fetch=True)[0][0]
     except: return None
 
-# --- DİĞER FONKSİYONLAR ---
+# --- SOSYAL MEDYA (YENİ SİLME/DÜZENLEME) ---
+def add_post(u, c, i=None):
+    t = datetime.now().strftime("%Y-%m-%d %H:%M")
+    run_query("INSERT INTO posts (username, content, image_data, timestamp, likes) VALUES (?, ?, ?, ?, 0)", (u, c, i, t))
+def get_posts(limit=20): return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
+def like_post(id): run_query("UPDATE posts SET likes = likes + 1 WHERE id = ?", (id,))
+
+# ** YENİ EKLENENLER **
+def delete_post(post_id):
+    # Önce yorumları sil, sonra gönderiyi (Temizlik)
+    run_query("DELETE FROM comments WHERE post_id = ?", (post_id,))
+    run_query("DELETE FROM posts WHERE id = ?", (post_id,))
+
+def update_post(post_id, new_content):
+    run_query("UPDATE posts SET content = ? WHERE id = ?", (new_content, post_id))
+
+def add_comment(pid, u, c):
+    t = datetime.now().strftime("%Y-%m-%d %H:%M")
+    run_query("INSERT INTO comments (post_id, username, content, timestamp) VALUES (?, ?, ?, ?)", (pid, u, c, t))
+def get_comments(pid): return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (pid,), fetch=True) or []
+
+# --- DİĞER ---
 def add_score(u, a, s="Sistem"):
     d = datetime.now().strftime("%Y-%m-%d %H:%M")
     return run_query("INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)", (u, s, a, d))
@@ -99,15 +106,6 @@ def update_activity(u):
     n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
 def get_online_users(minutes=5): return [] 
-def add_post(u, c, i=None):
-    t = datetime.now().strftime("%Y-%m-%d %H:%M")
-    run_query("INSERT INTO posts (username, content, image_data, timestamp, likes) VALUES (?, ?, ?, ?, 0)", (u, c, i, t))
-def get_posts(limit=20): return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
-def like_post(id): run_query("UPDATE posts SET likes = likes + 1 WHERE id = ?", (id,))
-def add_comment(pid, u, c):
-    t = datetime.now().strftime("%Y-%m-%d %H:%M")
-    run_query("INSERT INTO comments (post_id, username, content, timestamp) VALUES (?, ?, ?, ?)", (pid, u, c, t))
-def get_comments(pid): return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (pid,), fetch=True) or []
 def send_message(s, r, m):
     n = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO messages (sender, receiver, message, timestamp, is_read) VALUES (?, ?, ?, ?, 0)", (s, r, m, n))
