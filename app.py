@@ -18,84 +18,73 @@ def init_state():
         if k not in st.session_state: st.session_state[k] = v
 init_state()
 
-# --- CSS: Çerçeveler, Mağaza Grid ve Bildirimler ---
+# --- CSS ---
 st.markdown("""
 <style>
     .login-container { text-align: center; margin-top: 50px; }
     .login-title { font-family: 'Helvetica', sans-serif; font-size: 2.2rem; font-weight: 700; color: #FFD700; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
     .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     .user-greeting { font-weight: bold; color: #e2e8f0; }
-    .post-card { background: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155; }
     .comment-sec { background: #0f172a; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 0.9rem; }
     div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 20px; flex-wrap: wrap; }
     
     /* MAĞAZA KARTLARI */
     .shop-card {
-        background-color: #0f172a;
-        border: 1px solid #334155;
-        border-radius: 15px;
-        padding: 20px;
-        text-align: center;
-        transition: transform 0.2s;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
+        background-color: #0f172a; border: 1px solid #334155; border-radius: 15px; padding: 20px;
+        text-align: center; transition: transform 0.2s; height: 100%; display: flex; flex-direction: column;
+        align-items: center; justify-content: space-between;
     }
     .shop-card:hover { transform: scale(1.02); border-color: #FFD700; }
     .price-tag { background: #10b981; color: white; padding: 5px 10px; border-radius: 15px; font-weight: bold; margin-top: 10px; font-size: 0.9rem; }
     
     /* AVATAR VE ÇERÇEVELER */
-    .avatar-container { position: relative; display: inline-block; width: 50px; height: 50px; margin-right: 10px; vertical-align: middle; }
+    .avatar-container { position: relative; display: inline-block; vertical-align: middle; }
     .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-    .frame-overlay { position: absolute; top: -5px; left: -5px; width: 60px; height: 60px; pointer-events: none; z-index: 2; }
+    .frame-overlay { position: absolute; pointer-events: none; z-index: 2; border-radius: 50%; }
     
     /* --- ÇERÇEVE STİLLERİ --- */
-    .frame-bronze { border: 3px solid #cd7f32; border-radius: 50%; }
-    .frame-silver { border: 3px solid #c0c0c0; border-radius: 50%; box-shadow: 0 0 5px #c0c0c0; }
-    .frame-gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 10px #FFD700; }
-    .frame-neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff; }
-    .frame-cyber { border: 3px dashed #ff00ff; border-radius: 50%; box-shadow: 0 0 8px #ff00ff; }
-    .frame-fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; animation: pulse 1.5s infinite; }
-    .frame-ice { border: 3px solid #e0f7fa; border-radius: 50%; box-shadow: 0 0 15px #00bfff; }
+    .frame-bronze { border: 3px solid #cd7f32; }
+    .frame-silver { border: 3px solid #c0c0c0; box-shadow: 0 0 8px #c0c0c0; }
+    .frame-gold { border: 3px solid #FFD700; box-shadow: 0 0 12px #FFD700; }
+    .frame-neon { border: 3px solid #00ffff; box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff; }
+    .frame-cyber { border: 3px dashed #ff00ff; box-shadow: 0 0 8px #ff00ff; }
+    .frame-fire { border: 3px solid #ff4500; box-shadow: 0 0 15px #ff4500; animation: pulse 1.5s infinite; }
+    .frame-ice { border: 3px solid #e0f7fa; box-shadow: 0 0 15px #00bfff; }
     .frame-rainbow { 
-        border: 4px solid transparent; border-radius: 50%; 
+        border: 4px solid transparent; 
         background-image: linear-gradient(white, white), linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet); 
         background-origin: border-box; background-clip: content-box, border-box;
     }
-    .frame-matrix { border: 3px solid #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00; border-style: dotted; }
-    .frame-king { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 20px #ffd700, 0 0 40px #ff0000; }
+    .frame-matrix { border: 3px dotted #00ff00; box-shadow: 0 0 10px #00ff00; }
+    .frame-king { 
+        border: 4px solid #ffd700; 
+        box-shadow: 0 0 25px #ffd700, inset 0 0 10px #ff0000;
+        background-image: linear-gradient(45deg, transparent 95%, #ffd700 100%);
+    }
 
     @keyframes pulse { 0% { box-shadow: 0 0 5px #ff4500; } 50% { box-shadow: 0 0 20px #ff4500; } 100% { box-shadow: 0 0 5px #ff4500; } }
-
-    /* BİLDİRİM ROZETİ */
-    .badge { background-color: #ef4444; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: bold; margin-left: 5px; vertical-align: top; }
-    
     iframe { width: 100% !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# Veritabanı Başlat
+# Veritabanı
 try:
     database.create_database()
     if not database.login_user("admin", "6626"): database.add_user("admin", "6626", "admin")
 except: pass
-
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
-# --- YARDIMCI FONKSİYONLAR ---
+# --- AVATAR HTML (DÜZELTİLDİ) ---
 def get_avatar_html(username, size=50):
     ava_data, frame_type = database.get_avatar_and_frame(username)
     img_src = f"data:image/jpeg;base64,{ava_data}" if ava_data else "https://via.placeholder.com/150?text=U"
     
     frame_html = ""
     if frame_type:
-        frame_class = f"frame-{frame_type}"
-        # Çerçeve boyutunu resim boyutuna göre ayarla
+        # HATA DÜZELTİLDİ: Artık 'frame-' eklemiyoruz, veritabanından geleni direkt kullanıyoruz.
         f_size = size + 10
         f_offset = -5
-        frame_html = f'<div class="frame-overlay {frame_class}" style="width:{f_size}px;height:{f_size}px;top:{f_offset}px;left:{f_offset}px;"></div>'
+        frame_html = f'<div class="frame-overlay {frame_type}" style="width:{f_size}px;height:{f_size}px;top:{f_offset}px;left:{f_offset}px;"></div>'
 
     return f"""
     <div class="avatar-container" style="width:{size}px;height:{size}px;">
@@ -116,7 +105,7 @@ class SchoolServer:
         if item_type == "frame":
             success, msg = database.buy_frame(username, item_name, cost)
             return success, msg
-        return False, "Geçersiz ürün."
+        return False, "Hata."
 
 server = SchoolServer()
 
@@ -128,7 +117,7 @@ def load_local_exams():
         except: return {}
     return {}
 
-# --- JS KODLARI ---
+# --- TRANSFER JS ---
 def get_transfer_js(username):
     return f"""
     function autoTransfer(){{
@@ -166,20 +155,12 @@ if "t_user" in st.query_params and "t_amt" in st.query_params:
         u, a = st.query_params["t_user"], int(st.query_params["t_amt"])
         role = database.get_user_role(u)
         if role:
-            st.session_state['logged_in'] = True
-            st.session_state['username'] = u
-            st.session_state['user_role'] = role
+            st.session_state['logged_in'], st.session_state['username'], st.session_state['user_role'] = True, u, role
             st.session_state['active_menu'] = "🎮 Oyun"
-            if a > 0: 
-                database.add_score(u, a, "Oyun")
-                st.toast(f"✅ {a} Puan Eklendi!", icon="💰")
-                time.sleep(1)
-            st.query_params.clear()
-            st.rerun()
-    except Exception as e: 
-        st.query_params.clear()
+            if a > 0: database.add_score(u, a, "Oyun"); st.toast(f"✅ {a} Puan Eklendi!", icon="💰"); time.sleep(1)
+            st.query_params.clear(); st.rerun()
+    except: st.query_params.clear()
 
-# --- ARAYÜZ ---
 if not st.session_state['logged_in']:
     st.markdown('<div class="login-container"><h1 class="login-title">🎓 Dijital Kampüs</h1></div>', unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1, 2, 1])
@@ -189,9 +170,7 @@ if not st.session_state['logged_in']:
             if st.form_submit_button("Giriş"):
                 user = database.login_user(u, p)
                 if user:
-                    st.session_state['logged_in'] = True
-                    st.session_state['user_role'] = user[3]
-                    st.session_state['username'] = user[1]
+                    st.session_state['logged_in'], st.session_state['user_role'], st.session_state['username'] = True, user[3], user[1]
                     if user[3]=="student": server.join_or_update_student("GENEL", user[1], 0)
                     st.rerun()
                 else: st.error("Hatalı bilgi.")
@@ -220,7 +199,6 @@ else:
     if st.session_state['user_role'] == 'admin': menu_ops.append("⚙️ Admin")
     
     current_sel = st.session_state['active_menu']
-    # Bildirim sayısı değişirse menüyü güncelleme mantığı
     if current_sel.startswith("🔔") and current_sel != noti_text: current_sel = noti_text
     
     ix = 0
@@ -228,7 +206,6 @@ else:
     sel = st.radio("", menu_ops, index=ix, horizontal=True, label_visibility="collapsed")
     if sel != st.session_state['active_menu']: st.session_state['active_menu'] = sel; st.rerun()
 
-    # --- İÇERİKLER ---
     if sel == "📢 Kampüs Duvar":
         st.subheader("Kampüs Duvar")
         with st.expander("Paylaş", expanded=False):
@@ -236,17 +213,27 @@ else:
                 txt = st.text_area("İçerik"); img = st.file_uploader("Resim", type=['png','jpg','jpeg'])
                 if st.form_submit_button("Paylaş"):
                     if txt or img: database.add_post(st.session_state['username'], txt, img); st.rerun()
+        
         for p in database.get_posts(20):
             with st.container():
-                ava_html = get_avatar_html(p[1], size=40)
-                st.markdown(f"""<div style="display:flex;align-items:center;margin-bottom:10px;">{ava_html} <div style="margin-left:10px;"><b>{p[1]}</b><br><small>{p[4]}</small></div></div>""", unsafe_allow_html=True)
-                if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
-                    with st.popover("⋮"):
-                        new_txt = st.text_area("Düzenle", value=p[2], key=f"e{p[0]}")
-                        if st.button("Kaydet", key=f"s{p[0]}"): database.update_post(p[0], new_txt); st.rerun()
-                        if st.button("Sil", key=f"d{p[0]}"): database.delete_post(p[0]); st.rerun()
+                # --- YENİ DÜZEN: Avatar+İsim SOLDA, Buton SAĞDA ---
+                col_header, col_action = st.columns([5, 1])
+                
+                with col_header:
+                    ava_html = get_avatar_html(p[1], size=40)
+                    st.markdown(f"""<div style="display:flex;align-items:center;margin-bottom:5px;">{ava_html} <div style="margin-left:10px;"><b>{p[1]}</b><br><small style="color:#aaa">{p[4]}</small></div></div>""", unsafe_allow_html=True)
+                
+                with col_action:
+                    # Yetki Kontrolü
+                    if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
+                        with st.popover("⋮"):
+                            new_txt = st.text_area("Düzenle", value=p[2], key=f"e{p[0]}")
+                            if st.button("Kaydet", key=f"s{p[0]}"): database.update_post(p[0], new_txt); st.rerun()
+                            if st.button("Sil", key=f"d{p[0]}"): database.delete_post(p[0]); st.rerun()
+
                 if p[2]: st.write(p[2])
                 if p[3]: st.markdown(f'<img src="data:image/jpeg;base64,{p[3]}" style="max-width:100%;border-radius:10px">', unsafe_allow_html=True)
+                
                 c1, c2 = st.columns([1,4])
                 if c1.button(f"❤️ {p[5]}", key=f"l{p[0]}"): database.like_post(p[0]); st.rerun()
                 comments = database.get_comments(p[0])
@@ -279,9 +266,7 @@ else:
             {"name": "KRAL TACI", "cost": 2500000, "css": "frame-king", "desc": "Sadece efsaneler için."}
         ]
         
-        # Grid Yapısı (3'lü Sütunlar)
         rows = [products[i:i+3] for i in range(0, len(products), 3)]
-        
         for row in rows:
             cols = st.columns(3)
             for i, p in enumerate(row):
@@ -302,7 +287,7 @@ else:
                             ok, msg = server.buy_item(st.session_state['username'], "frame", p["css"], p["cost"])
                             if ok: st.success(msg); time.sleep(1); st.rerun()
                             else: st.error(msg)
-            st.write("") # Boşluk
+            st.write("")
 
     elif sel.startswith("🔔"):
         st.header("Bildirimler")
@@ -322,7 +307,7 @@ else:
             for s, m, t in database.get_conversation(st.session_state['username'], target):
                 ava_html = get_avatar_html(s, size=30)
                 align = "flex-direction:row-reverse;background:#2563eb" if s == st.session_state['username'] else "flex-direction:row;background:#334155"
-                st.markdown(f"<div style='display:flex;{align};align-items:center;margin:5px;'>{ava_html} <div style='padding:10px;border-radius:10px;margin:5px;color:white;background:inherit'>{m}</div></div>", unsafe_allow_html=True)
+                st.markdown(f"""<div style='display:flex;{align};align-items:center;margin:5px;'>{ava_html} <div style='padding:10px;border-radius:10px;margin:5px;color:white;background:inherit'>{m}</div></div>""", unsafe_allow_html=True)
             if txt := st.chat_input("Yaz..."): database.send_message(st.session_state['username'], target, txt); st.rerun()
         else: st.info("Kimse yok.")
 
