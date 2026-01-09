@@ -4,4 +4,8 @@ pymupdf
 gspread
 google-auth
 psycopg2-binary
+streamlit
 pandas
+psycopg2-binary
+Pillow
+
