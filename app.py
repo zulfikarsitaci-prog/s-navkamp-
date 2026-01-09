@@ -56,52 +56,173 @@ def load_local_exams():
         except: return {}
     return {}
 
-# --- LIFESIM ---
-def get_lifesim_html():
-    return """
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>body{background:#0f172a;color:#e2e8f0;font-family:sans-serif;padding:20px;text-align:center}.card{background:#1e293b;padding:20px;border-radius:15px;border:1px solid #334155;max-width:500px;margin:0 auto;box-shadow:0 10px 25px rgba(0,0,0,0.5)}.btn{display:block;width:100%;padding:15px;margin:10px 0;border:none;border-radius:8px;font-size:16px;cursor:pointer;font-weight:bold}.btn-a{background:#3b82f6;color:white}.btn-b{background:#ef4444;color:white}.stats{display:flex;justify-content:space-around;margin-bottom:20px;color:#facc15;font-weight:bold}.ai{font-style:italic;color:#94a3b8;margin-top:15px;border-top:1px solid #334155;padding-top:10px}</style>
-</head><body><div class="card"><div class="stats"><span>💰 <span id="m">1000</span></span><span>❤️ <span id="h">100</span></span><span>🧠 <span id="k">0</span></span></div><h2 id="qt" style="color:#FFD700"></h2><p id="qx" style="font-size:18px"></p><div id="chs"></div><div id="ai" class="ai"></div></div>
-<script>
-let s={m:1000,h:100,k:0,idx:0};
-const d=[
- {t:"Başlangıç",q:"Okul bitti. 1000 TL var. Ne yapacaksın?",a:{t:"E-Ticaret (-500)",m:-500,k:20,n:1,ai:"Cesurca! Risk almadan başarı gelmez."},b:{t:"Faiz (+50)",m:50,k:0,n:2,ai:"Güvenli ama yavaş."}},
- {t:"Müşteri Yok",q:"Site boş. Ne yapmalı?",a:{t:"Reklam Ver (-200)",m:-200,k:10,n:3,ai:"Para harcamadan para kazanılmaz."},b:{t:"Blog Yaz",m:0,k:30,n:3,ai:"Bilgi güçtür, içerik kraldır."}},
- {t:"Yatırımcı",q:"Yatırımcı %50 hisse istiyor.",a:{t:"Sat (+50000)",m:50000,k:0,n:4,ai:"Nakit kraldır ama kontrolü kaybettin."},b:{t:"Reddet",m:0,k:50,n:4,ai:"Özgürlük paha biçilemez."}},
- {t:"Sonuç",q:"Yolun sonu...",a:{t:"Başa Dön",n:0},b:{t:"Bitir",n:0}}
-];
-function r(){
- let x=d[s.idx]; document.getElementById('qt').innerText=x.t; document.getElementById('qx').innerText=x.q;
- document.getElementById('m').innerText=s.m; document.getElementById('h').innerText=s.h; document.getElementById('k').innerText=s.k;
- let h=`<button class="btn btn-a" onclick="c(1)">${x.a.t}</button><button class="btn btn-b" onclick="c(2)">${x.b.t}</button>`;
- document.getElementById('chs').innerHTML=h;
-}
-function c(o){
- let x=d[s.idx], ch=o===1?x.a:x.b;
- s.m+=(ch.m||0); s.k+=(ch.k||0); s.idx=ch.n||0;
- document.getElementById('ai').innerText="Sokrat: "+(ch.ai||"...");
- r();
-}
-r();
-</script></body></html>"""
-
-# --- GÜVENLİ TRANSFER KODU ---
+# --- GÜVENLİ TRANSFER KODU (Mobil Uyumlu) ---
+# Bu kod "The operation is insecure" hatasını çözer.
 def get_transfer_js(username):
     return f"""
     function autoTransfer(){{
         if(score<=0 && (typeof money === 'undefined' || (money-startBalance)<=0)){{alert("Aktaracak puan yok!");return;}}
-        let b=document.getElementById('bBtn')||document.getElementById('mBtn');
-        if(b){{b.innerText="İŞLENİYOR...";b.disabled=true;}}
+        
+        let btn = document.getElementById('bBtn') || document.getElementById('mBtn');
+        if(btn) {{ btn.innerText="GÖNDERİLİYOR..."; btn.disabled=true; }}
+        
         let u="{username}";
         let v = 0;
         if(typeof score !== 'undefined' && score > 0) v = score;
         else if(typeof money !== 'undefined') v = Math.floor(money-startBalance);
         
-        try{{
-            window.top.location.href = window.top.location.href.split('?')[0] + `?t_user=${{u}}&t_amt=${{v}}&ts=`+Date.now();
-        }} catch(e){{alert("Hata: "+e.message);}}
+        // GÜVENLİ YÖNTEM: Link Oluştur ve Tıkla
+        try {{
+            const url = new URL(window.top.location.href);
+            url.searchParams.set('t_user', u);
+            url.searchParams.set('t_amt', v);
+            url.searchParams.set('ts', Date.now());
+            
+            const link = document.createElement('a');
+            link.href = url.toString();
+            link.target = "_top"; // Bu en önemli kısım
+            document.body.appendChild(link);
+            link.click();
+        }} catch(e){{
+            alert("Hata: " + e.message);
+            if(btn) btn.innerText = "HATA";
+        }}
     }}
     """
+
+# --- LIFESIM 2.0 (GELİŞMİŞ SOKRATİK MOD) ---
+def get_lifesim_html():
+    return """
+<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{background:#020617;color:#e2e8f0;font-family:'Segoe UI',sans-serif;padding:10px;text-align:center;overflow:hidden;}
+.card{background:linear-gradient(145deg, #1e293b, #0f172a);padding:20px;border-radius:20px;border:1px solid #334155;max-width:500px;margin:0 auto;box-shadow:0 0 20px rgba(0,0,0,0.7);position:relative;}
+.header{display:flex;justify-content:space-between;margin-bottom:20px;border-bottom:2px solid #334155;padding-bottom:10px;}
+.stat-box{text-align:center;width:30%;background:#0f172a;padding:5px;border-radius:8px;}
+.stat-val{font-size:18px;font-weight:bold;display:block;}
+.stat-label{font-size:10px;color:#94a3b8;text-transform:uppercase;}
+.progress-container{width:100%;background:#334155;height:6px;border-radius:3px;margin-top:5px;overflow:hidden;}
+.progress-bar{height:100%;transition:width 0.5s;}
+.q-title{color:#38bdf8;font-size:22px;margin:10px 0;font-weight:bold;}
+.q-text{font-size:16px;line-height:1.6;margin-bottom:20px;min-height:60px;}
+.btn{display:block;width:100%;padding:16px;margin:10px 0;border:none;border-radius:12px;font-size:15px;cursor:pointer;font-weight:bold;transition:0.2s;text-align:left;position:relative;overflow:hidden;}
+.btn:active{transform:scale(0.98);}
+.btn-a{background:linear-gradient(90deg, #2563eb, #1d4ed8);color:white;box-shadow:0 4px 10px rgba(37,99,235,0.3);}
+.btn-b{background:linear-gradient(90deg, #059669, #047857);color:white;box-shadow:0 4px 10px rgba(5,150,105,0.3);}
+.ai-box{background:#1e1b4b;border-left:4px solid #818cf8;padding:10px;text-align:left;font-style:italic;color:#c7d2fe;font-size:13px;margin-top:15px;border-radius:4px;}
+.log{font-size:11px;color:#64748b;margin-top:20px;height:30px;overflow:hidden;}
+</style>
+</head><body>
+<div class="card">
+    <div class="header">
+        <div class="stat-box">
+            <span id="money" class="stat-val" style="color:#fbbf24">1000</span>
+            <span class="stat-label">Varlık (TL)</span>
+        </div>
+        <div class="stat-box">
+            <span id="health" class="stat-val" style="color:#f87171">100</span>
+            <span class="stat-label">Sağlık</span>
+            <div class="progress-container"><div id="bar-h" class="progress-bar" style="width:100%;background:#f87171"></div></div>
+        </div>
+        <div class="stat-box">
+            <span id="age" class="stat-val" style="color:#e2e8f0">18</span>
+            <span class="stat-label">Yaş</span>
+        </div>
+    </div>
+
+    <div id="game-screen">
+        <div id="q-title" class="q-title">Başlangıç</div>
+        <div id="q-text" class="q-text">Lise bitti. Hayat önünde kocaman bir okyanus gibi duruyor. İlk adımın ne olacak?</div>
+        
+        <button class="btn btn-a" onclick="nextTurn(1)"><span id="btn-a-txt">Üniversiteye Git (-4 Yıl, Bilgi+)</span></button>
+        <button class="btn btn-b" onclick="nextTurn(2)"><span id="btn-b-txt">İşe Gir (Para+, Deneyim+)</span></button>
+        
+        <div id="ai-msg" class="ai-box">Sokrat: "Sorgulanmamış hayat yaşamaya değmez. Seçimlerin kaderindir."</div>
+    </div>
+    
+    <div id="end-screen" style="display:none;">
+        <h2 style="color:#f87171">Oyun Bitti!</h2>
+        <p id="end-reason"></p>
+        <button class="btn btn-a" onclick="location.reload()">Yeniden Doğ</button>
+    </div>
+    
+    <div id="log" class="log">Simülasyon başlatıldı...</div>
+</div>
+
+<script>
+let state = { money: 1000, health: 100, age: 18, knowledge: 0, job: "İşsiz" };
+const events = [
+    {t:"Kripto Fırsatı", q:"Arkadaşın şüpheli bir coin'e yatırım yapmanı öneriyor.", a:{t:"Yatır (-500 TL)", m:-500, h:0, msg:"Risk aldın! Bazen batarsın bazen çıkarsın."}, b:{t:"Reddet", m:0, h:0, msg:"Güvenli liman."}},
+    {t:"Sağlık Sorunu", q:"Çok çalışmaktan yorgun düştün.", a:{t:"Doktora Git (-200 TL)", m:-200, h:10, msg:"Sağlık her şeyden önemlidir."}, b:{t:"Dinlen (Ücretsiz)", m:0, h:5, msg:"Zaman en iyi ilaçtır."}},
+    {t:"Ek İş", q:"Hafta sonları boşsun.", a:{t:"Garsonluk Yap", m:1000, h:-5, msg:"Emek olmadan yemek olmaz."}, b:{t:"Yat Uyu", m:0, h:5, msg:"Dinlenmek de bir ihtiyaçtır."}},
+    {t:"Yatırım", q:"Borsa düşüşte. Ne yapacaksın?", a:{t:"Hisse Al (-2000)", m:-2000, h:0, msg:"Krizler fırsattır."}, b:{t:"Bekle", m:0, h:0, msg:"Sabır erdemdir."}},
+    {t:"Eğitim", q:"Yeni bir dil kursu var.", a:{t:"Katıl (-1000)", m:-1000, h:0, msg:"Dil insanın aynasıdır."}, b:{t:"Gerek Yok", m:0, h:0, msg:"Mevcut bilginle yetindin."}}
+];
+
+function nextTurn(choice) {
+    // 1. Yaş İlerlemesi
+    state.age += 1;
+    
+    // 2. Rastgele Olay Seçimi
+    let evt = events[Math.floor(Math.random() * events.length)];
+    
+    // 3. Karar Etkileri
+    let impact = { m:0, h:0 };
+    if (choice === 1) { // A Seçeneği (Genelde Risk/Eğitim)
+        impact.m = evt.a.m || -100;
+        impact.h = evt.a.h || 0;
+        setAI(evt.a.msg);
+    } else { // B Seçeneği (Genelde Güvenli/Çalışma)
+        impact.m = evt.b.m || 100;
+        impact.h = evt.b.h || 0;
+        setAI(evt.b.msg);
+    }
+    
+    // 4. Sabit Yaşam Giderleri ve Maaş
+    state.money -= 500; // Yıllık yaşam gideri
+    if(state.money < 0) { state.health -= 10; setLog("Parasızlıktan sağlığın bozuldu!"); }
+    
+    // 5. Değerleri Güncelle
+    state.money += impact.m;
+    state.health += impact.h;
+    if(state.health > 100) state.health = 100;
+    
+    // 6. Arayüzü Güncelle
+    updateUI(evt);
+    
+    // 7. Oyun Bitti mi?
+    if(state.health <= 0) gameOver("Sağlığını kaybettin.");
+    if(state.age >= 65) gameOver("Emekli oldun! Tebrikler.");
+}
+
+function updateUI(evt) {
+    document.getElementById('money').innerText = state.money;
+    document.getElementById('health').innerText = state.health;
+    document.getElementById('bar-h').style.width = state.health + "%";
+    document.getElementById('age').innerText = state.age;
+    
+    // Yeni Soruyu Yaz
+    document.getElementById('q-title').innerText = evt.t;
+    document.getElementById('q-text').innerText = evt.q;
+    document.getElementById('btn-a-txt').innerText = evt.a.t;
+    document.getElementById('btn-b-txt').innerText = evt.b.t;
+}
+
+function setAI(msg) {
+    document.getElementById('ai-msg').innerText = "Sokrat: \"" + msg + "\"";
+}
+
+function setLog(msg) {
+    document.getElementById('log').innerText = msg;
+}
+
+function gameOver(reason) {
+    document.getElementById('game-screen').style.display = 'none';
+    document.getElementById('end-screen').style.display = 'block';
+    document.getElementById('end-reason').innerText = reason + " Toplam Varlık: " + state.money + " TL";
+}
+</script></body></html>
+"""
 
 # --- FINANS HTML ---
 def get_finance_game_html(start, user):
@@ -112,7 +233,7 @@ def get_finance_game_html(start, user):
     <script>
     let money={start}, startBalance={start}, score=0;
     const a=[{{n:"Limonata",c:100,g:1,k:0}},{{n:"Simit",c:500,g:5,k:0}},{{n:"Kantin",c:2000,g:25,k:0}},{{n:"Yazılım",c:10000,g:150,k:0}},{{n:"Fabrika",c:50000,g:800,k:0}},{{n:"Banka",c:200000,g:5000,k:0}}];
-    function u(){{document.getElementById('m').innerText=Math.floor(money); document.getElementById('c').innerText=a.reduce((t,x)=>t+(x.k*x.g),0).toFixed(1)+'/s';
+    function u(){{document.getElementById('m').innerText=Math.floor(money).toLocaleString(); document.getElementById('c').innerText=a.reduce((t,x)=>t+(x.k*x.g),0).toFixed(1)+'/s';
     let h=''; a.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.2,x.k)); h+=`<div class="card" onclick="b(${{i}})"><b>${{x.n}}</b> (${{x.k}})<br><span style="color:#f87171">${{p}}</span><br><span style="color:#34d399">+${{x.g}}</span></div>`}}); document.getElementById('g').innerHTML=h;}}
     function clk(){{money++;u()}} function b(i){{let x=a[i],p=Math.floor(x.c*Math.pow(1.2,x.k)); if(money>=p){{money-=p;x.k++;u()}}}}
     setInterval(()=>{{let g=a.reduce((t,x)=>t+(x.k*x.g),0); if(g>0){{money+=g;u()}}}},1000); u();
@@ -171,7 +292,7 @@ if "t_user" in st.query_params and "t_amt" in st.query_params:
             time.sleep(1); st.query_params.clear(); st.rerun()
     except: st.query_params.clear()
 
-# --- GİRİŞ & ARAYÜZ ---
+# --- GİRİŞ ---
 if not st.session_state['logged_in']:
     st.markdown('<div class="login-container"><h1 class="login-title">🎓 Dijital Kampüs</h1></div>', unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1, 2, 1])
@@ -201,7 +322,7 @@ else:
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
     
-    t1, t2, t3, t4, t5, t6 = st.tabs([" Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🧬 LifeSim"])
+    t1, t2, t3, t4, t5, t6 = st.tabs(["📢 Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🧬 LifeSim"])
 
     with t1:
         st.subheader("Kampüs Duvar")
@@ -234,7 +355,6 @@ else:
         friends = database.get_friends(st.session_state['username'])
         if st.session_state['user_role'] == 'student' and "admin" not in friends: friends.insert(0, "admin")
         if st.session_state['user_role'] == 'admin': friends = [u[0] for u in database.get_all_users() if u[0]!="admin"]
-        
         target = st.selectbox("Kişi Seç", friends) if friends else None
         if target:
             msgs = database.get_conversation(st.session_state['username'], target)
