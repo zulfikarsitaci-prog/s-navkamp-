@@ -1,244 +1,361 @@
-import sqlite3
-import hashlib
-import os
 import streamlit as st
-from datetime import datetime
-import psycopg2
-from PIL import Image
-import io
+import streamlit.components.v1 as components
+import pandas as pd
+import requests
+import json
+import os
+import time
+import random
+import database
 import base64
+from datetime import datetime
 
-# --- BAĞLANTIYI HAFIZADA TUT (CACHE) ---
-@st.cache_resource(ttl=3600)
-def get_db_connection():
-    if "DATABASE_URL" in st.secrets:
+st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
+
+def init_state():
+    defaults = {"logged_in": False, "user_role": None, "username": None, "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar"}
+    for k, v in defaults.items():
+        if k not in st.session_state: st.session_state[k] = v
+init_state()
+
+# --- GELİŞMİŞ CSS EFEKTLERİ ---
+st.markdown("""
+<style>
+    /* TEMEL AYARLAR */
+    .login-container { text-align: center; margin-top: 50px; }
+    .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
+    .user-greeting { font-weight: bold; color: #e2e8f0; }
+    .post-card { background: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155; }
+    .comment-sec { background: #0f172a; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 0.9rem; }
+    div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 15px; flex-wrap: wrap; }
+    
+    /* MAĞAZA KARTLARI (GRID) */
+    .shop-card {
+        background-color: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 15px;
+        text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+        transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    .shop-card:hover { transform: translateY(-5px); border-color: #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
+    .price-tag { background: linear-gradient(45deg, #10b981, #059669); color: white; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 0.8rem; margin-top: 8px; }
+    .shop-preview { height: 60px; display: flex; align-items: center; justify-content: center; width: 100%; margin-bottom: 10px; }
+
+    /* AVATAR VE ÇERÇEVELER */
+    .avatar-container { position: relative; display: inline-block; width: 50px; height: 50px; margin-right: 10px; vertical-align: middle; }
+    .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .frame-overlay { position: absolute; top: -5px; left: -5px; width: 60px; height: 60px; pointer-events: none; z-index: 2; }
+    
+    .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 10px #FFD700; }
+    .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff; }
+    .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; animation: pulse 1.5s infinite; }
+    .frame-King { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 20px #ffd700, 0 0 40px #ff0000; }
+    .frame-Matrix { border: 3px dotted #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00; }
+
+    /* İSİM EFEKTLERİ */
+    .name-Glitch { color: #00ffff; text-shadow: 2px 0 #ff00ff; font-weight: bold; }
+    .name-Fire { color: #ff4500; text-shadow: 0 0 5px #ff0000, 0 0 10px #ffff00; font-weight: bold; animation: burn 1s infinite alternate; }
+    .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C); -webkit-background-clip: text; color: transparent; font-weight: 900; }
+    .name-Rainbow { background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red); -webkit-background-clip: text; color: transparent; font-weight: bold; }
+    
+    /* YAZI RENKLERİ */
+    .post-Cyan { color: #00ffff !important; }
+    .post-Lime { color: #00ff00 !important; }
+    .post-Pink { color: #ff69b4 !important; }
+    .post-Gold { color: #ffd700 !important; }
+
+    @keyframes pulse { 0% { box-shadow: 0 0 5px #ff4500; } 50% { box-shadow: 0 0 20px #ff4500; } 100% { box-shadow: 0 0 5px #ff4500; } }
+    @keyframes burn { from { text-shadow: 0 0 5px #ff0000; } to { text-shadow: 0 0 20px #ffff00, 0 -5px 10px #ff4500; } }
+    
+    iframe { width: 100% !important; }
+</style>
+""", unsafe_allow_html=True)
+
+# Başlat
+try:
+    database.create_database()
+    if not database.login_user("admin", "6626"): database.add_user("admin", "6626", "admin")
+except: pass
+if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
+
+# --- GÖRSEL YARDIMCILAR ---
+def get_user_display_html(username, size=50):
+    """Kullanıcının avatarını, çerçevesini ve isim efektini döndürür"""
+    ava, frame, name_style, _ = database.get_user_styles(username)
+    img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150?text=U"
+    
+    # Çerçeve
+    f_html = f'<div class="frame-overlay frame-{frame}" style="width:{size+10}px;height:{size+10}px;top:-5px;left:-5px;"></div>' if frame else ""
+    
+    # İsim Stili
+    n_class = f"name-{name_style}" if name_style else ""
+    
+    return f"""
+    <div style="display:flex;align-items:center;">
+        <div class="avatar-container" style="width:{size}px;height:{size}px;">
+            <img src="{img_src}" class="avatar-img">
+            {f_html}
+        </div>
+        <div style="margin-left:12px;">
+            <div class="{n_class}" style="font-size:1.1rem;">{username}</div>
+        </div>
+    </div>
+    """
+
+def get_post_style(username):
+    _, _, _, post_style = database.get_user_styles(username)
+    return f"post-{post_style}" if post_style else ""
+
+# --- SERVER ---
+class SchoolServer:
+    def join_or_update_student(self, c, u, p=0): 
+        if p!=0: database.add_score(u, p, "Oyun")
+        return database.get_total_score(u)
+    def get_score(self, c, u): return database.get_total_score(u)
+    def get_leaderboard(self, c):
+        df = pd.DataFrame(database.get_leaderboard_data(), columns=["Öğrenci","Puan"])
+        return df if not df.empty else pd.DataFrame(columns=["Öğrenci","Puan"])
+    def buy_item(self, u, type, name, cost):
+        return database.buy_item(u, type, name, cost)
+
+server = SchoolServer()
+
+@st.cache_data
+def load_local_exams():
+    if os.path.exists("exams.json"):
         try:
-            conn = psycopg2.connect(st.secrets["DATABASE_URL"])
-            return conn, "postgres"
-        except: return None, None
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    DB_PATH = os.path.join(BASE_DIR, "education_platform.db")
-    return sqlite3.connect(DB_PATH, check_same_thread=False), "sqlite"
+            with open("exams.json", "r", encoding="utf-8") as f: return json.load(f)
+        except: return {}
+    return {}
 
-def run_query(query, params=(), fetch=False):
-    conn, db_type = get_db_connection()
-    if not conn: return False
-    if db_type == "postgres" and conn.closed != 0:
-        st.cache_resource.clear(); conn, db_type = get_db_connection()
-    cursor = conn.cursor()
-    if db_type == "postgres":
-        query = query.replace("?", "%s").replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
+# --- JS ---
+def get_transfer_js(username):
+    return f"""
+    function autoTransfer(){{
+        let val = 0;
+        if(typeof score !== 'undefined' && score > 0) val = score;
+        else if(typeof money !== 'undefined' && typeof startBalance !== 'undefined') val = Math.floor(money-startBalance);
+        if(val <= 0){{ alert("Aktaracak puan yok!"); return; }}
+        let btn = document.getElementById('bBtn') || document.getElementById('mBtn');
+        if(btn) {{ btn.innerText="GÖNDERİLİYOR..."; btn.disabled=true; }}
+        let u="{username}";
+        try {{
+            const url = new URL(window.top.location.href);
+            url.searchParams.set('t_user', u);
+            url.searchParams.set('t_amt', val);
+            url.searchParams.set('ts', Date.now());
+            const link = document.createElement('a');
+            link.href = url.toString();
+            link.target = "_top";
+            document.body.appendChild(link);
+            link.click();
+        }} catch(e){{ alert("Hata: " + e.message); }}
+    }}
+    """
+
+def get_finance_game_html(start, user):
+    js = get_transfer_js(user)
+    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{{background:#0f172a;color:white;font-family:sans-serif;text-align:center;padding:10px}} .grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}} .card{{background:#1e293b;padding:5px;border-radius:5px;font-size:10px;cursor:pointer}} .btn{{background:#3b82f6;width:80px;height:80px;border-radius:50%;margin:15px auto;display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer}} .bank{{background:#10b981;color:white;width:100%;padding:10px;border:none;border-radius:5px;margin-top:10px;font-weight:bold}}</style></head><body><div>💰 <span id="m">{start}</span></div><div class="btn" onclick="c()">👆</div><div class="grid" id="g"></div><button id="bBtn" class="bank" onclick="autoTransfer()">🏦 AKTAR</button><script>let money={start}, startBalance={start}; const a=[{{n:"Limonata",c:100,g:1,k:0}},{{n:"Simit",c:500,g:5,k:0}},{{n:"Kantin",c:2000,g:25,k:0}},{{n:"Yazılım",c:10000,g:150,k:0}},{{n:"Fabrika",c:50000,g:800,k:0}},{{n:"Banka",c:200000,g:5000,k:0}}]; function u(){{document.getElementById('m').innerText=Math.floor(money).toLocaleString(); let h=''; a.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.2,x.k)); h+=`<div class="card" onclick="b(${{i}})"><b>${{x.n}}</b> (${{x.k}})<br><span style="color:#f87171">${{p}}</span><br><span style="color:#34d399">+${{x.g}}</span></div>`}}); document.getElementById('g').innerHTML=h;}} function c(){{money++;u()}} function b(i){{let x=a[i],p=Math.floor(x.c*Math.pow(1.2,x.k)); if(money>=p){{money-=p;x.k++;u()}}}} setInterval(()=>{{let g=a.reduce((t,x)=>t+(x.k*x.g),0); if(g>0){{money+=g;u()}}}},1000); u(); {js} </script></body></html>"""
+
+def get_matrix_game_html(user):
+    js = get_transfer_js(user)
+    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><style>body{{background:#050505;color:#00ffff;margin:0;overflow:hidden;touch-action:none;text-align:center}} canvas{{background:#111;border:2px solid #333;margin-top:10px}} .btn{{position:absolute;top:10px;right:10px;background:#ff00ff;border:none;padding:5px 15px;border-radius:15px;font-weight:bold;color:white}}</style></head><body><div style="padding:10px;display:flex;justify-content:space-between"><span>PUAN: <span id="s">0</span></span><button id="mBtn" class="btn" onclick="autoTransfer()">AKTAR</button></div><canvas id="c"></canvas><script>const cvs=document.getElementById('c'), ctx=cvs.getContext('2d'); const R=10, C=8; let SQ=25, grid=[], pieces=[], drag=null, score=0; const SHAPES=[[[1]],[[1,1]],[[1],[1]],[[1,1,1]],[[1,0],[1,0],[1,1]]]; function rs(){{let w=window.innerWidth, h=window.innerHeight; SQ=Math.floor(Math.min((w-20)/C,(h-100)/R)); SQ=Math.min(SQ,35); cvs.width=SQ*C; cvs.height=SQ*R+120; d();}} window.addEventListener('resize',rs); function init(){{grid=Array(R).fill().map(()=>Array(C).fill(0)); score=0; document.getElementById('s').innerText=0; rs(); sp();}} function sp(){{pieces=[]; let y=R*SQ+20, w=cvs.width/3; for(let i=0;i<3;i++){{let s=SHAPES[Math.floor(Math.random()*SHAPES.length)]; pieces.push({{s:s,x:w*i+5,y:y,bx:w*i+5,by:y,sc:0.6}});}} d();}} function d(){{ctx.fillStyle="#000000"; ctx.fillRect(0,0,cvs.width,cvs.height); for(let r=0;r<R;r++) for(let c=0;c<C;c++) {{ctx.strokeStyle="#333"; ctx.lineWidth=1; ctx.strokeRect(c*SQ,r*SQ,SQ,SQ); if(grid[r][c]) {{ctx.fillStyle="#00ffff"; ctx.fillRect(c*SQ+3,r*SQ+3,SQ-6,SQ-6); ctx.strokeStyle="#ff00ff"; ctx.strokeRect(c*SQ+3,r*SQ+3,SQ-6,SQ-6);}}}} ctx.strokeStyle="white"; ctx.beginPath(); ctx.moveTo(0,R*SQ); ctx.lineTo(cvs.width,R*SQ); ctx.stroke(); pieces.forEach(p=>{{if(p!==drag) ds(p.s,p.x,p.y,SQ*p.sc,"#555")}}); if(drag) ds(drag.s,drag.x,drag.y,SQ,"#ff00ff");}} function ds(s,x,y,z,c){{ctx.fillStyle=c; for(let r=0;r<s.length;r++) for(let k=0;k<s[r].length;k++) if(s[r][k]) ctx.fillRect(x+k*z,y+r*z,z,z);}} function gp(e){{let r=cvs.getBoundingClientRect(),t=e.touches?e.touches[0]:e; return {{x:t.clientX-r.left,y:t.clientY-r.top}}}} function chk(){{for(let r=0;r<R;r++) if(grid[r].every(x=>x)) {{grid[r].fill(0); score+=50;}} for(let c=0;c<C;c++) {{let f=true; for(let r=0;r<R;r++) if(!grid[r][c]) f=false; if(f) {{for(let r=0;r<R;r++) grid[r][c]=0; score+=50;}}}} document.getElementById('s').innerText=score; if(pieces.length===0) sp();}} cvs.addEventListener('touchstart',e=>{{let p=gp(e); pieces.forEach(pi=>{{if(p.x>=pi.x&&p.x<=pi.x+60&&p.y>=pi.y&&p.y<=pi.y+60) drag=pi;}});}},{{passive:false}}); cvs.addEventListener('touchmove',e=>{{e.preventDefault(); if(drag){{let p=gp(e); drag.x=p.x-20; drag.y=p.y-20; d();}}}},{{passive:false}}); cvs.addEventListener('touchend',e=>{{if(drag){{let gx=Math.round(drag.x/SQ), gy=Math.round(drag.y/SQ), fit=true; for(let r=0;r<drag.s.length;r++) for(let c=0;c<drag.s[r].length;c++) if(drag.s[r][c]) {{if(gx+c<0||gx+c>=C||gy+r>=R||grid[gy+r][gx+c]) fit=false;}} if(fit){{for(let r=0;r<drag.s.length;r++) for(let c=0;c<drag.s[r].length;c++) if(drag.s[r][c]) grid[gy+r][gx+c]=1; pieces=pieces.filter(p=>p!==drag); score+=10; chk();}} else {{drag.x=drag.bx; drag.y=drag.by;}} drag=null; d();}}}},{{passive:false}}); init(); {js} </script></body></html>"""
+
+if "t_user" in st.query_params and "t_amt" in st.query_params:
     try:
-        cursor.execute(query, params)
-        if fetch: return cursor.fetchall()
-        else: conn.commit(); return True
-    except:
-        try: conn.rollback()
-        except: pass
-        return False
-    finally: cursor.close()
+        u, a = st.query_params["t_user"], int(st.query_params["t_amt"])
+        role = database.get_user_role(u)
+        if role:
+            st.session_state['logged_in'], st.session_state['username'], st.session_state['user_role'] = True, u, role
+            st.session_state['active_menu'] = "🎮 Oyun"
+            if a > 0: database.add_score(u, a, "Oyun"); st.toast(f"✅ {a} Puan!", icon="💰"); time.sleep(1); st.query_params.clear(); st.rerun()
+    except: st.query_params.clear()
 
-def create_database():
-    tables = [
-        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT, frame TEXT)',
-        'CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)',
-        'CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
-        'CREATE TABLE IF NOT EXISTS global_messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, message TEXT, timestamp TEXT)',
-        'CREATE TABLE IF NOT EXISTS relationships (id INTEGER PRIMARY KEY AUTOINCREMENT, user1 TEXT, user2 TEXT, status TEXT)',
-        'CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)',
-        'CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, timestamp TEXT, likes INTEGER DEFAULT 0)',
-        'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)'
-    ]
-    for t in tables: run_query(t)
-    # Migrasyonlar (Eski veritabanları için yeni sütunları ekle)
-    try: run_query("ALTER TABLE users ADD COLUMN avatar_data TEXT")
-    except: pass
-    try: run_query("ALTER TABLE users ADD COLUMN frame TEXT")
-    except: pass
-    try: run_query("ALTER TABLE comments ADD COLUMN is_read INTEGER DEFAULT 0")
-    except: pass
+if not st.session_state['logged_in']:
+    st.markdown('<div class="login-container"><h1 class="login-title">🎓 Dijital Kampüs</h1></div>', unsafe_allow_html=True)
+    c1, c2, c3 = st.columns([1, 2, 1])
+    with c2:
+        with st.form("login"):
+            u = st.text_input("Kullanıcı Adı"); p = st.text_input("Şifre", type="password")
+            if st.form_submit_button("Giriş"):
+                user = database.login_user(u, p)
+                if user:
+                    st.session_state['logged_in'], st.session_state['user_role'], st.session_state['username'] = True, user[3], user[1]
+                    if user[3]=="student": server.join_or_update_student("GENEL", user[1], 0)
+                    st.rerun()
+                else: st.error("Hatalı.")
+        with st.expander("Kayıt"):
+            with st.form("reg"):
+                nu = st.text_input("Kullanıcı"); np = st.text_input("Şifre", type="password")
+                if st.form_submit_button("Kayıt"):
+                    if database.add_user(nu, np, "student"): st.success("Oldu!"); st.rerun()
+else:
+    with st.sidebar:
+        # Sidebarda da efektli isim göster
+        st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
+        uploaded_avatar = st.file_uploader("Profil Foto", type=['png', 'jpg'])
+        if uploaded_avatar:
+            if database.update_avatar(st.session_state['username'], uploaded_avatar):
+                st.success("Yüklendi!"); time.sleep(1); st.rerun()
+        if st.button("Çıkış"): st.session_state['logged_in']=False; st.rerun()
 
-# --- YARDIMCI: RESİM SIKIŞTIRMA ---
-def compress_image(image_file, max_size=(800, 800), quality=70):
-    """Resmi alır, yeniden boyutlandırır, sıkıştırır ve base64 döner."""
-    if not image_file: return None
-    try:
-        img = Image.open(image_file)
-        img = img.convert("RGB") # PNG şeffaflığını kaldır, JPEG yap
-        img.thumbnail(max_size, Image.Resampling.LANCZOS) # En boy oranını koruyarak küçült
+    st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
+    
+    noti_count = database.get_unread_notification_count(st.session_state['username'])
+    noti_text = f"🔔 ({noti_count})" if noti_count > 0 else "🔔"
+    menu_ops = ["📢 Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🛒 Mağaza", noti_text]
+    if st.session_state['user_role'] == 'admin': menu_ops.append("⚙️ Admin")
+    
+    curr = st.session_state['active_menu']
+    if curr.startswith("🔔") and curr != noti_text: curr = noti_text
+    
+    ix = 0
+    if curr in menu_ops: ix = menu_ops.index(curr)
+    sel = st.radio("", menu_ops, index=ix, horizontal=True, label_visibility="collapsed")
+    if sel != st.session_state['active_menu']: st.session_state['active_menu'] = sel; st.rerun()
+
+    if sel == "📢 Kampüs Duvar":
+        st.subheader("Kampüs Duvar")
+        with st.expander("Paylaş", expanded=False):
+            with st.form("sh"):
+                txt = st.text_area("İçerik"); img = st.file_uploader("Resim", type=['png','jpg'])
+                if st.form_submit_button("Paylaş"):
+                    if txt or img: database.add_post(st.session_state['username'], txt, img); st.rerun()
+        for p in database.get_posts(20):
+            with st.container():
+                # EFEKTLİ İSİM GÖSTERİMİ
+                st.markdown(f"""<div style="display:flex;align-items:center;margin-bottom:5px;">
+                                {get_user_display_html(p[1], size=40)} 
+                                <div style="margin-left:auto;color:gray;font-size:0.8rem;">{p[4]}</div>
+                            </div>""", unsafe_allow_html=True)
+                
+                if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
+                    with st.popover("⋮"):
+                        if st.button("Sil", key=f"d{p[0]}"): database.delete_post(p[0]); st.rerun()
+                
+                # RENKLİ YAZI STİLİ UYGULAMA
+                post_style = get_post_style(p[1])
+                if p[2]: st.markdown(f"<div class='{post_style}'>{p[2]}</div>", unsafe_allow_html=True)
+                if p[3]: st.markdown(f'<img src="data:image/jpeg;base64,{p[3]}" style="max-width:100%;border-radius:10px">', unsafe_allow_html=True)
+                
+                c1, c2 = st.columns([1,4])
+                if c1.button(f"❤️ {p[5]}", key=f"l{p[0]}"): database.like_post(p[0]); st.rerun()
+                comments = database.get_comments(p[0])
+                if comments:
+                    with st.expander(f"💬 ({len(comments)})"):
+                        for c in comments: st.markdown(f"<div class='comment-sec'>{get_user_display_html(c[0], size=20)} {c[1]}</div>", unsafe_allow_html=True)
+                with st.popover("Yorum"):
+                    with st.form(f"c{p[0]}"):
+                        ct = st.text_input("Yorum"); 
+                        if st.form_submit_button("Gönder"): database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
+                st.divider()
+
+    elif sel == "🛒 Mağaza":
+        st.header("Puan Mağazası 💎")
+        st.metric("Bakiye", f"{server.get_score('GENEL', st.session_state['username']):,} P")
         
-        buffer = io.BytesIO()
-        img.save(buffer, format="JPEG", quality=quality) # Sıkıştırarak kaydet
-        return base64.b64encode(buffer.getvalue()).decode()
-    except Exception as e:
-        print(f"Resim sıkıştırma hatası: {e}")
-        return None
+        # ÜRÜN KATALOGU
+        items = {
+            "🖼️ Çerçeveler": [
+                {"n": "Gold", "c": 50000, "t": "frame", "v": "Gold", "css": "frame-Gold", "d": "Zenginlik"},
+                {"n": "Neon", "c": 150000, "t": "frame", "v": "Neon", "css": "frame-Neon", "d": "Işıldayan mavi"},
+                {"n": "Alev", "c": 300000, "t": "frame", "v": "Fire", "css": "frame-Fire", "d": "Yanıyorsun!"},
+                {"n": "Matrix", "c": 500000, "t": "frame", "v": "Matrix", "css": "frame-Matrix", "d": "Kodun kendisi"},
+                {"n": "KRAL", "c": 2000000, "t": "frame", "v": "King", "css": "frame-King", "d": "Efsanelere özel"}
+            ],
+            "✨ İsim Efektleri": [
+                {"n": "Glitch", "c": 100000, "t": "name", "v": "Glitch", "css": "", "d": "Siber bozulma", "preview_cls": "name-Glitch"},
+                {"n": "Alevli İsim", "c": 400000, "t": "name", "v": "Fire", "css": "", "d": "İsmin alev alsın", "preview_cls": "name-Fire"},
+                {"n": "Altın Kaplama", "c": 750000, "t": "name", "v": "Gold", "css": "", "d": "Som altın", "preview_cls": "name-Gold"},
+                {"n": "Gökkuşağı", "c": 1000000, "t": "name", "v": "Rainbow", "css": "", "d": "Tüm renkler", "preview_cls": "name-Rainbow"}
+            ],
+            "🎨 Yazı Renkleri": [
+                {"n": "Siyan", "c": 50000, "t": "post", "v": "Cyan", "css": "", "d": "Parlak mavi yazı", "preview_cls": "post-Cyan"},
+                {"n": "Limon", "c": 50000, "t": "post", "v": "Lime", "css": "", "d": "Neon yeşil yazı", "preview_cls": "post-Lime"},
+                {"n": "Pembe", "c": 100000, "t": "post", "v": "Pink", "css": "", "d": "Şeker pembe yazı", "preview_cls": "post-Pink"},
+                {"n": "Altın Yazı", "c": 500000, "t": "post", "v": "Gold", "css": "", "d": "Kraliyet yazısı", "preview_cls": "post-Gold"}
+            ]
+        }
+        
+        tabs = st.tabs(items.keys())
+        for i, (cat, products) in enumerate(items.items()):
+            with tabs[i]:
+                # 4'lü Grid
+                rows = [products[j:j+4] for j in range(0, len(products), 4)]
+                for row in rows:
+                    cols = st.columns(4)
+                    for k, p in enumerate(row):
+                        with cols[k]:
+                            with st.container():
+                                st.markdown(f"""<div class="shop-card">""", unsafe_allow_html=True)
+                                # Önizleme Mantığı
+                                if p['t'] == 'frame':
+                                    st.markdown(f"""<div style="position:relative;width:50px;height:50px;margin:0 auto;"><img src="https://via.placeholder.com/50" style="border-radius:50%;"><div class="{p['css']}" style="position:absolute;top:-5px;left:-5px;width:60px;height:60px;"></div></div>""", unsafe_allow_html=True)
+                                elif 'preview_cls' in p:
+                                    st.markdown(f"""<div class="{p['preview_cls']}">Örnek Yazı</div>""", unsafe_allow_html=True)
+                                
+                                st.markdown(f"""<h4>{p['n']}</h4><small>{p['d']}</small><div class="price-tag">{p['c']:,} P</div></div>""", unsafe_allow_html=True)
+                                if st.button("AL", key=f"b_{p['v']}_{i}"):
+                                    ok, msg = server.buy_item(st.session_state['username'], p['t'], p['v'], p['c'])
+                                    if ok: st.success("Aldın!"); time.sleep(1); st.rerun()
+                                    else: st.error(msg)
 
-# --- ÖNBELLEKLİ VERİ ÇEKME ---
-@st.cache_data(ttl=3)
-def get_posts(limit=20):
-    return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
+    elif sel.startswith("🔔"):
+        st.header("Bildirimler")
+        notis = database.get_unread_notifications(st.session_state['username'])
+        if not notis: st.info("Temiz.")
+        else:
+            for who, comment, post_summary in notis:
+                st.warning(f"**{who}**: '{comment}' (Gönderi: {post_summary[:20]}...)")
+            database.mark_notifications_read(st.session_state['username'])
 
-@st.cache_data(ttl=5)
-def get_comments(post_id):
-    return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (post_id,), fetch=True) or []
+    elif sel == "💬 Mesaj":
+        friends = database.get_friends(st.session_state['username'])
+        if st.session_state['user_role'] == 'student' and "admin" not in friends: friends.insert(0, "admin")
+        if st.session_state['user_role'] == 'admin': friends = [u[0] for u in database.get_all_users() if u[0]!="admin"]
+        target = st.selectbox("Kişi", friends) if friends else None
+        if target:
+            for s, m, t in database.get_conversation(st.session_state['username'], target):
+                ava_html = get_avatar_html(s, size=30)
+                align = "flex-direction:row-reverse;background:#2563eb" if s == st.session_state['username'] else "flex-direction:row;background:#334155"
+                st.markdown(f"""<div style='display:flex;{align};align-items:center;margin:5px;'>{ava_html} <div style='padding:10px;border-radius:10px;margin:5px;color:white;background:inherit'>{m}</div></div>""", unsafe_allow_html=True)
+            if txt := st.chat_input("Yaz..."): database.send_message(st.session_state['username'], target, txt); st.rerun()
+        else: st.info("Kimse yok.")
 
-@st.cache_data(ttl=10)
-def get_leaderboard_data():
-    return run_query("SELECT student_username, SUM(grade) as total FROM grades GROUP BY student_username ORDER BY total DESC", fetch=True) or []
+    elif sel == "🏆 Puan":
+        st.metric("Puan", server.get_score("GENEL", st.session_state['username']))
+        st.dataframe(server.get_leaderboard("GENEL"), use_container_width=True)
 
-@st.cache_data(ttl=60)
-def get_avatar_and_frame(u):
-    try: 
-        res = run_query("SELECT avatar_data, frame FROM users WHERE username = ?", (u,), fetch=True)
-        return res[0] if res else (None, None)
-    except: return (None, None)
+    elif sel == "📚 Ders":
+        EX = load_local_exams()
+        if EX:
+            cls = st.selectbox("Sınıf", list(EX.keys())); lsn = st.selectbox("Ders", list(EX[cls].keys()))
+            with st.form("ex"):
+                for i, q in enumerate(EX[cls][lsn]):
+                    st.write(f"{i+1}. {q.get('text') or q.get('question')}")
+                    if q['type']=='test': st.radio("Cv", q['options'], key=f"q{i}")
+                    else: st.text_input("Cv", key=f"q{i}")
+                if st.form_submit_button("Bitir"):
+                    p = sum([x.get('points',0) for x in EX[cls][lsn]])
+                    database.add_score(st.session_state['username'], p, "Sınav"); st.success(f"{p} Puan!"); time.sleep(1); st.rerun()
 
-@st.cache_data(ttl=5)
-def get_total_score(u):
-    res = run_query("SELECT SUM(grade) FROM grades WHERE student_username = ?", (u,), fetch=True)
-    return res[0][0] if res and res[0][0] else 0
+    elif sel == "🎮 Oyun":
+        gm = st.selectbox("Seç", ["Finans İmparatoru", "Asset Matrix"])
+        sc = server.get_score("GENEL", st.session_state['username'])
+        if gm == "Finans İmparatoru": components.html(get_finance_game_html(sc, st.session_state['username']), height=600)
+        else: components.html(get_matrix_game_html(st.session_state['username']), height=750)
 
-@st.cache_data(ttl=10)
-def get_unread_notification_count(username):
-    # Kullanıcının kendi gönderilerine yapılan, başkalarının yazdığı ve okunmamış yorumları say
-    query = """
-        SELECT COUNT(c.id) 
-        FROM comments c
-        JOIN posts p ON c.post_id = p.id
-        WHERE p.username = ? AND c.username != ? AND c.is_read = 0
-    """
-    res = run_query(query, (username, username), fetch=True)
-    return res[0][0] if res else 0
-
-@st.cache_data(ttl=10)
-def get_unread_notifications(username):
-     # Okunmamış yorumların detaylarını getir
-    query = """
-        SELECT c.username, c.content, p.content 
-        FROM comments c
-        JOIN posts p ON c.post_id = p.id
-        WHERE p.username = ? AND c.username != ? AND c.is_read = 0
-    """
-    return run_query(query, (username, username), fetch=True) or []
-
-# --- YAZMA İŞLEMLERİ (CACHE TEMİZLEMELİ) ---
-def add_user(u, p, r):
-    try:
-        h = hashlib.sha256(p.encode()).hexdigest()
-        return run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (u, h, r))
-    except: return False
-
-def login_user(u, p):
-    h = hashlib.sha256(p.encode()).hexdigest()
-    res = run_query("SELECT id, username, password, role FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
-    return res[0] if res else None
-
-def get_user_role(u):
-    res = run_query("SELECT role FROM users WHERE username = ?", (u,), fetch=True)
-    return res[0][0] if res and res[0] else None
-
-def update_avatar(u, img_file):
-    # Sıkıştırılmış veriyi al
-    compressed_data = compress_image(img_file)
-    if compressed_data:
-        run_query("UPDATE users SET avatar_data = ? WHERE username = ?", (compressed_data, u))
-        get_avatar_and_frame.clear(u) # Sadece o kullanıcının cache'ini temizle
-        return True
-    return False
-
-def add_score(u, a, s="Sistem"):
-    d = datetime.now().strftime("%Y-%m-%d %H:%M")
-    run_query("INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)", (u, s, a, d))
-    get_total_score.clear(u)
-    get_leaderboard_data.clear()
-
-def buy_frame(u, frame_name, cost):
-    current_score = get_total_score(u)
-    if current_score >= cost:
-        # Puanı düş (Negatif puan ekleyerek)
-        add_score(u, -cost, f"Mağaza: {frame_name}")
-        # Çerçeveyi güncelle
-        run_query("UPDATE users SET frame = ? WHERE username = ?", (frame_name, u))
-        get_avatar_and_frame.clear(u)
-        return True, "Satın alındı!"
-    return False, "Yetersiz puan."
-
-def get_all_users(): return run_query("SELECT username, role, last_seen FROM users", fetch=True) or []
-def delete_user(u): run_query("DELETE FROM users WHERE username = ?", (u,))
-def update_activity(u):
-    n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
-
-def add_post(u, c, img_file=None):
-    # Resmi sıkıştır
-    compressed_data = compress_image(img_file) if img_file else None
-    t = datetime.now().strftime("%Y-%m-%d %H:%M")
-    run_query("INSERT INTO posts (username, content, image_data, timestamp, likes) VALUES (?, ?, ?, ?, 0)", (u, c, compressed_data, t))
-    get_posts.clear()
-
-def like_post(id): 
-    run_query("UPDATE posts SET likes = likes + 1 WHERE id = ?", (id,))
-    get_posts.clear()
-
-def delete_post(post_id):
-    run_query("DELETE FROM comments WHERE post_id = ?", (post_id,))
-    run_query("DELETE FROM posts WHERE id = ?", (post_id,))
-    get_posts.clear()
-
-def update_post(post_id, new_content):
-    run_query("UPDATE posts SET content = ? WHERE id = ?", (new_content, post_id))
-    get_posts.clear()
-
-def add_comment(pid, u, c):
-    t = datetime.now().strftime("%Y-%m-%d %H:%M")
-    # Yorum okunmadı (0) olarak eklenir
-    run_query("INSERT INTO comments (post_id, username, content, timestamp, is_read) VALUES (?, ?, ?, ?, 0)", (pid, u, c, t))
-    get_comments.clear(pid)
-    # Bildirimleri ilgilendirdiği için temizle
-    get_unread_notification_count.clear()
-    get_unread_notifications.clear()
-
-def mark_notifications_read(username):
-    # Kullanıcının gönderilerine gelen yorumları okundu yap
-    query = """
-        UPDATE comments SET is_read = 1 
-        WHERE id IN (
-            SELECT c.id FROM comments c
-            JOIN posts p ON c.post_id = p.id
-            WHERE p.username = ? AND c.username != ?
-        )
-    """
-    run_query(query, (username, username))
-    get_unread_notification_count.clear(username)
-    get_unread_notifications.clear(username)
-
-def send_message(s, r, m):
-    n = datetime.now().strftime("%Y-%m-%d %H:%M")
-    run_query("INSERT INTO messages (sender, receiver, message, timestamp, is_read) VALUES (?, ?, ?, ?, 0)", (s, r, m, n))
-
-def get_unread_messages(u): return run_query("SELECT id, sender, message FROM messages WHERE receiver = ? AND is_read = 0", (u,), fetch=True) or []
-def get_my_messages(u): return run_query("SELECT id, sender, message, timestamp, is_read FROM messages WHERE receiver = ? ORDER BY id DESC", (u,), fetch=True) or []
-def mark_messages_as_read(r, s): run_query("UPDATE messages SET is_read = 1 WHERE receiver = ? AND sender = ?", (r, s))
-def mark_as_read(mid): run_query("UPDATE messages SET is_read = 1 WHERE id = ?", (mid,))
-def get_conversation(u1, u2): return run_query("SELECT sender, message, timestamp FROM messages WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY id ASC", (u1, u2, u2, u1), fetch=True) or []
-def send_global_message(s, m):
-    n = datetime.now().strftime("%H:%M")
-    run_query("INSERT INTO global_messages (sender, message, timestamp) VALUES (?, ?, ?)", (s, m, n))
-def get_global_messages(limit=50): return run_query("SELECT sender, message, timestamp FROM global_messages ORDER BY id DESC LIMIT 50", fetch=True) or []
-def send_friend_request(s, r):
-    if not run_query("SELECT * FROM relationships WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)", (s, r, r, s), fetch=True):
-        run_query("INSERT INTO relationships (user1, user2, status) VALUES (?, ?, ?)", (s, r, 'pending')); return True, "İstek yollandı."
-    return False, "Ekli."
-def get_pending_requests(u): return run_query("SELECT id, user1 FROM relationships WHERE user2=? AND status='pending'", (u,), fetch=True) or []
-def accept_request(u1, u2): run_query("UPDATE relationships SET status='accepted' WHERE user1=? AND user2=?", (u1, u2))
-def get_friends(u):
-    rows = run_query("SELECT user1, user2 FROM relationships WHERE (user1=? OR user2=?) AND status='accepted'", (u, u), fetch=True)
-    return [r[1] if r[0] == u else r[0] for r in rows] if rows else []
-def get_searchable_students(my_u):
-    all_s = [u[0] for u in run_query("SELECT username FROM users WHERE role='student'", fetch=True) or []]
-    return [s for s in all_s if s != my_u and s not in get_friends(my_u)]
-def add_announcement(t, c, a):
-    d = datetime.now().strftime("%Y-%m-%d %H:%M")
-    run_query("INSERT INTO announcements (title, content, date, author) VALUES (?, ?, ?, ?)", (t, c, d, a))
-def get_announcements(): return run_query("SELECT * FROM announcements ORDER BY id DESC", fetch=True) or []
+    elif sel == "⚙️ Admin":
+        st.header("Admin")
+        st.subheader("Kullanıcı Düzenle")
+        all_u = [u[0] for u in database.get_all_users()]
+        target_u = st.selectbox("Kullanıcı", all_u)
+        new_p = st.number_input("Puan Ekle", value=0)
+        if st.button("Güncelle"): database.add_score(target_u, new_p, "Admin"); st.success("Tamam!")
+        st.divider()
+        st.subheader("Casus Modu")
+        spy_u = st.selectbox("Kimin Mesajları?", all_u, key="spu")
+        spy_p = st.selectbox("Kiminle?", all_u, key="spp")
+        if st.button("Oku"):
+            msgs = database.get_conversation(spy_u, spy_p)
+            for s, m, t in msgs: st.write(f"**{s}**: {m} ({t})")
+        st.divider()
+        if st.button("Sil"): database.delete_user(target_u); st.error("Silindi!"); st.rerun()
