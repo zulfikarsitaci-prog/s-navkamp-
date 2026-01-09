@@ -47,31 +47,11 @@ def create_database():
         'CREATE TABLE IF NOT EXISTS relationships (id INTEGER PRIMARY KEY AUTOINCREMENT, user1 TEXT, user2 TEXT, status TEXT)',
         'CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)',
         'CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, timestamp TEXT, likes INTEGER DEFAULT 0)',
-        # YENİ: Yorumlar Tablosu
         'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT)'
     ]
     for t in tables: run_query(t)
 
-# --- SOSYAL MEDYA (GÜNCELLENDİ) ---
-def add_post(username, content, image_data=None):
-    ts = datetime.now().strftime("%Y-%m-%d %H:%M")
-    run_query("INSERT INTO posts (username, content, image_data, timestamp, likes) VALUES (?, ?, ?, ?, 0)", (username, content, image_data, ts))
-
-def get_posts(limit=20):
-    return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
-
-def like_post(post_id):
-    run_query("UPDATE posts SET likes = likes + 1 WHERE id = ?", (post_id,))
-
-# YENİ: Yorum Ekleme ve Çekme
-def add_comment(post_id, username, content):
-    ts = datetime.now().strftime("%Y-%m-%d %H:%M")
-    run_query("INSERT INTO comments (post_id, username, content, timestamp) VALUES (?, ?, ?, ?)", (post_id, username, content, ts))
-
-def get_comments(post_id):
-    return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (post_id,), fetch=True) or []
-
-# --- DİĞER FONKSİYONLAR (AYNI KALDI) ---
+# --- FONKSİYONLAR ---
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
@@ -106,6 +86,18 @@ def get_online_users(minutes=5):
                 if now - last < timedelta(minutes=minutes): online.append({"Kullanıcı": u[0], "Rol": u[1], "Son İşlem": last.strftime("%H:%M")})
             except: pass
     return online
+def add_post(username, content, image_data=None):
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M")
+    run_query("INSERT INTO posts (username, content, image_data, timestamp, likes) VALUES (?, ?, ?, ?, 0)", (username, content, image_data, ts))
+def get_posts(limit=20):
+    return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
+def like_post(post_id):
+    run_query("UPDATE posts SET likes = likes + 1 WHERE id = ?", (post_id,))
+def add_comment(post_id, username, content):
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M")
+    run_query("INSERT INTO comments (post_id, username, content, timestamp) VALUES (?, ?, ?, ?)", (post_id, username, content, ts))
+def get_comments(post_id):
+    return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (post_id,), fetch=True) or []
 def send_message(s, r, m):
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO messages (sender, receiver, message, timestamp, is_read) VALUES (?, ?, ?, ?, 0)", (s, r, m, now))
