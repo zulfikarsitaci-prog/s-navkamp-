@@ -13,7 +13,11 @@ from datetime import datetime
 st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
 
 def init_state():
-    defaults = {"logged_in": False, "user_role": None, "username": None, "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar"}
+    defaults = {
+        "logged_in": False, "user_role": None, "username": None, 
+        "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar",
+        "draft_content": "" # Alıntılama için geçici hafıza
+    }
     for k, v in defaults.items():
         if k not in st.session_state: st.session_state[k] = v
 init_state()
@@ -25,42 +29,50 @@ st.markdown("""
 
     .top-bar { background: #1e293b; padding: 8px 15px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     .user-greeting { font-weight: bold; color: #e2e8f0; font-size: 1rem; }
-    .post-card { background: #1e293b; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #334155; }
-    .comment-sec { background: #0f172a; padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.85rem; }
+    
+    /* POST KARTI */
+    .post-container { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+    .post-header { display: flex; align-items: center; margin-bottom: 8px; }
+    .post-date { color: #94a3b8; font-size: 0.7rem; margin-left: auto; }
+    .post-content { margin-bottom: 10px; color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; }
+    .post-image { width: 100%; border-radius: 8px; margin-top: 10px; }
+    
+    /* MİNİ BUTONLAR */
+    .action-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 1.1rem; margin-right: 15px; transition: 0.2s; }
+    .action-btn:hover { color: #FFD700; transform: scale(1.1); }
+    
+    .comment-box { background: #0f172a; padding: 8px; border-radius: 8px; margin-top: 5px; font-size: 0.85rem; border-left: 2px solid #334155; }
     div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 10px; flex-wrap: wrap; }
     
-    /* MAĞAZA KARTLARI */
+    /* MAĞAZA */
     .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
     @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(3, 1fr); } }
-    
-    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 130px; transition: 0.2s; position: relative; overflow: hidden; }
-    .shop-item:hover { border-color: #FFD700; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-    .shop-name { font-size: 0.75rem; font-weight: bold; margin-top: 5px; color: #cbd5e1; }
-    .shop-price { background: #10b981; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; margin-top: auto; width: 80%; }
-    .gift-icon { font-size: 2.5rem; margin-top: 10px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
+    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 130px; transition: 0.2s; }
+    .shop-item:hover { border-color: #FFD700; transform: translateY(-3px); }
+    .shop-name { font-size: 0.7rem; font-weight: bold; margin-top: 5px; color: #cbd5e1; }
+    .shop-price { background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.65rem; font-weight: bold; margin-top: auto; }
+    .gift-icon { font-size: 2.5rem; margin-top: 5px; }
 
     /* STİLLER */
     .font-Cinzel { font-family: 'Cinzel', serif !important; }
     .font-Orbitron { font-family: 'Orbitron', sans-serif !important; }
     .font-Rye { font-family: 'Rye', serif !important; }
     .font-Dancing { font-family: 'Dancing Script', cursive !important; }
-    .font-Metallic { font-family: 'Metal Mania', cursive !important; color: #b0b0b0 !important; text-shadow: 2px 2px 0px #000, -1px -1px 0px #333 !important; letter-spacing: 1px; }
+    .font-Metallic { font-family: 'Metal Mania', cursive !important; color: #b0b0b0 !important; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
 
-    /* AVATAR */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; vertical-align: middle; }
     .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
     .frame-overlay { position: absolute; top: -5px; left: -5px; pointer-events: none; z-index: 2; }
     
     .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 10px #FFD700; }
-    .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff; }
+    .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 10px #00ffff; }
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; animation: pulse 1.5s infinite; }
-    .frame-King { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 20px #ffd700, 0 0 40px #ff0000; }
+    .frame-King { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 20px #ffd700; }
     .frame-Matrix { border: 3px dotted #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00; }
 
     .name-Glitch { color: #00ffff; text-shadow: 2px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 5px #ff0000; font-weight: bold; animation: burn 1s infinite alternate; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
-    .name-Rainbow { background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red); -webkit-background-clip: text; color: transparent; font-weight: bold; }
     
     .post-Cyan { color: #00ffff !important; }
     .post-Lime { color: #00ff00 !important; }
@@ -81,7 +93,7 @@ try:
 except: pass
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
-# --- GÖRSEL YARDIMCILAR ---
+# --- YARDIMCILAR ---
 def get_user_display_html(username, size=50):
     ava, frame, name_style, _, font_style, title = database.get_user_styles(username)
     img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150?text=U"
@@ -136,7 +148,6 @@ if "action" in st.query_params:
                     ok, msg = server.send_gift(u, t, g, c)
                     if ok: st.toast(f"🎁 {msg}", icon="✅"); time.sleep(1)
                     else: st.toast(f"❌ {msg}", icon="⚠️")
-                else: st.toast("❌ Alıcı seçmelisin!", icon="⚠️")
         st.query_params.clear(); st.rerun()
     except: st.query_params.clear()
 
@@ -223,33 +234,74 @@ else:
 
     if sel == "📢 Kampüs Duvar":
         st.subheader("Kampüs Duvar")
-        with st.expander("Paylaş", expanded=False):
-            with st.form("sh"):
-                txt = st.text_area("İçerik"); img = st.file_uploader("Resim", type=['png','jpg'])
-                if st.form_submit_button("Paylaş"):
-                    if txt or img: database.add_post(st.session_state['username'], txt, img); st.rerun()
+        
+        # --- MİLYONER KULÜBÜ KONTROLÜ ---
+        my_score = server.get_score("GENEL", st.session_state['username'])
+        POST_COST = 100000
+        POST_THRESHOLD = 1000000
+        
+        # Sadece yeterli puanı olanlar form görür
+        if my_score >= POST_THRESHOLD or st.session_state['user_role'] == 'admin':
+            with st.expander(f"✨ Paylaşım Yap (-{POST_COST:,} Puan)", expanded=False):
+                with st.form("sh"):
+                    # Alıntılama varsa otomatik doldur
+                    def_val = st.session_state.get('draft_content', "")
+                    txt = st.text_area("İçerik", value=def_val); img = st.file_uploader("Resim", type=['png','jpg'])
+                    if st.form_submit_button("Paylaş"):
+                        if my_score >= POST_COST:
+                            database.add_score(st.session_state['username'], -POST_COST, "Duvar Paylaşımı")
+                            database.add_post(st.session_state['username'], txt, img)
+                            st.session_state['draft_content'] = "" # Temizle
+                            st.rerun()
+                        else: st.error("Bakiye yetersiz!")
+        else:
+            st.info(f"🔒 Paylaşım yapmak için {POST_THRESHOLD:,} puanın olmalı. (Senin: {my_score:,})")
+
         for p in database.get_posts(20):
             with st.container():
-                st.markdown(f'<div style="margin-bottom:5px;">{get_user_display_html(p[1], size=40)} <small style="color:gray;">{p[4]}</small></div>', unsafe_allow_html=True)
+                st.markdown(f"""
+                <div class="post-container">
+                    <div class="post-header">
+                        {get_user_display_html(p[1], size=40)}
+                        <span class="post-date">{p[4]}</span>
+                    </div>
+                    <div class="{get_post_style_css(p[1])} post-content">{p[2] if p[2] else ''}</div>
+                    {f'<img src="data:image/jpeg;base64,{p[3]}" class="post-image">' if p[3] else ''}
+                </div>
+                """, unsafe_allow_html=True)
                 
+                # --- MİNİ BUTONLAR ---
+                c1, c2, c3, c4, c5 = st.columns([1,1,1,1,1])
+                
+                # Beğen
+                if c1.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
+                
+                # Yorum (Toggle mantığıyla aşağıda açılır)
+                c2.write("💬") 
+                
+                # Alıntıla (Repost)
+                if c3.button("🔄", key=f"r_{p[0]}"):
+                    st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"
+                    st.rerun()
+
+                # Düzenle / Sil (Yetki Varsa)
                 if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
-                    with st.popover("⋮"):
-                        if st.button("Sil", key=f"d{p[0]}"): database.delete_post(p[0]); st.rerun()
-                
-                style_class = get_post_style_css(p[1])
-                if p[2]: st.markdown(f'<div class="{style_class}">{p[2]}</div>', unsafe_allow_html=True)
-                if p[3]: st.markdown(f'<img src="data:image/jpeg;base64,{p[3]}" style="max-width:100%;border-radius:10px">', unsafe_allow_html=True)
-                c1, c2 = st.columns([1,4])
-                if c1.button(f"❤️ {p[5]}", key=f"l{p[0]}"): database.like_post(p[0]); st.rerun()
+                    with c4.popover("✏️"):
+                        with st.form(key=f"e_{p[0]}"):
+                            new_t = st.text_area("Düzenle", p[2])
+                            if st.form_submit_button("Kaydet"): database.update_post(p[0], new_t); st.rerun()
+                    if c5.button("🗑️", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
+
+                # Yorumları Göster
                 comments = database.get_comments(p[0])
                 if comments:
-                    with st.expander(f"💬 ({len(comments)})"):
-                        for c in comments: st.markdown(f"<div class='comment-sec' style='display:flex;align-items:center'>{get_user_display_html(c[0], size=25)} <div style='margin-left:5px'>{c[1]}</div></div>", unsafe_allow_html=True)
-                with st.popover("Yorum"):
+                    with st.expander(f"Yorumlar ({len(comments)})"):
+                        for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
+                
+                with st.popover("Yorum Yaz"):
                     with st.form(f"c{p[0]}"):
                         ct = st.text_input("Yorum")
                         if st.form_submit_button("Gönder"): database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
-                st.divider()
 
     elif sel == "🛒 Mağaza":
         st.header("Mağaza 💎")
@@ -316,7 +368,7 @@ else:
                     html_code += "</div>"
                     st.markdown(html_code, unsafe_allow_html=True)
 
-        # --- SEKME 2: HEDİYE GÖNDER (GRID) ---
+        # --- SEKME 2: HEDİYE GÖNDER (GRID - GÜNCELLENDİ) ---
         with tabs[1]:
             st.info("Arkadaşına veya öğretmenine hediye gönder! Puan senden düşer.")
             target_user = st.selectbox("Kime:", database.get_searchable_users(st.session_state['username']))
@@ -334,10 +386,10 @@ else:
             
             html_code = '<div class="shop-grid">'
             for g in gifts:
-                # Link Tetikleyicisi (Hızlı)
+                # Link Tetikleyicisi (Target user parametresi ile)
                 gift_link = f"?action=gift&u={st.session_state['username']}&t={target_user}&g={g['n']}&c={g['c']}"
                 html_code += f"""
-                <div class="shop-item">
+                <div class="shop-item" style="height:120px;">
                     <div class="gift-icon">{g['i']}</div>
                     <div class="shop-name">{g['n']}</div>
                     <a href="{gift_link}" target="_top" style="text-decoration:none;width:100%;">
