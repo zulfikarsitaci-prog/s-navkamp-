@@ -9,8 +9,7 @@ import random
 import database
 import base64
 import re
-from datetime 
-import datetime
+from datetime import datetime
 
 # --- AYARLAR ---
 st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
