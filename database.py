@@ -61,6 +61,10 @@ def add_user(u, p, r):
         return False, 0
     except: return False, 0
 
+def update_activity(u):
+    n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
+
 # --- VERİ ÇEKME ---
 def get_posts(limit=20): return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
 def get_comments(pid): return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (pid,), fetch=True) or []
@@ -109,7 +113,7 @@ def buy_item(u, type, value, cost):
     if get_total_score(u) >= cost:
         add_score(u, -cost, f"Mağaza: {value}")
         col = {"frame":"frame","name":"name_style","post":"post_style","font":"font_style","title":"title"}.get(type,"")
-        if col: run_query(f"UPDATE users SET {col} = ? WHERE username = ?", (value, u)); return True, "Hayırlı olsun!"
+        if col: run_query(f"UPDATE users SET {col} = ? WHERE username = ?", (value, u)); return True, "Satın alındı!"
     return False, "Puan yetersiz."
 
 def update_avatar(u, img):
