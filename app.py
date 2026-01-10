@@ -14,7 +14,7 @@ from datetime import datetime
 st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
 
 # !!! BURAYI KENDİ ADINIZLA DEĞİŞTİRİN !!!
-TEACHER_NAME = "Mustafa" 
+TEACHER_NAME = "zülfikar" 
 
 def init_state():
     defaults = {"logged_in": False, "user_role": None, "username": None, "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar"}
