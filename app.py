@@ -10,7 +10,11 @@ import database
 import base64
 from datetime import datetime
 
+# --- AYARLAR ---
 st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
+
+# !!! BURAYI KENDİ ADINIZLA DEĞİŞTİRİN !!!
+TEACHER_NAME = "Mustafa" 
 
 def init_state():
     defaults = {"logged_in": False, "user_role": None, "username": None, "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar"}
@@ -25,30 +29,18 @@ st.markdown("""
 
     .top-bar { background: #1e293b; padding: 8px 15px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     .user-greeting { font-weight: bold; color: #e2e8f0; font-size: 1rem; }
-    
-    /* POST KARTI */
-    .post-container { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-    .post-header { display: flex; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
-    .post-date { color: #94a3b8; font-size: 0.7rem; margin-left: auto; }
-    .post-content { margin: 10px 0; color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; }
-    .post-image { width: 100%; border-radius: 8px; margin-top: 5px; }
-    
-    /* YENİ AKSİYON BUTONLARI (YAN YANA) */
-    .action-bar { display: flex; gap: 20px; padding-top: 10px; border-top: 1px solid #334155; margin-top: 10px; }
-    .action-item { display: flex; align-items: center; cursor: pointer; color: #94a3b8; font-size: 0.9rem; transition: 0.2s; }
-    .action-item:hover { color: #FFD700; transform: translateY(-2px); }
-    
-    .comment-box { background: #0f172a; padding: 8px; border-radius: 8px; margin-top: 5px; font-size: 0.85rem; border-left: 2px solid #334155; }
+    .post-card { background: #1e293b; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #334155; }
+    .comment-sec { background: #0f172a; padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.85rem; }
     div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 10px; flex-wrap: wrap; }
     
     /* MAĞAZA KARTLARI */
     .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
     @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(3, 1fr); } }
-    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 130px; transition: 0.2s; }
-    .shop-item:hover { border-color: #FFD700; transform: translateY(-3px); }
-    .shop-name { font-size: 0.7rem; font-weight: bold; margin-top: 5px; color: #cbd5e1; }
-    .shop-price { background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.65rem; font-weight: bold; margin-top: auto; }
-    .gift-icon { font-size: 2.5rem; margin-top: 5px; }
+    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 130px; transition: 0.2s; position: relative; overflow: hidden; }
+    .shop-item:hover { border-color: #FFD700; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .shop-name { font-size: 0.75rem; font-weight: bold; margin-top: 5px; color: #cbd5e1; }
+    .shop-price { background: #10b981; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; margin-top: auto; width: 80%; }
+    .gift-icon { font-size: 2.5rem; margin-top: 10px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
 
     /* STİLLER */
     .font-Cinzel { font-family: 'Cinzel', serif !important; }
@@ -64,12 +56,13 @@ st.markdown("""
     .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 10px #FFD700; }
     .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff; }
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; animation: pulse 1.5s infinite; }
-    .frame-King { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 20px #ffd700; }
+    .frame-King { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 20px #ffd700, 0 0 40px #ff0000; }
     .frame-Matrix { border: 3px dotted #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00; }
 
     .name-Glitch { color: #00ffff; text-shadow: 2px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 5px #ff0000; font-weight: bold; animation: burn 1s infinite alternate; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
+    .name-Rainbow { background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red); -webkit-background-clip: text; color: transparent; font-weight: bold; }
     
     .post-Cyan { color: #00ffff !important; }
     .post-Lime { color: #00ff00 !important; }
@@ -90,7 +83,7 @@ try:
 except: pass
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
-# --- GÖRSEL YARDIMCILAR ---
+# --- YARDIMCILAR ---
 def get_user_display_html(username, size=50):
     ava, frame, name_style, _, font_style, title = database.get_user_styles(username)
     img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150?text=U"
@@ -121,7 +114,7 @@ def load_local_exams():
         except: return {}
     return {}
 
-# --- TRANSFER YAKALAYICI ---
+# --- TRANSFER ---
 if "action" in st.query_params:
     try:
         act = st.query_params["action"]
@@ -178,14 +171,17 @@ if not st.session_state['logged_in']:
         with st.expander("Kayıt"):
             with st.form("reg"):
                 nu = st.text_input("Kullanıcı"); np = st.text_input("Şifre", type="password")
+                q = st.text_input("Muhasebe ve Finansman Öğretmeninizin Adı Nedir?")
                 if st.form_submit_button("Kayıt"):
-                    success, rank = database.add_user(nu, np, "student")
-                    if success:
-                        if rank <= 10: 
-                            st.balloons()
-                            st.success(f"TEBRİKLER! {rank}. kişi olarak KURUCU ünvanı ve 50.000 Puan kazandın!")
-                        else: st.success("Başarılı! Giriş yapabilirsin.")
-                    else: st.error("Hata: İsim alınmış olabilir.")
+                    if q.lower().strip() == TEACHER_NAME.lower():
+                        success, rank = database.add_user(nu, np, "student")
+                        if success:
+                            if rank <= 10: 
+                                st.balloons()
+                                st.success(f"TEBRİKLER! {rank}. kişi olarak KURUCU ünvanı ve 50.000 Puan kazandın!")
+                            else: st.success("Başarılı! Giriş yapabilirsin.")
+                        else: st.error("İsim alınmış.")
+                    else: st.error("Güvenlik sorusu yanlış!")
 else:
     with st.sidebar:
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
@@ -198,16 +194,11 @@ else:
             new_name_input = st.text_input("Yeni İsim")
             change_count = database.get_user_change_count(st.session_state['username'])
             cost = 0 if change_count == 0 else 500000
-            
-            btn_label = "Ücretsiz Değiştir" if cost == 0 else f"{cost:,} Puan ile Değiştir"
+            btn_label = "Ücretsiz Değiştir" if cost == 0 else f"{cost:,} Puan"
             if st.button(btn_label):
                 if new_name_input:
                     ok, msg = database.change_username_logic(st.session_state['username'], new_name_input)
-                    if ok:
-                        st.session_state['username'] = new_name_input
-                        st.success(msg)
-                        time.sleep(2)
-                        st.rerun()
+                    if ok: st.session_state['username'] = new_name_input; st.success(msg); time.sleep(2); st.rerun()
                     else: st.error(msg)
         
         st.divider()
@@ -282,12 +273,13 @@ else:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # --- YAN YANA BUTONLAR ---
-                c1, c2, c3, c4, c5 = st.columns([0.15, 0.15, 0.15, 0.15, 0.4])
+                # --- YAN YANA BUTONLAR (GÜNCELLENDİ) ---
+                st.markdown('<div class="action-bar">', unsafe_allow_html=True)
+                c1, c2, c3, c4, c5 = st.columns([1,1,1,1,1])
+                
                 with c1:
                     if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
-                with c2:
-                    st.write("💬") # Sadece görsel ikon
+                with c2: st.write("💬")
                 with c3:
                     if st.button("🔄", key=f"r_{p[0]}"):
                         st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"
@@ -301,6 +293,7 @@ else:
                                 if st.form_submit_button("Ok"): database.update_post(p[0], new_t); st.rerun()
                     with c5:
                         if st.button("🗑️", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
 
                 comments = database.get_comments(p[0])
                 if comments:
@@ -370,13 +363,13 @@ else:
                             {preview}
                             <div class="shop-name">{p['n']}</div>
                             <a href="{buy_link}" target="_top" style="text-decoration:none;width:100%;">
-                                <div class="shop-price">{p['c']:,}</div>
+                                <div class="shop-price">{p['c']:,} P</div>
                             </a>
                         </div>"""
                     html_code += "</div>"
                     st.markdown(html_code, unsafe_allow_html=True)
 
-        # --- SEKME 2: HEDİYE GÖNDER (GRID) ---
+        # --- SEKME 2: HEDİYE GÖNDER (GRID - GÜNCELLENDİ) ---
         with tabs[1]:
             st.info("Arkadaşına veya öğretmenine hediye gönder! Puan senden düşer.")
             target_user = st.selectbox("Kime:", database.get_searchable_users(st.session_state['username']))
@@ -394,6 +387,7 @@ else:
             
             html_code = '<div class="shop-grid">'
             for g in gifts:
+                # Link Tetikleyicisi (Target user parametresi ile)
                 gift_link = f"?action=gift&u={st.session_state['username']}&t={target_user}&g={g['n']}&c={g['c']}"
                 html_code += f"""
                 <div class="shop-item" style="height:120px;">
@@ -453,11 +447,27 @@ else:
 
     elif sel == "⚙️ Admin":
         st.header("Admin")
-        st.subheader("Kullanıcı Düzenle")
-        all_u = [u[0] for u in database.get_all_users()]
-        target_u = st.selectbox("Kullanıcı", all_u)
+        
+        # SİLME BÖLÜMÜ
+        st.subheader("Kullanıcı Sil")
+        all_u = database.get_all_users()
+        user_to_delete = st.selectbox("Kullanıcı Seç", all_u)
+        if st.button("Kullanıcıyı ve Tüm Verilerini SİL"):
+            if database.delete_user(user_to_delete):
+                st.success(f"{user_to_delete} silindi!")
+                time.sleep(1)
+                st.rerun()
+            else:
+                st.error("Admin silinemez!")
+
+        st.divider()
+        st.subheader("Puan Ver/Al")
+        target_u = st.selectbox("Kullanıcı", all_u, key="p_u")
         new_p = st.number_input("Puan Ekle", value=0)
-        if st.button("Güncelle"): database.add_score(target_u, new_p, "Admin"); st.success("Tamam!")
+        if st.button("Güncelle"): 
+            database.add_score(target_u, new_p, "Admin")
+            st.success("Tamam!")
+            
         st.divider()
         st.subheader("Casus Modu")
         spy_u = st.selectbox("Kimin Mesajları?", all_u, key="spu")
@@ -465,5 +475,3 @@ else:
         if st.button("Oku"):
             msgs = database.get_conversation(spy_u, spy_p)
             for s, m, t in msgs: st.write(f"**{s}**: {m} ({t})")
-        st.divider()
-        if st.button("Sil"): database.delete_user(target_u); st.error("Silindi!"); st.rerun()
