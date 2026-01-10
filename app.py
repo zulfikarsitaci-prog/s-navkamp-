@@ -21,7 +21,7 @@ init_state()
 # --- CSS (FONTLAR VE STİLLER) ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
     .login-container { text-align: center; margin-top: 50px; }
     .top-bar { background: #1e293b; padding: 8px 15px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
@@ -30,15 +30,15 @@ st.markdown("""
     .comment-sec { background: #0f172a; padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.85rem; }
     div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 10px; flex-wrap: wrap; }
     
-    /* MAĞAZA KARTLARI */
+    /* MAĞAZA KARTLARI (Kompakt ve 4'lü) */
     .shop-card {
-        background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px;
-        text-align: center; height: 150px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+        background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 8px;
+        text-align: center; height: 130px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
         transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
     .shop-card:hover { border-color: #FFD700; transform: translateY(-3px); }
-    .shop-title { font-size: 0.8rem; font-weight: bold; margin: 5px 0; color: #e2e8f0; }
-    .price-btn { background: #10b981; color: white; border: none; border-radius: 12px; padding: 4px 15px; font-size: 0.75rem; cursor: pointer; font-weight: bold; width: 100%; transition:0.2s; }
+    .shop-title { font-size: 0.75rem; font-weight: bold; margin: 3px 0; color: #e2e8f0; }
+    .price-btn { background: #10b981; color: white; border: none; border-radius: 12px; padding: 3px 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; width: 100%; transition:0.2s; }
     .price-btn:hover { background: #059669; }
 
     /* FONT STİLLERİ */
@@ -46,6 +46,7 @@ st.markdown("""
     .font-Orbitron { font-family: 'Orbitron', sans-serif !important; }
     .font-Rye { font-family: 'Rye', serif !important; }
     .font-Dancing { font-family: 'Dancing Script', cursive !important; }
+    .font-Metallic { font-family: 'Metal Mania', cursive !important; color: #a8a9ad !important; text-shadow: 1px 1px 0px #000, -1px -1px 0px #333 !important; }
 
     /* AVATAR */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; vertical-align: middle; }
@@ -86,17 +87,20 @@ try:
 except: pass
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
-# --- GÖRSEL YARDIMCILAR (TEK SATIR FIX) ---
+# --- GÖRSEL YARDIMCILAR ---
 def get_user_display_html(username, size=50):
     ava, frame, name_style, _, font_style, title = database.get_user_styles(username)
     img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150?text=U"
     
-    # HTML Stringlerini tek satırda birleştiriyoruz
-    f_html = f'<div class="frame-overlay frame-{frame}" style="width:{size+10}px;height:{size+10}px;"></div>' if frame else ""
-    t_html = f'<span class="title-badge">{title}</span>' if title else ""
+    f_html = ""
+    if frame:
+        f_size = size + 10
+        f_class = f"frame-{frame}"
+        f_html = f'<div class="frame-overlay {f_class}" style="width:{f_size}px;height:{f_size}px;"></div>'
+    
     classes = f"{f'name-{name_style}' if name_style else ''} {f'font-{font_style}' if font_style else ''}"
     
-    return f'<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px;height:{size}px;"><img src="{img_src}" class="avatar-img">{f_html}</div><div style="margin-left:12px;"><div class="{classes}" style="font-size:1rem;">{username} {t_html}</div></div></div>'
+    return f'<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px;height:{size}px;"><img src="{img_src}" class="avatar-img">{f_html}</div><div style="margin-left:12px;"><div class="{classes}" style="font-size:1rem;">{username} {f"<span class=\'title-badge\'>{title}</span>" if title else ""}</div></div></div>'
 
 def get_post_style_css(username):
     _, _, _, post_style, font_style, _ = database.get_user_styles(username)
@@ -123,11 +127,26 @@ def load_local_exams():
         except: return {}
     return {}
 
-# --- OYUN JS ---
+# --- OYUN JS (TRANSFER FIX) ---
 def get_transfer_js(username):
-    return f"""function autoTransfer(){{let v=0;if(typeof score!=='undefined'&&score>0)v=score;else if(typeof money!=='undefined')v=Math.floor(money-startBalance);if(v<=0){{alert("Puan yok!");return;}}let b=document.getElementById('bBtn')||document.getElementById('mBtn');if(b){{b.innerText="...";b.disabled=true;}}try{{const u=new URL(window.top.location.href);u.searchParams.set('t_user',"{username}");u.searchParams.set('t_amt',v);u.searchParams.set('ts',Date.now());const l=document.createElement('a');l.href=u.toString();l.target="_top";document.body.appendChild(l);l.click();}}catch(e){{alert(e.message);}}}}"""
+    return f"""function autoTransfer(){{
+        let v=0; if(typeof score!=='undefined' && score>0) v=score; else if(typeof money!=='undefined') v=Math.floor(money-startBalance);
+        if(v<=0){{alert("Puan yok!");return;}}
+        let b=document.getElementById('bBtn')||document.getElementById('mBtn'); if(b){{b.innerText="...";b.disabled=true;}}
+        try{{
+            const u=new URL(window.top.location.href); 
+            u.searchParams.set('t_user',"{username}"); 
+            u.searchParams.set('t_amt',v); 
+            u.searchParams.set('ts',Date.now());
+            const l=document.createElement('a'); 
+            l.href=u.toString(); 
+            l.target="_top"; 
+            document.body.appendChild(l); 
+            l.click();
+        }}catch(e){{alert(e.message);}}
+    }}"""
 
-# --- GELİŞMİŞ FİNANS OYUNU (Buton Fix) ---
+# --- FINANS OYUNU ---
 def get_finance_game_html(start, user):
     js = get_transfer_js(user)
     return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>body{{background:#0f172a;color:#fff;font-family:sans-serif;padding:5px;text-align:center}}.tab{{display:flex;justify-content:center;gap:10px;margin-bottom:10px}}.tab button{{background:#334155;border:none;color:#fff;padding:8px;border-radius:5px;cursor:pointer}}.active{{background:#3b82f6!important}}.grid{{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}}.card{{background:#1e293b;padding:8px;border-radius:5px;border:1px solid #475569;cursor:pointer}}.btn{{background:radial-gradient(circle,#3b82f6,#1d4ed8);width:80px;height:80px;border-radius:50%;margin:10px auto;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 15px #3b82f6;cursor:pointer}}.bank{{background:#10b981;color:white;width:100%;padding:12px;border:none;border-radius:8px;margin-top:10px;font-weight:bold}}</style></head><body><div style="font-size:20px;font-weight:bold;color:#fbbf24">💰 <span id="m">{start}</span></div><div style="font-size:12px;color:#94a3b8">Gelir: <span id="cps">0</span>/sn</div><div class="tab"><button onclick="sTab('main')" class="active" id="btn-main">İşletme</button><button onclick="sTab('mgr')" id="btn-mgr">Yöneticiler</button></div><div id="main"><div class="btn" onclick="clk()">👆</div><div class="grid" id="market"></div></div><div id="mgr" style="display:none"><div class="grid" id="managers"></div></div><button id="bBtn" class="bank" onclick="autoTransfer()">🏦 KASAYI BANKAYA AKTAR</button><script>let money={start},startBalance={start};const assets=[{{n:"Limonata",c:100,g:1,k:0}},{{n:"Simit",c:500,g:5,k:0}},{{n:"Kantin",c:2500,g:30,k:0}},{{n:"Cafe",c:10000,g:100,k:0}},{{n:"Yazılım",c:50000,g:600,k:0}},{{n:"Fabrika",c:200000,g:3000,k:0}},{{n:"Banka",c:1000000,g:15000,k:0}}];const mgrs=[{{n:"Çırak",c:5000,e:0,desc:"Limonata/Simit Oto"}},{{n:"Müdür",c:50000,e:0,desc:"Kantin/Cafe Oto"}},{{n:"CEO",c:1000000,e:0,desc:"x2 Hız"}}];function u(){{document.getElementById('m').innerText=Math.floor(money).toLocaleString();let total=assets.reduce((t,x)=>t+(x.k*x.g),0)*(mgrs[2].e?2:1);document.getElementById('cps').innerText=total.toLocaleString();let h='';assets.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.15,x.k));h+=`<div class="card" onclick="b(${{i}})"><b>${{x.n}}</b> (${{x.k}})<br><span style="color:#f87171">${{p.toLocaleString()}}</span><br><span style="color:#34d399">+${{x.g}}</span></div>`}});document.getElementById('market').innerHTML=h;let m='';mgrs.forEach((x,i)=>{{m+=`<div class="card" onclick="bm(${{i}})" style="opacity:${{x.e?0.5:1}}"><b>${{x.n}}</b><br><span style="color:#fbbf24">${{x.c.toLocaleString()}}</span><br><small>${{x.desc}}</small></div>`}});document.getElementById('managers').innerHTML=m;}}function clk(){{money+=1+(assets[0].k*0.1);u()}}function b(i){{let x=assets[i],p=Math.floor(x.c*Math.pow(1.15,x.k));if(money>=p){{money-=p;x.k++;u()}}}}function bm(i){{if(!mgrs[i].e&&money>=mgrs[i].c){{money-=mgrs[i].c;mgrs[i].e=1;u()}}}}function sTab(t){{document.getElementById('main').style.display='none';document.getElementById('mgr').style.display='none';document.getElementById('btn-main').className='';document.getElementById('btn-mgr').className='';document.getElementById(t).style.display='block';document.getElementById('btn-'+t).className='active';}}setInterval(()=>{{let g=assets.reduce((t,x)=>t+(x.k*x.g),0)*(mgrs[2].e?2:1);if(mgrs[0].e)g+=(assets[0].g*assets[0].k+assets[1].g*assets[1].k)*0.5;if(mgrs[1].e)g+=(assets[2].g*assets[2].k+assets[3].g*assets[3].k)*0.5;if(g>0){{money+=g/10;u()}}}},100);u();{js}</script></body></html>"""
@@ -238,7 +257,8 @@ else:
                 {"n": "Cinzel", "c": 150000, "t": "font", "v": "Cinzel", "css": "font-Cinzel"},
                 {"n": "Orbitron", "c": 250000, "t": "font", "v": "Orbitron", "css": "font-Orbitron"},
                 {"n": "Rye", "c": 350000, "t": "font", "v": "Rye", "css": "font-Rye"},
-                {"n": "Dans", "c": 500000, "t": "font", "v": "Dancing", "css": "font-Dancing"}
+                {"n": "Dans", "c": 500000, "t": "font", "v": "Dancing", "css": "font-Dancing"},
+                {"n": "Metal", "c": 1000000, "t": "font", "v": "Metallic", "css": "font-Metallic"}
             ],
             "🔰 Ünvan": [
                 {"n": "Çırak", "c": 10000, "t": "title", "v": "Çırak", "css": ""},
@@ -251,7 +271,6 @@ else:
         tabs = st.tabs(items.keys())
         for i, (cat, products) in enumerate(items.items()):
             with tabs[i]:
-                # 4'lü Grid
                 rows = [products[j:j+4] for j in range(0, len(products), 4)]
                 for row in rows:
                     cols = st.columns(4)
@@ -259,7 +278,6 @@ else:
                         with cols[k]:
                             with st.container():
                                 st.markdown(f"""<div class="shop-card">""", unsafe_allow_html=True)
-                                # Önizleme
                                 preview = ""
                                 if p['t'] == 'frame':
                                     preview = f'<div style="position:relative;width:40px;height:40px;margin:0 auto;"><img src="https://via.placeholder.com/40" style="border-radius:50%;"><div class="{p["css"]}" style="position:absolute;top:-3px;left:-3px;width:46px;height:46px;"></div></div>'
