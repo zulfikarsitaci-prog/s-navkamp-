@@ -20,7 +20,7 @@ def init_state():
         "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar", 
         "draft_content": "",
         "captcha_q": None, "captcha_a": None,
-        "show_comments": {} # Hangi postun yorumu açık tutulsun
+        "open_comments": [] # Hangi postların yorumu açık tutulacak
     }
     for k, v in defaults.items():
         if k not in st.session_state: st.session_state[k] = v
@@ -31,11 +31,13 @@ def init_state():
 
 init_state()
 
-# --- YARDIMCI ---
+# --- YARDIMCI: GELİŞMİŞ YOUTUBE LİNKİ ---
 def extract_youtube_link(text):
     if not text: return None
-    match = re.search(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})', text)
-    if match: return f"https://www.youtube.com/watch?v={match.group(6)}"
+    # /live/ linklerini ve normal linkleri yakalayan regex
+    match = re.search(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|live/|.+\?v=)?([^&=%\?]{11})', text)
+    if match: 
+        return f"https://www.youtube.com/watch?v={match.group(6)}"
     return None
 
 # --- CSS ---
@@ -58,59 +60,44 @@ st.markdown("""
 
     .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     
-    /* POST KARTI (KOYU LACİVERT) */
+    /* POST KARTI */
     .post-card {
         background-color: #1e293b; 
         border: 1px solid #334155;
         border-radius: 12px;
         padding: 15px;
-        margin-bottom: 0px; /* Altındaki butonlara yapışsın diye 0 */
+        margin-bottom: 15px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        position: relative;
     }
     .post-header { display: flex; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 8px; }
-    .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 5px; }
+    .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 10px; }
     .post-image { width: 100%; border-radius: 8px; margin-top: 5px; }
     
-    /* İKON BUTONLARI (KARTIN ALTINA YAPIŞIK) */
-    .icon-row {
-        display: flex;
-        gap: 15px;
-        padding: 5px 15px;
-        background-color: #1e293b; /* Kartla aynı renk */
-        border-bottom-left-radius: 12px;
-        border-bottom-right-radius: 12px;
-        border: 1px solid #334155;
-        border-top: none; /* Kartla birleşsin */
-        margin-bottom: 15px;
-    }
-
-    /* Streamlit Butonlarını İkonlaştırma */
+    /* BUTONLAR */
     div.stButton > button {
         background-color: transparent !important;
         border: none !important;
         color: #94a3b8 !important;
-        padding: 0px 5px !important;
-        font-size: 1.3rem !important;
-        height: auto !important;
+        font-size: 1.2rem !important;
         box-shadow: none !important;
-        margin: 0 !important;
     }
     div.stButton > button:hover {
         color: #FFD700 !important;
-        transform: scale(1.2);
+        transform: scale(1.1);
     }
     
-    /* Kolon Sıkıştırma */
-    div[data-testid="column"] {
-        width: auto !important;
-        flex: 0 0 auto !important;
-        min-width: 0 !important;
-        padding: 0 !important;
-        margin-right: 10px !important;
+    /* Popover (Artı Menüsü) İçindeki Butonlar */
+    div[data-testid="stPopoverBody"] button {
+        background-color: #334155 !important;
+        color: white !important;
+        border: 1px solid #475569 !important;
+        margin-bottom: 5px !important;
+        width: 100% !important;
+        font-size: 0.9rem !important;
     }
 
     .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
-    div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 8px; flex-wrap: wrap; }
     
     /* MAĞAZA */
     .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
@@ -342,6 +329,7 @@ else:
             st.info(f"🔒 Paylaşım için {POST_THRESHOLD:,} P gerekli.")
 
         for p in database.get_posts(20):
+            # --- POST KARTI ---
             st.markdown(f"""
             <div class="post-card">
                 <div class="post-header">
@@ -353,47 +341,55 @@ else:
             </div>
             """, unsafe_allow_html=True)
             
+            # VİDEO DÜZELTME: Kartın dışında, hemen altında
             if p[2]:
                 yt = extract_youtube_link(p[2])
                 if yt: st.video(yt)
 
-            # --- DÜZGÜN, SAĞLAM İKON YAPISI ---
-            # CSS ile birleşik görünüme kavuşan kolonlar
-            c1, c2, c3, c4 = st.columns([0.12, 0.12, 0.12, 0.64]) 
+            # --- ALT BAR (SOL: KALP, SAĞ: ARTI BUTONU) ---
+            c1, c2 = st.columns([1, 4]) # Sol dar, sağ geniş ve sağa yaslı
             
-            with c1: 
-                if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
-            with c2: 
-                # Yorum butonuna tıklanınca session state'de o postun yorumu açılır/kapanır
-                if st.button("💬", key=f"c_btn_{p[0]}"):
-                    curr_state = st.session_state['show_comments'].get(p[0], False)
-                    st.session_state['show_comments'][p[0]] = not curr_state
+            with c1:
+                # KALP BUTONU
+                if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): 
+                    database.like_post(p[0])
                     st.rerun()
-            with c3:
-                if st.button("🔄", key=f"r_{p[0]}"): st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"; st.rerun()
             
-            if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
-                with c4:
-                    _, sc2 = st.columns([0.8, 0.2])
-                    with sc2:
-                        with st.popover("⋮"):
-                            with st.form(key=f"e_{p[0]}"):
-                                new_t = st.text_area("Düzenle", p[2])
-                                if st.form_submit_button("Ok"): database.update_post(p[0], new_t); st.rerun()
-                            if st.button("Sil", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
+            with c2:
+                # ARTI MENÜSÜ (Sağa yaslı popover)
+                # İçinde Yorum Yap, Paylaş ve (Adminse) Sil var
+                with st.popover("➕", use_container_width=False):
+                    # 1. Yorum Yap Butonu (Kutuyu açar)
+                    if st.button("💬 Yorum Yap", key=f"c_btn_{p[0]}"):
+                        if p[0] in st.session_state['open_comments']:
+                            st.session_state['open_comments'].remove(p[0])
+                        else:
+                            st.session_state['open_comments'].append(p[0])
+                        st.rerun()
+                    
+                    # 2. Paylaş (Alıntıla)
+                    if st.button("🔄 Paylaş", key=f"r_{p[0]}"):
+                        st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"
+                        st.rerun()
+                    
+                    # 3. Sil (Sadece yetkili)
+                    if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
+                        if st.button("🗑️ Sil", key=f"d_{p[0]}"):
+                            database.delete_post(p[0])
+                            st.rerun()
 
-            # Yorumları Göster (Butonla Tetiklenir)
-            if st.session_state['show_comments'].get(p[0], False):
+            # --- YORUM ALANI (Eğer açıksa görünür) ---
+            if p[0] in st.session_state['open_comments']:
                 comments = database.get_comments(p[0])
                 if comments:
                     for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
-                else: st.info("Henüz yorum yok.")
+                else:
+                    st.caption("Henüz yorum yok.")
                 
                 with st.form(f"c_form_{p[0]}", clear_on_submit=True):
                     ct = st.text_input("Yorum Yaz...", label_visibility="collapsed")
                     if st.form_submit_button("Gönder"): 
                         if ct: database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
-            
             st.write("") 
 
     elif sel == "🛒 Mağaza":
