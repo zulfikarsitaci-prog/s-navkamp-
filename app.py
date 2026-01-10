@@ -18,7 +18,7 @@ def init_state():
         if k not in st.session_state: st.session_state[k] = v
 init_state()
 
-# --- CSS (FONTLAR VE STİLLER) ---
+# --- CSS (METALİK FONT EKLENDİ) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
@@ -30,23 +30,39 @@ st.markdown("""
     .comment-sec { background: #0f172a; padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.85rem; }
     div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 10px; flex-wrap: wrap; }
     
-    /* MAĞAZA KARTLARI (Kompakt ve 4'lü) */
-    .shop-card {
-        background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 8px;
-        text-align: center; height: 130px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
-        transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    /* MAĞAZA IZGARASI (MOBİL UYUMLU) */
+    .shop-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); /* 4 Sütun */
+        gap: 8px;
+        margin-top: 10px;
     }
-    .shop-card:hover { border-color: #FFD700; transform: translateY(-3px); }
-    .shop-title { font-size: 0.75rem; font-weight: bold; margin: 3px 0; color: #e2e8f0; }
-    .price-btn { background: #10b981; color: white; border: none; border-radius: 12px; padding: 3px 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; width: 100%; transition:0.2s; }
-    .price-btn:hover { background: #059669; }
+    /* Mobilde 3 sütun olsun çok sıkışmasın */
+    @media only screen and (max-width: 600px) {
+        .shop-grid { grid-template-columns: repeat(3, 1fr); }
+    }
 
+    .shop-item {
+        background: #0f172a; border: 1px solid #334155; border-radius: 8px;
+        padding: 5px; text-align: center; display: flex; flex-direction: column;
+        align-items: center; justify-content: space-between; height: 120px;
+        transition: 0.2s;
+    }
+    .shop-item:active { transform: scale(0.95); border-color: #FFD700; }
+    .shop-name { font-size: 0.7rem; font-weight: bold; margin-top: 5px; color: #cbd5e1; }
+    .shop-price { background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.65rem; font-weight: bold; margin-top: auto; }
+    
     /* FONT STİLLERİ */
     .font-Cinzel { font-family: 'Cinzel', serif !important; }
     .font-Orbitron { font-family: 'Orbitron', sans-serif !important; }
     .font-Rye { font-family: 'Rye', serif !important; }
     .font-Dancing { font-family: 'Dancing Script', cursive !important; }
-    .font-Metallic { font-family: 'Metal Mania', cursive !important; color: #a8a9ad !important; text-shadow: 1px 1px 0px #000, -1px -1px 0px #333 !important; }
+    .font-Metallic { 
+        font-family: 'Metal Mania', cursive !important; 
+        color: #b0b0b0 !important; 
+        text-shadow: 2px 2px 0px #000, -1px -1px 0px #333 !important;
+        letter-spacing: 1px;
+    }
 
     /* AVATAR */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; vertical-align: middle; }
@@ -64,7 +80,6 @@ st.markdown("""
     .name-Glitch { color: #00ffff; text-shadow: 2px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 5px #ff0000; font-weight: bold; animation: burn 1s infinite alternate; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
-    .name-Rainbow { background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red); -webkit-background-clip: text; color: transparent; font-weight: bold; }
     
     .post-Cyan { color: #00ffff !important; }
     .post-Lime { color: #00ff00 !important; }
@@ -91,15 +106,8 @@ if st.session_state['logged_in']: database.update_activity(st.session_state['use
 def get_user_display_html(username, size=50):
     ava, frame, name_style, _, font_style, title = database.get_user_styles(username)
     img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150?text=U"
-    
-    f_html = ""
-    if frame:
-        f_size = size + 10
-        f_class = f"frame-{frame}"
-        f_html = f'<div class="frame-overlay {f_class}" style="width:{f_size}px;height:{f_size}px;"></div>'
-    
+    f_html = f'<div class="frame-overlay frame-{frame}" style="width:{size+10}px;height:{size+10}px;"></div>' if frame else ""
     classes = f"{f'name-{name_style}' if name_style else ''} {f'font-{font_style}' if font_style else ''}"
-    
     return f'<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px;height:{size}px;"><img src="{img_src}" class="avatar-img">{f_html}</div><div style="margin-left:12px;"><div class="{classes}" style="font-size:1rem;">{username} {f"<span class=\'title-badge\'>{title}</span>" if title else ""}</div></div></div>'
 
 def get_post_style_css(username):
@@ -127,26 +135,35 @@ def load_local_exams():
         except: return {}
     return {}
 
-# --- OYUN JS (TRANSFER FIX) ---
-def get_transfer_js(username):
-    return f"""function autoTransfer(){{
-        let v=0; if(typeof score!=='undefined' && score>0) v=score; else if(typeof money!=='undefined') v=Math.floor(money-startBalance);
-        if(v<=0){{alert("Puan yok!");return;}}
-        let b=document.getElementById('bBtn')||document.getElementById('mBtn'); if(b){{b.innerText="...";b.disabled=true;}}
-        try{{
-            const u=new URL(window.top.location.href); 
-            u.searchParams.set('t_user',"{username}"); 
-            u.searchParams.set('t_amt',v); 
-            u.searchParams.set('ts',Date.now());
-            const l=document.createElement('a'); 
-            l.href=u.toString(); 
-            l.target="_top"; 
-            document.body.appendChild(l); 
-            l.click();
-        }}catch(e){{alert(e.message);}}
-    }}"""
+# --- TRANSFER YAKALAYICI (SATIN ALMA VE OYUN) ---
+if "action" in st.query_params:
+    try:
+        act = st.query_params["action"]
+        
+        # OYUN PUAN TRANSFERİ
+        if act == "transfer":
+            u, a = st.query_params["u"], int(st.query_params["a"])
+            if database.get_user_role(u):
+                st.session_state.update({'logged_in':True, 'username':u, 'active_menu':"🎮 Oyun"})
+                if a > 0: database.add_score(u, a, "Oyun"); st.toast(f"✅ {a} Puan!", icon="💰"); time.sleep(1)
+        
+        # MAĞAZA SATIN ALMA (HIZLI)
+        elif act == "buy":
+            u, t, v, c = st.query_params["u"], st.query_params["t"], st.query_params["v"], int(st.query_params["c"])
+            if database.get_user_role(u):
+                st.session_state.update({'logged_in':True, 'username':u, 'active_menu':"🛒 Mağaza"})
+                ok, msg = server.buy_item(u, t, v, c)
+                if ok: st.toast(f"🎉 {msg}", icon="🛍️"); time.sleep(1)
+                else: st.toast(f"❌ {msg}", icon="⚠️")
 
-# --- FINANS OYUNU ---
+        st.query_params.clear(); st.rerun()
+    except: st.query_params.clear()
+
+# --- JS (GÜVENLİ LİNKLER) ---
+def get_transfer_js(username):
+    return f"""function autoTransfer(){{let v=0;if(typeof score!=='undefined'&&score>0)v=score;else if(typeof money!=='undefined')v=Math.floor(money-startBalance);if(v<=0){{alert("Puan yok!");return;}}let b=document.getElementById('bBtn')||document.getElementById('mBtn');if(b){{b.innerText="...";b.disabled=true;}}try{{const u=new URL(window.top.location.href);u.searchParams.set('action','transfer');u.searchParams.set('u',"{username}");u.searchParams.set('a',v);u.searchParams.set('ts',Date.now());const l=document.createElement('a');l.href=u.toString();l.target="_top";document.body.appendChild(l);l.click();}}catch(e){{alert(e.message);}}}}"""
+
+# --- OYUNLAR ---
 def get_finance_game_html(start, user):
     js = get_transfer_js(user)
     return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>body{{background:#0f172a;color:#fff;font-family:sans-serif;padding:5px;text-align:center}}.tab{{display:flex;justify-content:center;gap:10px;margin-bottom:10px}}.tab button{{background:#334155;border:none;color:#fff;padding:8px;border-radius:5px;cursor:pointer}}.active{{background:#3b82f6!important}}.grid{{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}}.card{{background:#1e293b;padding:8px;border-radius:5px;border:1px solid #475569;cursor:pointer}}.btn{{background:radial-gradient(circle,#3b82f6,#1d4ed8);width:80px;height:80px;border-radius:50%;margin:10px auto;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 15px #3b82f6;cursor:pointer}}.bank{{background:#10b981;color:white;width:100%;padding:12px;border:none;border-radius:8px;margin-top:10px;font-weight:bold}}</style></head><body><div style="font-size:20px;font-weight:bold;color:#fbbf24">💰 <span id="m">{start}</span></div><div style="font-size:12px;color:#94a3b8">Gelir: <span id="cps">0</span>/sn</div><div class="tab"><button onclick="sTab('main')" class="active" id="btn-main">İşletme</button><button onclick="sTab('mgr')" id="btn-mgr">Yöneticiler</button></div><div id="main"><div class="btn" onclick="clk()">👆</div><div class="grid" id="market"></div></div><div id="mgr" style="display:none"><div class="grid" id="managers"></div></div><button id="bBtn" class="bank" onclick="autoTransfer()">🏦 KASAYI BANKAYA AKTAR</button><script>let money={start},startBalance={start};const assets=[{{n:"Limonata",c:100,g:1,k:0}},{{n:"Simit",c:500,g:5,k:0}},{{n:"Kantin",c:2500,g:30,k:0}},{{n:"Cafe",c:10000,g:100,k:0}},{{n:"Yazılım",c:50000,g:600,k:0}},{{n:"Fabrika",c:200000,g:3000,k:0}},{{n:"Banka",c:1000000,g:15000,k:0}}];const mgrs=[{{n:"Çırak",c:5000,e:0,desc:"Limonata/Simit Oto"}},{{n:"Müdür",c:50000,e:0,desc:"Kantin/Cafe Oto"}},{{n:"CEO",c:1000000,e:0,desc:"x2 Hız"}}];function u(){{document.getElementById('m').innerText=Math.floor(money).toLocaleString();let total=assets.reduce((t,x)=>t+(x.k*x.g),0)*(mgrs[2].e?2:1);document.getElementById('cps').innerText=total.toLocaleString();let h='';assets.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.15,x.k));h+=`<div class="card" onclick="b(${{i}})"><b>${{x.n}}</b> (${{x.k}})<br><span style="color:#f87171">${{p.toLocaleString()}}</span><br><span style="color:#34d399">+${{x.g}}</span></div>`}});document.getElementById('market').innerHTML=h;let m='';mgrs.forEach((x,i)=>{{m+=`<div class="card" onclick="bm(${{i}})" style="opacity:${{x.e?0.5:1}}"><b>${{x.n}}</b><br><span style="color:#fbbf24">${{x.c.toLocaleString()}}</span><br><small>${{x.desc}}</small></div>`}});document.getElementById('managers').innerHTML=m;}}function clk(){{money+=1+(assets[0].k*0.1);u()}}function b(i){{let x=assets[i],p=Math.floor(x.c*Math.pow(1.15,x.k));if(money>=p){{money-=p;x.k++;u()}}}}function bm(i){{if(!mgrs[i].e&&money>=mgrs[i].c){{money-=mgrs[i].c;mgrs[i].e=1;u()}}}}function sTab(t){{document.getElementById('main').style.display='none';document.getElementById('mgr').style.display='none';document.getElementById('btn-main').className='';document.getElementById('btn-mgr').className='';document.getElementById(t).style.display='block';document.getElementById('btn-'+t).className='active';}}setInterval(()=>{{let g=assets.reduce((t,x)=>t+(x.k*x.g),0)*(mgrs[2].e?2:1);if(mgrs[0].e)g+=(assets[0].g*assets[0].k+assets[1].g*assets[1].k)*0.5;if(mgrs[1].e)g+=(assets[2].g*assets[2].k+assets[3].g*assets[3].k)*0.5;if(g>0){{money+=g/10;u()}}}},100);u();{js}</script></body></html>"""
@@ -155,16 +172,7 @@ def get_matrix_game_html(user):
     js = get_transfer_js(user)
     return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><style>body{{background:#050505;color:#00ffff;margin:0;overflow:hidden;touch-action:none;text-align:center}}canvas{{background:#111;border:2px solid #333;margin-top:10px}}.btn{{position:absolute;top:10px;right:10px;background:#ff00ff;border:none;padding:5px 15px;border-radius:15px;font-weight:bold;color:white}}</style></head><body><div style="padding:10px;display:flex;justify-content:space-between"><span>PUAN: <span id="s">0</span></span><button id="mBtn" class="btn" onclick="autoTransfer()">AKTAR</button></div><canvas id="c"></canvas><script>const cvs=document.getElementById('c'),ctx=cvs.getContext('2d');const R=10,C=8;let SQ=25,grid=[],pieces=[],drag=null,score=0;const SHAPES=[[[1]],[[1,1]],[[1],[1]],[[1,1,1]],[[1,0],[1,0],[1,1]]];function rs(){{let w=window.innerWidth,h=window.innerHeight;SQ=Math.floor(Math.min((w-20)/C,(h-100)/R));SQ=Math.min(SQ,35);cvs.width=SQ*C;cvs.height=SQ*R+120;d()}}window.addEventListener('resize',rs);function init(){{grid=Array(R).fill().map(()=>Array(C).fill(0));score=0;document.getElementById('s').innerText=0;rs();sp()}}function sp(){{pieces=[];let y=R*SQ+20,w=cvs.width/3;for(let i=0;i<3;i++){{let s=SHAPES[Math.floor(Math.random()*SHAPES.length)];pieces.push({{s:s,x:w*i+5,y:y,bx:w*i+5,by:y,sc:0.6}})}}d()}}function d(){{ctx.fillStyle="#000000";ctx.fillRect(0,0,cvs.width,cvs.height);for(let r=0;r<R;r++)for(let c=0;c<C;c++){{ctx.strokeStyle="#333";ctx.lineWidth=1;ctx.strokeRect(c*SQ,r*SQ,SQ,SQ);if(grid[r][c]){{ctx.fillStyle="#00ffff";ctx.fillRect(c*SQ+3,r*SQ+3,SQ-6,SQ-6);ctx.strokeStyle="#ff00ff";ctx.strokeRect(c*SQ+3,r*SQ+3,SQ-6,SQ-6)}}}}ctx.strokeStyle="white";ctx.beginPath();ctx.moveTo(0,R*SQ);ctx.lineTo(cvs.width,R*SQ);ctx.stroke();pieces.forEach(p=>{{if(p!==drag)ds(p.s,p.x,p.y,SQ*p.sc,"#555")}});if(drag)ds(drag.s,drag.x,drag.y,SQ,"#ff00ff")}}function ds(s,x,y,z,c){{ctx.fillStyle=c;for(let r=0;r<s.length;r++)for(let k=0;k<s[r].length;k++)if(s[r][k])ctx.fillRect(x+k*z,y+r*z,z,z)}}function gp(e){{let r=cvs.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{{x:t.clientX-r.left,y:t.clientY-r.top}}}}function chk(){{for(let r=0;r<R;r++)if(grid[r].every(x=>x)){{grid[r].fill(0);score+=50}}for(let c=0;c<C;c++){{let f=true;for(let r=0;r<R;r++)if(!grid[r][c])f=false;if(f){{for(let r=0;r<R;r++)grid[r][c]=0;score+=50}}}}document.getElementById('s').innerText=score;if(pieces.length===0)sp()}}cvs.addEventListener('touchstart',e=>{{let p=gp(e);pieces.forEach(pi=>{{if(p.x>=pi.x&&p.x<=pi.x+60&&p.y>=pi.y&&p.y<=pi.y+60)drag=pi}})}},{{passive:false}});cvs.addEventListener('touchmove',e=>{{e.preventDefault();if(drag){{let p=gp(e);drag.x=p.x-20;drag.y=p.y-20;d()}}}},{{passive:false}});cvs.addEventListener('touchend',e=>{{if(drag){{let gx=Math.round(drag.x/SQ),gy=Math.round(drag.y/SQ),fit=true;for(let r=0;r<drag.s.length;r++)for(let c=0;c<drag.s[r].length;c++)if(drag.s[r][c]){{if(gx+c<0||gx+c>=C||gy+r>=R||grid[gy+r][gx+c])fit=false}}if(fit){{for(let r=0;r<drag.s.length;r++)for(let c=0;c<drag.s[r].length;c++)if(drag.s[r][c])grid[gy+r][gx+c]=1;pieces=pieces.filter(p=>p!==drag);score+=10;chk()}}else{{drag.x=drag.bx;drag.y=drag.by}}drag=null;d()}}}},{{passive:false}});init();{js}</script></body></html>"""
 
-if "t_user" in st.query_params and "t_amt" in st.query_params:
-    try:
-        u, a = st.query_params["t_user"], int(st.query_params["t_amt"])
-        role = database.get_user_role(u)
-        if role:
-            st.session_state['logged_in'], st.session_state['username'], st.session_state['user_role'] = True, u, role
-            st.session_state['active_menu'] = "🎮 Oyun"
-            if a > 0: database.add_score(u, a, "Oyun"); st.toast(f"✅ {a} Puan!", icon="💰"); time.sleep(1); st.query_params.clear(); st.rerun()
-    except: st.query_params.clear()
-
+# --- ARAYÜZ ---
 if not st.session_state['logged_in']:
     st.markdown('<div class="login-container"><h1 class="login-title">🎓 Dijital Kampüs</h1></div>', unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1, 2, 1])
@@ -174,7 +182,7 @@ if not st.session_state['logged_in']:
             if st.form_submit_button("Giriş"):
                 user = database.login_user(u, p)
                 if user:
-                    st.session_state['logged_in'], st.session_state['user_role'], st.session_state['username'] = True, user[3], user[1]
+                    st.session_state.update({'logged_in':True, 'user_role':user[3], 'username':user[1]})
                     if user[3]=="student": server.join_or_update_student("GENEL", user[1], 0)
                     st.rerun()
                 else: st.error("Hatalı.")
@@ -188,8 +196,7 @@ else:
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
         uploaded_avatar = st.file_uploader("Profil Foto", type=['png', 'jpg'])
         if uploaded_avatar:
-            if database.update_avatar(st.session_state['username'], uploaded_avatar):
-                st.success("Yüklendi!"); time.sleep(1); st.rerun()
+            if database.update_avatar(st.session_state['username'], uploaded_avatar): st.success("Yüklendi!"); time.sleep(1); st.rerun()
         if st.button("Çıkış"): st.session_state['logged_in']=False; st.rerun()
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
@@ -258,7 +265,7 @@ else:
                 {"n": "Orbitron", "c": 250000, "t": "font", "v": "Orbitron", "css": "font-Orbitron"},
                 {"n": "Rye", "c": 350000, "t": "font", "v": "Rye", "css": "font-Rye"},
                 {"n": "Dans", "c": 500000, "t": "font", "v": "Dancing", "css": "font-Dancing"},
-                {"n": "Metal", "c": 1000000, "t": "font", "v": "Metallic", "css": "font-Metallic"}
+                {"n": "Metalik", "c": 1000000, "t": "font", "v": "Metallic", "css": "font-Metallic"}
             ],
             "🔰 Ünvan": [
                 {"n": "Çırak", "c": 10000, "t": "title", "v": "Çırak", "css": ""},
@@ -269,30 +276,37 @@ else:
         }
         
         tabs = st.tabs(items.keys())
+        # --- HTML GRID MAĞAZA (MOBİLDE DE YAN YANA) ---
         for i, (cat, products) in enumerate(items.items()):
             with tabs[i]:
-                rows = [products[j:j+4] for j in range(0, len(products), 4)]
-                for row in rows:
-                    cols = st.columns(4)
-                    for k, p in enumerate(row):
-                        with cols[k]:
-                            with st.container():
-                                st.markdown(f"""<div class="shop-card">""", unsafe_allow_html=True)
-                                preview = ""
-                                if p['t'] == 'frame':
-                                    preview = f'<div style="position:relative;width:40px;height:40px;margin:0 auto;"><img src="https://via.placeholder.com/40" style="border-radius:50%;"><div class="{p["css"]}" style="position:absolute;top:-3px;left:-3px;width:46px;height:46px;"></div></div>'
-                                elif p['t'] == 'name':
-                                    preview = f'<div class="{p["css"]}" style="font-size:0.8rem">İsim</div>'
-                                elif p['t'] == 'font':
-                                    preview = f'<div class="{p["css"]}" style="font-size:1rem">Aa</div>'
-                                elif p['t'] == 'title':
-                                    preview = f'<span class="title-badge">{p["v"]}</span>'
-                                
-                                st.markdown(f"""{preview}<div class="shop-title">{p['n']}</div><button class="price-btn">{p['c']:,}</button></div>""", unsafe_allow_html=True)
-                                if st.button("Al", key=f"b_{p['v']}_{i}_{k}"):
-                                    ok, msg = server.buy_item(st.session_state['username'], p['t'], p['v'], p['c'])
-                                    if ok: st.success("Tamam!"); time.sleep(1); st.rerun()
-                                    else: st.error(msg)
+                # Python'da HTML oluşturup basıyoruz, böylece layout bozulmuyor
+                html_code = '<div class="shop-grid">'
+                for p in products:
+                    # Önizleme HTML'i
+                    preview = ""
+                    if p['t'] == 'frame':
+                        preview = f'<div style="position:relative;width:40px;height:40px;"><img src="https://via.placeholder.com/40" style="border-radius:50%;"><div class="{p["css"]}" style="position:absolute;top:-3px;left:-3px;width:46px;height:46px;"></div></div>'
+                    elif p['t'] == 'name':
+                        preview = f'<div class="{p["css"]}" style="font-size:0.7rem">İsim</div>'
+                    elif p['t'] == 'font':
+                        preview = f'<div class="{p["css"]}" style="font-size:0.9rem">Aa</div>'
+                    elif p['t'] == 'title':
+                        preview = f'<span class="title-badge">{p["v"]}</span>'
+                    
+                    # URL ile satın alma tetikleyicisi
+                    buy_link = f"?action=buy&u={st.session_state['username']}&t={p['t']}&v={p['v']}&c={p['c']}"
+                    
+                    html_code += f"""
+                    <div class="shop-item">
+                        {preview}
+                        <div class="shop-name">{p['n']}</div>
+                        <a href="{buy_link}" target="_top" style="text-decoration:none;width:100%;">
+                            <div class="shop-price">{p['c']:,}</div>
+                        </a>
+                    </div>
+                    """
+                html_code += "</div>"
+                st.markdown(html_code, unsafe_allow_html=True)
 
     elif sel.startswith("🔔"):
         st.header("Bildirimler")
