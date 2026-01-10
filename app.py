@@ -25,7 +25,7 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
-    .top-bar { background: #1e293b; padding: 8px 15px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
+    .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     .user-greeting { font-weight: bold; color: #e2e8f0; font-size: 1rem; }
     
     /* POST KARTI (NİZAMİ) */
@@ -34,37 +34,28 @@ st.markdown("""
         border: 1px solid #334155; 
         border-radius: 10px; 
         padding: 12px; 
-        margin-bottom: 12px; 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+        margin-bottom: 15px; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
     }
     .post-header { display: flex; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 8px; }
     .post-date { color: #94a3b8; font-size: 0.65rem; margin-left: auto; }
-    .post-content { margin: 8px 0; color: #e2e8f0; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap; }
+    .post-content { margin: 8px 0; color: #e2e8f0; font-size: 0.95rem; line-height: 1.4; white-space: pre-wrap; }
     .post-image { width: 100%; border-radius: 6px; margin-top: 5px; max-height: 300px; object-fit: cover; }
     
     /* MİNİ BUTONLAR (YAN YANA VE KÜÇÜK) */
-    .action-bar { 
-        display: flex; 
-        gap: 15px; 
-        align-items: center; 
-        margin-top: 8px; 
-        padding-top: 5px; 
-        border-top: 1px solid #334155; 
-    }
-    .mini-btn { 
-        background: transparent; 
-        border: none; 
-        color: #94a3b8; 
-        cursor: pointer; 
-        font-size: 0.85rem; 
-        display: flex; 
-        align-items: center; 
-        gap: 4px; 
-        transition: 0.2s; 
-    }
-    .mini-btn:hover { color: #FFD700; }
+    div[data-testid="column"] { padding: 0 !important; }
     
-    .comment-box { background: #0f172a; padding: 6px; border-radius: 6px; margin-top: 4px; font-size: 0.8rem; border-left: 2px solid #334155; }
+    /* Streamlit Butonlarını Küçültme */
+    div.stButton > button {
+        padding: 2px 10px !important;
+        font-size: 0.8rem !important;
+        min-height: 0px !important;
+        height: 32px !important;
+        margin-top: 0px !important;
+        width: 100%;
+    }
+    
+    .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
     div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 8px; flex-wrap: wrap; }
     
     /* MAĞAZA */
@@ -80,8 +71,9 @@ st.markdown("""
     .font-Orbitron { font-family: 'Orbitron', sans-serif !important; }
     .font-Rye { font-family: 'Rye', serif !important; }
     .font-Dancing { font-family: 'Dancing Script', cursive !important; }
-    .font-Metallic { font-family: 'Metal Mania', cursive !important; color: #b0b0b0 !important; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
+    .font-Metallic { font-family: 'Metal Mania', cursive !important; color: #b0b0b0 !important; text-shadow: 2px 2px 0px #000, -1px -1px 0px #333 !important; letter-spacing: 1px; }
 
+    /* AVATAR */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; vertical-align: middle; }
     .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
     .frame-overlay { position: absolute; top: -4px; left: -4px; pointer-events: none; z-index: 2; }
@@ -105,13 +97,6 @@ st.markdown("""
     @keyframes pulse { 0% { box-shadow: 0 0 5px #ff4500; } 50% { box-shadow: 0 0 15px #ff4500; } 100% { box-shadow: 0 0 5px #ff4500; } }
     
     iframe { width: 100% !important; }
-    
-    /* BUTON GİZLEME (Streamlit varsayılan butonlarını küçültmek için) */
-    div[data-testid="stButton"] button {
-        padding: 0.2rem 0.5rem;
-        font-size: 0.8rem;
-        line-height: 1.2;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -122,7 +107,7 @@ try:
 except: pass
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
-# --- GÖRSEL YARDIMCILAR ---
+# --- GÖRSEL YARDIMCILAR (HATA DÜZELTİLDİ: Tek Satır) ---
 def get_user_display_html(username, size=40):
     ava, frame, name_style, _, font_style, title = database.get_user_styles(username)
     # Placeholder ekledik (Soru işareti çıkmasın diye)
@@ -131,17 +116,8 @@ def get_user_display_html(username, size=40):
     f_html = f'<div class="frame-overlay frame-{frame}" style="width:{size+8}px;height:{size+8}px;"></div>' if frame else ""
     classes = f"{f'name-{name_style}' if name_style else ''} {f'font-{font_style}' if font_style else ''}"
     
-    return f"""
-    <div style="display:flex;align-items:center;">
-        <div class="avatar-container" style="width:{size}px;height:{size}px;">
-            <img src="{img_src}" class="avatar-img">
-            {f_html}
-        </div>
-        <div style="margin-left:10px;">
-            <div class="{classes}" style="font-size:{size/2.5}px;">{username} {f"<span class=\'title-badge\'>{title}</span>" if title else ""}</div>
-        </div>
-    </div>
-    """
+    # HTML KODU TEK SATIRDA (Girinti yok, hata yok)
+    return f'<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px;height:{size}px;"><img src="{img_src}" class="avatar-img">{f_html}</div><div style="margin-left:10px;"><div class="{classes}" style="font-size:{size/2.5}px;">{username} {f"<span class=\'title-badge\'>{title}</span>" if title else ""}</div></div></div>'
 
 def get_post_style_css(username):
     _, _, _, post_style, font_style, _ = database.get_user_styles(username)
@@ -324,9 +300,11 @@ else:
                 """, unsafe_allow_html=True)
                 
                 # --- KOMPAKT AKSİYON BUTONLARI (TEK SATIR) ---
-                c1, c2, c3, c4 = st.columns([1,1,1,3])
+                c1, c2, c3, c4 = st.columns([1,1,1,4]) # 4. sütun esnek boşluk
+                
                 with c1: 
                     if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
+                
                 with c2: 
                     if st.button("🔄", key=f"r_{p[0]}"): st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"; st.rerun()
                 
@@ -341,12 +319,14 @@ else:
 
                 comments = database.get_comments(p[0])
                 if comments:
-                    with st.expander(f"💬 ({len(comments)})"):
+                    with st.expander(f"💬 Yorumlar ({len(comments)})"):
                         for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
-                with st.popover("Yorum Yaz"):
-                    with st.form(f"c{p[0]}"):
-                        ct = st.text_input("Yorum")
-                        if st.form_submit_button("Gönder"): database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
+                
+                # Yorum Yazma (Direkt Göster)
+                with st.form(f"c{p[0]}", clear_on_submit=True):
+                    ct = st.text_input("Yorum Yaz...", label_visibility="collapsed")
+                    if st.form_submit_button("Gönder"): 
+                        if ct: database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
 
     elif sel == "🛒 Mağaza":
         st.header("Mağaza 💎")
