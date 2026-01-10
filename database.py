@@ -40,7 +40,7 @@ def run_query(query, params=(), fetch=False):
 
 def create_database():
     tables = [
-        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, post_style TEXT, font_style TEXT, title TEXT)',
+        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, post_style TEXT, font_style TEXT, title TEXT, change_count INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)',
         'CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, timestamp TEXT, likes INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
@@ -49,9 +49,13 @@ def create_database():
         'CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)'
     ]
     for t in tables: run_query(t)
-    cols = ["avatar_data", "frame", "name_style", "post_style", "font_style", "title"]
+    
+    # Eksik sütunları tamamla
+    cols = ["avatar_data", "frame", "name_style", "post_style", "font_style", "title", "change_count"]
     for col in cols:
-        try: run_query(f"ALTER TABLE users ADD COLUMN {col} TEXT")
+        try: 
+            dtype = "INTEGER DEFAULT 0" if col == "change_count" else "TEXT"
+            run_query(f"ALTER TABLE users ADD COLUMN {col} {dtype}")
         except: pass
 
 def compress_image(image_file, max_size=(600, 600), quality=60):
@@ -91,32 +95,23 @@ def get_unread_notifications(u):
     q = "SELECT c.username, c.content, p.content FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ? AND c.is_read = 0"
     return run_query(q, (u, u), fetch=True) or []
 
-# --- İŞLEMLER ---
+# --- KULLANICI İŞLEMLERİ ---
 def login_user(u, p):
     h = hashlib.sha256(p.encode()).hexdigest()
     res = run_query("SELECT id, username, password, role FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
     return res[0] if res else None
 
-# --- ÖZEL: İLK 10 KİŞİYE SÜRPRİZ EKLENDİ ---
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
-        # Kullanıcıyı ekle
         success = run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (u, h, r))
-        
         if success:
-            # Kaçıncı kullanıcı olduğunu kontrol et
             count_res = run_query("SELECT COUNT(*) FROM users", fetch=True)
             user_count = count_res[0][0] if count_res else 999
-            
-            # Eğer ilk 10 kişi arasındaysa ödül ver!
             if user_count <= 10:
-                # 1. KURUCU Ünvanı ve Gold Çerçeve Ver
                 run_query("UPDATE users SET title = ?, frame = ? WHERE username = ?", ("KURUCU", "Gold", u))
-                # 2. 50.000 Puan Ekle
-                add_score(u, 50000, "İlk 10 Bonusu! 🎉")
-                return True, user_count # Sıralamayı döndür
-                
+                add_score(u, 50000, "İlk 10 Bonusu!")
+                return True, user_count
         return success, 999
     except: return False, 999
 
@@ -127,10 +122,53 @@ def update_avatar(u, img):
         get_user_styles.clear(u)
         return True
     return False
+
+# --- YENİ: İSİM DEĞİŞTİRME ---
+def change_username_logic(current_user, new_user):
+    # 1. Yeni isim dolu mu?
+    if run_query("SELECT id FROM users WHERE username = ?", (new_user,), fetch=True):
+        return False, "Bu isim zaten kullanılıyor."
+    
+    # 2. Ücret kontrolü
+    res = run_query("SELECT change_count FROM users WHERE username = ?", (current_user,), fetch=True)
+    change_count = res[0][0] if res else 0
+    cost = 0 if change_count == 0 else 500000
+    
+    current_score = get_total_score(current_user)
+    if current_score < cost:
+        return False, f"Yetersiz bakiye! İkinci değişim için {cost:,} puan lazım."
+    
+    # 3. İsim güncelleme (Tüm tablolarda)
+    try:
+        # Puan düş
+        if cost > 0: add_score(current_user, -cost, "İsim Değişikliği")
+        
+        # Tabloları güncelle
+        tables_cols = [
+            ("users", "username"), ("grades", "student_username"), ("posts", "username"),
+            ("comments", "username"), ("messages", "sender"), ("messages", "receiver"),
+            ("relationships", "user1"), ("relationships", "user2"), ("announcements", "author")
+        ]
+        
+        for table, col in tables_cols:
+            run_query(f"UPDATE {table} SET {col} = ? WHERE {col} = ?", (new_user, current_user))
+            
+        # Sayacı artır
+        run_query("UPDATE users SET change_count = change_count + 1 WHERE username = ?", (new_user,))
+        
+        # Cache temizle
+        get_user_styles.clear(current_user)
+        get_total_score.clear(current_user)
+        
+        return True, "İsim başarıyla değiştirildi! Lütfen tekrar giriş yap."
+    except Exception as e:
+        return False, f"Hata oluştu: {e}"
+
 def add_score(u, a, s="Sistem"):
     d = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)", (u, s, a, d))
     get_total_score.clear(u); get_leaderboard_data.clear()
+
 def buy_item(u, type, value, cost):
     current = get_total_score(u)
     if current >= cost:
@@ -146,6 +184,7 @@ def buy_item(u, type, value, cost):
             get_user_styles.clear(u)
             return True, "Hayırlı olsun!"
     return False, "Puan yetersiz."
+
 def send_gift(sender, receiver, gift_name, cost):
     current = get_total_score(sender)
     if current >= cost:
@@ -196,3 +235,6 @@ def accept_request(sender, me): run_query("UPDATE relationships SET status='acce
 def get_user_role(u):
     res = run_query("SELECT role FROM users WHERE username = ?", (u,), fetch=True)
     return res[0][0] if res and res[0] else None
+def get_user_change_count(u):
+    res = run_query("SELECT change_count FROM users WHERE username = ?", (u,), fetch=True)
+    return res[0][0] if res else 0
