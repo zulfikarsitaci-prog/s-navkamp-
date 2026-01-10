@@ -49,8 +49,6 @@ def create_database():
         'CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)'
     ]
     for t in tables: run_query(t)
-    
-    # Eksik sütunları tamamla
     cols = ["avatar_data", "frame", "name_style", "post_style", "font_style", "title", "change_count"]
     for col in cols:
         try: 
@@ -115,6 +113,26 @@ def add_user(u, p, r):
         return success, 999
     except: return False, 999
 
+# --- TAM SİLME FONKSİYONU ---
+def delete_user(u):
+    if u == "admin": return False
+    # Kullanıcıya ait her şeyi sil
+    run_query("DELETE FROM grades WHERE student_username = ?", (u,))
+    run_query("DELETE FROM posts WHERE username = ?", (u,))
+    run_query("DELETE FROM comments WHERE username = ?", (u,))
+    run_query("DELETE FROM messages WHERE sender = ? OR receiver = ?", (u, u))
+    run_query("DELETE FROM relationships WHERE user1 = ? OR user2 = ?", (u, u))
+    run_query("DELETE FROM users WHERE username = ?", (u,))
+    # Cache temizle
+    get_leaderboard_data.clear()
+    get_all_users.clear()
+    return True
+
+def get_all_users(): 
+    # Sadece username'i döndür
+    res = run_query("SELECT username FROM users ORDER BY id DESC", fetch=True)
+    return [r[0] for r in res] if res else []
+
 def update_avatar(u, img):
     d = compress_image(img)
     if d:
@@ -123,46 +141,21 @@ def update_avatar(u, img):
         return True
     return False
 
-# --- YENİ: İSİM DEĞİŞTİRME ---
 def change_username_logic(current_user, new_user):
-    # 1. Yeni isim dolu mu?
-    if run_query("SELECT id FROM users WHERE username = ?", (new_user,), fetch=True):
-        return False, "Bu isim zaten kullanılıyor."
-    
-    # 2. Ücret kontrolü
+    if run_query("SELECT id FROM users WHERE username = ?", (new_user,), fetch=True): return False, "İsim dolu."
     res = run_query("SELECT change_count FROM users WHERE username = ?", (current_user,), fetch=True)
     change_count = res[0][0] if res else 0
     cost = 0 if change_count == 0 else 500000
-    
     current_score = get_total_score(current_user)
-    if current_score < cost:
-        return False, f"Yetersiz bakiye! İkinci değişim için {cost:,} puan lazım."
-    
-    # 3. İsim güncelleme (Tüm tablolarda)
+    if current_score < cost: return False, f"Yetersiz bakiye! Gerekli: {cost:,}"
     try:
-        # Puan düş
         if cost > 0: add_score(current_user, -cost, "İsim Değişikliği")
-        
-        # Tabloları güncelle
-        tables_cols = [
-            ("users", "username"), ("grades", "student_username"), ("posts", "username"),
-            ("comments", "username"), ("messages", "sender"), ("messages", "receiver"),
-            ("relationships", "user1"), ("relationships", "user2"), ("announcements", "author")
-        ]
-        
-        for table, col in tables_cols:
-            run_query(f"UPDATE {table} SET {col} = ? WHERE {col} = ?", (new_user, current_user))
-            
-        # Sayacı artır
+        tables_cols = [("users", "username"), ("grades", "student_username"), ("posts", "username"), ("comments", "username"), ("messages", "sender"), ("messages", "receiver"), ("relationships", "user1"), ("relationships", "user2"), ("announcements", "author")]
+        for t, c in tables_cols: run_query(f"UPDATE {t} SET {c} = ? WHERE {c} = ?", (new_user, current_user))
         run_query("UPDATE users SET change_count = change_count + 1 WHERE username = ?", (new_user,))
-        
-        # Cache temizle
-        get_user_styles.clear(current_user)
-        get_total_score.clear(current_user)
-        
-        return True, "İsim başarıyla değiştirildi! Lütfen tekrar giriş yap."
-    except Exception as e:
-        return False, f"Hata oluştu: {e}"
+        get_user_styles.clear(current_user); get_total_score.clear(current_user)
+        return True, "Değiştirildi!"
+    except Exception as e: return False, str(e)
 
 def add_score(u, a, s="Sistem"):
     d = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -189,14 +182,10 @@ def send_gift(sender, receiver, gift_name, cost):
     current = get_total_score(sender)
     if current >= cost:
         add_score(sender, -cost, f"Hediye: {gift_name} -> {receiver}")
-        msg_text = f"🎁 SANA BİR HEDİYE GÖNDERDİ: {gift_name}!"
-        send_message(sender, receiver, msg_text)
+        send_message(sender, receiver, f"🎁 SANA BİR HEDİYE GÖNDERDİ: {gift_name}!")
         return True, "Hediye gönderildi!"
     return False, "Puan yetersiz."
 
-# Standartlar
-def get_all_users(): return run_query("SELECT username, role, last_seen FROM users", fetch=True) or []
-def delete_user(u): run_query("DELETE FROM users WHERE username = ?", (u,))
 def update_activity(u):
     n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
