@@ -13,12 +13,24 @@ from datetime import datetime
 
 # --- AYARLAR ---
 st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
-TEACHER_NAME = "Mustafa"
 
 def init_state():
-    defaults = {"logged_in": False, "user_role": None, "username": None, "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar", "draft_content": ""}
+    defaults = {
+        "logged_in": False, "user_role": None, "username": None, 
+        "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar", 
+        "draft_content": "",
+        "captcha_q": None, "captcha_a": None # Matematik sorusu için
+    }
     for k, v in defaults.items():
         if k not in st.session_state: st.session_state[k] = v
+
+    # Matematik sorusu yoksa oluştur
+    if st.session_state['captcha_q'] is None:
+        n1 = random.randint(1, 9)
+        n2 = random.randint(1, 9)
+        st.session_state['captcha_q'] = f"{n1} + {n2} = ?"
+        st.session_state['captcha_a'] = n1 + n2
+
 init_state()
 
 # --- YARDIMCI: YOUTUBE LİNKİ BULUCU ---
@@ -28,7 +40,7 @@ def extract_youtube_link(text):
     if match: return f"https://www.youtube.com/watch?v={match.group(6)}"
     return None
 
-# --- CSS ---
+# --- CSS (ZORLA YAN YANA TUTMA) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
@@ -50,42 +62,49 @@ st.markdown("""
     .post-content { margin: 8px 0; color: #e2e8f0; font-size: 0.95rem; line-height: 1.4; white-space: pre-wrap; }
     .post-image { width: 100%; border-radius: 6px; margin-top: 5px; max-height: 300px; object-fit: cover; }
     
-    /* İKON BUTONLARI (INSTAGRAM TARZI) */
-    /* Streamlit kolonları arasındaki boşluğu kaldırıyoruz */
-    div[data-testid="column"] {
-        width: auto !important;
-        flex: 0 0 auto !important;
-        min-width: 0 !important;
-        padding: 0 !important;
-        margin-right: 15px !important; /* İkonlar arası boşluk */
-    }
-
-    /* Butonları şeffaf ve sadece ikon/yazı yapıyoruz */
+    /* --- İKONLARI YAN YANA ZORLAYAN CSS --- */
+    
+    /* 1. Butonların stilini sıfırla (İkon gibi görünsün) */
     div.stButton > button {
         background-color: transparent !important;
         border: none !important;
-        color: #e2e8f0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        font-size: 1.2rem !important; /* İkon boyutu */
+        color: #94a3b8 !important; /* Soluk gri */
+        padding: 0px !important;
+        font-size: 1.3rem !important; /* İkon boyutu */
         line-height: 1 !important;
         height: auto !important;
         min-height: 0 !important;
         box-shadow: none !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    
     div.stButton > button:hover {
-        color: #FFD700 !important;
+        color: #FFD700 !important; /* Hover rengi */
         transform: scale(1.1);
     }
-    
     div.stButton > button:active, div.stButton > button:focus {
-        background-color: transparent !important;
+        background: transparent !important;
         color: #FFD700 !important;
         border: none !important;
         box-shadow: none !important;
     }
 
+    /* 2. Mobilde alt alta düşmeyi (wrapping) engelle */
+    div[data-testid="stHorizontalBlock"] {
+        flex-wrap: nowrap !important; /* KİLİT NOKTA BURASI */
+        align-items: center !important;
+        gap: 15px !important; /* İkonlar arası boşluk */
+    }
+    
+    /* 3. Kolon genişliklerini sıkıştır */
+    div[data-testid="column"] {
+        flex: 0 0 auto !important; /* Genişlemesin, içeriği kadar yer kaplasın */
+        width: auto !important;
+        min-width: 0 !important;
+    }
+
+    /* Yorum Kutusu */
     .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
     
     /* MAĞAZA */
@@ -117,7 +136,6 @@ st.markdown("""
     .name-Glitch { color: #00ffff; text-shadow: 1px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 3px #ff0000; font-weight: bold; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
-    .name-Rainbow { background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red); -webkit-background-clip: text; color: transparent; font-weight: bold; }
     
     .post-Cyan { color: #00ffff !important; }
     .post-Lime { color: #00ff00 !important; }
@@ -226,17 +244,25 @@ if not st.session_state['logged_in']:
         with st.expander("Kayıt"):
             with st.form("reg"):
                 nu = st.text_input("Kullanıcı"); np = st.text_input("Şifre", type="password")
-                q = st.text_input("Muhasebe ve Finansman Öğretmeninizin Adı Nedir?")
+                # MATEMATİK SORUSU
+                captcha_ans = st.number_input(f"Güvenlik Sorusu: {st.session_state['captcha_q']}", step=1)
+                
                 if st.form_submit_button("Kayıt"):
-                    if q.lower().strip() == TEACHER_NAME.lower():
+                    if captcha_ans == st.session_state['captcha_a']:
                         success, rank = database.add_user(nu, np, "student")
                         if success:
+                            # Soru başarılıysa ve kayıt olduysa, yeni soru üret (sonraki kullanıcı için)
+                            st.session_state['captcha_q'] = None 
                             if rank <= 10: 
                                 st.balloons()
                                 st.success(f"TEBRİKLER! {rank}. kişi olarak KURUCU ünvanı ve 50.000 Puan kazandın!")
                             else: st.success("Başarılı! Giriş yapabilirsin.")
                         else: st.error("İsim alınmış.")
-                    else: st.error("Güvenlik sorusu yanlış!")
+                    else: 
+                        st.error("Matematik sorusu yanlış!")
+                        # Yanlış cevapta soruyu değiştir
+                        st.session_state['captcha_q'] = None
+                        st.rerun()
 else:
     with st.sidebar:
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
@@ -331,33 +357,34 @@ else:
                 yt_link = extract_youtube_link(p[2])
                 if yt_link: st.video(yt_link)
 
-            # --- AKSİYON BUTONLARI (SOLDA, YAN YANA, SIKIŞIK) ---
-            # CSS ile boşlukları kaldırdığımız için st.columns daha sıkışık olacak
-            cols = st.columns([0.1, 0.1, 0.1, 0.7]) 
+            # --- AKSİYON BUTONLARI (YAN YANA SIKIŞIK) ---
+            # Streamlit kolonlarını oranla değil, esnek kullanarak sıkıştırıyoruz
+            c1, c2, c3, c4 = st.columns([1,1,1,6]) 
             
-            with cols[0]:
+            with c1: 
                 if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
-            with cols[1]:
-                # Yorum ikonu (Expander tetiklemesi için buton değil yazı)
-                st.markdown("<div style='cursor:pointer;font-size:1.2rem;color:#94a3b8;'>💬</div>", unsafe_allow_html=True)
-            with cols[2]:
-                if st.button("🔄", key=f"r_{p[0]}"): 
-                    st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"
-                    st.rerun()
+            with c2: 
+                # Yorum toggle (Görsel)
+                st.markdown("<div style='text-align:center; padding-top:4px;'>💬</div>", unsafe_allow_html=True)
+            with c3:
+                if st.button("🔄", key=f"r_{p[0]}"): st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"; st.rerun()
             
-            # Yetkili İşlemleri (Sağa Yaslı, Tek Buton İçinde)
+            # Yetkili İşlemleri (Sağa Yaslı)
             if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
-                with cols[3]:
-                    # Tek bir popover içinde işlemleri toplayalım, daha temiz dursun
-                    with st.popover("⋮", use_container_width=False):
-                        with st.form(key=f"e_{p[0]}"):
-                            new_t = st.text_area("Düzenle", p[2])
-                            if st.form_submit_button("Kaydet"): database.update_post(p[0], new_t); st.rerun()
-                        if st.button("Sil", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
+                with c4:
+                    # Popover'ı sağa yaslamak için markdown div kullanamıyoruz, st kolonunu kullanıyoruz
+                    # İç içe kolon açarak hizalama yapalım
+                    _, sc2 = st.columns([0.8, 0.2])
+                    with sc2:
+                        with st.popover("⋮"):
+                            with st.form(key=f"e_{p[0]}"):
+                                new_t = st.text_area("Düzenle", p[2])
+                                if st.form_submit_button("Kaydet"): database.update_post(p[0], new_t); st.rerun()
+                            if st.button("Sil", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
 
             comments = database.get_comments(p[0])
             if comments:
-                with st.expander(f"Yorumlar ({len(comments)})"):
+                with st.expander(f"💬 Yorumlar ({len(comments)})"):
                     for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
             
             with st.form(f"c{p[0]}", clear_on_submit=True):
