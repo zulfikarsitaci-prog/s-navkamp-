@@ -37,18 +37,18 @@ def extract_youtube_link(text):
     if match: return f"https://www.youtube.com/watch?v={match.group(6)}"
     return None
 
-# --- CSS (BUTON VE TASARIM DÜZELTMELERİ) ---
+# --- CSS (KOYU TEMA VE DÜZGÜN İKONLAR) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
-    /* GİRİŞ EKRANI TASARIMI */
+    /* GİRİŞ EKRANI */
     .login-header { text-align: center; margin-bottom: 20px; }
     .login-sub { color: #94a3b8; font-size: 1rem; margin-bottom: 5px; font-family: sans-serif; letter-spacing: 1px; }
     .login-main { 
         font-family: 'Cinzel', serif;
         color: #FFD700; 
-        font-size: 2.2rem; 
+        font-size: 2.5rem; 
         text-shadow: 2px 2px 4px #000; 
         line-height: 1.2; 
         margin: 10px 0;
@@ -58,46 +58,50 @@ st.markdown("""
 
     .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     
-    /* POST KARTI */
-    .post-container { 
-        background-color: #1e293b; 
-        border: 1px solid #334155; 
-        border-radius: 12px; 
-        padding: 12px 15px 5px 15px; 
-        margin-bottom: 15px; 
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
+    /* POST KARTI (KOYU LACİVERT ARKA PLAN) */
+    .post-card {
+        background-color: #1e293b; /* İstenilen koyu renk */
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }
     .post-header { display: flex; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 8px; }
-    .post-date { color: #94a3b8; font-size: 0.65rem; margin-left: auto; }
-    .post-content { margin: 8px 0; color: #e2e8f0; font-size: 0.95rem; line-height: 1.4; white-space: pre-wrap; }
-    .post-image { width: 100%; border-radius: 6px; margin-top: 5px; max-height: 300px; object-fit: cover; }
+    .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 10px; }
+    .post-image { width: 100%; border-radius: 8px; margin-top: 5px; }
     
-    /* BUTONLARI İKON GİBİ YAPMA (HATA ÇÖZÜCÜ) */
+    /* BUTONLARI İKON GİBİ GÖSTEREN CSS */
     div.stButton > button {
         background-color: transparent !important;
         border: none !important;
-        color: #94a3b8 !important;
-        padding: 0px 5px !important;
+        color: #94a3b8 !important; /* Soluk gri ikon rengi */
+        padding: 0px !important;
         font-size: 1.2rem !important;
         height: auto !important;
         box-shadow: none !important;
-        margin-right: 10px !important;
         display: flex;
         align-items: center;
+        margin-right: 8px !important; /* İkonlar arası boşluk */
     }
     div.stButton > button:hover {
-        color: #FFD700 !important;
+        color: #FFD700 !important; /* Hover rengi */
         transform: scale(1.1);
     }
     div.stButton > button:active {
-        color: #fff !important;
+        color: #FFD700 !important;
+        background: transparent !important;
     }
-    /* Mobilde kolonların sıkışmasını sağla */
+    /* Kolonları sıkıştır ve yan yana zorla */
     div[data-testid="column"] {
         width: auto !important;
         flex: 0 0 auto !important;
         min-width: 0 !important;
         padding: 0 !important;
+    }
+    /* Butonların olduğu satırı hizala */
+    div[data-testid="stHorizontalBlock"] {
+        align-items: center !important;
     }
 
     .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
@@ -112,10 +116,8 @@ st.markdown("""
     .gift-icon { font-size: 2.5rem; margin-top: 10px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
 
     /* FONT & STİLLER */
-    .font-Cinzel { font-family: 'Cinzel', serif; }
-    .font-Orbitron { font-family: 'Orbitron', sans-serif; }
-    .font-Rye { font-family: 'Rye', serif; }
-    .font-Dancing { font-family: 'Dancing Script', cursive; }
+    .font-Cinzel { font-family: 'Cinzel', serif; } .font-Orbitron { font-family: 'Orbitron', sans-serif; }
+    .font-Rye { font-family: 'Rye', serif; } .font-Dancing { font-family: 'Dancing Script', cursive; }
     .font-Metallic { font-family: 'Metal Mania', cursive; color: #b0b0b0; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
 
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; vertical-align: middle; }
@@ -131,12 +133,7 @@ st.markdown("""
     .name-Glitch { color: #00ffff; text-shadow: 1px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 3px #ff0000; font-weight: bold; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
-    
-    .post-Cyan { color: #00ffff !important; }
-    .post-Lime { color: #00ff00 !important; }
-    .post-Pink { color: #ff69b4 !important; }
-    .post-Gold { color: #ffd700 !important; }
-
+    .post-Cyan { color: #00ffff !important; } .post-Lime { color: #00ff00 !important; } .post-Pink { color: #ff69b4 !important; } .post-Gold { color: #ffd700 !important; }
     .title-badge { background: #334155; color: #94a3b8; padding: 1px 5px; border-radius: 3px; font-size: 0.6rem; margin-left: 4px; vertical-align: middle; }
     iframe { width: 100% !important; }
 </style>
@@ -355,30 +352,32 @@ else:
                 yt = extract_youtube_link(p[2])
                 if yt: st.video(yt)
 
-            # --- İKONLAR (Native Butonlar, Yan Yana, Sıkışık) ---
-            # CSS ile boşlukları alınmış kolonlar
-            c1, c2, c3, c4 = st.columns([1,1,1,6]) 
+            # --- İKONLAR (Native Butonlar, CSS ile İkonlaştırılmış) ---
+            # Bu yöntem HTML hatasını ve dikey dizilimi kesin olarak çözer.
+            c1, c2, c3, c4 = st.columns([1, 1, 1, 5]) # İlk 3'ü yan yana, sonuncusu sağa yaslı
             with c1: 
                 if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
             with c2: 
-                st.markdown("<div style='text-align:center; padding-top:4px;'>💬</div>", unsafe_allow_html=True)
+                # Yorum ikonu (Tıklanamaz, sadece görsel)
+                st.markdown("<div style='font-size:1.2rem;color:#94a3b8;cursor:default;padding-top:2px;'>💬</div>", unsafe_allow_html=True)
             with c3:
                 if st.button("🔄", key=f"r_{p[0]}"): st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"; st.rerun()
             
-            # Yetkili
+            # Yetkili İşlemleri (Sağa Yaslı)
             if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
                 with c4:
+                    # İç içe kolon ile sağa yaslama
                     _, sc2 = st.columns([0.8, 0.2])
                     with sc2:
                         with st.popover("⋮"):
                             with st.form(key=f"e_{p[0]}"):
                                 new_t = st.text_area("Düzenle", p[2])
-                                if st.form_submit_button("Ok"): database.update_post(p[0], new_t); st.rerun()
+                                if st.form_submit_button("Kaydet"): database.update_post(p[0], new_t); st.rerun()
                             if st.button("Sil", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
 
             comments = database.get_comments(p[0])
             if comments:
-                with st.expander(f"💬 ({len(comments)})"):
+                with st.expander(f"💬 Yorumlar ({len(comments)})"):
                     for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
             
             with st.form(f"c{p[0]}", clear_on_submit=True):
