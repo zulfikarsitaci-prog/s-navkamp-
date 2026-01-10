@@ -26,7 +26,6 @@ def run_query(query, params=(), fetch=False):
     finally: cursor.close()
 
 def create_database():
-    # Temel Tablolar
     tables = [
         'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, post_style TEXT, font_style TEXT, title TEXT, change_count INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)',
@@ -37,12 +36,11 @@ def create_database():
     ]
     for t in tables: run_query(t)
     
-    # Admin Hesabı
     if not login_user("admin", "6626"):
         h = hashlib.sha256("6626".encode()).hexdigest()
         run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", ("admin", h, "admin"))
 
-# --- KULLANICI İŞLEMLERİ ---
+# --- KULLANICI ---
 def login_user(u, p):
     h = hashlib.sha256(p.encode()).hexdigest()
     res = run_query("SELECT id, username, password, role FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
@@ -61,42 +59,23 @@ def add_user(u, p, r):
         return False, 0
     except: return False, 0
 
-# --- EKSİK OLAN FONKSİYONLAR EKLENDİ ---
+# --- EKSİK OLAN FONKSİYONLAR BURADA ---
+def get_leaderboard_data():
+    # Puan tablosu verisini getir
+    return run_query("SELECT student_username, SUM(grade) as T FROM grades GROUP BY student_username ORDER BY T DESC", fetch=True) or []
+
+def get_all_users():
+    # Tüm kullanıcıları getir (app.py [u[0]] formatında beklediği için raw data dönüyoruz)
+    return run_query("SELECT username FROM users", fetch=True) or []
+
 def get_searchable_users(my_u):
-    # Admin ve kendisi hariç tüm kullanıcıları al
-    all_users_res = run_query("SELECT username FROM users WHERE username != 'admin' AND username != ?", (my_u,), fetch=True)
-    all_users = [r[0] for r in all_users_res] if all_users_res else []
-    
-    # Zaten arkadaş olduklarını filtrele
+    # Arkadaş eklenebilecek kişileri getir
+    all_res = run_query("SELECT username FROM users WHERE username != 'admin' AND username != ?", (my_u,), fetch=True)
+    all_users = [r[0] for r in all_res] if all_res else []
     friends = get_friends(my_u)
     return [u for u in all_users if u not in friends]
 
-def get_all_users_list():
-    res = run_query("SELECT username FROM users WHERE username != 'admin'", fetch=True)
-    return [r[0] for r in res] if res else []
-
-def get_friends(u):
-    rows = run_query("SELECT user1, user2 FROM relationships WHERE (user1=? OR user2=?) AND status='accepted'", (u, u), fetch=True)
-    friends = []
-    if rows:
-        for r in rows: friends.append(r[1] if r[0] == u else r[0])
-    return friends
-
-def send_friend_request(s, r):
-    if run_query("SELECT * FROM relationships WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)", (s, r, r, s), fetch=True): return False, "Zaten ekli/istek var."
-    run_query("INSERT INTO relationships (user1, user2, status) VALUES (?, ?, ?)", (s, r, 'pending')); return True, "İstek yollandı."
-
-def get_pending_requests(u): 
-    return run_query("SELECT id, user1 FROM relationships WHERE user2=? AND status='pending'", (u,), fetch=True) or []
-
-def accept_request(sender, me): 
-    run_query("UPDATE relationships SET status='accepted' WHERE user1=? AND user2=?", (sender, me))
-
-def update_activity(u):
-    n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
-
-# --- DİĞER FONKSİYONLAR ---
+# --- DİĞER STANDART FONKSİYONLAR ---
 def get_posts(limit=20): return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
 def get_comments(pid): return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (pid,), fetch=True) or []
 def get_total_score(u):
@@ -108,7 +87,11 @@ def get_user_styles(u):
 def get_user_change_count(u):
     res = run_query("SELECT change_count FROM users WHERE username = ?", (u,), fetch=True)
     return res[0][0] if res else 0
+def get_all_users_list(my_u): # Hediye gönderimi için
+    res = run_query("SELECT username FROM users WHERE username != ?", (my_u,), fetch=True)
+    return [r[0] for r in res] if res else []
 
+# --- İŞLEMLER ---
 def compress_image(image_file):
     try:
         img = Image.open(image_file).convert("RGB")
@@ -140,7 +123,7 @@ def buy_item(u, type, value, cost):
     if get_total_score(u) >= cost:
         add_score(u, -cost, f"Mağaza: {value}")
         col = {"frame":"frame","name":"name_style","post":"post_style","font":"font_style","title":"title"}.get(type,"")
-        if col: run_query(f"UPDATE users SET {col} = ? WHERE username = ?", (value, u)); return True, "Satın alındı!"
+        if col: run_query(f"UPDATE users SET {col} = ? WHERE username = ?", (value, u)); return True, "Hayırlı olsun!"
     return False, "Puan yetersiz."
 
 def update_avatar(u, img):
@@ -155,12 +138,13 @@ def change_username_logic(current_user, new_user):
     if get_total_score(current_user) < cost: return False, "Yetersiz bakiye."
     try:
         if cost > 0: add_score(current_user, -cost, "İsim Değişikliği")
-        tables_cols = [("users", "username"), ("grades", "student_username"), ("posts", "username"), ("comments", "username"), ("messages", "sender"), ("messages", "receiver")]
+        tables_cols = [("users", "username"), ("grades", "student_username"), ("posts", "username"), ("comments", "username"), ("messages", "sender"), ("messages", "receiver"), ("relationships", "user1"), ("relationships", "user2")]
         for t, c in tables_cols: run_query(f"UPDATE {t} SET {c} = ? WHERE {c} = ?", (new_user, current_user))
         run_query("UPDATE users SET change_count = change_count + 1 WHERE username = ?", (new_user,))
         return True, "İsim değiştirildi!"
     except: return False, "Hata oluştu."
 
+# --- MESAJLAŞMA & ARKADAŞLIK ---
 def send_message(s, r, m):
     t = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO messages (sender, receiver, message, timestamp) VALUES (?, ?, ?, ?)", (s, r, m, t))
@@ -174,6 +158,23 @@ def get_unread_notification_count(u):
 
 def mark_notifications_read(u):
     run_query("UPDATE comments SET is_read = 1 WHERE id IN (SELECT c.id FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ?)", (u, u))
+
+def update_activity(u):
+    n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
+
+def send_friend_request(s, r):
+    if run_query("SELECT * FROM relationships WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)", (s, r, r, s), fetch=True): return False, "Zaten var."
+    run_query("INSERT INTO relationships (user1, user2, status) VALUES (?, ?, ?)", (s, r, 'pending')); return True, "İstek yollandı."
+
+def get_pending_requests(u): return run_query("SELECT id, user1 FROM relationships WHERE user2=? AND status='pending'", (u,), fetch=True) or []
+def accept_request(sender, me): run_query("UPDATE relationships SET status='accepted' WHERE user1=? AND user2=?", (sender, me))
+def get_friends(u):
+    rows = run_query("SELECT user1, user2 FROM relationships WHERE (user1=? OR user2=?) AND status='accepted'", (u, u), fetch=True)
+    friends = []
+    if rows:
+        for r in rows: friends.append(r[1] if r[0] == u else r[0])
+    return friends
 
 def delete_user(u):
     if u == "admin": return
