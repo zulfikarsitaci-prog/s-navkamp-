@@ -18,7 +18,7 @@ def init_state():
         if k not in st.session_state: st.session_state[k] = v
 init_state()
 
-# --- CSS ---
+# --- CSS (FONTLAR VE STİLLER) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&display=swap');
@@ -30,15 +30,15 @@ st.markdown("""
     .comment-sec { background: #0f172a; padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.85rem; }
     div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 10px; flex-wrap: wrap; }
     
-    /* MAĞAZA KARTLARI (Kompakt) */
+    /* MAĞAZA KARTLARI */
     .shop-card {
-        background-color: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 10px;
-        text-align: center; height: 160px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
-        transition: 0.2s;
+        background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px;
+        text-align: center; height: 150px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+        transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
     .shop-card:hover { border-color: #FFD700; transform: translateY(-3px); }
-    .shop-title { font-size: 0.9rem; font-weight: bold; margin: 5px 0; color: #e2e8f0; }
-    .price-btn { background: #10b981; color: white; border: none; border-radius: 15px; padding: 4px 12px; font-size: 0.8rem; cursor: pointer; font-weight: bold; width: 100%; }
+    .shop-title { font-size: 0.8rem; font-weight: bold; margin: 5px 0; color: #e2e8f0; }
+    .price-btn { background: #10b981; color: white; border: none; border-radius: 12px; padding: 4px 15px; font-size: 0.75rem; cursor: pointer; font-weight: bold; width: 100%; transition:0.2s; }
     .price-btn:hover { background: #059669; }
 
     /* FONT STİLLERİ */
@@ -48,7 +48,7 @@ st.markdown("""
     .font-Dancing { font-family: 'Dancing Script', cursive !important; }
 
     /* AVATAR */
-    .avatar-container { position: relative; display: inline-block; margin-right: 10px; vertical-align: middle; }
+    .avatar-container { position: relative; display: inline-block; margin-right: 8px; vertical-align: middle; }
     .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
     .frame-overlay { position: absolute; top: -5px; left: -5px; pointer-events: none; z-index: 2; }
     
@@ -70,6 +70,8 @@ st.markdown("""
     .post-Pink { color: #ff69b4 !important; }
     .post-Gold { color: #ffd700 !important; }
 
+    .title-badge { background: #334155; color: #94a3b8; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; margin-left: 5px; vertical-align: middle; }
+
     @keyframes pulse { 0% { box-shadow: 0 0 5px #ff4500; } 50% { box-shadow: 0 0 20px #ff4500; } 100% { box-shadow: 0 0 5px #ff4500; } }
     @keyframes burn { from { text-shadow: 0 0 5px #ff0000; } to { text-shadow: 0 0 20px #ffff00; } }
     
@@ -84,43 +86,34 @@ try:
 except: pass
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
-# --- GÖRSEL YARDIMCILAR ---
+# --- GÖRSEL YARDIMCILAR (TEK SATIR FIX) ---
 def get_user_display_html(username, size=50):
-    ava, frame, name_style, _, font_style = database.get_user_styles(username)
+    ava, frame, name_style, _, font_style, title = database.get_user_styles(username)
     img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150?text=U"
     
-    f_html = ""
-    if frame:
-        f_size = size + 10
-        f_class = f"frame-{frame}"
-        f_html = f'<div class="frame-overlay {f_class}" style="width:{f_size}px;height:{f_size}px;"></div>'
-    
+    # HTML Stringlerini tek satırda birleştiriyoruz
+    f_html = f'<div class="frame-overlay frame-{frame}" style="width:{size+10}px;height:{size+10}px;"></div>' if frame else ""
+    t_html = f'<span class="title-badge">{title}</span>' if title else ""
     classes = f"{f'name-{name_style}' if name_style else ''} {f'font-{font_style}' if font_style else ''}"
     
-    return f'<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px;height:{size}px;"><img src="{img_src}" class="avatar-img">{f_html}</div><div style="margin-left:12px;"><div class="{classes}" style="font-size:1.1rem;">{username}</div></div></div>'
+    return f'<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px;height:{size}px;"><img src="{img_src}" class="avatar-img">{f_html}</div><div style="margin-left:12px;"><div class="{classes}" style="font-size:1rem;">{username} {t_html}</div></div></div>'
 
 def get_post_style_css(username):
-    _, _, _, post_style, font_style = database.get_user_styles(username)
+    _, _, _, post_style, font_style, _ = database.get_user_styles(username)
     classes = []
     if post_style: classes.append(f"post-{post_style}")
     if font_style: classes.append(f"font-{font_style}")
     return " ".join(classes)
 
-# --- SERVER (HATA BURADAYDI - DÜZELTİLDİ) ---
 class SchoolServer:
     def join_or_update_student(self, c, u, p=0): 
         if p!=0: database.add_score(u, p, "Oyun")
         return database.get_total_score(u)
-    
     def get_score(self, c, u): return database.get_total_score(u)
-    
     def get_leaderboard(self, c):
         df = pd.DataFrame(database.get_leaderboard_data(), columns=["Öğrenci","Puan"])
         return df if not df.empty else pd.DataFrame(columns=["Öğrenci","Puan"])
-        
-    def buy_item(self, u, type, name, cost):
-        return database.buy_item(u, type, name, cost)
-
+    def buy_item(self, u, type, name, cost): return database.buy_item(u, type, name, cost)
 server = SchoolServer()
 
 @st.cache_data
@@ -132,93 +125,16 @@ def load_local_exams():
 
 # --- OYUN JS ---
 def get_transfer_js(username):
-    return f"""function autoTransfer(){{
-        let v=0; if(typeof score!=='undefined' && score>0) v=score; else if(typeof money!=='undefined') v=Math.floor(money-startBalance);
-        if(v<=0){{alert("Puan yok!");return;}}
-        let b=document.getElementById('bBtn')||document.getElementById('mBtn'); if(b){{b.innerText="...";b.disabled=true;}}
-        try{{const u=new URL(window.top.location.href); u.searchParams.set('t_user',"{username}"); u.searchParams.set('t_amt',v); u.searchParams.set('ts',Date.now());
-        const l=document.createElement('a'); l.href=u.toString(); l.target="_top"; document.body.appendChild(l); l.click();}}catch(e){{alert(e.message);}}
-    }}"""
+    return f"""function autoTransfer(){{let v=0;if(typeof score!=='undefined'&&score>0)v=score;else if(typeof money!=='undefined')v=Math.floor(money-startBalance);if(v<=0){{alert("Puan yok!");return;}}let b=document.getElementById('bBtn')||document.getElementById('mBtn');if(b){{b.innerText="...";b.disabled=true;}}try{{const u=new URL(window.top.location.href);u.searchParams.set('t_user',"{username}");u.searchParams.set('t_amt',v);u.searchParams.set('ts',Date.now());const l=document.createElement('a');l.href=u.toString();l.target="_top";document.body.appendChild(l);l.click();}}catch(e){{alert(e.message);}}}}"""
 
-# --- GELİŞMİŞ FİNANS OYUNU ---
+# --- GELİŞMİŞ FİNANS OYUNU (Buton Fix) ---
 def get_finance_game_html(start, user):
     js = get_transfer_js(user)
-    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>
-    body{{background:#0f172a;color:#fff;font-family:sans-serif;padding:5px;text-align:center}}
-    .tab{{display:flex;justify-content:center;gap:10px;margin-bottom:10px}}
-    .tab button{{background:#334155;border:none;color:#fff;padding:8px;border-radius:5px;cursor:pointer}}
-    .active{{background:#3b82f6!important}}
-    .grid{{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}}
-    .card{{background:#1e293b;padding:8px;border-radius:5px;border:1px solid #475569;cursor:pointer}}
-    .btn{{background:radial-gradient(circle,#3b82f6,#1d4ed8);width:80px;height:80px;border-radius:50%;margin:10px auto;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 15px #3b82f6;cursor:pointer}}
-    .bank{{background:#10b981;color:white;width:100%;padding:12px;border:none;border-radius:8px;margin-top:10px;font-weight:bold}}
-    </style></head><body>
-    <div style="font-size:20px;font-weight:bold;color:#fbbf24">💰 <span id="m">{start}</span></div>
-    <div style="font-size:12px;color:#94a3b8">Gelir: <span id="cps">0</span>/sn</div>
-    <div class="tab"><button onclick="sTab('main')" class="active" id="btn-main">İşletme</button><button onclick="sTab('mgr')" id="btn-mgr">Yöneticiler</button></div>
-    
-    <div id="main">
-        <div class="btn" onclick="clk()">👆</div>
-        <div class="grid" id="market"></div>
-    </div>
-    <div id="mgr" style="display:none">
-        <div class="grid" id="managers"></div>
-        <p style="font-size:10px;color:#aaa">Yöneticiler senin yerine çalışır.</p>
-    </div>
-
-    <button id="bBtn" class="bank" onclick="autoTransfer()">🏦 KASAYI BANKAYA AKTAR</button>
-    <script>
-    let money={start}, startBalance={start};
-    const assets=[
-        {{n:"Limonata",c:100,g:1,k:0}}, {{n:"Simit",c:500,g:5,k:0}}, {{n:"Kantin",c:2500,g:30,k:0}},
-        {{n:"Cafe",c:10000,g:100,k:0}}, {{n:"Yazılım",c:50000,g:600,k:0}}, {{n:"Fabrika",c:200000,g:3000,k:0}},
-        {{n:"Banka",c:1000000,g:15000,k:0}}, {{n:"Holding",c:5000000,g:80000,k:0}}
-    ];
-    const mgrs=[
-        {{n:"Çırak",c:5000,e:0,desc:"Limonata/Simit Otomatik"}},
-        {{n:"Müdür",c:50000,e:0,desc:"Kantin/Cafe Otomatik"}},
-        {{n:"CEO",c:1000000,e:0,desc:"Tüm İşler x2 Hız"}}
-    ];
-    
-    function u(){{
-        document.getElementById('m').innerText=Math.floor(money).toLocaleString();
-        let total=assets.reduce((t,x)=>t+(x.k*x.g),0) * (mgrs[2].e?2:1);
-        document.getElementById('cps').innerText=total.toLocaleString();
-        
-        // Market
-        let h=''; assets.forEach((x,i)=>{{
-            let p=Math.floor(x.c*Math.pow(1.15,x.k));
-            h+=`<div class="card" onclick="b(${{i}})"><b>${{x.n}}</b> (${{x.k}})<br><span style="color:#f87171">${{p.toLocaleString()}}</span><br><span style="color:#34d399">+${{x.g}}</span></div>`
-        }}); document.getElementById('market').innerHTML=h;
-
-        // Managers
-        let m=''; mgrs.forEach((x,i)=>{{
-            m+=`<div class="card" onclick="bm(${{i}})" style="opacity:${{x.e?0.5:1}}"><b>${{x.n}}</b><br><span style="color:#fbbf24">${{x.c.toLocaleString()}}</span><br><small>${{x.desc}}</small></div>`
-        }}); document.getElementById('managers').innerHTML=m;
-    }}
-    
-    function clk(){{money+=1+(assets[0].k*0.1); u()}}
-    function b(i){{let x=assets[i],p=Math.floor(x.c*Math.pow(1.15,x.k)); if(money>=p){{money-=p;x.k++;u()}}}}
-    function bm(i){{if(!mgrs[i].e && money>=mgrs[i].c){{money-=mgrs[i].c; mgrs[i].e=1; u()}}}}
-    
-    function sTab(t){{
-        document.getElementById('main').style.display='none'; document.getElementById('mgr').style.display='none';
-        document.getElementById('btn-main').className=''; document.getElementById('btn-mgr').className='';
-        document.getElementById(t).style.display='block'; document.getElementById('btn-'+t).className='active';
-    }}
-
-    setInterval(()=>{{
-        let g=assets.reduce((t,x)=>t+(x.k*x.g),0) * (mgrs[2].e?2:1);
-        // Auto clickers
-        if(mgrs[0].e) g+= (assets[0].g*assets[0].k + assets[1].g*assets[1].k)*0.5;
-        if(mgrs[1].e) g+= (assets[2].g*assets[2].k + assets[3].g*assets[3].k)*0.5;
-        if(g>0){{money+=g/10; u()}}
-    }},100); 
-    u(); {js} </script></body></html>"""
+    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>body{{background:#0f172a;color:#fff;font-family:sans-serif;padding:5px;text-align:center}}.tab{{display:flex;justify-content:center;gap:10px;margin-bottom:10px}}.tab button{{background:#334155;border:none;color:#fff;padding:8px;border-radius:5px;cursor:pointer}}.active{{background:#3b82f6!important}}.grid{{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}}.card{{background:#1e293b;padding:8px;border-radius:5px;border:1px solid #475569;cursor:pointer}}.btn{{background:radial-gradient(circle,#3b82f6,#1d4ed8);width:80px;height:80px;border-radius:50%;margin:10px auto;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 15px #3b82f6;cursor:pointer}}.bank{{background:#10b981;color:white;width:100%;padding:12px;border:none;border-radius:8px;margin-top:10px;font-weight:bold}}</style></head><body><div style="font-size:20px;font-weight:bold;color:#fbbf24">💰 <span id="m">{start}</span></div><div style="font-size:12px;color:#94a3b8">Gelir: <span id="cps">0</span>/sn</div><div class="tab"><button onclick="sTab('main')" class="active" id="btn-main">İşletme</button><button onclick="sTab('mgr')" id="btn-mgr">Yöneticiler</button></div><div id="main"><div class="btn" onclick="clk()">👆</div><div class="grid" id="market"></div></div><div id="mgr" style="display:none"><div class="grid" id="managers"></div></div><button id="bBtn" class="bank" onclick="autoTransfer()">🏦 KASAYI BANKAYA AKTAR</button><script>let money={start},startBalance={start};const assets=[{{n:"Limonata",c:100,g:1,k:0}},{{n:"Simit",c:500,g:5,k:0}},{{n:"Kantin",c:2500,g:30,k:0}},{{n:"Cafe",c:10000,g:100,k:0}},{{n:"Yazılım",c:50000,g:600,k:0}},{{n:"Fabrika",c:200000,g:3000,k:0}},{{n:"Banka",c:1000000,g:15000,k:0}}];const mgrs=[{{n:"Çırak",c:5000,e:0,desc:"Limonata/Simit Oto"}},{{n:"Müdür",c:50000,e:0,desc:"Kantin/Cafe Oto"}},{{n:"CEO",c:1000000,e:0,desc:"x2 Hız"}}];function u(){{document.getElementById('m').innerText=Math.floor(money).toLocaleString();let total=assets.reduce((t,x)=>t+(x.k*x.g),0)*(mgrs[2].e?2:1);document.getElementById('cps').innerText=total.toLocaleString();let h='';assets.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.15,x.k));h+=`<div class="card" onclick="b(${{i}})"><b>${{x.n}}</b> (${{x.k}})<br><span style="color:#f87171">${{p.toLocaleString()}}</span><br><span style="color:#34d399">+${{x.g}}</span></div>`}});document.getElementById('market').innerHTML=h;let m='';mgrs.forEach((x,i)=>{{m+=`<div class="card" onclick="bm(${{i}})" style="opacity:${{x.e?0.5:1}}"><b>${{x.n}}</b><br><span style="color:#fbbf24">${{x.c.toLocaleString()}}</span><br><small>${{x.desc}}</small></div>`}});document.getElementById('managers').innerHTML=m;}}function clk(){{money+=1+(assets[0].k*0.1);u()}}function b(i){{let x=assets[i],p=Math.floor(x.c*Math.pow(1.15,x.k));if(money>=p){{money-=p;x.k++;u()}}}}function bm(i){{if(!mgrs[i].e&&money>=mgrs[i].c){{money-=mgrs[i].c;mgrs[i].e=1;u()}}}}function sTab(t){{document.getElementById('main').style.display='none';document.getElementById('mgr').style.display='none';document.getElementById('btn-main').className='';document.getElementById('btn-mgr').className='';document.getElementById(t).style.display='block';document.getElementById('btn-'+t).className='active';}}setInterval(()=>{{let g=assets.reduce((t,x)=>t+(x.k*x.g),0)*(mgrs[2].e?2:1);if(mgrs[0].e)g+=(assets[0].g*assets[0].k+assets[1].g*assets[1].k)*0.5;if(mgrs[1].e)g+=(assets[2].g*assets[2].k+assets[3].g*assets[3].k)*0.5;if(g>0){{money+=g/10;u()}}}},100);u();{js}</script></body></html>"""
 
 def get_matrix_game_html(user):
     js = get_transfer_js(user)
-    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><style>body{{background:#050505;color:#00ffff;margin:0;overflow:hidden;touch-action:none;text-align:center}} canvas{{background:#111;border:2px solid #333;margin-top:10px}} .btn{{position:absolute;top:10px;right:10px;background:#ff00ff;border:none;padding:5px 15px;border-radius:15px;font-weight:bold;color:white}}</style></head><body><div style="padding:10px;display:flex;justify-content:space-between"><span>PUAN: <span id="s">0</span></span><button id="mBtn" class="btn" onclick="autoTransfer()">AKTAR</button></div><canvas id="c"></canvas><script>const cvs=document.getElementById('c'), ctx=cvs.getContext('2d'); const R=10, C=8; let SQ=25, grid=[], pieces=[], drag=null, score=0; const SHAPES=[[[1]],[[1,1]],[[1],[1]],[[1,1,1]],[[1,0],[1,0],[1,1]]]; function rs(){{let w=window.innerWidth, h=window.innerHeight; SQ=Math.floor(Math.min((w-20)/C,(h-100)/R)); SQ=Math.min(SQ,35); cvs.width=SQ*C; cvs.height=SQ*R+120; d();}} window.addEventListener('resize',rs); function init(){{grid=Array(R).fill().map(()=>Array(C).fill(0)); score=0; document.getElementById('s').innerText=0; rs(); sp();}} function sp(){{pieces=[]; let y=R*SQ+20, w=cvs.width/3; for(let i=0;i<3;i++){{let s=SHAPES[Math.floor(Math.random()*SHAPES.length)]; pieces.push({{s:s,x:w*i+5,y:y,bx:w*i+5,by:y,sc:0.6}});}} d();}} function d(){{ctx.fillStyle="#000000"; ctx.fillRect(0,0,cvs.width,cvs.height); for(let r=0;r<R;r++) for(let c=0;c<C;c++) {{ctx.strokeStyle="#333"; ctx.lineWidth=1; ctx.strokeRect(c*SQ,r*SQ,SQ,SQ); if(grid[r][c]) {{ctx.fillStyle="#00ffff"; ctx.fillRect(c*SQ+3,r*SQ+3,SQ-6,SQ-6); ctx.strokeStyle="#ff00ff"; ctx.strokeRect(c*SQ+3,r*SQ+3,SQ-6,SQ-6);}}}} ctx.strokeStyle="white"; ctx.beginPath(); ctx.moveTo(0,R*SQ); ctx.lineTo(cvs.width,R*SQ); ctx.stroke(); pieces.forEach(p=>{{if(p!==drag) ds(p.s,p.x,p.y,SQ*p.sc,"#555")}}); if(drag) ds(drag.s,drag.x,drag.y,SQ,"#ff00ff");}} function ds(s,x,y,z,c){{ctx.fillStyle=c; for(let r=0;r<s.length;r++) for(let k=0;k<s[r].length;k++) if(s[r][k]) ctx.fillRect(x+k*z,y+r*z,z,z);}} function gp(e){{let r=cvs.getBoundingClientRect(),t=e.touches?e.touches[0]:e; return {{x:t.clientX-r.left,y:t.clientY-r.top}}}} function chk(){{for(let r=0;r<R;r++) if(grid[r].every(x=>x)) {{grid[r].fill(0); score+=50;}} for(let c=0;c<C;c++) {{let f=true; for(let r=0;r<R;r++) if(!grid[r][c]) f=false; if(f) {{for(let r=0;r<R;r++) grid[r][c]=0; score+=50;}}}} document.getElementById('s').innerText=score; if(pieces.length===0) sp();}} cvs.addEventListener('touchstart',e=>{{let p=gp(e); pieces.forEach(pi=>{{if(p.x>=pi.x&&p.x<=pi.x+60&&p.y>=pi.y&&p.y<=pi.y+60) drag=pi;}});}},{{passive:false}}); cvs.addEventListener('touchmove',e=>{{e.preventDefault(); if(drag){{let p=gp(e); drag.x=p.x-20; drag.y=p.y-20; d();}}}},{{passive:false}}); cvs.addEventListener('touchend',e=>{{if(drag){{let gx=Math.round(drag.x/SQ), gy=Math.round(drag.y/SQ), fit=true; for(let r=0;r<drag.s.length;r++) for(let c=0;c<drag.s[r].length;c++) if(drag.s[r][c]) {{if(gx+c<0||gx+c>=C||gy+r>=R||grid[gy+r][gx+c]) fit=false;}} if(fit){{for(let r=0;r<drag.s.length;r++) for(let c=0;c<drag.s[r].length;c++) if(drag.s[r][c]) grid[gy+r][gx+c]=1; pieces=pieces.filter(p=>p!==drag); score+=10; chk();}} else {{drag.x=drag.bx; drag.y=drag.by;}} drag=null; d();}}}},{{passive:false}}); init(); {js} </script></body></html>"""
+    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><style>body{{background:#050505;color:#00ffff;margin:0;overflow:hidden;touch-action:none;text-align:center}}canvas{{background:#111;border:2px solid #333;margin-top:10px}}.btn{{position:absolute;top:10px;right:10px;background:#ff00ff;border:none;padding:5px 15px;border-radius:15px;font-weight:bold;color:white}}</style></head><body><div style="padding:10px;display:flex;justify-content:space-between"><span>PUAN: <span id="s">0</span></span><button id="mBtn" class="btn" onclick="autoTransfer()">AKTAR</button></div><canvas id="c"></canvas><script>const cvs=document.getElementById('c'),ctx=cvs.getContext('2d');const R=10,C=8;let SQ=25,grid=[],pieces=[],drag=null,score=0;const SHAPES=[[[1]],[[1,1]],[[1],[1]],[[1,1,1]],[[1,0],[1,0],[1,1]]];function rs(){{let w=window.innerWidth,h=window.innerHeight;SQ=Math.floor(Math.min((w-20)/C,(h-100)/R));SQ=Math.min(SQ,35);cvs.width=SQ*C;cvs.height=SQ*R+120;d()}}window.addEventListener('resize',rs);function init(){{grid=Array(R).fill().map(()=>Array(C).fill(0));score=0;document.getElementById('s').innerText=0;rs();sp()}}function sp(){{pieces=[];let y=R*SQ+20,w=cvs.width/3;for(let i=0;i<3;i++){{let s=SHAPES[Math.floor(Math.random()*SHAPES.length)];pieces.push({{s:s,x:w*i+5,y:y,bx:w*i+5,by:y,sc:0.6}})}}d()}}function d(){{ctx.fillStyle="#000000";ctx.fillRect(0,0,cvs.width,cvs.height);for(let r=0;r<R;r++)for(let c=0;c<C;c++){{ctx.strokeStyle="#333";ctx.lineWidth=1;ctx.strokeRect(c*SQ,r*SQ,SQ,SQ);if(grid[r][c]){{ctx.fillStyle="#00ffff";ctx.fillRect(c*SQ+3,r*SQ+3,SQ-6,SQ-6);ctx.strokeStyle="#ff00ff";ctx.strokeRect(c*SQ+3,r*SQ+3,SQ-6,SQ-6)}}}}ctx.strokeStyle="white";ctx.beginPath();ctx.moveTo(0,R*SQ);ctx.lineTo(cvs.width,R*SQ);ctx.stroke();pieces.forEach(p=>{{if(p!==drag)ds(p.s,p.x,p.y,SQ*p.sc,"#555")}});if(drag)ds(drag.s,drag.x,drag.y,SQ,"#ff00ff")}}function ds(s,x,y,z,c){{ctx.fillStyle=c;for(let r=0;r<s.length;r++)for(let k=0;k<s[r].length;k++)if(s[r][k])ctx.fillRect(x+k*z,y+r*z,z,z)}}function gp(e){{let r=cvs.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{{x:t.clientX-r.left,y:t.clientY-r.top}}}}function chk(){{for(let r=0;r<R;r++)if(grid[r].every(x=>x)){{grid[r].fill(0);score+=50}}for(let c=0;c<C;c++){{let f=true;for(let r=0;r<R;r++)if(!grid[r][c])f=false;if(f){{for(let r=0;r<R;r++)grid[r][c]=0;score+=50}}}}document.getElementById('s').innerText=score;if(pieces.length===0)sp()}}cvs.addEventListener('touchstart',e=>{{let p=gp(e);pieces.forEach(pi=>{{if(p.x>=pi.x&&p.x<=pi.x+60&&p.y>=pi.y&&p.y<=pi.y+60)drag=pi}})}},{{passive:false}});cvs.addEventListener('touchmove',e=>{{e.preventDefault();if(drag){{let p=gp(e);drag.x=p.x-20;drag.y=p.y-20;d()}}}},{{passive:false}});cvs.addEventListener('touchend',e=>{{if(drag){{let gx=Math.round(drag.x/SQ),gy=Math.round(drag.y/SQ),fit=true;for(let r=0;r<drag.s.length;r++)for(let c=0;c<drag.s[r].length;c++)if(drag.s[r][c]){{if(gx+c<0||gx+c>=C||gy+r>=R||grid[gy+r][gx+c])fit=false}}if(fit){{for(let r=0;r<drag.s.length;r++)for(let c=0;c<drag.s[r].length;c++)if(drag.s[r][c])grid[gy+r][gx+c]=1;pieces=pieces.filter(p=>p!==drag);score+=10;chk()}}else{{drag.x=drag.bx;drag.y=drag.by}}drag=null;d()}}}},{{passive:false}});init();{js}</script></body></html>"""
 
 if "t_user" in st.query_params and "t_amt" in st.query_params:
     try:
@@ -323,6 +239,12 @@ else:
                 {"n": "Orbitron", "c": 250000, "t": "font", "v": "Orbitron", "css": "font-Orbitron"},
                 {"n": "Rye", "c": 350000, "t": "font", "v": "Rye", "css": "font-Rye"},
                 {"n": "Dans", "c": 500000, "t": "font", "v": "Dancing", "css": "font-Dancing"}
+            ],
+            "🔰 Ünvan": [
+                {"n": "Çırak", "c": 10000, "t": "title", "v": "Çırak", "css": ""},
+                {"n": "Usta", "c": 100000, "t": "title", "v": "Usta", "css": ""},
+                {"n": "Bilgin", "c": 500000, "t": "title", "v": "Bilgin", "css": ""},
+                {"n": "LORD", "c": 5000000, "t": "title", "v": "LORD", "css": ""}
             ]
         }
         
@@ -330,25 +252,29 @@ else:
         for i, (cat, products) in enumerate(items.items()):
             with tabs[i]:
                 # 4'lü Grid
-                cols = st.columns(4)
-                for j, p in enumerate(products):
-                    with cols[j % 4]:
-                        with st.container():
-                            st.markdown(f"""<div class="shop-card">""", unsafe_allow_html=True)
-                            # Görsel Önizleme
-                            preview = ""
-                            if p['t'] == 'frame':
-                                preview = f'<div style="position:relative;width:40px;height:40px;margin:0 auto;"><img src="https://via.placeholder.com/40" style="border-radius:50%;"><div class="{p["css"]}" style="position:absolute;top:-3px;left:-3px;width:46px;height:46px;"></div></div>'
-                            elif p['t'] == 'name':
-                                preview = f'<div class="{p["css"]}" style="font-size:0.8rem">İsim</div>'
-                            elif p['t'] == 'font':
-                                preview = f'<div class="{p["css"]}" style="font-size:1rem">Aa</div>'
-                            
-                            st.markdown(f"""{preview}<div class="shop-title">{p['n']}</div><button class="price-btn">{p['c']:,}</button></div>""", unsafe_allow_html=True)
-                            if st.button("Al", key=f"b_{p['v']}_{i}_{j}"):
-                                ok, msg = server.buy_item(st.session_state['username'], p['t'], p['v'], p['c'])
-                                if ok: st.success("Tamam!"); time.sleep(1); st.rerun()
-                                else: st.error(msg)
+                rows = [products[j:j+4] for j in range(0, len(products), 4)]
+                for row in rows:
+                    cols = st.columns(4)
+                    for k, p in enumerate(row):
+                        with cols[k]:
+                            with st.container():
+                                st.markdown(f"""<div class="shop-card">""", unsafe_allow_html=True)
+                                # Önizleme
+                                preview = ""
+                                if p['t'] == 'frame':
+                                    preview = f'<div style="position:relative;width:40px;height:40px;margin:0 auto;"><img src="https://via.placeholder.com/40" style="border-radius:50%;"><div class="{p["css"]}" style="position:absolute;top:-3px;left:-3px;width:46px;height:46px;"></div></div>'
+                                elif p['t'] == 'name':
+                                    preview = f'<div class="{p["css"]}" style="font-size:0.8rem">İsim</div>'
+                                elif p['t'] == 'font':
+                                    preview = f'<div class="{p["css"]}" style="font-size:1rem">Aa</div>'
+                                elif p['t'] == 'title':
+                                    preview = f'<span class="title-badge">{p["v"]}</span>'
+                                
+                                st.markdown(f"""{preview}<div class="shop-title">{p['n']}</div><button class="price-btn">{p['c']:,}</button></div>""", unsafe_allow_html=True)
+                                if st.button("Al", key=f"b_{p['v']}_{i}_{k}"):
+                                    ok, msg = server.buy_item(st.session_state['username'], p['t'], p['v'], p['c'])
+                                    if ok: st.success("Tamam!"); time.sleep(1); st.rerun()
+                                    else: st.error(msg)
 
     elif sel.startswith("🔔"):
         st.header("Bildirimler")
