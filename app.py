@@ -18,81 +18,83 @@ def init_state():
         if k not in st.session_state: st.session_state[k] = v
 init_state()
 
-# --- CSS (MAĞAZA GRID FIX) ---
+# --- CSS: INSTAGRAM TARZI ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
     .login-container { text-align: center; margin-top: 50px; }
-    .top-bar { background: #1e293b; padding: 8px 15px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
+    .top-bar { background: #1e293b; padding: 10px; border-radius: 12px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
     .user-greeting { font-weight: bold; color: #e2e8f0; font-size: 1rem; }
-    .post-card { background: #1e293b; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #334155; }
-    .comment-sec { background: #0f172a; padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.85rem; }
+    
+    /* POST KARTI */
+    .post-container {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+    .post-header { display: flex; align-items: center; margin-bottom: 10px; }
+    .post-author { font-weight: bold; color: #fff; margin-left: 10px; font-size: 1rem; }
+    .post-date { color: #94a3b8; font-size: 0.8rem; margin-left: auto; }
+    .post-content { margin-bottom: 10px; color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; }
+    .post-image { width: 100%; border-radius: 8px; margin-bottom: 10px; }
+    .post-actions { display: flex; gap: 15px; border-top: 1px solid #334155; padding-top: 10px; }
+    
+    /* YORUM */
+    .comment-box { background: #0f172a; padding: 8px; border-radius: 8px; margin-top: 5px; font-size: 0.85rem; display: flex; align-items: center; }
+    
     div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 10px; flex-wrap: wrap; }
     
-    /* MAĞAZA IZGARASI (MOBİL İÇİN ZORUNLU GRID) */
-    .shop-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr); /* 3'lü Yan Yana */
-        gap: 8px;
-        margin-top: 10px;
-    }
-    .shop-item {
-        background: #0f172a; border: 1px solid #334155; border-radius: 8px;
-        padding: 5px; text-align: center; display: flex; flex-direction: column;
-        align-items: center; justify-content: space-between; height: 110px;
-        transition: 0.2s; position: relative;
-    }
-    .shop-item:active { transform: scale(0.95); border-color: #FFD700; }
-    .shop-name { font-size: 0.7rem; font-weight: bold; margin-top: 5px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-    .shop-price { background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.65rem; font-weight: bold; margin-top: auto; }
-    
-    /* FONT STİLLERİ */
+    /* MAĞAZA */
+    .shop-card { background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 8px; text-align: center; height: 130px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .shop-card:hover { border-color: #FFD700; transform: translateY(-3px); }
+    .shop-title { font-size: 0.75rem; font-weight: bold; margin: 3px 0; color: #e2e8f0; }
+    .price-btn { background: #10b981; color: white; border: none; border-radius: 12px; padding: 3px 10px; font-size: 0.7rem; cursor: pointer; font-weight: bold; width: 100%; transition:0.2s; }
+    .price-btn:hover { background: #059669; }
+
+    /* FONT & EFEKTLER */
     .font-Cinzel { font-family: 'Cinzel', serif !important; }
     .font-Orbitron { font-family: 'Orbitron', sans-serif !important; }
     .font-Rye { font-family: 'Rye', serif !important; }
     .font-Dancing { font-family: 'Dancing Script', cursive !important; }
     .font-Metallic { font-family: 'Metal Mania', cursive !important; color: #b0b0b0 !important; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
 
-    /* AVATAR */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; vertical-align: middle; }
     .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
     .frame-overlay { position: absolute; top: -5px; left: -5px; pointer-events: none; z-index: 2; }
-    
-    /* ÇERÇEVELER */
     .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 10px #FFD700; }
     .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 10px #00ffff; }
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; animation: pulse 1.5s infinite; }
     .frame-King { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 20px #ffd700; }
     .frame-Matrix { border: 3px dotted #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00; }
 
-    /* EFEKTLER */
     .name-Glitch { color: #00ffff; text-shadow: 2px 0 #ff00ff; font-weight: bold; }
-    .name-Fire { color: #ff4500; text-shadow: 0 0 5px #ffff00; font-weight: bold; animation: burn 1s infinite alternate; }
+    .name-Fire { color: #ff4500; text-shadow: 0 0 5px #ff0000; font-weight: bold; animation: burn 1s infinite alternate; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
-    .name-Rainbow { background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red); -webkit-background-clip: text; color: transparent; font-weight: bold; }
     
     .post-Cyan { color: #00ffff !important; }
     .post-Lime { color: #00ff00 !important; }
     .post-Pink { color: #ff69b4 !important; }
     .post-Gold { color: #ffd700 !important; }
 
-    .title-badge { background: #334155; color: #94a3b8; padding: 1px 5px; border-radius: 4px; font-size: 0.6rem; margin-left: 5px; vertical-align: middle; }
-
+    .title-badge { background: #334155; color: #94a3b8; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; margin-left: 5px; vertical-align: middle; }
     @keyframes pulse { 0% { box-shadow: 0 0 5px #ff4500; } 50% { box-shadow: 0 0 20px #ff4500; } 100% { box-shadow: 0 0 5px #ff4500; } }
     @keyframes burn { from { text-shadow: 0 0 5px #ff0000; } to { text-shadow: 0 0 20px #ffff00; } }
-    
     iframe { width: 100% !important; }
 </style>
 """, unsafe_allow_html=True)
 
+# Başlat
 try:
     database.create_database()
     if not database.login_user("admin", "6626"): database.add_user("admin", "6626", "admin")
 except: pass
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
-# --- GÖRSEL YARDIMCILAR ---
+# --- YARDIMCILAR ---
 def get_user_display_html(username, size=50):
     ava, frame, name_style, _, font_style, title = database.get_user_styles(username)
     img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150?text=U"
@@ -102,20 +104,17 @@ def get_user_display_html(username, size=50):
 
 def get_post_style_css(username):
     _, _, _, post_style, font_style, _ = database.get_user_styles(username)
-    classes = []
-    if post_style: classes.append(f"post-{post_style}")
-    if font_style: classes.append(f"font-{font_style}")
-    return " ".join(classes)
+    return f"post-{post_style} font-{font_style}"
 
 class SchoolServer:
-    def join_or_update_student(self, c, u, p=0): 
-        if p!=0: database.add_score(u, p, "Oyun")
-        return database.get_total_score(u)
     def get_score(self, c, u): return database.get_total_score(u)
     def get_leaderboard(self, c):
         df = pd.DataFrame(database.get_leaderboard_data(), columns=["Öğrenci","Puan"])
         return df if not df.empty else pd.DataFrame(columns=["Öğrenci","Puan"])
     def buy_item(self, u, type, name, cost): return database.buy_item(u, type, name, cost)
+    def join_or_update_student(self, c, u, p=0): 
+        if p!=0: database.add_score(u, p, "Oyun")
+        return database.get_total_score(u)
 server = SchoolServer()
 
 @st.cache_data
@@ -125,16 +124,31 @@ def load_local_exams():
         except: return {}
     return {}
 
-# --- TRANSFER VE SATIN ALMA YAKALAYICI ---
+def get_transfer_js(username):
+    return f"""function autoTransfer(){{let v=0;if(typeof score!=='undefined'&&score>0)v=score;else if(typeof money!=='undefined')v=Math.floor(money-startBalance);if(v<=0){{alert("Puan yok!");return;}}let b=document.getElementById('bBtn')||document.getElementById('mBtn');if(b){{b.innerText="...";b.disabled=true;}}try{{const u=new URL(window.top.location.href);u.searchParams.set('t_user',"{username}");u.searchParams.set('t_amt',v);u.searchParams.set('ts',Date.now());const l=document.createElement('a');l.href=u.toString();l.target="_top";document.body.appendChild(l);l.click();}}catch(e){{alert(e.message);}}}}"""
+
+def get_finance_game_html(start, user):
+    js = get_transfer_js(user)
+    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>body{{background:#0f172a;color:#fff;font-family:sans-serif;padding:5px;text-align:center}}.tab{{display:flex;justify-content:center;gap:10px;margin-bottom:10px}}.tab button{{background:#334155;border:none;color:#fff;padding:8px;border-radius:5px;cursor:pointer}}.active{{background:#3b82f6!important}}.grid{{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}}.card{{background:#1e293b;padding:8px;border-radius:5px;border:1px solid #475569;cursor:pointer}}.btn{{background:radial-gradient(circle,#3b82f6,#1d4ed8);width:80px;height:80px;border-radius:50%;margin:10px auto;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 15px #3b82f6;cursor:pointer}}.bank{{background:#10b981;color:white;width:100%;padding:12px;border:none;border-radius:8px;margin-top:10px;font-weight:bold}}</style></head><body><div style="font-size:20px;font-weight:bold;color:#fbbf24">💰 <span id="m">{start}</span></div><div style="font-size:12px;color:#94a3b8">Gelir: <span id="cps">0</span>/sn</div><div class="tab"><button onclick="sTab('main')" class="active" id="btn-main">İşletme</button><button onclick="sTab('mgr')" id="btn-mgr">Yöneticiler</button></div><div id="main"><div class="btn" onclick="clk()">👆</div><div class="grid" id="market"></div></div><div id="mgr" style="display:none"><div class="grid" id="managers"></div></div><button id="bBtn" class="bank" onclick="autoTransfer()">🏦 KASAYI BANKAYA AKTAR</button><script>let money={start},startBalance={start};const assets=[{{n:"Limonata",c:100,g:1,k:0}},{{n:"Simit",c:500,g:5,k:0}},{{n:"Kantin",c:2500,g:30,k:0}},{{n:"Cafe",c:10000,g:100,k:0}},{{n:"Yazılım",c:50000,g:600,k:0}},{{n:"Fabrika",c:200000,g:3000,k:0}},{{n:"Banka",c:1000000,g:15000,k:0}}];const mgrs=[{{n:"Çırak",c:5000,e:0,desc:"Limonata/Simit Oto"}},{{n:"Müdür",c:50000,e:0,desc:"Kantin/Cafe Oto"}},{{n:"CEO",c:1000000,e:0,desc:"x2 Hız"}}];function u(){{document.getElementById('m').innerText=Math.floor(money).toLocaleString();let total=assets.reduce((t,x)=>t+(x.k*x.g),0)*(mgrs[2].e?2:1);document.getElementById('cps').innerText=total.toLocaleString();let h='';assets.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.15,x.k));h+=`<div class="card" onclick="b(${{i}})"><b>${{x.n}}</b> (${{x.k}})<br><span style="color:#f87171">${{p.toLocaleString()}}</span><br><span style="color:#34d399">+${{x.g}}</span></div>`}});document.getElementById('market').innerHTML=h;let m='';mgrs.forEach((x,i)=>{{m+=`<div class="card" onclick="bm(${{i}})" style="opacity:${{x.e?0.5:1}}"><b>${{x.n}}</b><br><span style="color:#fbbf24">${{x.c.toLocaleString()}}</span><br><small>${{x.desc}}</small></div>`}});document.getElementById('managers').innerHTML=m;}}function clk(){{money+=1+(assets[0].k*0.1);u()}}function b(i){{let x=assets[i],p=Math.floor(x.c*Math.pow(1.15,x.k));if(money>=p){{money-=p;x.k++;u()}}}}function bm(i){{if(!mgrs[i].e&&money>=mgrs[i].c){{money-=mgrs[i].c;mgrs[i].e=1;u()}}}}function sTab(t){{document.getElementById('main').style.display='none';document.getElementById('mgr').style.display='none';document.getElementById('btn-main').className='';document.getElementById('btn-mgr').className='';document.getElementById(t).style.display='block';document.getElementById('btn-'+t).className='active';}}setInterval(()=>{{let g=assets.reduce((t,x)=>t+(x.k*x.g),0)*(mgrs[2].e?2:1);if(mgrs[0].e)g+=(assets[0].g*assets[0].k+assets[1].g*assets[1].k)*0.5;if(mgrs[1].e)g+=(assets[2].g*assets[2].k+assets[3].g*assets[3].k)*0.5;if(g>0){{money+=g/10;u()}}}},100);u();{js}</script></body></html>"""
+
+def get_matrix_game_html(user):
+    js = get_transfer_js(user)
+    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><style>body{{background:#050505;color:#00ffff;margin:0;overflow:hidden;touch-action:none;text-align:center}}canvas{{background:#111;border:2px solid #333;margin-top:10px}}.btn{{position:absolute;top:10px;right:10px;background:#ff00ff;border:none;padding:5px 15px;border-radius:15px;font-weight:bold;color:white}}</style></head><body><div style="padding:10px;display:flex;justify-content:space-between"><span>PUAN: <span id="s">0</span></span><button id="mBtn" class="btn" onclick="autoTransfer()">AKTAR</button></div><canvas id="c"></canvas><script>const cvs=document.getElementById('c'),ctx=cvs.getContext('2d');const R=10,C=8;let SQ=25,grid=[],pieces=[],drag=null,score=0;const SHAPES=[[[1]],[[1,1]],[[1],[1]],[[1,1,1]],[[1,0],[1,0],[1,1]]];function rs(){{let w=window.innerWidth,h=window.innerHeight;SQ=Math.floor(Math.min((w-20)/C,(h-100)/R));SQ=Math.min(SQ,35);cvs.width=SQ*C;cvs.height=SQ*R+120;d()}}window.addEventListener('resize',rs);function init(){{grid=Array(R).fill().map(()=>Array(C).fill(0));score=0;document.getElementById('s').innerText=0;rs();sp()}}function sp(){{pieces=[];let y=R*SQ+20,w=cvs.width/3;for(let i=0;i<3;i++){{let s=SHAPES[Math.floor(Math.random()*SHAPES.length)];pieces.push({{s:s,x:w*i+5,y:y,bx:w*i+5,by:y,sc:0.6}})}}d()}}function d(){{ctx.fillStyle="#000000";ctx.fillRect(0,0,cvs.width,cvs.height);for(let r=0;r<R;r++)for(let c=0;c<C;c++){{ctx.strokeStyle="#333";ctx.lineWidth=1;ctx.strokeRect(c*SQ,r*SQ,SQ,SQ);if(grid[r][c]){{ctx.fillStyle="#00ffff";ctx.fillRect(c*SQ+3,r*SQ+3,SQ-6,SQ-6);ctx.strokeStyle="#ff00ff";ctx.strokeRect(c*SQ+3,r*SQ+3,SQ-6,SQ-6)}}}}ctx.strokeStyle="white";ctx.beginPath();ctx.moveTo(0,R*SQ);ctx.lineTo(cvs.width,R*SQ);ctx.stroke();pieces.forEach(p=>{{if(p!==drag)ds(p.s,p.x,p.y,SQ*p.sc,"#555")}});if(drag)ds(drag.s,drag.x,drag.y,SQ,"#ff00ff")}}function ds(s,x,y,z,c){{ctx.fillStyle=c;for(let r=0;r<s.length;r++)for(let k=0;k<s[r].length;k++)if(s[r][k])ctx.fillRect(x+k*z,y+r*z,z,z)}}function gp(e){{let r=cvs.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{{x:t.clientX-r.left,y:t.clientY-r.top}}}}function chk(){{for(let r=0;r<R;r++)if(grid[r].every(x=>x)){{grid[r].fill(0);score+=50}}for(let c=0;c<C;c++){{let f=true;for(let r=0;r<R;r++)if(!grid[r][c])f=false;if(f){{for(let r=0;r<R;r++)grid[r][c]=0;score+=50}}}}document.getElementById('s').innerText=score;if(pieces.length===0)sp()}}cvs.addEventListener('touchstart',e=>{{let p=gp(e);pieces.forEach(pi=>{{if(p.x>=pi.x&&p.x<=pi.x+60&&p.y>=pi.y&&p.y<=pi.y+60)drag=pi}})}},{{passive:false}});cvs.addEventListener('touchmove',e=>{{e.preventDefault();if(drag){{let p=gp(e);drag.x=p.x-20;drag.y=p.y-20;d()}}}},{{passive:false}});cvs.addEventListener('touchend',e=>{{if(drag){{let gx=Math.round(drag.x/SQ),gy=Math.round(drag.y/SQ),fit=true;for(let r=0;r<drag.s.length;r++)for(let c=0;c<drag.s[r].length;c++)if(drag.s[r][c]){{if(gx+c<0||gx+c>=C||gy+r>=R||grid[gy+r][gx+c])fit=false}}if(fit){{for(let r=0;r<drag.s.length;r++)for(let c=0;c<drag.s[r].length;c++)if(drag.s[r][c])grid[gy+r][gx+c]=1;pieces=pieces.filter(p=>p!==drag);score+=10;chk()}}else{{drag.x=drag.bx;drag.y=drag.by}}drag=null;d()}}}},{{passive:false}});init();{js}</script></body></html>"""
+
+if "t_user" in st.query_params and "t_amt" in st.query_params:
+    try:
+        u, a = st.query_params["t_user"], int(st.query_params["t_amt"])
+        role = database.get_user_role(u)
+        if role:
+            st.session_state['logged_in'], st.session_state['username'], st.session_state['user_role'] = True, u, role
+            st.session_state['active_menu'] = "🎮 Oyun"
+            if a > 0: database.add_score(u, a, "Oyun"); st.toast(f"✅ {a} Puan!", icon="💰"); time.sleep(1); st.query_params.clear(); st.rerun()
+    except: st.query_params.clear()
+
 if "action" in st.query_params:
     try:
         act = st.query_params["action"]
-        if act == "transfer":
-            u, a = st.query_params["u"], int(st.query_params["a"])
-            if database.get_user_role(u):
-                st.session_state.update({'logged_in':True, 'username':u, 'active_menu':"🎮 Oyun"})
-                if a > 0: database.add_score(u, a, "Oyun"); st.toast(f"✅ {a} Puan!", icon="💰"); time.sleep(1)
-        elif act == "buy":
+        if act == "buy":
             u, t, v, c = st.query_params["u"], st.query_params["t"], st.query_params["v"], int(st.query_params["c"])
             if database.get_user_role(u):
                 st.session_state.update({'logged_in':True, 'username':u, 'active_menu':"🛒 Mağaza"})
@@ -144,20 +158,6 @@ if "action" in st.query_params:
         st.query_params.clear(); st.rerun()
     except: st.query_params.clear()
 
-# --- JS ---
-def get_transfer_js(username):
-    return f"""function autoTransfer(){{let v=0;if(typeof score!=='undefined'&&score>0)v=score;else if(typeof money!=='undefined')v=Math.floor(money-startBalance);if(v<=0){{alert("Puan yok!");return;}}let b=document.getElementById('bBtn')||document.getElementById('mBtn');if(b){{b.innerText="...";b.disabled=true;}}try{{const u=new URL(window.top.location.href);u.searchParams.set('action','transfer');u.searchParams.set('u',"{username}");u.searchParams.set('a',v);u.searchParams.set('ts',Date.now());const l=document.createElement('a');l.href=u.toString();l.target="_top";document.body.appendChild(l);l.click();}}catch(e){{alert(e.message);}}}}"""
-
-# --- OYUNLAR ---
-def get_finance_game_html(start, user):
-    js = get_transfer_js(user)
-    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>body{{background:#0f172a;color:#fff;font-family:sans-serif;padding:5px;text-align:center}}.tab{{display:flex;justify-content:center;gap:10px;margin-bottom:10px}}.tab button{{background:#334155;border:none;color:#fff;padding:8px;border-radius:5px;cursor:pointer}}.active{{background:#3b82f6!important}}.grid{{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}}.card{{background:#1e293b;padding:8px;border-radius:5px;border:1px solid #475569;cursor:pointer}}.btn{{background:radial-gradient(circle,#3b82f6,#1d4ed8);width:80px;height:80px;border-radius:50%;margin:10px auto;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 15px #3b82f6;cursor:pointer}}.bank{{background:#10b981;color:white;width:100%;padding:12px;border:none;border-radius:8px;margin-top:10px;font-weight:bold}}</style></head><body><div style="font-size:20px;font-weight:bold;color:#fbbf24">💰 <span id="m">{start}</span></div><div style="font-size:12px;color:#94a3b8">Gelir: <span id="cps">0</span>/sn</div><div class="tab"><button onclick="sTab('main')" class="active" id="btn-main">İşletme</button><button onclick="sTab('mgr')" id="btn-mgr">Yöneticiler</button></div><div id="main"><div class="btn" onclick="clk()">👆</div><div class="grid" id="market"></div></div><div id="mgr" style="display:none"><div class="grid" id="managers"></div></div><button id="bBtn" class="bank" onclick="autoTransfer()">🏦 KASAYI BANKAYA AKTAR</button><script>let money={start},startBalance={start};const assets=[{{n:"Limonata",c:100,g:1,k:0}},{{n:"Simit",c:500,g:5,k:0}},{{n:"Kantin",c:2500,g:30,k:0}},{{n:"Cafe",c:10000,g:100,k:0}},{{n:"Yazılım",c:50000,g:600,k:0}},{{n:"Fabrika",c:200000,g:3000,k:0}},{{n:"Banka",c:1000000,g:15000,k:0}}];const mgrs=[{{n:"Çırak",c:5000,e:0,desc:"Limonata/Simit Oto"}},{{n:"Müdür",c:50000,e:0,desc:"Kantin/Cafe Oto"}},{{n:"CEO",c:1000000,e:0,desc:"x2 Hız"}}];function u(){{document.getElementById('m').innerText=Math.floor(money).toLocaleString();let total=assets.reduce((t,x)=>t+(x.k*x.g),0)*(mgrs[2].e?2:1);document.getElementById('cps').innerText=total.toLocaleString();let h='';assets.forEach((x,i)=>{{let p=Math.floor(x.c*Math.pow(1.15,x.k));h+=`<div class="card" onclick="b(${{i}})"><b>${{x.n}}</b> (${{x.k}})<br><span style="color:#f87171">${{p.toLocaleString()}}</span><br><span style="color:#34d399">+${{x.g}}</span></div>`}});document.getElementById('market').innerHTML=h;let m='';mgrs.forEach((x,i)=>{{m+=`<div class="card" onclick="bm(${{i}})" style="opacity:${{x.e?0.5:1}}"><b>${{x.n}}</b><br><span style="color:#fbbf24">${{x.c.toLocaleString()}}</span><br><small>${{x.desc}}</small></div>`}});document.getElementById('managers').innerHTML=m;}}function clk(){{money+=1+(assets[0].k*0.1);u()}}function b(i){{let x=assets[i],p=Math.floor(x.c*Math.pow(1.15,x.k));if(money>=p){{money-=p;x.k++;u()}}}}function bm(i){{if(!mgrs[i].e&&money>=mgrs[i].c){{money-=mgrs[i].c;mgrs[i].e=1;u()}}}}function sTab(t){{document.getElementById('main').style.display='none';document.getElementById('mgr').style.display='none';document.getElementById('btn-main').className='';document.getElementById('btn-mgr').className='';document.getElementById(t).style.display='block';document.getElementById('btn-'+t).className='active';}}setInterval(()=>{{let g=assets.reduce((t,x)=>t+(x.k*x.g),0)*(mgrs[2].e?2:1);if(mgrs[0].e)g+=(assets[0].g*assets[0].k+assets[1].g*assets[1].k)*0.5;if(mgrs[1].e)g+=(assets[2].g*assets[2].k+assets[3].g*assets[3].k)*0.5;if(g>0){{money+=g/10;u()}}}},100);u();{js}</script></body></html>"""
-
-def get_matrix_game_html(user):
-    js = get_transfer_js(user)
-    return f"""<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><style>body{{background:#050505;color:#00ffff;margin:0;overflow:hidden;touch-action:none;text-align:center}}canvas{{background:#111;border:2px solid #333;margin-top:10px}}.btn{{position:absolute;top:10px;right:10px;background:#ff00ff;border:none;padding:5px 15px;border-radius:15px;font-weight:bold;color:white}}</style></head><body><div style="padding:10px;display:flex;justify-content:space-between"><span>PUAN: <span id="s">0</span></span><button id="mBtn" class="btn" onclick="autoTransfer()">AKTAR</button></div><canvas id="c"></canvas><script>const cvs=document.getElementById('c'),ctx=cvs.getContext('2d');const R=10,C=8;let SQ=25,grid=[],pieces=[],drag=null,score=0;const SHAPES=[[[1]],[[1,1]],[[1],[1]],[[1,1,1]],[[1,0],[1,0],[1,1]]];function rs(){{let w=window.innerWidth,h=window.innerHeight;SQ=Math.floor(Math.min((w-20)/C,(h-100)/R));SQ=Math.min(SQ,35);cvs.width=SQ*C;cvs.height=SQ*R+120;d()}}window.addEventListener('resize',rs);function init(){{grid=Array(R).fill().map(()=>Array(C).fill(0));score=0;document.getElementById('s').innerText=0;rs();sp()}}function sp(){{pieces=[];let y=R*SQ+20,w=cvs.width/3;for(let i=0;i<3;i++){{let s=SHAPES[Math.floor(Math.random()*SHAPES.length)];pieces.push({{s:s,x:w*i+5,y:y,bx:w*i+5,by:y,sc:0.6}})}}d()}}function d(){{ctx.fillStyle="#000000";ctx.fillRect(0,0,cvs.width,cvs.height);for(let r=0;r<R;r++)for(let c=0;c<C;c++){{ctx.strokeStyle="#333";ctx.lineWidth=1;ctx.strokeRect(c*SQ,r*SQ,SQ,SQ);if(grid[r][c]){{ctx.fillStyle="#00ffff";ctx.fillRect(c*SQ+3,r*SQ+3,SQ-6,SQ-6);ctx.strokeStyle="#ff00ff";ctx.strokeRect(c*SQ+3,r*SQ+3,SQ-6,SQ-6)}}}}ctx.strokeStyle="white";ctx.beginPath();ctx.moveTo(0,R*SQ);ctx.lineTo(cvs.width,R*SQ);ctx.stroke();pieces.forEach(p=>{{if(p!==drag)ds(p.s,p.x,p.y,SQ*p.sc,"#555")}});if(drag)ds(drag.s,drag.x,drag.y,SQ,"#ff00ff")}}function ds(s,x,y,z,c){{ctx.fillStyle=c;for(let r=0;r<s.length;r++)for(let k=0;k<s[r].length;k++)if(s[r][k])ctx.fillRect(x+k*z,y+r*z,z,z)}}function gp(e){{let r=cvs.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{{x:t.clientX-r.left,y:t.clientY-r.top}}}}function chk(){{for(let r=0;r<R;r++)if(grid[r].every(x=>x)){{grid[r].fill(0);score+=50}}for(let c=0;c<C;c++){{let f=true;for(let r=0;r<R;r++)if(!grid[r][c])f=false;if(f){{for(let r=0;r<R;r++)grid[r][c]=0;score+=50}}}}document.getElementById('s').innerText=score;if(pieces.length===0)sp()}}cvs.addEventListener('touchstart',e=>{{let p=gp(e);pieces.forEach(pi=>{{if(p.x>=pi.x&&p.x<=pi.x+60&&p.y>=pi.y&&p.y<=pi.y+60)drag=pi}})}},{{passive:false}});cvs.addEventListener('touchmove',e=>{{e.preventDefault();if(drag){{let p=gp(e);drag.x=p.x-20;drag.y=p.y-20;d()}}}},{{passive:false}});cvs.addEventListener('touchend',e=>{{if(drag){{let gx=Math.round(drag.x/SQ),gy=Math.round(drag.y/SQ),fit=true;for(let r=0;r<drag.s.length;r++)for(let c=0;c<drag.s[r].length;c++)if(drag.s[r][c]){{if(gx+c<0||gx+c>=C||gy+r>=R||grid[gy+r][gx+c])fit=false}}if(fit){{for(let r=0;r<drag.s.length;r++)for(let c=0;c<drag.s[r].length;c++)if(drag.s[r][c])grid[gy+r][gx+c]=1;pieces=pieces.filter(p=>p!==drag);score+=10;chk()}}else{{drag.x=drag.bx;drag.y=drag.by}}drag=null;d()}}}},{{passive:false}});init();{js}</script></body></html>"""
-
-# --- ARAYÜZ ---
 if not st.session_state['logged_in']:
     st.markdown('<div class="login-container"><h1 class="login-title">🎓 Dijital Kampüs</h1></div>', unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1, 2, 1])
@@ -179,9 +179,31 @@ if not st.session_state['logged_in']:
 else:
     with st.sidebar:
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
-        uploaded_avatar = st.file_uploader("Profil Foto", type=['png', 'jpg'])
+        uploaded_avatar = st.file_uploader("Profil", type=['png', 'jpg'])
         if uploaded_avatar:
             if database.update_avatar(st.session_state['username'], uploaded_avatar): st.success("Yüklendi!"); time.sleep(1); st.rerun()
+        
+        # ARKADAŞ EKLEME BÖLÜMÜ
+        st.divider()
+        with st.expander("Arkadaş Ekle"):
+            search_u = st.selectbox("Kişi Ara", database.get_searchable_students(st.session_state['username']))
+            if st.button("Ekle"):
+                ok, msg = database.send_friend_request(st.session_state['username'], search_u)
+                if ok: st.success(msg)
+                else: st.warning(msg)
+        
+        # İSTEKLER
+        reqs = database.get_pending_requests(st.session_state['username'])
+        if reqs:
+            st.divider()
+            st.write("📩 İstekler:")
+            for r in reqs:
+                c1, c2 = st.columns([2,1])
+                c1.write(r[1])
+                if c2.button("Kabul", key=f"acc_{r[0]}"):
+                    database.accept_request(r[1], st.session_state['username'])
+                    st.success("Arkadaş oldunuz!"); st.rerun()
+
         if st.button("Çıkış"): st.session_state['logged_in']=False; st.rerun()
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
@@ -208,24 +230,31 @@ else:
                     if txt or img: database.add_post(st.session_state['username'], txt, img); st.rerun()
         for p in database.get_posts(20):
             with st.container():
-                st.markdown(f'<div style="margin-bottom:5px;">{get_user_display_html(p[1], size=40)} <small style="color:gray;">{p[4]}</small></div>', unsafe_allow_html=True)
+                st.markdown(f"""
+                <div class="post-container">
+                    <div class="post-header">
+                        {get_user_display_html(p[1], size=40)}
+                        <span class="post-date">{p[4]}</span>
+                    </div>
+                    <div class="{get_post_style_css(p[1])} post-content">{p[2] if p[2] else ''}</div>
+                    {f'<img src="data:image/jpeg;base64,{p[3]}" class="post-image">' if p[3] else ''}
+                </div>
+                """, unsafe_allow_html=True)
+                
                 if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
                     with st.popover("⋮"):
                         if st.button("Sil", key=f"d{p[0]}"): database.delete_post(p[0]); st.rerun()
-                style_class = get_post_style_css(p[1])
-                if p[2]: st.markdown(f'<div class="{style_class}">{p[2]}</div>', unsafe_allow_html=True)
-                if p[3]: st.markdown(f'<img src="data:image/jpeg;base64,{p[3]}" style="max-width:100%;border-radius:10px">', unsafe_allow_html=True)
+                
                 c1, c2 = st.columns([1,4])
                 if c1.button(f"❤️ {p[5]}", key=f"l{p[0]}"): database.like_post(p[0]); st.rerun()
                 comments = database.get_comments(p[0])
                 if comments:
                     with st.expander(f"💬 ({len(comments)})"):
-                        for c in comments: st.markdown(f"<div class='comment-sec' style='display:flex;align-items:center'>{get_user_display_html(c[0], size=25)} <div style='margin-left:5px'>{c[1]}</div></div>", unsafe_allow_html=True)
+                        for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
                 with st.popover("Yorum"):
                     with st.form(f"c{p[0]}"):
                         ct = st.text_input("Yorum")
                         if st.form_submit_button("Gönder"): database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
-                st.divider()
 
     elif sel == "🛒 Mağaza":
         st.header("Mağaza 💎")
@@ -262,17 +291,22 @@ else:
         tabs = st.tabs(items.keys())
         for i, (cat, products) in enumerate(items.items()):
             with tabs[i]:
-                # GRID HTML OLUŞTURMA (MOBIL UYUMLU)
                 html_code = '<div class="shop-grid">'
                 for p in products:
+                    buy_link = f"?action=buy&u={st.session_state['username']}&t={p['t']}&v={p['v']}&c={p['c']}"
                     preview = ""
                     if p['t'] == 'frame': preview = f'<div style="position:relative;width:40px;height:40px;"><img src="https://via.placeholder.com/40" style="border-radius:50%;"><div class="{p["css"]}" style="position:absolute;top:-3px;left:-3px;width:46px;height:46px;"></div></div>'
                     elif p['t'] == 'name': preview = f'<div class="{p["css"]}" style="font-size:0.7rem">İsim</div>'
                     elif p['t'] == 'font': preview = f'<div class="{p["css"]}" style="font-size:0.9rem">Aa</div>'
                     elif p['t'] == 'title': preview = f'<span class="title-badge">{p["v"]}</span>'
-                    
-                    buy_link = f"?action=buy&u={st.session_state['username']}&t={p['t']}&v={p['v']}&c={p['c']}"
-                    html_code += f'<div class="shop-item">{preview}<div class="shop-name">{p["n"]}</div><a href="{buy_link}" target="_top" style="text-decoration:none;width:100%;"><div class="shop-price">{p["c"]:,}</div></a></div>'
+                    html_code += f"""
+                    <div class="shop-item">
+                        {preview}
+                        <div class="shop-name">{p['n']}</div>
+                        <a href="{buy_link}" target="_top" style="text-decoration:none;width:100%;">
+                            <div class="shop-price">{p['c']:,}</div>
+                        </a>
+                    </div>"""
                 html_code += "</div>"
                 st.markdown(html_code, unsafe_allow_html=True)
 
@@ -281,7 +315,8 @@ else:
         notis = database.get_unread_notifications(st.session_state['username'])
         if not notis: st.info("Temiz.")
         else:
-            for who, comment, post_summary in notis: st.warning(f"**{who}**: '{comment}' (Gönderi: {post_summary[:20]}...)")
+            for who, comment, post_summary in notis:
+                st.warning(f"**{who}**: '{comment}' (Gönderi: {post_summary[:20]}...)")
             database.mark_notifications_read(st.session_state['username'])
 
     elif sel == "💬 Mesaj":
