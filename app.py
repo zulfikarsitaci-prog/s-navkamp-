@@ -8,7 +8,7 @@ import time
 import random
 import database
 import base64
-import re  # YouTube linklerini bulmak için gerekli
+import re
 from datetime import datetime
 
 # --- AYARLAR ---
@@ -24,10 +24,8 @@ init_state()
 # --- YARDIMCI: YOUTUBE LİNKİ BULUCU ---
 def extract_youtube_link(text):
     if not text: return None
-    # YouTube linklerini bulan regex (kısa ve uzun linkler)
     match = re.search(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})', text)
-    if match:
-        return f"https://www.youtube.com/watch?v={match.group(6)}"
+    if match: return f"https://www.youtube.com/watch?v={match.group(6)}"
     return None
 
 # --- CSS ---
@@ -42,7 +40,7 @@ st.markdown("""
     .post-container { 
         background-color: #1e293b; 
         border: 1px solid #334155; 
-        border-radius: 10px; 
+        border-radius: 12px; 
         padding: 10px 15px 5px 15px; 
         margin-bottom: 8px; 
         box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
@@ -52,35 +50,43 @@ st.markdown("""
     .post-content { margin: 8px 0; color: #e2e8f0; font-size: 0.95rem; line-height: 1.4; white-space: pre-wrap; }
     .post-image { width: 100%; border-radius: 6px; margin-top: 5px; max-height: 300px; object-fit: cover; }
     
-    /* BUTONLARI YAN YANA SIKIŞTIRMA VE KÜÇÜLTME */
-    div.stButton > button {
-        padding: 0px 8px !important;
-        font-size: 0.9rem !important;
-        height: 28px !important;
-        min-height: 0px !important;
-        border-radius: 5px !important;
-        border: 1px solid #334155 !important;
-        background-color: #0f172a !important;
-        color: #cbd5e1 !important;
-        width: auto !important; /* Genişliği içeriğe göre ayarla */
-        margin-right: 5px !important;
+    /* İKON BUTONLARI (INSTAGRAM TARZI) */
+    /* Streamlit kolonları arasındaki boşluğu kaldırıyoruz */
+    div[data-testid="column"] {
+        width: auto !important;
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
+        padding: 0 !important;
+        margin-right: 15px !important; /* İkonlar arası boşluk */
     }
-    div.stButton > button:hover {
-        border-color: #FFD700 !important;
-        color: #FFD700 !important;
+
+    /* Butonları şeffaf ve sadece ikon/yazı yapıyoruz */
+    div.stButton > button {
+        background-color: transparent !important;
+        border: none !important;
+        color: #e2e8f0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 1.2rem !important; /* İkon boyutu */
+        line-height: 1 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        box-shadow: none !important;
     }
     
-    /* Kolonlar arası boşluğu azalt */
-    div[data-testid="column"] {
-        padding: 0px !important;
-        min-width: 0px !important;
-        flex: 0 0 auto !important; /* Kolonların genişlemesini engelle */
-        width: auto !important;
-        margin-right: 5px !important;
+    div.stButton > button:hover {
+        color: #FFD700 !important;
+        transform: scale(1.1);
+    }
+    
+    div.stButton > button:active, div.stButton > button:focus {
+        background-color: transparent !important;
+        color: #FFD700 !important;
+        border: none !important;
+        box-shadow: none !important;
     }
 
     .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
-    div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 8px; flex-wrap: wrap; }
     
     /* MAĞAZA */
     .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
@@ -111,6 +117,7 @@ st.markdown("""
     .name-Glitch { color: #00ffff; text-shadow: 1px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 3px #ff0000; font-weight: bold; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
+    .name-Rainbow { background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red); -webkit-background-clip: text; color: transparent; font-weight: bold; }
     
     .post-Cyan { color: #00ffff !important; }
     .post-Lime { color: #00ff00 !important; }
@@ -319,39 +326,38 @@ else:
             </div>
             """, unsafe_allow_html=True)
             
-            # --- YOUTUBE LİNKİ VARSA GÖSTER (YENİ) ---
+            # --- YOUTUBE LİNKİ VARSA GÖSTER ---
             if p[2]:
                 yt_link = extract_youtube_link(p[2])
                 if yt_link: st.video(yt_link)
 
-            # --- AKSİYON BUTONLARI (SIKIŞTIRILMIŞ) ---
-            # Kolon oranlarını: [Beğen, Yorum, Paylaş, Yetkili İşlemleri]
-            cols = st.columns([0.12, 0.12, 0.12, 0.64])
+            # --- AKSİYON BUTONLARI (SOLDA, YAN YANA, SIKIŞIK) ---
+            # CSS ile boşlukları kaldırdığımız için st.columns daha sıkışık olacak
+            cols = st.columns([0.1, 0.1, 0.1, 0.7]) 
             
             with cols[0]:
                 if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
             with cols[1]:
-                # Sadece görsel ikon
-                st.markdown("<div style='text-align:center; padding-top:4px;'>💬</div>", unsafe_allow_html=True)
+                # Yorum ikonu (Expander tetiklemesi için buton değil yazı)
+                st.markdown("<div style='cursor:pointer;font-size:1.2rem;color:#94a3b8;'>💬</div>", unsafe_allow_html=True)
             with cols[2]:
-                if st.button("🔄", key=f"r_{p[0]}"): st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"; st.rerun()
+                if st.button("🔄", key=f"r_{p[0]}"): 
+                    st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"
+                    st.rerun()
             
-            # Yetkili İşlemleri (Sağa Yaslı)
+            # Yetkili İşlemleri (Sağa Yaslı, Tek Buton İçinde)
             if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
                 with cols[3]:
-                    # Tek satırda göstermek için iç kolonlar
-                    sub_c1, sub_c2, _ = st.columns([0.2, 0.2, 0.6])
-                    with sub_c1:
-                        with st.popover("✏️"):
-                            with st.form(key=f"e_{p[0]}"):
-                                new_t = st.text_area("Düzenle", p[2])
-                                if st.form_submit_button("Ok"): database.update_post(p[0], new_t); st.rerun()
-                    with sub_c2:
-                        if st.button("🗑️", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
+                    # Tek bir popover içinde işlemleri toplayalım, daha temiz dursun
+                    with st.popover("⋮", use_container_width=False):
+                        with st.form(key=f"e_{p[0]}"):
+                            new_t = st.text_area("Düzenle", p[2])
+                            if st.form_submit_button("Kaydet"): database.update_post(p[0], new_t); st.rerun()
+                        if st.button("Sil", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
 
             comments = database.get_comments(p[0])
             if comments:
-                with st.expander(f"💬 Yorumlar ({len(comments)})"):
+                with st.expander(f"Yorumlar ({len(comments)})"):
                     for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
             
             with st.form(f"c{p[0]}", clear_on_submit=True):
@@ -359,7 +365,7 @@ else:
                 if st.form_submit_button("Gönder"): 
                     if ct: database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
             
-            st.write("") # Boşluk
+            st.write("") 
 
     elif sel == "🛒 Mağaza":
         st.header("Mağaza 💎")
