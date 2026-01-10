@@ -20,7 +20,8 @@ def init_state():
         "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar", 
         "draft_content": "",
         "captcha_q": None, "captcha_a": None,
-        "open_comments": [] 
+        "open_comments": [],
+        "wall_filter": "Tüm Kampüs" # Duvar filtresi
     }
     for k, v in defaults.items():
         if k not in st.session_state: st.session_state[k] = v
@@ -30,7 +31,6 @@ def init_state():
         st.session_state['captcha_q'] = f"{n1} + {n2}"; st.session_state['captcha_a'] = n1 + n2
 
 init_state()
-database.create_database()
 
 # --- YARDIMCI ---
 def extract_youtube_link(text):
@@ -39,70 +39,34 @@ def extract_youtube_link(text):
     if match: return f"https://www.youtube.com/watch?v={match.group(6)}"
     return None
 
-# --- CSS (KOYU TEMA + DÜZGÜN İKONLAR) ---
+# --- CSS ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
-    /* GİRİŞ EKRANI */
     .login-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
     .login-sub { color: #94a3b8; font-size: 1rem; margin-bottom: 5px; font-family: sans-serif; letter-spacing: 1px; }
-    .login-main { 
-        font-family: 'Cinzel', serif;
-        color: #FFD700; 
-        font-size: 2.2rem; 
-        text-shadow: 2px 2px 4px #000; 
-        line-height: 1.2; 
-        margin: 10px 0;
-        font-weight: bold;
-    }
+    .login-main { font-family: 'Cinzel', serif; color: #FFD700; font-size: 2.2rem; text-shadow: 2px 2px 4px #000; line-height: 1.2; margin: 10px 0; font-weight: bold; }
     .login-bottom { color: #cbd5e1; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; margin-top: 5px; }
 
     .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     
     /* POST KARTI */
-    .post-card {
-        background-color: #1e293b; 
-        border: 1px solid #334155;
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 10px; /* Alt boşluk */
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
+    .post-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
     .post-header { display: flex; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 8px; }
-    .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 5px; }
+    .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 10px; }
+    .post-image { width: 100%; border-radius: 8px; margin-top: 5px; }
     
-    /* İKONLAŞTIRILMIŞ BUTONLAR */
-    div.stButton > button {
-        background-color: transparent !important;
-        border: none !important;
-        color: #94a3b8 !important; /* İkon rengi */
-        padding: 0px 5px !important;
-        font-size: 1.3rem !important; /* İkon boyutu */
-        height: auto !important;
-        box-shadow: none !important;
-        margin: 0 !important;
-    }
-    div.stButton > button:hover {
-        color: #FFD700 !important;
-        transform: scale(1.1);
-    }
+    /* BUTONLAR */
+    div.stButton > button { background-color: transparent !important; border: none !important; color: #94a3b8 !important; font-size: 1.2rem !important; box-shadow: none !important; }
+    div.stButton > button:hover { color: #FFD700 !important; transform: scale(1.1); }
     
-    /* KOLONLARI SIKIŞTIRMA */
-    div[data-testid="column"] {
-        padding: 0 !important;
-        min-width: 0 !important;
-        margin: 0 !important;
-        flex: 0 0 auto !important;
-        width: auto !important;
-    }
-    div[data-testid="stHorizontalBlock"] {
-        align-items: center !important;
-        flex-wrap: nowrap !important;
+    /* Popover ve Mesaj Emojileri İçin Özel Butonlar */
+    div[data-testid="stPopoverBody"] button, .emoji-btn button {
+        background-color: #334155 !important; color: white !important; border: 1px solid #475569 !important; width: 100% !important; font-size: 1.2rem !important; padding: 5px !important;
     }
 
     .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
-    div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 8px; flex-wrap: wrap; }
     
     /* MAĞAZA */
     .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
@@ -134,6 +98,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Veritabanı
+try:
+    database.create_database()
+    if not database.login_user("admin", "6626"): database.add_user("admin", "6626", "admin")
+except: pass
+if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
+
 # --- GÖRSEL YARDIMCILAR ---
 def get_user_display_html(username, size=40):
     ava, frame, name_style, _, font_style, title = database.get_user_styles(username)
@@ -152,10 +123,18 @@ class SchoolServer:
         return database.get_total_score(u)
     def get_score(self, c, u): return database.get_total_score(u)
     def get_leaderboard(self, c):
-        df = pd.DataFrame(database.run_query("SELECT student_username, SUM(grade) as T FROM grades GROUP BY student_username ORDER BY T DESC", fetch=True), columns=["Öğrenci","Puan"])
-        return df
+        df = pd.DataFrame(database.get_leaderboard_data(), columns=["Öğrenci","Puan"])
+        return df if not df.empty else pd.DataFrame(columns=["Öğrenci","Puan"])
     def buy_item(self, u, type, name, cost): return database.buy_item(u, type, name, cost)
+    def send_gift(self, s, r, item, cost): return database.send_gift(s, r, item, cost)
 server = SchoolServer()
+
+@st.cache_data
+def load_local_exams():
+    if os.path.exists("exams.json"):
+        try: return json.load(open("exams.json","r",encoding="utf-8"))
+        except: return {}
+    return {}
 
 # --- TRANSFER ---
 if "action" in st.query_params:
@@ -163,16 +142,24 @@ if "action" in st.query_params:
         act = st.query_params["action"]
         if act == "transfer":
             u, a = st.query_params["u"], int(st.query_params["a"])
-            if database.get_total_score(u) >= 0:
+            if database.get_user_role(u):
                 st.session_state.update({'logged_in':True, 'username':u, 'active_menu':"🎮 Oyun"})
                 if a > 0: database.add_score(u, a, "Oyun"); st.toast(f"✅ {a} Puan!", icon="💰"); time.sleep(1)
         elif act == "buy":
             u, t, v, c = st.query_params["u"], st.query_params["t"], st.query_params["v"], int(st.query_params["c"])
-            if database.get_total_score(u) >= c:
+            if database.get_user_role(u):
                 st.session_state.update({'logged_in':True, 'username':u, 'active_menu':"🛒 Mağaza"})
                 ok, msg = server.buy_item(u, t, v, c)
                 if ok: st.toast(f"🎉 {msg}", icon="🛍️"); time.sleep(1)
                 else: st.toast(f"❌ {msg}", icon="⚠️")
+        elif act == "gift":
+            u, t, g, c = st.query_params["u"], st.query_params["t"], st.query_params["g"], int(st.query_params["c"])
+            if database.get_user_role(u):
+                st.session_state.update({'logged_in':True, 'username':u, 'active_menu':"🛒 Mağaza"})
+                if t and t != "None":
+                    ok, msg = server.send_gift(u, t, g, c)
+                    if ok: st.toast(f"🎁 {msg}", icon="✅"); time.sleep(1)
+                    else: st.toast(f"❌ {msg}", icon="⚠️")
         st.query_params.clear(); st.rerun()
     except: st.query_params.clear()
 
@@ -199,17 +186,6 @@ if not st.session_state['logged_in']:
         </div>
     """, unsafe_allow_html=True)
     
-    with st.sidebar:
-        # --- ACİL SIFIRLAMA BUTONU ---
-        if st.button("⚠️ SİSTEMİ SIFIRLA"):
-            try:
-                if os.path.exists("education_platform.db"):
-                    os.remove("education_platform.db")
-                    st.success("Sistem temizlendi! Sayfayı yenile.")
-                    time.sleep(1)
-                    st.rerun()
-            except: st.error("Silinemedi.")
-
     with st.container():
         with st.form("login"):
             u = st.text_input("Kullanıcı Adı")
@@ -217,9 +193,10 @@ if not st.session_state['logged_in']:
             if st.form_submit_button("Giriş"):
                 user = database.login_user(u, p)
                 if user:
-                    st.session_state.update({'logged_in':True, 'username':user[1], 'user_role':user[3]})
+                    st.session_state.update({'logged_in':True, 'user_role':user[3], 'username':user[1]})
+                    if user[3]=="student": server.join_or_update_student("GENEL", user[1], 0)
                     st.rerun()
-                else: st.error("Hatalı!")
+                else: st.error("Hatalı.")
         
         with st.expander("Kayıt Ol"):
             with st.form("reg"):
@@ -263,25 +240,55 @@ else:
             if uploaded_avatar:
                 if database.update_avatar(st.session_state['username'], uploaded_avatar): st.success("Yüklendi!"); time.sleep(1); st.rerun()
             
+            st.divider()
+            search_u = st.selectbox("Arkadaş Ara", database.get_searchable_users(st.session_state['username']))
+            if st.button("Ekle"):
+                ok, msg = database.send_friend_request(st.session_state['username'], search_u)
+                if ok: st.success(msg)
+                else: st.warning(msg)
+
+        reqs = database.get_pending_requests(st.session_state['username'])
+        if reqs:
+            st.info("📩 İstekler")
+            for r in reqs:
+                c1, c2 = st.columns([2,1])
+                c1.write(r[1])
+                if c2.button("Kabul", key=f"acc_{r[0]}"):
+                    database.accept_request(r[1], st.session_state['username'])
+                    st.success("Oldu!"); st.rerun()
+
         st.write("")
-        if st.button("🚪 Çıkış"): st.session_state['logged_in']=False; st.rerun()
+        if st.button("🚪 Çıkış Yap"): st.session_state['logged_in']=False; st.rerun()
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
     
-    database.mark_notifications_read(st.session_state['username'])
-    menu = ["📢 Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🛒 Mağaza"]
-    if st.session_state['user_role'] == 'admin': menu.append("⚙️ Admin")
-    sel = st.radio("", menu, horizontal=True, label_visibility="collapsed")
+    noti_count = database.get_unread_notification_count(st.session_state['username'])
+    noti_text = f"🔔 ({noti_count})" if noti_count > 0 else "🔔"
+    menu_ops = ["📢 Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🛒 Mağaza", noti_text]
+    if st.session_state['user_role'] == 'admin': menu_ops.append("⚙️ Admin")
+    
+    curr = st.session_state['active_menu']
+    if curr.startswith("🔔") and curr != noti_text: curr = noti_text
+    
+    ix = 0
+    if curr in menu_ops: ix = menu_ops.index(curr)
+    sel = st.radio("", menu_ops, index=ix, horizontal=True, label_visibility="collapsed")
+    if sel != st.session_state['active_menu']: st.session_state['active_menu'] = sel; st.rerun()
 
     if sel == "📢 Kampüs Duvar":
         st.subheader("Kampüs Duvar")
+        
+        # --- DUVAR FİLTRESİ ---
+        c_filter, c_share = st.columns([2, 3])
+        with c_filter:
+            wall_filter = st.selectbox("", ["Tüm Kampüs", "Benim Duvarım"], label_visibility="collapsed")
         
         my_score = server.get_score("GENEL", st.session_state['username'])
         POST_THRESHOLD = 1000000
         POST_COST = 100000
         
         if my_score >= POST_THRESHOLD or st.session_state['user_role'] == 'admin':
-            with st.expander(f"✨ Paylaşım (-{POST_COST:,} P)", expanded=False):
+            with c_share.popover(f"✨ Paylaş (-{POST_COST:,} P)"):
                 with st.form("sh"):
                     def_val = st.session_state.get('draft_content', "")
                     txt = st.text_area("İçerik", value=def_val); img = st.file_uploader("Resim", type=['png','jpg'])
@@ -292,10 +299,12 @@ else:
                             st.session_state['draft_content'] = ""
                             st.rerun()
                         else: st.error("Bakiye Yetersiz!")
-        else:
-            st.info(f"🔒 Paylaşım için {POST_THRESHOLD:,} P gerekli.")
+        
+        posts = database.get_posts(50)
+        if wall_filter == "Benim Duvarım":
+            posts = [p for p in posts if p[1] == st.session_state['username']]
 
-        for p in database.get_posts(20):
+        for p in posts:
             st.markdown(f"""
             <div class="post-card">
                 <div class="post-header">
@@ -311,33 +320,39 @@ else:
                 yt = extract_youtube_link(p[2])
                 if yt: st.video(yt)
 
-            # --- DÜZGÜN, SAĞLAM İKON YAPISI ---
-            c1, c2, c3, c4 = st.columns([0.15, 0.15, 0.15, 0.55]) 
+            # --- DUVAR BUTONLARI (SOLDA KALP, SAĞDA ARTI MENÜSÜ) ---
+            c1, c2 = st.columns([1, 4]) 
             
             with c1: 
-                if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
-            with c2: 
-                if st.button("💬", key=f"c_btn_{p[0]}"):
-                    if p[0] in st.session_state['open_comments']: st.session_state['open_comments'].remove(p[0])
-                    else: st.session_state['open_comments'].append(p[0])
+                if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): 
+                    database.like_post(p[0])
                     st.rerun()
-            with c3:
-                if st.button("🔄", key=f"r_{p[0]}"): st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"; st.rerun()
             
-            if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
-                with c4:
-                    _, sc2 = st.columns([0.8, 0.2])
-                    with sc2:
-                        with st.popover("⋮"):
-                            with st.form(key=f"e_{p[0]}"):
-                                new_t = st.text_area("Düzenle", p[2])
-                                if st.form_submit_button("Ok"): database.update_post(p[0], new_t); st.rerun()
-                            if st.button("Sil", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
+            with c2:
+                # SAĞA YASLI ARTI MENÜSÜ
+                with st.popover("➕", use_container_width=False):
+                    if st.button("💬 Yorum Yap", key=f"c_btn_{p[0]}"):
+                        if p[0] in st.session_state['open_comments']:
+                            st.session_state['open_comments'].remove(p[0])
+                        else:
+                            st.session_state['open_comments'].append(p[0])
+                        st.rerun()
+                    
+                    if st.button("🔄 Paylaş", key=f"r_{p[0]}"):
+                        st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"
+                        st.rerun()
+                        
+                    if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
+                        if st.button("🗑️ Sil", key=f"d_{p[0]}"):
+                            database.delete_post(p[0])
+                            st.rerun()
 
+            # YORUMLAR (Eğer açıksa)
             if p[0] in st.session_state['open_comments']:
                 comments = database.get_comments(p[0])
                 if comments:
                     for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
+                else: st.caption("Yorum yok.")
                 
                 with st.form(f"c_form_{p[0]}", clear_on_submit=True):
                     ct = st.text_input("Yorum Yaz...", label_visibility="collapsed")
@@ -378,7 +393,7 @@ else:
             ]
         }
         
-        tabs = st.tabs(["Ürünler"])
+        tabs = st.tabs(["Ürünler", "🎁 Hediye Gönder"])
         
         with tabs[0]:
             cat_tabs = st.tabs(list(items.keys()))
@@ -406,20 +421,63 @@ else:
                     html_code += "</div>"
                     st.markdown(html_code, unsafe_allow_html=True)
 
+        with tabs[1]:
+            st.info("Arkadaşına hediye gönder! (Puan senden düşer)")
+            target_user = st.selectbox("Kime:", database.get_searchable_users(st.session_state['username']))
+            gifts = [
+                {"n": "Sıcak Çay", "c": 2000, "i": "☕"}, {"n": "Kahve", "c": 5000, "i": "🧖"}, 
+                {"n": "Çikolata", "c": 8000, "i": "🍫"}, {"n": "Gül", "c": 15000, "i": "🌹"}, 
+                {"n": "Tost", "c": 20000, "i": "🥪"}, {"n": "Hamburger", "c": 30000, "i": "🍔"},
+                {"n": "Ayıcık", "c": 60000, "i": "🧸"}, {"n": "Kupa", "c": 100000, "i": "🏆"},
+                {"n": "Elmas", "c": 500000, "i": "💎"}, {"n": "Araba", "c": 2000000, "i": "🏎️"}
+            ]
+            html_code = '<div class="shop-grid">'
+            for g in gifts:
+                gift_link = f"?action=gift&u={st.session_state['username']}&t={target_user}&g={g['n']}&c={g['c']}"
+                html_code += f"""
+                <div class="shop-item" style="height:120px;">
+                    <div class="gift-icon">{g['i']}</div>
+                    <div class="shop-name">{g['n']}</div>
+                    <a href="{gift_link}" target="_top" style="text-decoration:none;width:100%;">
+                        <div class="shop-price">{g['c']:,}</div>
+                    </a>
+                </div>"""
+            html_code += "</div>"
+            st.markdown(html_code, unsafe_allow_html=True)
+
+    elif sel.startswith("🔔"):
+        st.header("Bildirimler")
+        notis = database.get_unread_notifications(st.session_state['username'])
+        if not notis: st.info("Temiz.")
+        else:
+            for who, comment, post_summary in notis:
+                st.warning(f"**{who}**: '{comment}' (Gönderi: {post_summary[:20]}...)")
+            database.mark_notifications_read(st.session_state['username'])
+
     elif sel == "💬 Mesaj":
-        all_u = database.get_all_users_list()
-        target = st.selectbox("Kime:", [u for u in all_u if u != st.session_state['username']])
+        friends = database.get_friends(st.session_state['username'])
+        if st.session_state['user_role'] == 'student' and "admin" not in friends: friends.insert(0, "admin")
+        if st.session_state['user_role'] == 'admin': friends = [u[0] for u in database.get_all_users() if u[0]!="admin"]
+        target = st.selectbox("Kişi", friends) if friends else None
+        
         if target:
-            msgs = database.get_conversation(st.session_state['username'], target)
-            for m in msgs:
-                align = "row-reverse" if m[0] == st.session_state['username'] else "row"
-                bg = "#2563eb" if m[0] == st.session_state['username'] else "#334155"
-                st.markdown(f"""<div style="display:flex;flex-direction:{align};margin-bottom:5px;">
-                    <div style="background:{bg};padding:8px;border-radius:10px;max-width:70%;">{m[1]}</div>
-                </div>""", unsafe_allow_html=True)
+            # EMOJİ BUTONLARI (Mesaj kutusunun üstünde)
+            emojis = ["😀", "😂", "😍", "😎", "😭", "😡", "👍", "👎", "❤️", "🔥", "🎉", "💩"]
+            cols = st.columns(len(emojis))
+            for i, e in enumerate(emojis):
+                if cols[i].button(e, key=f"emo_{i}"):
+                    database.send_message(st.session_state['username'], target, e)
+                    st.rerun()
+
+            for s, m, t in database.get_conversation(st.session_state['username'], target):
+                ava_html = get_user_display_html(s, size=30)
+                align = "flex-direction:row-reverse;background:#2563eb" if s == st.session_state['username'] else "flex-direction:row;background:#334155"
+                st.markdown(f"""<div style='display:flex;{align};align-items:center;margin:5px;'>{ava_html} <div style='padding:10px;border-radius:10px;margin:5px;color:white;background:inherit'>{m}</div></div>""", unsafe_allow_html=True)
+            
             if txt := st.chat_input("Yaz..."): 
                 database.send_message(st.session_state['username'], target, txt)
                 st.rerun()
+        else: st.info("Kimse yok.")
 
     elif sel == "🏆 Puan":
         st.metric("Puan", server.get_score("GENEL", st.session_state['username']))
@@ -447,9 +505,16 @@ else:
     elif sel == "⚙️ Admin":
         st.header("Admin")
         st.subheader("Kullanıcı Düzenle")
-        all_u = [u[0] for u in database.get_all_users_list()] if database.get_all_users_list() else []
+        all_u = [u[0] for u in database.get_all_users()]
         target_u = st.selectbox("Kullanıcı", all_u)
         new_p = st.number_input("Puan Ekle", value=0)
         if st.button("Güncelle"): database.add_score(target_u, new_p, "Admin"); st.success("Tamam!")
+        st.divider()
+        st.subheader("Casus Modu")
+        spy_u = st.selectbox("Kimin Mesajları?", all_u, key="spu")
+        spy_p = st.selectbox("Kiminle?", all_u, key="spp")
+        if st.button("Oku"):
+            msgs = database.get_conversation(spy_u, spy_p)
+            for s, m, t in msgs: st.write(f"**{s}**: {m} ({t})")
         st.divider()
         if st.button("Sil"): database.delete_user(target_u); st.error("Silindi!"); st.rerun()
