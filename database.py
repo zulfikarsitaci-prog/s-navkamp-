@@ -8,14 +8,12 @@ from PIL import Image
 import io
 import base64
 
-# --- BAĞLANTI (Hızlandırılmış) ---
+# --- BAĞLANTI ---
 @st.cache_resource(ttl=3600)
 def get_db_connection():
-    # 1. Öncelik: Streamlit Cloud (Neon)
     if "DATABASE_URL" in st.secrets:
         try: return psycopg2.connect(st.secrets["DATABASE_URL"])
         except: pass
-    # 2. Öncelik: Yerel Dosya
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     DB_PATH = os.path.join(BASE_DIR, "education_platform.db")
     return sqlite3.connect(DB_PATH, check_same_thread=False)
@@ -27,12 +25,9 @@ def run_query(query, params=(), fetch=False):
         if hasattr(conn, 'closed') and conn.closed != 0:
             st.cache_resource.clear(); conn = get_db_connection()
     except: pass
-    
     cursor = conn.cursor()
-    # SQL Uyumluluğu
     if "psycopg2" in str(type(conn)):
         query = query.replace("?", "%s").replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
-    
     try:
         cursor.execute(query, params)
         if fetch: return cursor.fetchall()
@@ -54,8 +49,6 @@ def create_database():
         'CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)'
     ]
     for t in tables: run_query(t)
-    
-    # Eksik sütunları tamamla
     cols = ["avatar_data", "frame", "name_style", "post_style", "font_style", "title"]
     for col in cols:
         try: run_query(f"ALTER TABLE users ADD COLUMN {col} TEXT")
@@ -71,34 +64,28 @@ def compress_image(image_file, max_size=(600, 600), quality=60):
         return base64.b64encode(buffer.getvalue()).decode()
     except: return None
 
-# --- VERİ ÇEKME (CACHE) ---
+# --- CACHE ---
 @st.cache_data(ttl=2)
 def get_posts(limit=20): return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
-
 @st.cache_data(ttl=5)
 def get_comments(pid): return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (pid,), fetch=True) or []
-
 @st.cache_data(ttl=30)
 def get_leaderboard_data(): return run_query("SELECT student_username, SUM(grade) as total FROM grades GROUP BY student_username ORDER BY total DESC", fetch=True) or []
-
 @st.cache_data(ttl=5)
 def get_user_styles(u):
     try: 
         res = run_query("SELECT avatar_data, frame, name_style, post_style, font_style, title FROM users WHERE username = ?", (u,), fetch=True)
         return res[0] if res else (None, None, None, None, None, None)
     except: return (None, None, None, None, None, None)
-
 @st.cache_data(ttl=3)
 def get_total_score(u):
     res = run_query("SELECT SUM(grade) FROM grades WHERE student_username = ?", (u,), fetch=True)
     return res[0][0] if res and res[0][0] else 0
-
 @st.cache_data(ttl=10)
 def get_unread_notification_count(u):
     q = "SELECT COUNT(c.id) FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ? AND c.is_read = 0"
     res = run_query(q, (u, u), fetch=True)
     return res[0][0] if res else 0
-
 @st.cache_data(ttl=10)
 def get_unread_notifications(u):
     q = "SELECT c.username, c.content, p.content FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ? AND c.is_read = 0"
@@ -110,11 +97,28 @@ def login_user(u, p):
     res = run_query("SELECT id, username, password, role FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
     return res[0] if res else None
 
+# --- ÖZEL: İLK 10 KİŞİYE SÜRPRİZ EKLENDİ ---
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
-        return run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (u, h, r))
-    except: return False
+        # Kullanıcıyı ekle
+        success = run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (u, h, r))
+        
+        if success:
+            # Kaçıncı kullanıcı olduğunu kontrol et
+            count_res = run_query("SELECT COUNT(*) FROM users", fetch=True)
+            user_count = count_res[0][0] if count_res else 999
+            
+            # Eğer ilk 10 kişi arasındaysa ödül ver!
+            if user_count <= 10:
+                # 1. KURUCU Ünvanı ve Gold Çerçeve Ver
+                run_query("UPDATE users SET title = ?, frame = ? WHERE username = ?", ("KURUCU", "Gold", u))
+                # 2. 50.000 Puan Ekle
+                add_score(u, 50000, "İlk 10 Bonusu! 🎉")
+                return True, user_count # Sıralamayı döndür
+                
+        return success, 999
+    except: return False, 999
 
 def update_avatar(u, img):
     d = compress_image(img)
@@ -123,12 +127,10 @@ def update_avatar(u, img):
         get_user_styles.clear(u)
         return True
     return False
-
 def add_score(u, a, s="Sistem"):
     d = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO grades (student_username, lesson, grade, date) VALUES (?, ?, ?, ?)", (u, s, a, d))
     get_total_score.clear(u); get_leaderboard_data.clear()
-
 def buy_item(u, type, value, cost):
     current = get_total_score(u)
     if current >= cost:
@@ -139,27 +141,23 @@ def buy_item(u, type, value, cost):
         elif type == "post": col = "post_style"
         elif type == "font": col = "font_style"
         elif type == "title": col = "title"
-        
         if col:
             run_query(f"UPDATE users SET {col} = ? WHERE username = ?", (value, u))
             get_user_styles.clear(u)
             return True, "Hayırlı olsun!"
     return False, "Puan yetersiz."
-
-# --- HEDİYE SİSTEMİ (YENİ) ---
 def send_gift(sender, receiver, gift_name, cost):
     current = get_total_score(sender)
     if current >= cost:
-        # Puan düş
         add_score(sender, -cost, f"Hediye: {gift_name} -> {receiver}")
-        # Mesaj olarak gönder (Bildirim gibi çalışır)
         msg_text = f"🎁 SANA BİR HEDİYE GÖNDERDİ: {gift_name}!"
         send_message(sender, receiver, msg_text)
         return True, "Hediye gönderildi!"
     return False, "Puan yetersiz."
 
-# --- STANDART FONKSİYONLAR ---
+# Standartlar
 def get_all_users(): return run_query("SELECT username, role, last_seen FROM users", fetch=True) or []
+def delete_user(u): run_query("DELETE FROM users WHERE username = ?", (u,))
 def update_activity(u):
     n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
@@ -169,17 +167,8 @@ def add_post(u, c, i=None):
     run_query("INSERT INTO posts (username, content, image_data, timestamp, likes) VALUES (?, ?, ?, ?, 0)", (u, c, d, t))
     get_posts.clear()
 def like_post(id): run_query("UPDATE posts SET likes = likes + 1 WHERE id = ?", (id,)); get_posts.clear()
-
-# --- SİLME VE DÜZENLEME (POST) ---
-def delete_post(pid): 
-    run_query("DELETE FROM comments WHERE post_id = ?", (pid,))
-    run_query("DELETE FROM posts WHERE id = ?", (pid,))
-    get_posts.clear()
-
-def update_post(pid, new_content): 
-    run_query("UPDATE posts SET content = ? WHERE id = ?", (new_content, pid))
-    get_posts.clear()
-
+def delete_post(pid): run_query("DELETE FROM comments WHERE post_id = ?", (pid,)); run_query("DELETE FROM posts WHERE id = ?", (pid,)); get_posts.clear()
+def update_post(pid, c): run_query("UPDATE posts SET content = ? WHERE id = ?", (c, pid)); get_posts.clear()
 def add_comment(pid, u, c):
     t = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO comments (post_id, username, content, timestamp, is_read) VALUES (?, ?, ?, ?, 0)", (pid, u, c, t))
@@ -194,7 +183,8 @@ def get_friends(u):
     return [r[1] if r[0] == u else r[0] for r in rows] if rows else []
 def get_searchable_users(my_u):
     all_users = [u[0] for u in run_query("SELECT username FROM users", fetch=True) or []]
-    return [u for u in all_users if u != my_u]
+    friends = get_friends(my_u)
+    return [u for u in all_users if u != my_u and u not in friends and u != "admin"]
 def send_friend_request(s, r):
     check = run_query("SELECT * FROM relationships WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)", (s, r, r, s), fetch=True)
     if not check:
@@ -206,4 +196,3 @@ def accept_request(sender, me): run_query("UPDATE relationships SET status='acce
 def get_user_role(u):
     res = run_query("SELECT role FROM users WHERE username = ?", (u,), fetch=True)
     return res[0][0] if res and res[0] else None
-def delete_user(u): run_query("DELETE FROM users WHERE username = ?", (u,))
