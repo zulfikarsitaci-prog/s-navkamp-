@@ -18,7 +18,7 @@ def init_state():
         if k not in st.session_state: st.session_state[k] = v
 init_state()
 
-# --- CSS: FONTLAR VE STİLLER ---
+# --- CSS ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&display=swap');
@@ -33,7 +33,7 @@ st.markdown("""
     /* MAĞAZA KARTLARI (Kompakt) */
     .shop-card {
         background-color: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 10px;
-        text-align: center; height: 140px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+        text-align: center; height: 160px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
         transition: 0.2s;
     }
     .shop-card:hover { border-color: #FFD700; transform: translateY(-3px); }
@@ -57,11 +57,13 @@ st.markdown("""
     .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff; }
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; animation: pulse 1.5s infinite; }
     .frame-King { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 20px #ffd700, 0 0 40px #ff0000; }
-    
+    .frame-Matrix { border: 3px dotted #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00; }
+
     /* EFEKTLER */
     .name-Glitch { color: #00ffff; text-shadow: 2px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 5px #ff0000; font-weight: bold; animation: burn 1s infinite alternate; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
+    .name-Rainbow { background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red); -webkit-background-clip: text; color: transparent; font-weight: bold; }
     
     .post-Cyan { color: #00ffff !important; }
     .post-Lime { color: #00ff00 !important; }
@@ -75,13 +77,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Veritabanı
 try:
     database.create_database()
     if not database.login_user("admin", "6626"): database.add_user("admin", "6626", "admin")
 except: pass
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
-# --- GÖRSEL YARDIMCILAR (HATA ÇÖZÜLDÜ: Tek Satır String) ---
+# --- GÖRSEL YARDIMCILAR ---
 def get_user_display_html(username, size=50):
     ava, frame, name_style, _, font_style = database.get_user_styles(username)
     img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150?text=U"
@@ -103,12 +106,21 @@ def get_post_style_css(username):
     if font_style: classes.append(f"font-{font_style}")
     return " ".join(classes)
 
+# --- SERVER (HATA BURADAYDI - DÜZELTİLDİ) ---
 class SchoolServer:
+    def join_or_update_student(self, c, u, p=0): 
+        if p!=0: database.add_score(u, p, "Oyun")
+        return database.get_total_score(u)
+    
     def get_score(self, c, u): return database.get_total_score(u)
+    
     def get_leaderboard(self, c):
         df = pd.DataFrame(database.get_leaderboard_data(), columns=["Öğrenci","Puan"])
         return df if not df.empty else pd.DataFrame(columns=["Öğrenci","Puan"])
-    def buy_item(self, u, type, name, cost): return database.buy_item(u, type, name, cost)
+        
+    def buy_item(self, u, type, name, cost):
+        return database.buy_item(u, type, name, cost)
+
 server = SchoolServer()
 
 @st.cache_data
@@ -200,7 +212,7 @@ def get_finance_game_html(start, user):
         // Auto clickers
         if(mgrs[0].e) g+= (assets[0].g*assets[0].k + assets[1].g*assets[1].k)*0.5;
         if(mgrs[1].e) g+= (assets[2].g*assets[2].k + assets[3].g*assets[3].k)*0.5;
-        if(g>0){{money+=g/10; u()}} // 100ms interval for smoother visual, add 1/10th of gain
+        if(g>0){{money+=g/10; u()}}
     }},100); 
     u(); {js} </script></body></html>"""
 
@@ -239,9 +251,10 @@ if not st.session_state['logged_in']:
 else:
     with st.sidebar:
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
-        uploaded_avatar = st.file_uploader("Profil", type=['png', 'jpg', 'jpeg'])
+        uploaded_avatar = st.file_uploader("Profil Foto", type=['png', 'jpg'])
         if uploaded_avatar:
-            if database.update_avatar(st.session_state['username'], uploaded_avatar): st.success("Yüklendi!"); time.sleep(1); st.rerun()
+            if database.update_avatar(st.session_state['username'], uploaded_avatar):
+                st.success("Yüklendi!"); time.sleep(1); st.rerun()
         if st.button("Çıkış"): st.session_state['logged_in']=False; st.rerun()
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
@@ -302,7 +315,8 @@ else:
             "✨ İsim": [
                 {"n": "Glitch", "c": 100000, "t": "name", "v": "Glitch", "css": "name-Glitch"},
                 {"n": "Alevli", "c": 400000, "t": "name", "v": "Fire", "css": "name-Fire"},
-                {"n": "Altın", "c": 750000, "t": "name", "v": "Gold", "css": "name-Gold"}
+                {"n": "Altın", "c": 750000, "t": "name", "v": "Gold", "css": "name-Gold"},
+                {"n": "Gökkuşağı", "c": 1000000, "t": "name", "v": "Rainbow", "css": "name-Rainbow"}
             ],
             "🔤 Font": [
                 {"n": "Cinzel", "c": 150000, "t": "font", "v": "Cinzel", "css": "font-Cinzel"},
