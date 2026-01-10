@@ -15,12 +15,12 @@ st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide
 TEACHER_NAME = "Mustafa"
 
 def init_state():
-    defaults = {"logged_in": False, "user_role": None, "username": None, "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar"}
+    defaults = {"logged_in": False, "user_role": None, "username": None, "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar", "draft_content": ""}
     for k, v in defaults.items():
         if k not in st.session_state: st.session_state[k] = v
 init_state()
 
-# --- CSS (KOMPAKT TASARIM) ---
+# --- CSS (HATA DÜZELTİCİ VE STİL) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
@@ -28,61 +28,73 @@ st.markdown("""
     .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     .user-greeting { font-weight: bold; color: #e2e8f0; font-size: 1rem; }
     
-    /* POST KARTI (NİZAMİ) */
-    .post-container { 
-        background-color: #1e293b; 
-        border: 1px solid #334155; 
-        border-radius: 10px; 
-        padding: 12px; 
-        margin-bottom: 15px; 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
+    /* POST KARTI (Modern ve Temiz) */
+    .post-card-container {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 15px 15px 5px 15px; /* Alt padding azaltıldı butonlar için */
+        margin-bottom: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    .post-header { display: flex; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-bottom: 8px; }
-    .post-date { color: #94a3b8; font-size: 0.65rem; margin-left: auto; }
-    .post-content { margin: 8px 0; color: #e2e8f0; font-size: 0.95rem; line-height: 1.4; white-space: pre-wrap; }
-    .post-image { width: 100%; border-radius: 6px; margin-top: 5px; max-height: 300px; object-fit: cover; }
     
-    /* MİNİ BUTONLAR (YAN YANA VE KÜÇÜK) */
-    div[data-testid="column"] { padding: 0 !important; }
+    .post-header { display: flex; align-items: center; margin-bottom: 8px; }
+    .post-date { color: #94a3b8; font-size: 0.7rem; margin-left: auto; }
+    .post-text { color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 8px; }
+    .post-img { width: 100%; border-radius: 8px; margin-top: 5px; object-fit: cover; max-height: 400px; }
     
-    /* Streamlit Butonlarını Küçültme */
+    /* BUTONLARI KÜÇÜLTME VE GİZLEME (Magic CSS) */
+    /* Streamlit butonlarının varsayılan arka planını ve sınırlarını kaldır */
     div.stButton > button {
-        padding: 2px 10px !important;
-        font-size: 0.8rem !important;
-        min-height: 0px !important;
-        height: 32px !important;
-        margin-top: 0px !important;
-        width: 100%;
+        background-color: transparent !important;
+        border: none !important;
+        color: #94a3b8 !important;
+        padding: 0px 5px !important;
+        font-size: 1.1rem !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        transition: 0.3s;
     }
-    
-    .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
-    div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    div.stButton > button:hover {
+        color: #FFD700 !important; /* Altın rengi hover */
+        transform: scale(1.2);
+    }
+    div.stButton > button:active {
+        color: #fff !important;
+    }
+    div.stButton {
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    /* YORUM ALANI */
+    .comment-sec { background: #0f172a; padding: 8px; margin-top: 5px; border-radius: 8px; font-size: 0.85rem; border-left: 2px solid #334155; display: flex; align-items: center; }
     
     /* MAĞAZA */
-    .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+    .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
     @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(3, 1fr); } }
-    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 110px; transition: 0.2s; }
+    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 120px; transition: 0.2s; }
     .shop-item:hover { border-color: #FFD700; transform: translateY(-2px); }
-    .shop-name { font-size: 0.65rem; font-weight: bold; margin-top: 4px; color: #cbd5e1; }
-    .shop-price { background: #10b981; color: white; padding: 2px 8px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-top: auto; }
-    
-    /* STİLLER */
+    .shop-name { font-size: 0.7rem; font-weight: bold; margin-top: 5px; color: #cbd5e1; }
+    .shop-price { background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.65rem; font-weight: bold; margin-top: auto; }
+    .gift-icon { font-size: 2.5rem; margin-top: 5px; }
+
+    /* FONT & STİLLER */
     .font-Cinzel { font-family: 'Cinzel', serif !important; }
     .font-Orbitron { font-family: 'Orbitron', sans-serif !important; }
     .font-Rye { font-family: 'Rye', serif !important; }
     .font-Dancing { font-family: 'Dancing Script', cursive !important; }
-    .font-Metallic { font-family: 'Metal Mania', cursive !important; color: #b0b0b0 !important; text-shadow: 2px 2px 0px #000, -1px -1px 0px #333 !important; letter-spacing: 1px; }
+    .font-Metallic { font-family: 'Metal Mania', cursive !important; color: #b0b0b0 !important; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
 
-    /* AVATAR */
-    .avatar-container { position: relative; display: inline-block; margin-right: 8px; vertical-align: middle; }
-    .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-    .frame-overlay { position: absolute; top: -4px; left: -4px; pointer-events: none; z-index: 2; }
+    .avatar-container { position: relative; display: inline-block; margin-right: 10px; vertical-align: middle; }
+    .avatar-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .frame-overlay { position: absolute; top: -3px; left: -3px; width: 46px; height: 46px; pointer-events: none; z-index: 2; }
     
-    .frame-Gold { border: 2px solid #FFD700; border-radius: 50%; box-shadow: 0 0 8px #FFD700; }
-    .frame-Neon { border: 2px solid #00ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff; }
-    .frame-Fire { border: 2px solid #ff4500; border-radius: 50%; box-shadow: 0 0 10px #ff4500; animation: pulse 1.5s infinite; }
-    .frame-King { border: 3px solid #ffd700; border-radius: 50%; box-shadow: 0 0 15px #ffd700; }
-    .frame-Matrix { border: 2px dotted #00ff00; border-radius: 50%; box-shadow: 0 0 8px #00ff00; }
+    .frame-Gold { border: 2px solid #FFD700; border-radius: 50%; box-shadow: 0 0 5px #FFD700; }
+    .frame-Neon { border: 2px solid #00ffff; border-radius: 50%; box-shadow: 0 0 5px #00ffff; }
+    .frame-Fire { border: 2px solid #ff4500; border-radius: 50%; box-shadow: 0 0 10px #ff4500; }
+    .frame-King { border: 3px solid #ffd700; border-radius: 50%; box-shadow: 0 0 10px #ffd700; }
+    .frame-Matrix { border: 2px dotted #00ff00; border-radius: 50%; }
 
     .name-Glitch { color: #00ffff; text-shadow: 1px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 3px #ff0000; font-weight: bold; }
@@ -93,9 +105,7 @@ st.markdown("""
     .post-Pink { color: #ff69b4 !important; }
     .post-Gold { color: #ffd700 !important; }
 
-    .title-badge { background: #334155; color: #94a3b8; padding: 1px 5px; border-radius: 3px; font-size: 0.6rem; margin-left: 4px; vertical-align: middle; }
-    @keyframes pulse { 0% { box-shadow: 0 0 5px #ff4500; } 50% { box-shadow: 0 0 15px #ff4500; } 100% { box-shadow: 0 0 5px #ff4500; } }
-    
+    .title-badge { background: #334155; color: #94a3b8; padding: 2px 5px; border-radius: 4px; font-size: 0.6rem; margin-left: 5px; vertical-align: middle; }
     iframe { width: 100% !important; }
 </style>
 """, unsafe_allow_html=True)
@@ -107,17 +117,16 @@ try:
 except: pass
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
-# --- GÖRSEL YARDIMCILAR (HATA DÜZELTİLDİ: Tek Satır) ---
+# --- GÖRSEL YARDIMCILAR (Düzeltildi: Tek Satır String) ---
 def get_user_display_html(username, size=40):
     ava, frame, name_style, _, font_style, title = database.get_user_styles(username)
-    # Placeholder ekledik (Soru işareti çıkmasın diye)
     img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150/CCCCCC/FFFFFF?text=U"
     
-    f_html = f'<div class="frame-overlay frame-{frame}" style="width:{size+8}px;height:{size+8}px;"></div>' if frame else ""
+    # HTML stringlerini tek satırda birleştiriyoruz (Hata önleyici)
+    f_html = f'<div class="frame-overlay frame-{frame}"></div>' if frame else ""
     classes = f"{f'name-{name_style}' if name_style else ''} {f'font-{font_style}' if font_style else ''}"
     
-    # HTML KODU TEK SATIRDA (Girinti yok, hata yok)
-    return f'<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px;height:{size}px;"><img src="{img_src}" class="avatar-img">{f_html}</div><div style="margin-left:10px;"><div class="{classes}" style="font-size:{size/2.5}px;">{username} {f"<span class=\'title-badge\'>{title}</span>" if title else ""}</div></div></div>'
+    return f"""<div style="display:flex;align-items:center;"><div class="avatar-container"><img src="{img_src}" class="avatar-img">{f_html}</div><div class="{classes}" style="font-size:0.9rem;">{username} {f"<span class='title-badge'>{title}</span>" if title else ""}</div></div>"""
 
 def get_post_style_css(username):
     _, _, _, post_style, font_style, _ = database.get_user_styles(username)
@@ -287,46 +296,52 @@ else:
             st.info(f"🔒 Paylaşım için {POST_THRESHOLD:,} Puan Gerekli. (Senin: {my_score:,})")
 
         for p in database.get_posts(20):
-            with st.container():
-                st.markdown(f"""
-                <div class="post-container">
-                    <div class="post-header">
-                        {get_user_display_html(p[1], size=35)}
-                        <span class="post-date">{p[4]}</span>
-                    </div>
-                    <div class="{get_post_style_css(p[1])} post-content">{p[2] if p[2] else ''}</div>
-                    {f'<img src="data:image/jpeg;base64,{p[3]}" class="post-image">' if p[3] else ''}
+            # --- POST KARTI BAŞLANGIÇ ---
+            st.markdown(f"""
+            <div class="post-card-container">
+                <div class="post-header">
+                    {get_user_display_html(p[1], size=35)}
+                    <span class="post-date">{p[4]}</span>
                 </div>
-                """, unsafe_allow_html=True)
-                
-                # --- KOMPAKT AKSİYON BUTONLARI (TEK SATIR) ---
-                c1, c2, c3, c4 = st.columns([1,1,1,4]) # 4. sütun esnek boşluk
-                
-                with c1: 
-                    if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
-                
-                with c2: 
-                    if st.button("🔄", key=f"r_{p[0]}"): st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"; st.rerun()
-                
-                # Düzenle / Sil (Sadece yetkiliye)
-                if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
-                    with c3:
-                        with st.popover("⚙️"):
-                            with st.form(key=f"e_{p[0]}"):
-                                new_t = st.text_area("Düzenle", p[2])
-                                if st.form_submit_button("Kaydet"): database.update_post(p[0], new_t); st.rerun()
-                            if st.button("Sil", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
+                <div class="{get_post_style_css(p[1])} post-text">{p[2] if p[2] else ''}</div>
+                {f'<img src="data:image/jpeg;base64,{p[3]}" class="post-img">' if p[3] else ''}
+            </div>
+            """, unsafe_allow_html=True)
+            # --- POST KARTI BİTİŞ ---
+            
+            # --- BUTONLAR (KARTIN İÇİNDE GİBİ GÖRÜNEN ALT KISIM) ---
+            # Kolonları dar tutuyoruz ki butonlar yan yana sıkışsın
+            c1, c2, c3, c4, c5 = st.columns([1,1,1,1,6]) 
+            
+            with c1:
+                if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
+            with c2:
+                # Yorum ikonu sadece görsel, aşağıda expander var
+                st.markdown("<div style='text-align:center; padding-top:5px;'>💬</div>", unsafe_allow_html=True)
+            with c3:
+                if st.button("🔄", key=f"r_{p[0]}"): 
+                    st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"
+                    st.rerun()
+            
+            if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
+                with c4:
+                    with st.popover("⚙️"):
+                        with st.form(key=f"e_{p[0]}"):
+                            new_t = st.text_area("Düzenle", p[2])
+                            if st.form_submit_button("Ok"): database.update_post(p[0], new_t); st.rerun()
+                        if st.button("Sil", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
 
-                comments = database.get_comments(p[0])
-                if comments:
-                    with st.expander(f"💬 Yorumlar ({len(comments)})"):
-                        for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
-                
-                # Yorum Yazma (Direkt Göster)
-                with st.form(f"c{p[0]}", clear_on_submit=True):
-                    ct = st.text_input("Yorum Yaz...", label_visibility="collapsed")
-                    if st.form_submit_button("Gönder"): 
-                        if ct: database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
+            comments = database.get_comments(p[0])
+            if comments:
+                with st.expander(f"Yorumlar ({len(comments)})"):
+                    for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
+            
+            with st.form(f"c{p[0]}", clear_on_submit=True):
+                ct = st.text_input("Yorum Yaz...", label_visibility="collapsed")
+                if st.form_submit_button("Gönder"): 
+                    if ct: database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
+            
+            st.write("") # Boşluk bırak
 
     elif sel == "🛒 Mağaza":
         st.header("Mağaza 💎")
