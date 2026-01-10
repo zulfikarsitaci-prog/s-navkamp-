@@ -7,7 +7,7 @@ import base64
 from PIL import Image
 import io
 
-# --- VERİTABANI BAĞLANTISI ---
+# --- BAĞLANTI ---
 @st.cache_resource(ttl=3600)
 def get_db_connection():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -21,21 +21,23 @@ def run_query(query, params=(), fetch=False):
         cursor.execute(query, params)
         if fetch: return cursor.fetchall()
         else: conn.commit(); return True
-    except Exception as e: return False
+    except Exception as e:
+        return False
     finally: cursor.close()
 
 def create_database():
-    # Temel Tablolar (Emoji ve Arkadaşlık sütunları olmadan)
+    # Temel Tablolar
     tables = [
         'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, post_style TEXT, font_style TEXT, title TEXT, change_count INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)',
         'CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, timestamp TEXT, likes INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
+        'CREATE TABLE IF NOT EXISTS relationships (id INTEGER PRIMARY KEY AUTOINCREMENT, user1 TEXT, user2 TEXT, status TEXT)',
     ]
     for t in tables: run_query(t)
     
-    # Admin Hesabı (Şifre: 6626)
+    # Admin Hesabı
     if not login_user("admin", "6626"):
         h = hashlib.sha256("6626".encode()).hexdigest()
         run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", ("admin", h, "admin"))
@@ -107,7 +109,7 @@ def buy_item(u, type, value, cost):
     if get_total_score(u) >= cost:
         add_score(u, -cost, f"Mağaza: {value}")
         col = {"frame":"frame","name":"name_style","post":"post_style","font":"font_style","title":"title"}.get(type,"")
-        if col: run_query(f"UPDATE users SET {col} = ? WHERE username = ?", (value, u)); return True, "Satın alındı!"
+        if col: run_query(f"UPDATE users SET {col} = ? WHERE username = ?", (value, u)); return True, "Hayırlı olsun!"
     return False, "Puan yetersiz."
 
 def update_avatar(u, img):
@@ -117,23 +119,18 @@ def update_avatar(u, img):
 
 def change_username_logic(current_user, new_user):
     if run_query("SELECT id FROM users WHERE username = ?", (new_user,), fetch=True): return False, "İsim kullanımda."
-    
     change_count = get_user_change_count(current_user)
     cost = 0 if change_count == 0 else 500000
-    
     if get_total_score(current_user) < cost: return False, "Yetersiz bakiye."
-    
     try:
         if cost > 0: add_score(current_user, -cost, "İsim Değişikliği")
-        # Basit güncelleme (Foreign key olmadığı için manuel)
         tables_cols = [("users", "username"), ("grades", "student_username"), ("posts", "username"), ("comments", "username"), ("messages", "sender"), ("messages", "receiver")]
         for t, c in tables_cols: run_query(f"UPDATE {t} SET {c} = ? WHERE {c} = ?", (new_user, current_user))
-        
         run_query("UPDATE users SET change_count = change_count + 1 WHERE username = ?", (new_user,))
         return True, "İsim değiştirildi!"
     except: return False, "Hata oluştu."
 
-# --- MESAJLAŞMA (Basit Versiyon) ---
+# --- MESAJLAŞMA ---
 def send_message(s, r, m):
     t = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO messages (sender, receiver, message, timestamp) VALUES (?, ?, ?, ?)", (s, r, m, t))
@@ -142,7 +139,6 @@ def get_conversation(u1, u2):
     return run_query("SELECT sender, message, timestamp FROM messages WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY id ASC", (u1, u2, u2, u1), fetch=True) or []
 
 def get_unread_notification_count(u):
-    # Basit bildirim sayısı
     res = run_query("SELECT COUNT(c.id) FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ? AND c.is_read = 0", (u, u), fetch=True)
     return res[0][0] if res else 0
 
