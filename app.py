@@ -37,7 +37,7 @@ def extract_youtube_link(text):
     if match: return f"https://www.youtube.com/watch?v={match.group(6)}"
     return None
 
-# --- CSS (KOYU TEMA VE DÜZGÜN İKONLAR) ---
+# --- CSS (MOBİLDE YAN YANA ZORLAMA KODU) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
@@ -46,9 +46,9 @@ st.markdown("""
     .login-header { text-align: center; margin-bottom: 20px; }
     .login-sub { color: #94a3b8; font-size: 1rem; margin-bottom: 5px; font-family: sans-serif; letter-spacing: 1px; }
     .login-main { 
-        font-family: 'Cinzel', serif;
+        font-family: 'Cinzel', serif; /* CİNZEL FONT */
         color: #FFD700; 
-        font-size: 2.5rem; 
+        font-size: 2.2rem; 
         text-shadow: 2px 2px 4px #000; 
         line-height: 1.2; 
         margin: 10px 0;
@@ -58,9 +58,9 @@ st.markdown("""
 
     .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     
-    /* POST KARTI (KOYU LACİVERT ARKA PLAN) */
+    /* POST KARTI (KOYU LACİVERT) */
     .post-card {
-        background-color: #1e293b; /* İstenilen koyu renk */
+        background-color: #1e293b; 
         border: 1px solid #334155;
         border-radius: 12px;
         padding: 15px;
@@ -71,56 +71,59 @@ st.markdown("""
     .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 10px; }
     .post-image { width: 100%; border-radius: 8px; margin-top: 5px; }
     
-    /* BUTONLARI İKON GİBİ GÖSTEREN CSS */
+    /* --- İKONLARI ZORLA YAN YANA TUTAN CSS (ÇOK ÖNEMLİ) --- */
+    
+    /* 1. Butonları şeffaf ikonlara dönüştür */
     div.stButton > button {
         background-color: transparent !important;
         border: none !important;
-        color: #94a3b8 !important; /* Soluk gri ikon rengi */
+        color: #94a3b8 !important;
         padding: 0px !important;
-        font-size: 1.2rem !important;
+        font-size: 1.3rem !important; /* İkon boyutu */
         height: auto !important;
         box-shadow: none !important;
+        margin: 0 !important;
         display: flex;
         align-items: center;
-        margin-right: 8px !important; /* İkonlar arası boşluk */
+        justify-content: center;
     }
     div.stButton > button:hover {
-        color: #FFD700 !important; /* Hover rengi */
-        transform: scale(1.1);
-    }
-    div.stButton > button:active {
         color: #FFD700 !important;
-        background: transparent !important;
+        transform: scale(1.2);
     }
-    /* Kolonları sıkıştır ve yan yana zorla */
+    
+    /* 2. Yatay Blokları Zorla (Asla alt alta inmesin) */
+    div[data-testid="stHorizontalBlock"] {
+        flex-wrap: nowrap !important; /* MOBİLDE KIRILMAYI ENGELLER */
+        align-items: center !important;
+        gap: 10px !important;
+    }
+    
+    /* 3. Kolonların genişlemesini engelle (İçeriği kadar yer kaplasın) */
     div[data-testid="column"] {
-        width: auto !important;
         flex: 0 0 auto !important;
+        width: auto !important;
         min-width: 0 !important;
         padding: 0 !important;
     }
-    /* Butonların olduğu satırı hizala */
-    div[data-testid="stHorizontalBlock"] {
-        align-items: center !important;
-    }
 
     .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
-    div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 8px; flex-wrap: wrap; }
     
     /* MAĞAZA */
     .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
     @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(3, 1fr); } }
     .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 110px; transition: 0.2s; position: relative; overflow: hidden; }
     .shop-name { font-size: 0.65rem; font-weight: bold; margin-top: 4px; color: #cbd5e1; }
-    .shop-price { background: #10b981; color: white; padding: 2px 8px; border-radius: 8px; font-size: 0.65rem; font-weight: bold; margin-top: auto; }
-    .gift-icon { font-size: 2.5rem; margin-top: 10px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
+    .shop-price { background: #10b981; color: white; padding: 2px 8px; border-radius: 8px; font-size: 0.65rem; }
 
     /* FONT & STİLLER */
-    .font-Cinzel { font-family: 'Cinzel', serif; } .font-Orbitron { font-family: 'Orbitron', sans-serif; }
-    .font-Rye { font-family: 'Rye', serif; } .font-Dancing { font-family: 'Dancing Script', cursive; }
+    .font-Cinzel { font-family: 'Cinzel', serif; }
+    .font-Orbitron { font-family: 'Orbitron', sans-serif; }
+    .font-Rye { font-family: 'Rye', serif; }
+    .font-Dancing { font-family: 'Dancing Script', cursive; }
     .font-Metallic { font-family: 'Metal Mania', cursive; color: #b0b0b0; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
 
-    .avatar-container { position: relative; display: inline-block; margin-right: 8px; vertical-align: middle; }
+    .avatar-container { position: relative; display: inline-block; margin-right: 8px; }
     .avatar-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
     .frame-overlay { position: absolute; top: -3px; left: -3px; width: 46px; height: 46px; pointer-events: none; z-index: 2; }
     
@@ -134,7 +137,7 @@ st.markdown("""
     .name-Fire { color: #ff4500; text-shadow: 0 0 3px #ff0000; font-weight: bold; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
     .post-Cyan { color: #00ffff !important; } .post-Lime { color: #00ff00 !important; } .post-Pink { color: #ff69b4 !important; } .post-Gold { color: #ffd700 !important; }
-    .title-badge { background: #334155; color: #94a3b8; padding: 1px 5px; border-radius: 3px; font-size: 0.6rem; margin-left: 4px; vertical-align: middle; }
+    .title-badge { background: #334155; color: #94a3b8; padding: 1px 5px; border-radius: 3px; font-size: 0.6rem; margin-left: 4px; }
     iframe { width: 100% !important; }
 </style>
 """, unsafe_allow_html=True)
@@ -352,32 +355,28 @@ else:
                 yt = extract_youtube_link(p[2])
                 if yt: st.video(yt)
 
-            # --- İKONLAR (Native Butonlar, CSS ile İkonlaştırılmış) ---
-            # Bu yöntem HTML hatasını ve dikey dizilimi kesin olarak çözer.
-            c1, c2, c3, c4 = st.columns([1, 1, 1, 5]) # İlk 3'ü yan yana, sonuncusu sağa yaslı
+            # --- İKONLARI YAN YANA ZORLAYAN KISIM ---
+            c1, c2, c3, c4 = st.columns([1,1,1,5]) 
             with c1: 
                 if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
             with c2: 
-                # Yorum ikonu (Tıklanamaz, sadece görsel)
-                st.markdown("<div style='font-size:1.2rem;color:#94a3b8;cursor:default;padding-top:2px;'>💬</div>", unsafe_allow_html=True)
+                st.markdown("<div style='text-align:center; padding-top:4px;'>💬</div>", unsafe_allow_html=True)
             with c3:
                 if st.button("🔄", key=f"r_{p[0]}"): st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"; st.rerun()
             
-            # Yetkili İşlemleri (Sağa Yaslı)
             if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
                 with c4:
-                    # İç içe kolon ile sağa yaslama
                     _, sc2 = st.columns([0.8, 0.2])
                     with sc2:
                         with st.popover("⋮"):
                             with st.form(key=f"e_{p[0]}"):
                                 new_t = st.text_area("Düzenle", p[2])
-                                if st.form_submit_button("Kaydet"): database.update_post(p[0], new_t); st.rerun()
+                                if st.form_submit_button("Ok"): database.update_post(p[0], new_t); st.rerun()
                             if st.button("Sil", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
 
             comments = database.get_comments(p[0])
             if comments:
-                with st.expander(f"💬 Yorumlar ({len(comments)})"):
+                with st.expander(f"💬 ({len(comments)})"):
                     for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
             
             with st.form(f"c{p[0]}", clear_on_submit=True):
