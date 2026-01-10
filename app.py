@@ -20,8 +20,7 @@ def init_state():
         "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar", 
         "draft_content": "",
         "captcha_q": None, "captcha_a": None,
-        "open_comments": [],
-        "wall_filter": "Tüm Kampüs" # Duvar filtresi
+        "open_comments": [] # Hangi postların yorumu açık tutulacak
     }
     for k, v in defaults.items():
         if k not in st.session_state: st.session_state[k] = v
@@ -32,11 +31,13 @@ def init_state():
 
 init_state()
 
-# --- YARDIMCI ---
+# --- YARDIMCI: GELİŞMİŞ YOUTUBE LİNKİ ---
 def extract_youtube_link(text):
     if not text: return None
+    # /live/ linklerini ve normal linkleri yakalayan regex
     match = re.search(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|live/|.+\?v=)?([^&=%\?]{11})', text)
-    if match: return f"https://www.youtube.com/watch?v={match.group(6)}"
+    if match: 
+        return f"https://www.youtube.com/watch?v={match.group(6)}"
     return None
 
 # --- CSS ---
@@ -46,24 +47,54 @@ st.markdown("""
 
     .login-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
     .login-sub { color: #94a3b8; font-size: 1rem; margin-bottom: 5px; font-family: sans-serif; letter-spacing: 1px; }
-    .login-main { font-family: 'Cinzel', serif; color: #FFD700; font-size: 2.2rem; text-shadow: 2px 2px 4px #000; line-height: 1.2; margin: 10px 0; font-weight: bold; }
+    .login-main { 
+        font-family: 'Cinzel', serif;
+        color: #FFD700; 
+        font-size: 2.2rem; 
+        text-shadow: 2px 2px 4px #000; 
+        line-height: 1.2; 
+        margin: 10px 0;
+        font-weight: bold;
+    }
     .login-bottom { color: #cbd5e1; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; margin-top: 5px; }
 
     .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     
     /* POST KARTI */
-    .post-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+    .post-card {
+        background-color: #1e293b; 
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        position: relative;
+    }
     .post-header { display: flex; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 8px; }
     .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 10px; }
     .post-image { width: 100%; border-radius: 8px; margin-top: 5px; }
     
     /* BUTONLAR */
-    div.stButton > button { background-color: transparent !important; border: none !important; color: #94a3b8 !important; font-size: 1.2rem !important; box-shadow: none !important; }
-    div.stButton > button:hover { color: #FFD700 !important; transform: scale(1.1); }
+    div.stButton > button {
+        background-color: transparent !important;
+        border: none !important;
+        color: #94a3b8 !important;
+        font-size: 1.2rem !important;
+        box-shadow: none !important;
+    }
+    div.stButton > button:hover {
+        color: #FFD700 !important;
+        transform: scale(1.1);
+    }
     
-    /* Popover ve Mesaj Emojileri İçin Özel Butonlar */
-    div[data-testid="stPopoverBody"] button, .emoji-btn button {
-        background-color: #334155 !important; color: white !important; border: 1px solid #475569 !important; width: 100% !important; font-size: 1.2rem !important; padding: 5px !important;
+    /* Popover (Artı Menüsü) İçindeki Butonlar */
+    div[data-testid="stPopoverBody"] button {
+        background-color: #334155 !important;
+        color: white !important;
+        border: 1px solid #475569 !important;
+        margin-bottom: 5px !important;
+        width: 100% !important;
+        font-size: 0.9rem !important;
     }
 
     .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
@@ -215,7 +246,7 @@ if not st.session_state['logged_in']:
                             else: st.success("Başarılı! Giriş yapabilirsin.")
                         else: st.error("İsim alınmış.")
                     else:
-                        st.error("Yanlış cevap!")
+                        st.error("Yanlış cevap! Soru değişiyor...")
                         st.session_state['captcha_q'] = None
                         time.sleep(1)
                         st.rerun()
@@ -278,17 +309,12 @@ else:
     if sel == "📢 Kampüs Duvar":
         st.subheader("Kampüs Duvar")
         
-        # --- DUVAR FİLTRESİ ---
-        c_filter, c_share = st.columns([2, 3])
-        with c_filter:
-            wall_filter = st.selectbox("", ["Tüm Kampüs", "Benim Duvarım"], label_visibility="collapsed")
-        
         my_score = server.get_score("GENEL", st.session_state['username'])
         POST_THRESHOLD = 1000000
         POST_COST = 100000
         
         if my_score >= POST_THRESHOLD or st.session_state['user_role'] == 'admin':
-            with c_share.popover(f"✨ Paylaş (-{POST_COST:,} P)"):
+            with st.expander(f"✨ Paylaşım (-{POST_COST:,} P)", expanded=False):
                 with st.form("sh"):
                     def_val = st.session_state.get('draft_content', "")
                     txt = st.text_area("İçerik", value=def_val); img = st.file_uploader("Resim", type=['png','jpg'])
@@ -299,12 +325,11 @@ else:
                             st.session_state['draft_content'] = ""
                             st.rerun()
                         else: st.error("Bakiye Yetersiz!")
-        
-        posts = database.get_posts(50)
-        if wall_filter == "Benim Duvarım":
-            posts = [p for p in posts if p[1] == st.session_state['username']]
+        else:
+            st.info(f"🔒 Paylaşım için {POST_THRESHOLD:,} P gerekli.")
 
-        for p in posts:
+        for p in database.get_posts(20):
+            # --- POST KARTI ---
             st.markdown(f"""
             <div class="post-card">
                 <div class="post-header">
@@ -316,21 +341,25 @@ else:
             </div>
             """, unsafe_allow_html=True)
             
+            # VİDEO DÜZELTME: Kartın dışında, hemen altında
             if p[2]:
                 yt = extract_youtube_link(p[2])
                 if yt: st.video(yt)
 
-            # --- DUVAR BUTONLARI (SOLDA KALP, SAĞDA ARTI MENÜSÜ) ---
-            c1, c2 = st.columns([1, 4]) 
+            # --- ALT BAR (SOL: KALP, SAĞ: ARTI BUTONU) ---
+            c1, c2 = st.columns([1, 4]) # Sol dar, sağ geniş ve sağa yaslı
             
-            with c1: 
+            with c1:
+                # KALP BUTONU
                 if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): 
                     database.like_post(p[0])
                     st.rerun()
             
             with c2:
-                # SAĞA YASLI ARTI MENÜSÜ
+                # ARTI MENÜSÜ (Sağa yaslı popover)
+                # İçinde Yorum Yap, Paylaş ve (Adminse) Sil var
                 with st.popover("➕", use_container_width=False):
+                    # 1. Yorum Yap Butonu (Kutuyu açar)
                     if st.button("💬 Yorum Yap", key=f"c_btn_{p[0]}"):
                         if p[0] in st.session_state['open_comments']:
                             st.session_state['open_comments'].remove(p[0])
@@ -338,21 +367,24 @@ else:
                             st.session_state['open_comments'].append(p[0])
                         st.rerun()
                     
+                    # 2. Paylaş (Alıntıla)
                     if st.button("🔄 Paylaş", key=f"r_{p[0]}"):
                         st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"
                         st.rerun()
-                        
+                    
+                    # 3. Sil (Sadece yetkili)
                     if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
                         if st.button("🗑️ Sil", key=f"d_{p[0]}"):
                             database.delete_post(p[0])
                             st.rerun()
 
-            # YORUMLAR (Eğer açıksa)
+            # --- YORUM ALANI (Eğer açıksa görünür) ---
             if p[0] in st.session_state['open_comments']:
                 comments = database.get_comments(p[0])
                 if comments:
                     for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
-                else: st.caption("Yorum yok.")
+                else:
+                    st.caption("Henüz yorum yok.")
                 
                 with st.form(f"c_form_{p[0]}", clear_on_submit=True):
                     ct = st.text_input("Yorum Yaz...", label_visibility="collapsed")
@@ -459,24 +491,12 @@ else:
         if st.session_state['user_role'] == 'student' and "admin" not in friends: friends.insert(0, "admin")
         if st.session_state['user_role'] == 'admin': friends = [u[0] for u in database.get_all_users() if u[0]!="admin"]
         target = st.selectbox("Kişi", friends) if friends else None
-        
         if target:
-            # EMOJİ BUTONLARI (Mesaj kutusunun üstünde)
-            emojis = ["😀", "😂", "😍", "😎", "😭", "😡", "👍", "👎", "❤️", "🔥", "🎉", "💩"]
-            cols = st.columns(len(emojis))
-            for i, e in enumerate(emojis):
-                if cols[i].button(e, key=f"emo_{i}"):
-                    database.send_message(st.session_state['username'], target, e)
-                    st.rerun()
-
             for s, m, t in database.get_conversation(st.session_state['username'], target):
                 ava_html = get_user_display_html(s, size=30)
                 align = "flex-direction:row-reverse;background:#2563eb" if s == st.session_state['username'] else "flex-direction:row;background:#334155"
                 st.markdown(f"""<div style='display:flex;{align};align-items:center;margin:5px;'>{ava_html} <div style='padding:10px;border-radius:10px;margin:5px;color:white;background:inherit'>{m}</div></div>""", unsafe_allow_html=True)
-            
-            if txt := st.chat_input("Yaz..."): 
-                database.send_message(st.session_state['username'], target, txt)
-                st.rerun()
+            if txt := st.chat_input("Yaz..."): database.send_message(st.session_state['username'], target, txt); st.rerun()
         else: st.info("Kimse yok.")
 
     elif sel == "🏆 Puan":
