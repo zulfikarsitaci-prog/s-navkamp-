@@ -115,10 +115,7 @@ def get_user_display_html(username, size=50):
 
 def get_post_style_css(username):
     _, _, _, post_style, font_style, _ = database.get_user_styles(username)
-    classes = []
-    if post_style: classes.append(f"post-{post_style}")
-    if font_style: classes.append(f"font-{font_style}")
-    return " ".join(classes)
+    return f"post-{post_style} font-{font_style}"
 
 class SchoolServer:
     def join_or_update_student(self, c, u, p=0): 
@@ -155,6 +152,15 @@ if "action" in st.query_params:
                 ok, msg = server.buy_item(u, t, v, c)
                 if ok: st.toast(f"🎉 {msg}", icon="🛍️"); time.sleep(1)
                 else: st.toast(f"❌ {msg}", icon="⚠️")
+        elif act == "gift":
+            u, t, g, c = st.query_params["u"], st.query_params["t"], st.query_params["g"], int(st.query_params["c"])
+            if database.get_user_role(u):
+                st.session_state.update({'logged_in':True, 'username':u, 'active_menu':"🛒 Mağaza"})
+                if t and t != "None":
+                    ok, msg = server.send_gift(u, t, g, c)
+                    if ok: st.toast(f"🎁 {msg}", icon="✅"); time.sleep(1)
+                    else: st.toast(f"❌ {msg}", icon="⚠️")
+                else: st.toast("❌ Alıcı seçmelisin!", icon="⚠️")
         st.query_params.clear(); st.rerun()
     except: st.query_params.clear()
 
@@ -244,14 +250,10 @@ else:
             with st.container():
                 st.markdown(f'<div style="margin-bottom:5px;">{get_user_display_html(p[1], size=40)} <small style="color:gray;">{p[4]}</small></div>', unsafe_allow_html=True)
                 
-                # --- SİLME VE DÜZENLEME ---
                 if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
-                    with st.popover("⚙️"):
-                        with st.form(key=f"edit_{p[0]}"):
-                            new_t = st.text_area("Düzenle", p[2])
-                            if st.form_submit_button("Kaydet"): database.update_post(p[0], new_t); st.rerun()
-                        if st.button("Sil", key=f"del_{p[0]}"): database.delete_post(p[0]); st.rerun()
-
+                    with st.popover("⋮"):
+                        if st.button("Sil", key=f"d{p[0]}"): database.delete_post(p[0]); st.rerun()
+                
                 style_class = get_post_style_css(p[1])
                 if p[2]: st.markdown(f'<div class="{style_class}">{p[2]}</div>', unsafe_allow_html=True)
                 if p[3]: st.markdown(f'<img src="data:image/jpeg;base64,{p[3]}" style="max-width:100%;border-radius:10px">', unsafe_allow_html=True)
@@ -326,7 +328,7 @@ else:
                             {preview}
                             <div class="shop-name">{p['n']}</div>
                             <a href="{buy_link}" target="_top" style="text-decoration:none;width:100%;">
-                                <div class="shop-price">{p['c']:,} P</div>
+                                <div class="shop-price">{p['c']:,}</div>
                             </a>
                         </div>"""
                     html_code += "</div>"
@@ -343,26 +345,25 @@ else:
                 {"n": "Tost", "c": 20000, "i": "🥪"}, {"n": "Hamburger", "c": 30000, "i": "🍔"},
                 {"n": "Kitap", "c": 35000, "i": "📚"}, {"n": "Kalem", "c": 40000, "i": "✏️"},
                 {"n": "Ayıcık", "c": 60000, "i": "🧸"}, {"n": "Kupa", "c": 100000, "i": "🏆"},
-                {"n": "Elmas", "c": 500000, "i": "💎"}, {"n": "Araba", "c": 2000000, "i": "🏎️"}
+                {"n": "Elmas", "c": 500000, "i": "💎"}, {"n": "Araba", "c": 2000000, "i": "🏎️"},
+                {"n": "Gezegen", "c": 5000000, "i": "🪐"}, {"n": "Ada", "c": 10000000, "i": "🏝️"},
+                {"n": "Roket", "c": 15000000, "i": "🚀"}, {"n": "Taç", "c": 20000000, "i": "👑"}
             ]
             
-            # Hediye Grid (Python döngüsüyle, HTML Grid CSS kullanarak)
-            rows = [gifts[i:i+4] for i in range(0, len(gifts), 4)]
-            for row in rows:
-                cols = st.columns(4)
-                for i, g in enumerate(row):
-                    with cols[i]:
-                        st.markdown(f"""
-                        <div class="shop-item" style="height:120px;">
-                            <div class="gift-icon">{g['i']}</div>
-                            <div class="shop-name">{g['n']}</div>
-                            <div class="shop-price">{g['c']:,}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        if st.button("Gönder", key=f"g_{g['n']}"):
-                            ok, msg = server.send_gift(st.session_state['username'], target_user, g['n'], g['c'])
-                            if ok: st.success("Yollandı!")
-                            else: st.error(msg)
+            html_code = '<div class="shop-grid">'
+            for g in gifts:
+                # Target User parametresi eklendi
+                gift_link = f"?action=gift&u={st.session_state['username']}&t={target_user}&g={g['n']}&c={g['c']}"
+                html_code += f"""
+                <div class="shop-item">
+                    <div class="gift-icon">{g['i']}</div>
+                    <div class="shop-name">{g['n']}</div>
+                    <a href="{gift_link}" target="_top" style="text-decoration:none;width:100%;">
+                        <div class="shop-price">{g['c']:,}</div>
+                    </a>
+                </div>"""
+            html_code += "</div>"
+            st.markdown(html_code, unsafe_allow_html=True)
 
     elif sel.startswith("🔔"):
         st.header("Bildirimler")
