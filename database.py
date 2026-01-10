@@ -8,12 +8,10 @@ from PIL import Image
 import io
 import base64
 
-# --- PERFORMANCE: Cache Süresi ve Bağlantı Havuzu ---
 @st.cache_resource(ttl=3600)
 def get_db_connection():
     if "DATABASE_URL" in st.secrets:
-        try:
-            return psycopg2.connect(st.secrets["DATABASE_URL"])
+        try: return psycopg2.connect(st.secrets["DATABASE_URL"])
         except: return None
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     DB_PATH = os.path.join(BASE_DIR, "education_platform.db")
@@ -24,8 +22,7 @@ def run_query(query, params=(), fetch=False):
     if not conn: return False
     try:
         if hasattr(conn, 'closed') and conn.closed != 0:
-            st.cache_resource.clear()
-            conn = get_db_connection()
+            st.cache_resource.clear(); conn = get_db_connection()
     except: pass
     cursor = conn.cursor()
     if "psycopg2" in str(type(conn)):
@@ -66,8 +63,8 @@ def compress_image(image_file, max_size=(600, 600), quality=60):
         return base64.b64encode(buffer.getvalue()).decode()
     except: return None
 
-# --- GETTERS (CACHE) ---
-@st.cache_data(ttl=3)
+# --- CACHE ---
+@st.cache_data(ttl=2)
 def get_posts(limit=20): return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
 @st.cache_data(ttl=5)
 def get_comments(pid): return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (pid,), fetch=True) or []
@@ -83,20 +80,17 @@ def get_user_styles(u):
 def get_total_score(u):
     res = run_query("SELECT SUM(grade) FROM grades WHERE student_username = ?", (u,), fetch=True)
     return res[0][0] if res and res[0][0] else 0
-
-# --- İŞTE EKSİK OLAN FONKSİYONLAR ---
+@st.cache_data(ttl=10)
+def get_unread_notifications(u):
+    q = "SELECT c.username, c.content, p.content FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ? AND c.is_read = 0"
+    return run_query(q, (u, u), fetch=True) or []
 @st.cache_data(ttl=10)
 def get_unread_notification_count(u):
     q = "SELECT COUNT(c.id) FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ? AND c.is_read = 0"
     res = run_query(q, (u, u), fetch=True)
     return res[0][0] if res else 0
 
-@st.cache_data(ttl=10)
-def get_unread_notifications(u):
-    q = "SELECT c.username, c.content, p.content FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ? AND c.is_read = 0"
-    return run_query(q, (u, u), fetch=True) or []
-
-# --- SETTERS ---
+# --- FUNCTIONS ---
 def login_user(u, p):
     h = hashlib.sha256(p.encode()).hexdigest()
     res = run_query("SELECT id, username, password, role FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
@@ -106,6 +100,9 @@ def add_user(u, p, r):
         h = hashlib.sha256(p.encode()).hexdigest()
         return run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (u, h, r))
     except: return False
+def get_user_role(u):
+    res = run_query("SELECT role FROM users WHERE username = ?", (u,), fetch=True)
+    return res[0][0] if res and res[0] else None
 def update_avatar(u, img):
     d = compress_image(img)
     if d:
@@ -133,7 +130,6 @@ def buy_item(u, type, value, cost):
             return True, "Hayırlı olsun!"
     return False, "Puan yetersiz."
 def get_all_users(): return run_query("SELECT username, role, last_seen FROM users", fetch=True) or []
-def delete_user(u): run_query("DELETE FROM users WHERE username = ?", (u,))
 def update_activity(u):
     n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
@@ -151,12 +147,35 @@ def add_comment(pid, u, c):
     get_comments.clear(pid); get_unread_notification_count.clear(); get_unread_notifications.clear()
 def mark_notifications_read(u):
     run_query("UPDATE comments SET is_read = 1 WHERE id IN (SELECT c.id FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ?)", (u, u))
-    get_unread_notification_count.clear(u); get_unread_notifications.clear(u)
+    get_unread_notifications.clear(u)
 def send_message(s, r, m): run_query("INSERT INTO messages (sender, receiver, message, timestamp, is_read) VALUES (?, ?, ?, ?, 0)", (s, r, m, datetime.now().strftime("%Y-%m-%d %H:%M")))
 def get_conversation(u1, u2): return run_query("SELECT sender, message, timestamp FROM messages WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY id ASC", (u1, u2, u2, u1), fetch=True) or []
-def get_user_role(u):
-    res = run_query("SELECT role FROM users WHERE username = ?", (u,), fetch=True)
-    return res[0][0] if res and res[0] else None
+
+# --- ARKADAŞLIK FONKSİYONLARI (GÜNCELLENDİ) ---
+def send_friend_request(s, r):
+    # Zaten ekli mi veya istek var mı kontrol et
+    check = run_query("SELECT * FROM relationships WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)", (s, r, r, s), fetch=True)
+    if not check:
+        run_query("INSERT INTO relationships (user1, user2, status) VALUES (?, ?, ?)", (s, r, 'pending'))
+        return True, "İstek yollandı."
+    return False, "Zaten ekli veya istek var."
+
+def get_pending_requests(u): 
+    # Bana gelen istekleri bul (user2 = ben, status = pending)
+    return run_query("SELECT id, user1 FROM relationships WHERE user2=? AND status='pending'", (u,), fetch=True) or []
+
+def accept_request(sender, me):
+    run_query("UPDATE relationships SET status='accepted' WHERE user1=? AND user2=?", (sender, me))
+
 def get_friends(u):
     rows = run_query("SELECT user1, user2 FROM relationships WHERE (user1=? OR user2=?) AND status='accepted'", (u, u), fetch=True)
-    return [r[1] if r[0] == u else r[0] for r in rows] if rows else []
+    if not rows: return []
+    # Arkadaşın ismini çek (Eğer user1 bensem user2 arkadaşımdır, tersi de geçerli)
+    return [r[1] if r[0] == u else r[0] for r in rows]
+
+def get_searchable_users(my_u):
+    # Henüz arkadaş olmadığım kişileri bul
+    all_users = [u[0] for u in run_query("SELECT username FROM users", fetch=True) or []]
+    friends = get_friends(my_u)
+    # Kendini ve arkadaşlarını listeden çıkar
+    return [u for u in all_users if u != my_u and u not in friends and u != "admin"]
