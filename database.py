@@ -61,6 +61,7 @@ def add_user(u, p, r):
         return False, 0
     except: return False, 0
 
+# --- EKSİK OLAN FONKSİYON BU ---
 def update_activity(u):
     n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
