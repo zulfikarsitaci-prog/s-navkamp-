@@ -18,7 +18,7 @@ def init_state():
         if k not in st.session_state: st.session_state[k] = v
 init_state()
 
-# --- CSS: FONTLAR VE STİLLER ---
+# --- CSS ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
@@ -29,56 +29,34 @@ st.markdown("""
     .comment-sec { background: #0f172a; padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.85rem; }
     div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 10px; flex-wrap: wrap; }
     
-    /* MAĞAZA KARTLARI (MOBİL UYUMLU GRID) */
-    .shop-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr); /* 4 Sütun */
-        gap: 8px;
-        margin-top: 10px;
-    }
-    @media only screen and (max-width: 600px) {
-        .shop-grid { grid-template-columns: repeat(3, 1fr); }
-    }
-
-    .shop-item {
-        background: #0f172a; border: 1px solid #334155; border-radius: 10px;
-        padding: 5px; text-align: center; display: flex; flex-direction: column;
-        align-items: center; justify-content: space-between; height: 130px;
-        transition: 0.2s; position: relative; overflow: hidden;
-    }
-    .shop-item:hover { border-color: #FFD700; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    /* MAĞAZA KARTLARI */
+    .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+    @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(3, 1fr); } }
     
+    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 130px; transition: 0.2s; position: relative; overflow: hidden; }
+    .shop-item:hover { border-color: #FFD700; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
     .shop-name { font-size: 0.75rem; font-weight: bold; margin-top: 5px; color: #cbd5e1; }
     .shop-price { background: #10b981; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; margin-top: auto; width: 80%; }
-    
-    /* HEDİYE EMOJİLERİ */
     .gift-icon { font-size: 2.5rem; margin-top: 10px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
 
-    /* FONT STİLLERİ */
+    /* STİLLER */
     .font-Cinzel { font-family: 'Cinzel', serif !important; }
     .font-Orbitron { font-family: 'Orbitron', sans-serif !important; }
     .font-Rye { font-family: 'Rye', serif !important; }
     .font-Dancing { font-family: 'Dancing Script', cursive !important; }
-    .font-Metallic { 
-        font-family: 'Metal Mania', cursive !important; 
-        color: #b0b0b0 !important; 
-        text-shadow: 2px 2px 0px #000, -1px -1px 0px #333 !important;
-        letter-spacing: 1px;
-    }
+    .font-Metallic { font-family: 'Metal Mania', cursive !important; color: #b0b0b0 !important; text-shadow: 2px 2px 0px #000, -1px -1px 0px #333 !important; letter-spacing: 1px; }
 
     /* AVATAR */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; vertical-align: middle; }
     .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
     .frame-overlay { position: absolute; top: -5px; left: -5px; pointer-events: none; z-index: 2; }
     
-    /* ÇERÇEVELER */
     .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 10px #FFD700; }
     .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff; }
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; animation: pulse 1.5s infinite; }
     .frame-King { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 20px #ffd700, 0 0 40px #ff0000; }
     .frame-Matrix { border: 3px dotted #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00; }
 
-    /* EFEKTLER */
     .name-Glitch { color: #00ffff; text-shadow: 2px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 5px #ff0000; font-weight: bold; animation: burn 1s infinite alternate; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
@@ -90,10 +68,8 @@ st.markdown("""
     .post-Gold { color: #ffd700 !important; }
 
     .title-badge { background: #334155; color: #94a3b8; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; margin-left: 5px; vertical-align: middle; }
-
     @keyframes pulse { 0% { box-shadow: 0 0 5px #ff4500; } 50% { box-shadow: 0 0 20px #ff4500; } 100% { box-shadow: 0 0 5px #ff4500; } }
     @keyframes burn { from { text-shadow: 0 0 5px #ff0000; } to { text-shadow: 0 0 20px #ffff00; } }
-    
     iframe { width: 100% !important; }
 </style>
 """, unsafe_allow_html=True)
@@ -195,7 +171,13 @@ if not st.session_state['logged_in']:
             with st.form("reg"):
                 nu = st.text_input("Kullanıcı"); np = st.text_input("Şifre", type="password")
                 if st.form_submit_button("Kayıt"):
-                    if database.add_user(nu, np, "student"): st.success("Oldu!"); st.rerun()
+                    success, rank = database.add_user(nu, np, "student")
+                    if success:
+                        if rank <= 10: 
+                            st.balloons()
+                            st.success(f"TEBRİKLER! {rank}. kişi olarak KURUCU ünvanı ve 50.000 Puan kazandın!")
+                        else: st.success("Başarılı! Giriş yapabilirsin.")
+                    else: st.error("Hata: İsim alınmış olabilir.")
 else:
     with st.sidebar:
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
@@ -352,7 +334,7 @@ else:
             
             html_code = '<div class="shop-grid">'
             for g in gifts:
-                # Target User parametresi eklendi
+                # Link Tetikleyicisi (Hızlı)
                 gift_link = f"?action=gift&u={st.session_state['username']}&t={target_user}&g={g['n']}&c={g['c']}"
                 html_code += f"""
                 <div class="shop-item">
