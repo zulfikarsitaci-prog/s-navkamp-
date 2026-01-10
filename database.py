@@ -61,12 +61,42 @@ def add_user(u, p, r):
         return False, 0
     except: return False, 0
 
-# --- EKSİK OLAN FONKSİYON BU ---
+# --- EKSİK OLAN FONKSİYONLAR EKLENDİ ---
+def get_searchable_users(my_u):
+    # Admin ve kendisi hariç tüm kullanıcıları al
+    all_users_res = run_query("SELECT username FROM users WHERE username != 'admin' AND username != ?", (my_u,), fetch=True)
+    all_users = [r[0] for r in all_users_res] if all_users_res else []
+    
+    # Zaten arkadaş olduklarını filtrele
+    friends = get_friends(my_u)
+    return [u for u in all_users if u not in friends]
+
+def get_all_users_list():
+    res = run_query("SELECT username FROM users WHERE username != 'admin'", fetch=True)
+    return [r[0] for r in res] if res else []
+
+def get_friends(u):
+    rows = run_query("SELECT user1, user2 FROM relationships WHERE (user1=? OR user2=?) AND status='accepted'", (u, u), fetch=True)
+    friends = []
+    if rows:
+        for r in rows: friends.append(r[1] if r[0] == u else r[0])
+    return friends
+
+def send_friend_request(s, r):
+    if run_query("SELECT * FROM relationships WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)", (s, r, r, s), fetch=True): return False, "Zaten ekli/istek var."
+    run_query("INSERT INTO relationships (user1, user2, status) VALUES (?, ?, ?)", (s, r, 'pending')); return True, "İstek yollandı."
+
+def get_pending_requests(u): 
+    return run_query("SELECT id, user1 FROM relationships WHERE user2=? AND status='pending'", (u,), fetch=True) or []
+
+def accept_request(sender, me): 
+    run_query("UPDATE relationships SET status='accepted' WHERE user1=? AND user2=?", (sender, me))
+
 def update_activity(u):
     n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
 
-# --- VERİ ÇEKME ---
+# --- DİĞER FONKSİYONLAR ---
 def get_posts(limit=20): return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
 def get_comments(pid): return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (pid,), fetch=True) or []
 def get_total_score(u):
@@ -78,11 +108,7 @@ def get_user_styles(u):
 def get_user_change_count(u):
     res = run_query("SELECT change_count FROM users WHERE username = ?", (u,), fetch=True)
     return res[0][0] if res else 0
-def get_all_users_list():
-    res = run_query("SELECT username FROM users WHERE username != 'admin'", fetch=True)
-    return [r[0] for r in res] if res else []
 
-# --- İŞLEMLER ---
 def compress_image(image_file):
     try:
         img = Image.open(image_file).convert("RGB")
@@ -135,7 +161,6 @@ def change_username_logic(current_user, new_user):
         return True, "İsim değiştirildi!"
     except: return False, "Hata oluştu."
 
-# --- MESAJLAŞMA ---
 def send_message(s, r, m):
     t = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO messages (sender, receiver, message, timestamp) VALUES (?, ?, ?, ?)", (s, r, m, t))
