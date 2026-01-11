@@ -538,3 +538,5 @@ else:
             for s, m, t in msgs: st.write(f"**{s}**: {m} ({t})")
         st.divider()
         if st.button("Sil"): database.delete_user(target_u); st.error("Silindi!"); st.rerun()
+
+ 
