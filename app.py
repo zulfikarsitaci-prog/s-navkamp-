@@ -40,10 +40,10 @@ def extract_youtube_link(text):
     if match: return f"https://www.youtube.com/watch?v={match.group(6)}"
     return None
 
-# --- CSS (GENİŞLETİLMİŞ STİLLER) ---
+# --- CSS ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&family=Press+Start+2P&family=Creepster&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
     .login-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
     .login-sub { color: #94a3b8; font-size: 1rem; margin-bottom: 5px; font-family: sans-serif; letter-spacing: 1px; }
@@ -65,16 +65,18 @@ st.markdown("""
     .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
     div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 8px; flex-wrap: wrap; }
     
-    /* MAĞAZA GRİD */
     .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
     @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(2, 1fr); } }
     
-    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px; text-align: center; height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
-    .shop-preview { width: 50px; height: 50px; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid #334155; }
-    .shop-name { font-size: 0.75rem; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
-    .shop-price { background: #10b981; color: white; padding: 3px 10px; border-radius: 8px; font-size: 0.7rem; width: 100%; font-weight: bold; text-decoration: none; display: block; }
-    
-    /* STİLLER - ÇERÇEVELER */
+    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px; text-align: center; height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+    .shop-name { font-size: 0.75rem; color: #cbd5e1; font-weight: bold; }
+    .shop-price { background: #10b981; color: white; padding: 3px 10px; border-radius: 8px; font-size: 0.7rem; width: 100%; }
+
+    .font-Cinzel { font-family: 'Cinzel', serif; } .font-Orbitron { font-family: 'Orbitron', sans-serif; }
+    .font-Rye { font-family: 'Rye', serif; } .font-Dancing { font-family: 'Dancing Script', cursive; }
+    .font-Metallic { font-family: 'Metal Mania', cursive; color: #b0b0b0; text-shadow: 2px 2px 0px #000; }
+
+    .avatar-container { position: relative; display: inline-block; margin-right: 8px; }
     .avatar-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
     .frame-overlay { position: absolute; top: -3px; left: -3px; width: 46px; height: 46px; pointer-events: none; }
     
@@ -83,26 +85,10 @@ st.markdown("""
     .frame-Fire { border: 2px solid #ff4500; border-radius: 50%; box-shadow: 0 0 10px #ff4500; }
     .frame-King { border: 3px solid #ffd700; border-radius: 50%; box-shadow: 0 0 10px #ffd700; }
     .frame-Matrix { border: 2px dotted #00ff00; border-radius: 50%; }
-    .frame-Ice { border: 2px solid #00bfff; border-radius: 50%; box-shadow: 0 0 8px #00bfff; }
-    .frame-Dark { border: 2px solid #333; border-radius: 50%; box-shadow: inset 0 0 10px #000; }
-    .frame-Nature { border: 2px solid #2ecc71; border-radius: 50%; }
-    
-    /* STİLLER - İSİMLER */
-    .name-Glitch { color: #00ffff; text-shadow: 2px 0 #ff00ff; font-weight: bold; }
+    .name-Glitch { color: #00ffff; text-shadow: 1px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 3px #ff0000; font-weight: bold; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
-    .name-Neon { color: #fff; text-shadow: 0 0 5px #fff, 0 0 10px #ff00de; font-weight: bold; }
-    .name-Matrix { color: #00ff00; font-family: monospace; text-shadow: 0 0 2px #003300; }
-    
-    /* STİLLER - FONTLAR */
-    .font-Cinzel { font-family: 'Cinzel', serif; } 
-    .font-Orbitron { font-family: 'Orbitron', sans-serif; }
-    .font-Rye { font-family: 'Rye', serif; } 
-    .font-Dancing { font-family: 'Dancing Script', cursive; }
-    .font-Metallic { font-family: 'Metal Mania', cursive; color: #b0b0b0; text-shadow: 2px 2px 0px #000; }
-    .font-Retro { font-family: 'Press Start 2P', cursive; font-size: 0.7rem; }
-    .font-Horror { font-family: 'Creepster', cursive; color: #e74c3c; }
-    
+    .post-Cyan { color: #00ffff !important; } .post-Lime { color: #00ff00 !important; } .post-Pink { color: #ff69b4 !important; } .post-Gold { color: #ffd700 !important; }
     .title-badge { background: #334155; color: #94a3b8; padding: 1px 5px; border-radius: 3px; font-size: 0.6rem; margin-left: 4px; }
 </style>
 """, unsafe_allow_html=True)
@@ -148,12 +134,14 @@ def get_matrix_game_html(user):
 # --- ARAYÜZ ---
 if not st.session_state['logged_in']:
     st.markdown('<div class="login-container"><div class="login-sub">Muhasebe ve Finansman Alanı</div><div class="login-main">DİJİTAL GELİŞİM PLATFORMU</div><div class="login-sub">~ Dijital Kampüs ~</div></div>', unsafe_allow_html=True)
+    
     with st.sidebar:
         if st.button("⚠️ SİSTEMİ SIFIRLA"):
             try:
                 if os.path.exists("education_platform.db"): os.remove("education_platform.db")
-                st.success("Sıfırlandı! Yenile."); time.sleep(1); st.rerun()
-            except: st.error("Hata.")
+                st.success("Sistem temizlendi! Sayfayı yenile."); time.sleep(1); st.rerun()
+            except: st.error("Silinemedi.")
+
     with st.container():
         with st.form("login"):
             u = st.text_input("Kullanıcı Adı")
@@ -165,6 +153,7 @@ if not st.session_state['logged_in']:
                     database.update_activity(user[1])
                     st.rerun()
                 else: st.error("Hatalı!")
+        
         with st.expander("Kayıt Ol"):
             with st.form("reg"):
                 nu = st.text_input("Kullanıcı"); np = st.text_input("Şifre", type="password")
@@ -218,19 +207,17 @@ else:
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
     
-    # BİLDİRİM SAYACI
+    database.mark_notifications_read(st.session_state['username'])
     noti_count = database.get_unread_notification_count(st.session_state['username'])
     noti_text = f"🔔 ({noti_count})" if noti_count > 0 else "🔔"
     
     menu = ["📢 Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🛒 Mağaza", noti_text]
     if st.session_state['user_role'] == 'admin': menu.append("⚙️ Admin")
     
-    # Menü seçimi
     curr = st.session_state['active_menu']
     if curr.startswith("🔔") and curr != noti_text: curr = noti_text
     try: ix = menu.index(curr)
     except: ix = 0
-    
     sel = st.radio("", menu, index=ix, horizontal=True, label_visibility="collapsed")
     if sel != st.session_state['active_menu']: st.session_state['active_menu'] = sel; st.rerun()
 
@@ -255,7 +242,6 @@ else:
                         else: st.error("Yetersiz Puan")
         
         all_posts = database.get_posts(50)
-        # --- FİLTRELEME MANTIĞI ---
         if st.session_state['wall_mode'] == "Benim Profilim":
             posts = [p for p in all_posts if p[1] == st.session_state['username']]
         else:
@@ -317,102 +303,43 @@ else:
         
         tabs = st.tabs(["Çerçeve", "İsim", "Font", "🎁 Hediye"])
         
-        # ÇERÇEVELER (Grid Düzeltildi)
         with tabs[0]: 
-            items = [
-                {"n": "Gold", "c": 50000, "t": "frame", "v": "Gold", "css":"frame-Gold"}, 
-                {"n": "Neon", "c": 150000, "t": "frame", "v": "Neon", "css":"frame-Neon"}, 
-                {"n": "Alev", "c": 300000, "t": "frame", "v": "Fire", "css":"frame-Fire"}, 
-                {"n": "Kral", "c": 2000000, "t": "frame", "v": "King", "css":"frame-King"},
-                {"n": "Matrix", "c": 500000, "t": "frame", "v": "Matrix", "css":"frame-Matrix"},
-                {"n": "Buz", "c": 750000, "t": "frame", "v": "Ice", "css":"frame-Ice"},
-                {"n": "Karanlık", "c": 100000, "t": "frame", "v": "Dark", "css":"frame-Dark"},
-                {"n": "Doğa", "c": 250000, "t": "frame", "v": "Nature", "css":"frame-Nature"}
-            ]
+            items = [{"n": "Gold", "c": 50000, "t": "frame", "v": "Gold"}, {"n": "Neon", "c": 150000, "t": "frame", "v": "Neon"}, {"n": "Alev", "c": 300000, "t": "frame", "v": "Fire"}, {"n": "Kral", "c": 2000000, "t": "frame", "v": "King"}]
             html_code = '<div class="shop-grid">'
             for i, it in enumerate(items):
                 buy_link = f"?action=buy&u={st.session_state['username']}&t={it['t']}&v={it['v']}&c={it['c']}"
-                preview = f'<div class="shop-preview"><div class="{it["css"]}" style="width:100%;height:100%;border-radius:50%;"></div></div>'
                 html_code += f"""
                 <div class="shop-item">
-                    {preview}
                     <div class="shop-name">{it['n']}</div>
-                    <a href="{buy_link}" target="_top" class="shop-price">AL ({it['c']:,})</a>
+                    <div class="shop-price"><a href="{buy_link}" target="_top" style="color:white;text-decoration:none;">AL ({it['c']:,})</a></div>
                 </div>"""
             html_code += "</div>"
             st.markdown(html_code, unsafe_allow_html=True)
 
-        # İSİMLER
-        with tabs[1]:
-            items = [
-                {"n": "Glitch", "c": 100000, "t": "name", "v": "Glitch", "css":"name-Glitch"},
-                {"n": "Alevli", "c": 400000, "t": "name", "v": "Fire", "css":"name-Fire"},
-                {"n": "Altın", "c": 750000, "t": "name", "v": "Gold", "css":"name-Gold"},
-                {"n": "Neon", "c": 500000, "t": "name", "v": "Neon", "css":"name-Neon"},
-                {"n": "Matrix", "c": 300000, "t": "name", "v": "Matrix", "css":"name-Matrix"}
-            ]
-            html_code = '<div class="shop-grid">'
-            for i, it in enumerate(items):
-                buy_link = f"?action=buy&u={st.session_state['username']}&t={it['t']}&v={it['v']}&c={it['c']}"
-                preview = f'<div class="{it["css"]}" style="font-size:0.8rem;">İSİM</div>'
-                html_code += f"""
-                <div class="shop-item">
-                    <div style="margin-top:20px;">{preview}</div>
-                    <div class="shop-name">{it['n']}</div>
-                    <a href="{buy_link}" target="_top" class="shop-price">AL ({it['c']:,})</a>
-                </div>"""
-            html_code += "</div>"
-            st.markdown(html_code, unsafe_allow_html=True)
-
-        # FONTLAR
-        with tabs[2]:
-            items = [
-                {"n": "Cinzel", "c": 150000, "t": "font", "v": "Cinzel", "css":"font-Cinzel"},
-                {"n": "Orbitron", "c": 250000, "t": "font", "v": "Orbitron", "css":"font-Orbitron"},
-                {"n": "Rye", "c": 350000, "t": "font", "v": "Rye", "css":"font-Rye"},
-                {"n": "Dans", "c": 500000, "t": "font", "v": "Dancing", "css":"font-Dancing"},
-                {"n": "Metalik", "c": 1000000, "t": "font", "v": "Metallic", "css":"font-Metallic"},
-                {"n": "Retro", "c": 600000, "t": "font", "v": "Retro", "css":"font-Retro"},
-                {"n": "Korku", "c": 800000, "t": "font", "v": "Horror", "css":"font-Horror"}
-            ]
-            html_code = '<div class="shop-grid">'
-            for i, it in enumerate(items):
-                buy_link = f"?action=buy&u={st.session_state['username']}&t={it['t']}&v={it['v']}&c={it['c']}"
-                preview = f'<div class="{it["css"]}" style="font-size:1rem;">Aa</div>'
-                html_code += f"""
-                <div class="shop-item">
-                    <div style="margin-top:20px;">{preview}</div>
-                    <div class="shop-name">{it['n']}</div>
-                    <a href="{buy_link}" target="_top" class="shop-price">AL ({it['c']:,})</a>
-                </div>"""
-            html_code += "</div>"
-            st.markdown(html_code, unsafe_allow_html=True)
-
-        # HEDİYE SEKMESİ (GERİ GELDİ)
-        with tabs[3]: 
+        with tabs[3]: # HEDİYE SEKMESİ
             st.info("Hediye göndererek arkadaşını mutlu et!")
             all_users = database.get_all_users_list(st.session_state['username'])
             t_user = st.selectbox("Kime:", all_users)
-            gifts = [("Kahve ☕", 5000), ("Çikolata 🍫", 10000), ("Gül 🌹", 25000), ("Taç 👑", 100000), ("Araba 🏎️", 500000), ("Elmas 💎", 1000000)]
+            gifts = [("Kahve ☕", 5000), ("Çikolata 🍫", 10000), ("Gül 🌹", 25000), ("Taç 👑", 100000)]
             
             html_code = '<div class="shop-grid">'
             for i, (gn, gp) in enumerate(gifts):
                 gift_link = f"?action=gift&u={st.session_state['username']}&t={t_user}&g={gn}&c={gp}"
                 html_code += f"""
                 <div class="shop-item">
-                    <div style="font-size:1.5rem;margin-top:10px;">{gn.split()[-1]}</div>
                     <div class="shop-name">{gn}</div>
-                    <a href="{gift_link}" target="_top" class="shop-price">GÖNDER ({gp:,})</a>
+                    <div class="shop-price"><a href="{gift_link}" target="_top" style="color:white;text-decoration:none;">GÖNDER ({gp:,})</a></div>
                 </div>"""
             html_code += "</div>"
             st.markdown(html_code, unsafe_allow_html=True)
 
-    elif sel.startswith("🔔"): # BİLDİRİMLER
+    elif sel.startswith("🔔"):
         st.header("Bildirimler")
-        # Bildirimleri göster
-        database.mark_notifications_read(st.session_state['username'])
-        st.success("Tüm bildirimler okundu olarak işaretlendi.")
-        # Burada detaylı bildirim geçmişi de gösterilebilir ama basit tuttum.
+        notis = database.get_unread_notification_count(st.session_state['username'])
+        if notis == 0: st.info("Yeni bildirim yok.")
+        else:
+            st.success(f"{notis} yeni bildirim okundu olarak işaretlendi.")
+            database.mark_notifications_read(st.session_state['username'])
 
     elif sel == "💬 Mesaj":
         st.subheader("Mesajlaşma")
@@ -460,10 +387,20 @@ else:
 
     elif sel == "⚙️ Admin":
         st.header("Admin")
-        st.subheader("Kullanıcı Düzenle")
+        # SPY MODU
+        st.subheader("🕵️ Casus Modu")
         all_u = [u[0] for u in database.get_all_users()]
-        target_u = st.selectbox("Kullanıcı", all_u)
-        new_p = st.number_input("Puan Ekle", value=0)
-        if st.button("Güncelle"): database.add_score(target_u, new_p, "Admin"); st.success("Tamam!")
+        c1, c2 = st.columns(2)
+        with c1: u1 = st.selectbox("Kullanıcı 1", all_u, key="s1")
+        with c2: u2 = st.selectbox("Kullanıcı 2", all_u, key="s2")
+        
+        if st.button("Sohbeti Getir"):
+            msgs = database.get_conversation(u1, u2)
+            if msgs:
+                for m in msgs: st.write(f"**{m[0]}**: {m[1]} ({m[2]})")
+            else: st.warning("Mesaj yok.")
+            
         st.divider()
-        if st.button("Sil"): database.delete_user(target_u); st.error("Silindi!"); st.rerun()
+        st.subheader("Kullanıcı Sil")
+        target_u = st.selectbox("Silinecek Kişi", all_u)
+        if st.button("Sil"): database.delete_user(target_u); st.rerun()
