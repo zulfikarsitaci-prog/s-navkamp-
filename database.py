@@ -27,7 +27,7 @@ def run_query(query, params=(), fetch=False):
 
 def create_database():
     tables = [
-        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, post_style TEXT, font_style TEXT, title TEXT, change_count INTEGER DEFAULT 0)',
+        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, post_style TEXT, font_style TEXT, title TEXT, change_count INTEGER DEFAULT 0, emoji_packs TEXT DEFAULT "Temel")',
         'CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)',
         'CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, timestamp TEXT, likes INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
@@ -36,6 +36,14 @@ def create_database():
     ]
     for t in tables: run_query(t)
     
+    # Sütun kontrolleri (Eski veritabanı uyumluluğu için)
+    cols = ["emoji_packs", "change_count", "avatar_data", "frame", "name_style", "post_style", "font_style", "title"]
+    for col in cols:
+        try: 
+            dtype = "INTEGER DEFAULT 0" if col == "change_count" else "TEXT"
+            run_query(f"ALTER TABLE users ADD COLUMN {col} {dtype}")
+        except: pass
+
     if not login_user("admin", "6626"):
         h = hashlib.sha256("6626".encode()).hexdigest()
         run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", ("admin", h, "admin"))
@@ -49,7 +57,7 @@ def login_user(u, p):
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
-        success = run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (u, h, r))
+        success = run_query("INSERT INTO users (username, password, role, emoji_packs) VALUES (?, ?, ?, ?)", (u, h, r, "Temel"))
         if success:
             count = run_query("SELECT COUNT(*) FROM users", fetch=True)[0][0]
             if count <= 10:
@@ -59,19 +67,9 @@ def add_user(u, p, r):
         return False, 0
     except: return False, 0
 
-# --- EKSİK OLAN FONKSİYONLAR EKLENDİ ---
+# --- VERİ ÇEKME (EKSİKLER GİDERİLDİ) ---
 def get_leaderboard_data():
     return run_query("SELECT student_username, SUM(grade) as T FROM grades GROUP BY student_username ORDER BY T DESC", fetch=True) or []
-
-def get_all_users():
-    res = run_query("SELECT username FROM users", fetch=True)
-    return res if res else []
-
-def get_searchable_users(my_u):
-    all_res = run_query("SELECT username FROM users WHERE username != 'admin' AND username != ?", (my_u,), fetch=True)
-    all_users = [r[0] for r in all_res] if all_res else []
-    friends = get_friends(my_u)
-    return [u for u in all_users if u not in friends]
 
 def get_all_users_list(my_u=None):
     if my_u:
@@ -80,8 +78,7 @@ def get_all_users_list(my_u=None):
         res = run_query("SELECT username FROM users WHERE username != 'admin'", fetch=True)
     return [r[0] for r in res] if res else []
 
-# --- STANDART FONKSİYONLAR ---
-def get_posts(limit=20): return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
+def get_posts(limit=50): return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
 def get_comments(pid): return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (pid,), fetch=True) or []
 def get_total_score(u):
     res = run_query("SELECT SUM(grade) FROM grades WHERE student_username = ?", (u,), fetch=True)
@@ -93,6 +90,23 @@ def get_user_change_count(u):
     res = run_query("SELECT change_count FROM users WHERE username = ?", (u,), fetch=True)
     return res[0][0] if res else 0
 
+# --- EMOJI ---
+def get_user_emojis(username):
+    res = run_query("SELECT emoji_packs FROM users WHERE username = ?", (username,), fetch=True)
+    packs = res[0][0].split(",") if res and res[0][0] else ["Temel"]
+    return packs
+
+def buy_emoji_pack_logic(username, pack_name, cost):
+    current_packs = get_user_emojis(username)
+    if pack_name in current_packs: return False, "Zaten var."
+    if get_total_score(username) >= cost:
+        add_score(username, -cost, "Mağaza: Emoji")
+        new_packs = ",".join(current_packs + [pack_name])
+        run_query("UPDATE users SET emoji_packs = ? WHERE username = ?", (new_packs, username))
+        return True, "Paket alındı!"
+    return False, "Puan yetersiz."
+
+# --- İŞLEMLER ---
 def compress_image(image_file):
     try:
         img = Image.open(image_file).convert("RGB")
@@ -127,6 +141,13 @@ def buy_item(u, type, value, cost):
         if col: run_query(f"UPDATE users SET {col} = ? WHERE username = ?", (value, u)); return True, "Hayırlı olsun!"
     return False, "Puan yetersiz."
 
+def send_gift(sender, receiver, gift_name, cost):
+    if get_total_score(sender) >= cost:
+        add_score(sender, -cost, f"Hediye: {gift_name} -> {receiver}")
+        send_message(sender, receiver, f"🎁 SANA BİR HEDİYE GÖNDERDİ: {gift_name}!")
+        return True, "Hediye gönderildi!"
+    return False, "Puan yetersiz."
+
 def update_avatar(u, img):
     d = compress_image(img)
     if d: run_query("UPDATE users SET avatar_data = ? WHERE username = ?", (d, u)); return True
@@ -145,7 +166,7 @@ def change_username_logic(current_user, new_user):
         return True, "İsim değiştirildi!"
     except: return False, "Hata oluştu."
 
-# --- MESAJLAŞMA ---
+# --- MESAJLAŞMA & ARKADAŞLIK ---
 def send_message(s, r, m):
     t = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO messages (sender, receiver, message, timestamp) VALUES (?, ?, ?, ?)", (s, r, m, t))
@@ -176,6 +197,13 @@ def get_friends(u):
     if rows:
         for r in rows: friends.append(r[1] if r[0] == u else r[0])
     return friends
+def get_searchable_users(my_u):
+    all_users = get_all_users_list(my_u)
+    friends = get_friends(my_u)
+    return [u for u in all_users if u not in friends]
+def get_all_users(): 
+    res = run_query("SELECT username FROM users", fetch=True)
+    return [r[0] for r in res] if res else []
 
 def delete_user(u):
     if u == "admin": return
