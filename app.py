@@ -1,4 +1,4 @@
-Import streamlit as st
+import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
 import requests
@@ -538,5 +538,3 @@ else:
             for s, m, t in msgs: st.write(f"**{s}**: {m} ({t})")
         st.divider()
         if st.button("Sil"): database.delete_user(target_u); st.error("Silindi!"); st.rerun()
-
- 
