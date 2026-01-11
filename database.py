@@ -36,7 +36,7 @@ def create_database():
     ]
     for t in tables: run_query(t)
     
-    # Sütun kontrolleri
+    # Eksik sütun kontrolü (Eski veritabanı uyumluluğu için)
     cols = ["emoji_packs", "change_count", "avatar_data", "frame", "name_style", "post_style", "font_style", "title"]
     for col in cols:
         try: 
@@ -44,11 +44,12 @@ def create_database():
             run_query(f"ALTER TABLE users ADD COLUMN {col} {dtype}")
         except: pass
 
+    # Admin Hesabı
     if not login_user("admin", "6626"):
         h = hashlib.sha256("6626".encode()).hexdigest()
-        run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", ("admin", h, "admin"))
+        run_query("INSERT INTO users (username, password, role, emoji_packs) VALUES (?, ?, ?, ?)", ("admin", h, "admin", "Temel"))
 
-# --- KULLANICI ---
+# --- KULLANICI İŞLEMLERİ ---
 def login_user(u, p):
     h = hashlib.sha256(p.encode()).hexdigest()
     res = run_query("SELECT id, username, password, role FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
@@ -57,6 +58,7 @@ def login_user(u, p):
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
+        # Kayıt hatasını çözen düzeltilmiş sorgu:
         success = run_query("INSERT INTO users (username, password, role, emoji_packs) VALUES (?, ?, ?, ?)", (u, h, r, "Temel"))
         if success:
             count = run_query("SELECT COUNT(*) FROM users", fetch=True)[0][0]
@@ -78,7 +80,7 @@ def get_all_users_list(my_u=None):
         res = run_query("SELECT username FROM users WHERE username != 'admin'", fetch=True)
     return [r[0] for r in res] if res else []
 
-def get_all_users(): # Admin panel için
+def get_all_users(): # Admin panel için tüm kullanıcılar
     res = run_query("SELECT username FROM users", fetch=True)
     return res if res else []
 
@@ -179,14 +181,11 @@ def get_conversation(u1, u2):
     return run_query("SELECT sender, message, timestamp FROM messages WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY id ASC", (u1, u2, u2, u1), fetch=True) or []
 
 def get_unread_notification_count(u):
-    # Okunmamış yorumlar ve mesajlar
-    res = run_query("SELECT COUNT(id) FROM comments WHERE post_id IN (SELECT id FROM posts WHERE username = ?) AND username != ? AND is_read = 0", (u, u), fetch=True)
-    count = res[0][0] if res else 0
-    return count
+    res = run_query("SELECT COUNT(c.id) FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ? AND c.is_read = 0", (u, u), fetch=True)
+    return res[0][0] if res else 0
 
 def mark_notifications_read(u):
-    # Kullanıcının postlarına gelen başkalarının yorumlarını okundu yap
-    run_query("UPDATE comments SET is_read = 1 WHERE post_id IN (SELECT id FROM posts WHERE username = ?) AND username != ?", (u, u))
+    run_query("UPDATE comments SET is_read = 1 WHERE id IN (SELECT c.id FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ?)", (u, u))
 
 def update_activity(u):
     n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -208,9 +207,6 @@ def get_searchable_users(my_u):
     all_users = get_all_users_list(my_u)
     friends = get_friends(my_u)
     return [u for u in all_users if u not in friends]
-def get_all_users(): # Admin panel için
-    res = run_query("SELECT username FROM users", fetch=True)
-    return [r[0] for r in res] if res else []
 
 def delete_user(u):
     if u == "admin": return
