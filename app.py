@@ -357,11 +357,10 @@ else:
                 {f'<img src="data:image/jpeg;base64,{p[3]}" class="post-image">' if p[3] else ''}
             </div>
             """, unsafe_allow_html=True)
-            
             if p[2]:
                 yt = extract_youtube_link(p[2])
                 if yt: st.video(yt)
-
+            
             c1, c2, c3, c4 = st.columns([0.15, 0.15, 0.15, 0.55]) 
             with c1: 
                 if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
@@ -383,7 +382,6 @@ else:
                 comments = database.get_comments(p[0])
                 if comments:
                     for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
-                
                 with st.form(f"c_form_{p[0]}", clear_on_submit=True):
                     ct = st.text_input("Yorum Yaz...", label_visibility="collapsed")
                     if st.form_submit_button("Gönder"): 
@@ -408,9 +406,7 @@ else:
                 {"n": "Karanlık", "c": 100000, "t": "frame", "v": "Dark", "css":"frame-Dark"},
                 {"n": "Doğa", "c": 250000, "t": "frame", "v": "Nature", "css":"frame-Nature"},
                 {"n": "Siber", "c": 600000, "t": "frame", "v": "Cyber", "css":"frame-Cyber"},
-                {"n": "Aşk", "c": 400000, "t": "frame", "v": "Love", "css":"frame-Love"},
-                {"n": "Volkan", "c": 900000, "t": "frame", "v": "Fire", "css":"frame-Fire"},
-                {"n": "Uzay", "c": 1000000, "t": "frame", "v": "Cyber", "css":"frame-Cyber"}
+                {"n": "Aşk", "c": 400000, "t": "frame", "v": "Love", "css":"frame-Love"}
             ]
             html_code = '<div class="shop-grid">'
             for i, it in enumerate(items):
@@ -565,8 +561,9 @@ else:
     elif sel == "⚙️ Admin":
         st.header("Admin")
         st.subheader("Kullanıcı Düzenle")
-        all_u = [u[0] for u in database.get_all_users()]
-        target_u = st.selectbox("Kullanıcı", all_u)
+        all_u = database.get_all_users()
+        all_u_list = [u[0] for u in all_u]
+        target_u = st.selectbox("Kullanıcı", all_u_list)
         new_p = st.number_input("Puan Ekle", value=0)
         if st.button("Güncelle"): database.add_score(target_u, new_p, "Admin"); st.success("Tamam!")
         st.divider()
