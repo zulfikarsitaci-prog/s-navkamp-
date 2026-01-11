@@ -129,7 +129,7 @@ def extract_youtube_link(text):
     if match: return f"https://www.youtube.com/watch?v={match.group(6)}"
     return None
 
-# --- CSS (MAĞAZA VE KARTLAR İÇİN) ---
+# --- CSS (MAĞAZA KARTLARI DÜZELTİLDİ) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&family=Press+Start+2P&family=Creepster&display=swap');
@@ -142,6 +142,7 @@ st.markdown("""
     .post-header { display: flex; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 8px; }
     .post-content { color: #e2e8f0; font-size: 0.95rem; white-space: pre-wrap; margin-bottom: 5px; }
     
+    /* BUTONLAR (İKON İÇİN) */
     div.stButton > button { background-color: transparent !important; border: none !important; color: #94a3b8 !important; padding: 0px 5px !important; font-size: 1.3rem !important; margin-right: 15px !important; box-shadow: none !important;}
     div.stButton > button:hover { color: #FFD700 !important; transform: scale(1.1); }
     
@@ -150,16 +151,50 @@ st.markdown("""
 
     .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
     
-    /* MAĞAZA GRİD DÜZELTME */
+    /* MAĞAZA GRİD (DÜZELTİLDİ - BUTONLAR SIKIŞTI) */
     .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
     @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(2, 1fr); } }
     
-    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px; text-align: center; height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; transition: transform 0.2s; }
-    .shop-item:hover { transform: translateY(-5px); border-color: #FFD700; }
-    .shop-preview { width: 60px; height: 60px; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid #334155; }
-    .shop-name { font-size: 0.75rem; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
-    .shop-price { background: #10b981; color: white; padding: 4px; border-radius: 6px; font-size: 0.7rem; width: 100%; font-weight: bold; text-decoration: none; cursor: pointer; display: block;}
+    .shop-item { 
+        background: #0f172a; 
+        border: 1px solid #334155; 
+        border-radius: 8px; 
+        padding: 5px; 
+        text-align: center; 
+        height: 120px; /* Küçültüldü */
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: space-between; 
+        transition: transform 0.2s; 
+    }
+    .shop-item:hover { transform: translateY(-3px); border-color: #FFD700; }
     
+    .shop-preview { 
+        width: 40px; /* Küçültüldü */
+        height: 40px; 
+        margin-bottom: 2px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        border-radius: 50%; 
+        border: 2px solid #334155; 
+    }
+    .shop-name { font-size: 0.65rem; color: #cbd5e1; font-weight: bold; margin-bottom: 2px; line-height: 1.1; }
+    
+    /* MAĞAZA BUTONLARI İÇİN ÖZEL STİL */
+    .shop-btn-container button {
+        width: 100% !important;
+        font-size: 0.7rem !important;
+        padding: 2px !important;
+        margin: 0 !important;
+        border: 1px solid #10b981 !important;
+        background-color: #10b981 !important;
+        color: white !important;
+        border-radius: 4px !important;
+        height: auto !important;
+    }
+
     /* STİLLER */
     .avatar-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
     .frame-overlay { position: absolute; top: -3px; left: -3px; width: 46px; height: 46px; pointer-events: none; }
@@ -242,18 +277,12 @@ def get_matrix_game_html(user):
 # --- ARAYÜZ ---
 if not st.session_state['logged_in']:
     st.markdown('<div class="login-container"><div class="login-sub">Muhasebe ve Finansman Alanı</div><div class="login-main">DİJİTAL GELİŞİM PLATFORMU</div><div class="login-sub">~ Dijital Kampüs ~</div></div>', unsafe_allow_html=True)
-    
     with st.sidebar:
-        # --- ACİL SIFIRLAMA BUTONU ---
         if st.button("⚠️ SİSTEMİ SIFIRLA"):
             try:
-                if os.path.exists("education_platform.db"):
-                    os.remove("education_platform.db")
-                    st.success("Sistem temizlendi! Sayfayı yenile.")
-                    time.sleep(1)
-                    st.rerun()
-            except: st.error("Silinemedi.")
-
+                if os.path.exists("education_platform.db"): os.remove("education_platform.db")
+                st.success("Sıfırlandı! Yenile."); time.sleep(1); st.rerun()
+            except: st.error("Hata.")
     with st.container():
         with st.form("login"):
             u = st.text_input("Kullanıcı Adı")
@@ -265,7 +294,6 @@ if not st.session_state['logged_in']:
                     database.update_activity(user[1])
                     st.rerun()
                 else: st.error("Hatalı!")
-        
         with st.expander("Kayıt Ol"):
             with st.form("reg"):
                 nu = st.text_input("Kullanıcı"); np = st.text_input("Şifre", type="password")
@@ -277,7 +305,7 @@ if not st.session_state['logged_in']:
                         if res:
                             st.session_state['captcha_q'] = None; st.success("Kaydedildi!")
                         else: st.error("Dolu.")
-                    else: st.error("Yanlış cevap."); st.session_state['captcha_q'] = None; st.rerun()
+                    else: st.error("Yanlış."); st.session_state['captcha_q'] = None; st.rerun()
 else:
     database.update_activity(st.session_state['username'])
     
@@ -319,6 +347,7 @@ else:
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
     
+    # Bildirim
     noti_count = database.get_unread_notification_count(st.session_state['username'])
     noti_text = f"🔔 ({noti_count})" if noti_count > 0 else "🔔"
     menu = ["📢 Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🛒 Mağaza", noti_text]
@@ -412,19 +441,15 @@ else:
                 {"n": "Karanlık", "c": 100000, "t": "frame", "v": "Dark", "css":"frame-Dark"},
                 {"n": "Doğa", "c": 250000, "t": "frame", "v": "Nature", "css":"frame-Nature"},
                 {"n": "Siber", "c": 600000, "t": "frame", "v": "Cyber", "css":"frame-Cyber"},
-                {"n": "Aşk", "c": 400000, "t": "frame", "v": "Love", "css":"frame-Love"},
-                {"n": "Volkan", "c": 900000, "t": "frame", "v": "Fire", "css":"frame-Fire"},
-                {"n": "Uzay", "c": 1000000, "t": "frame", "v": "Cyber", "css":"frame-Cyber"}
+                {"n": "Aşk", "c": 400000, "t": "frame", "v": "Love", "css":"frame-Love"}
             ]
-            
-            # CHUNK logic for native grid
             rows = [items[i:i+4] for i in range(0, len(items), 4)]
             for row in rows:
                 cols = st.columns(4)
                 for i, it in enumerate(row):
                     with cols[i]:
                         preview = f'<div class="shop-preview"><div class="{it["css"]}" style="width:100%;height:100%;border-radius:50%;"></div></div>'
-                        st.markdown(f'<div class="shop-item">{preview}<div class="shop-name">{it["n"]}</div></div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="shop-item">{preview}<div class="shop-name">{it["n"]}</div><div class="shop-btn-container"></div></div>', unsafe_allow_html=True)
                         if st.button(f"AL ({it['c']:,})", key=f"buy_fr_{it['n']}"):
                             ok, msg = database.buy_item(st.session_state['username'], it['t'], it['v'], it['c'])
                             if ok: st.success(msg); time.sleep(1); st.rerun()
@@ -584,47 +609,10 @@ else:
 
     elif sel == "⚙️ Admin":
         st.header("Admin")
-        
-        # --- İSTATİSTİKLER ---
-        st.subheader("Genel Durum")
-        c1, c2, c3 = st.columns(3)
-        with c1: st.metric("Kullanıcı", len(database.get_all_users()))
-        with c2: st.metric("Toplam Puan", f"{sum([r[1] for r in database.get_leaderboard_data()]):,}")
-        with c3: st.metric("Mesajlar", len(database.run_query("SELECT id FROM messages", fetch=True) or []))
-
-        # --- KULLANICI YÖNETİMİ ---
+        st.subheader("Kullanıcı Düzenle")
+        all_u = [u[0] for u in database.get_all_users()]
+        target_u = st.selectbox("Kullanıcı", all_u)
+        new_p = st.number_input("Puan Ekle", value=0)
+        if st.button("Güncelle"): database.add_score(target_u, new_p, "Admin"); st.success("Tamam!")
         st.divider()
-        st.subheader("Kullanıcı Yönetimi")
-        all_u = database.get_all_users()
-        all_u_list = [u[0] for u in all_u]
-        target_u = st.selectbox("Kullanıcı Seç", all_u_list)
-        
-        c_p, c_del, c_pass = st.columns(3)
-        with c_p:
-            new_p = st.number_input("Puan Ekle/Sil", value=0)
-            if st.button("Puanı İşle"): 
-                database.add_score(target_u, new_p, "Admin")
-                st.success("İşlendi!")
-        with c_del:
-            st.write("")
-            st.write("")
-            if st.button("Kullanıcıyı SİL", type="primary"): 
-                database.delete_user(target_u)
-                st.error("Silindi!")
-                st.rerun()
-        with c_pass:
-            new_pass = st.text_input("Yeni Şifre")
-            if st.button("Şifre Değiştir"):
-                h = hashlib.sha256(new_pass.encode()).hexdigest()
-                database.run_query("UPDATE users SET password = ? WHERE username = ?", (h, target_u))
-                st.success("Şifre değişti.")
-
-        # --- CASUS MODU (MESAJ OKUMA) ---
-        st.divider()
-        st.subheader("🕵️ Mesaj Takip Merkezi")
-        msgs = database.run_query("SELECT sender, receiver, message, timestamp FROM messages ORDER BY id DESC LIMIT 50", fetch=True)
-        if msgs:
-            df_msg = pd.DataFrame(msgs, columns=["Gönderen", "Alan", "Mesaj", "Zaman"])
-            st.dataframe(df_msg, use_container_width=True)
-        else:
-            st.info("Mesaj yok.")
+        if st.button("Sil"): database.delete_user(target_u); st.error("Silindi!"); st.rerun()
