@@ -211,3 +211,6 @@ def delete_user(u):
     if u == "admin": return
     run_query("DELETE FROM users WHERE username=?",(u,))
     run_query("DELETE FROM posts WHERE username=?",(u,))
+    run_query("DELETE FROM comments WHERE username=?",(u,))
+    run_query("DELETE FROM messages WHERE sender=? OR receiver=?",(u, u))
+    run_query("DELETE FROM grades WHERE student_username=?",(u,))
