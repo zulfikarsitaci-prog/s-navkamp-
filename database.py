@@ -11,7 +11,7 @@ import io
 @st.cache_resource(ttl=3600)
 def get_db_connection():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    DB_PATH = os.path.join(BASE_DIR, "education_platform_v3.db")
+    DB_PATH = os.path.join(BASE_DIR, "education_platform_v4.db")
     return sqlite3.connect(DB_PATH, check_same_thread=False)
 
 def run_query(query, params=(), fetch=False):
@@ -26,7 +26,7 @@ def run_query(query, params=(), fetch=False):
 
 def create_database():
     tables = [
-        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, score INTEGER DEFAULT 5000, bio TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, class_code TEXT)',
+        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, score INTEGER DEFAULT 5000, bio TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, class_code TEXT, emoji_packs TEXT DEFAULT "Temel")',
         'CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, youtube_link TEXT, wall_type TEXT, target_class TEXT, timestamp TEXT, likes INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
@@ -36,13 +36,9 @@ def create_database():
     ]
     for t in tables: run_query(t)
     
-    # Sütun kontrolleri (Eski DB uyumluluğu)
-    try: run_query("ALTER TABLE users ADD COLUMN bio TEXT")
-    except: pass
-    
     if not login_user("admin", "6626"):
         h = hashlib.sha256("6626".encode()).hexdigest()
-        run_query("INSERT INTO users (username, password, role, score, bio) VALUES (?, ?, ?, ?, ?)", ("admin", h, "admin", 9999999, "Sistem Yöneticisi"))
+        run_query("INSERT INTO users (username, password, role, score, bio) VALUES (?, ?, ?, ?, ?)", ("admin", h, "admin", 9999999, "Yönetici"))
 
 # --- KULLANICI ---
 def login_user(u, p):
@@ -53,7 +49,7 @@ def login_user(u, p):
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
-        run_query("INSERT INTO users (username, password, role, score, bio) VALUES (?, ?, ?, ?, ?)", (u, h, r, 5000, "Merhaba, ben yeni bir öğrenciyim!"))
+        run_query("INSERT INTO users (username, password, role, score, bio) VALUES (?, ?, ?, ?, ?)", (u, h, r, 5000, "Yeni Öğrenci"))
         return True
     except: return False
 
@@ -61,14 +57,11 @@ def get_user_data(u):
     res = run_query("SELECT score, bio, avatar_data, frame, name_style, role, class_code FROM users WHERE username = ?", (u,), fetch=True)
     return res[0] if res else (0, "", None, None, None, "student", None)
 
-def update_bio(u, bio):
-    run_query("UPDATE users SET bio = ? WHERE username = ?", (bio, u))
+def update_bio(u, bio): run_query("UPDATE users SET bio = ? WHERE username = ?", (bio, u))
 
 def update_avatar(u, img_file):
     try:
-        img = Image.open(img_file).convert("RGB")
-        img.thumbnail((400, 400))
-        buffer = io.BytesIO()
+        img = Image.open(img_file).convert("RGB"); img.thumbnail((400, 400)); buffer = io.BytesIO()
         img.save(buffer, format="JPEG", quality=60)
         img_str = base64.b64encode(buffer.getvalue()).decode()
         run_query("UPDATE users SET avatar_data = ? WHERE username = ?", (img_str, u))
@@ -78,109 +71,77 @@ def update_avatar(u, img_file):
 # --- SOSYAL ---
 def follow_user(follower, followed):
     if follower == followed: return False
-    check = run_query("SELECT id FROM followers WHERE follower = ? AND followed = ?", (follower, followed), fetch=True)
-    if not check:
-        run_query("INSERT INTO followers (follower, followed) VALUES (?, ?)", (follower, followed))
-        return True
+    if not run_query("SELECT id FROM followers WHERE follower = ? AND followed = ?", (follower, followed), fetch=True):
+        run_query("INSERT INTO followers (follower, followed) VALUES (?, ?)", (follower, followed)); return True
     return False
 
-def get_followers_count(u):
-    res = run_query("SELECT COUNT(*) FROM followers WHERE followed = ?", (u,), fetch=True)
-    return res[0][0] if res else 0
-
-def get_following_count(u):
-    res = run_query("SELECT COUNT(*) FROM followers WHERE follower = ?", (u,), fetch=True)
-    return res[0][0] if res else 0
-
+def get_followers_count(u): return run_query("SELECT COUNT(*) FROM followers WHERE followed = ?", (u,), fetch=True)[0][0]
+def get_following_count(u): return run_query("SELECT COUNT(*) FROM followers WHERE follower = ?", (u,), fetch=True)[0][0]
 def get_mutual_friends(u):
-    # Mesajlaşma için (Karşılıklı takip)
-    q = "SELECT f1.followed FROM followers f1 JOIN followers f2 ON f1.followed = f2.follower WHERE f1.follower = ? AND f2.followed = ?"
-    res = run_query(q, (u, u), fetch=True)
-    return [r[0] for r in res] if res else []
-
+    return [r[0] for r in run_query("SELECT f1.followed FROM followers f1 JOIN followers f2 ON f1.followed = f2.follower WHERE f1.follower = ? AND f2.followed = ?", (u, u), fetch=True)]
 def get_all_users_list(exclude_me=None):
-    if exclude_me:
-        res = run_query("SELECT username FROM users WHERE username != 'admin' AND username != ?", (exclude_me,), fetch=True)
-    else:
-        res = run_query("SELECT username FROM users WHERE username != 'admin'", fetch=True)
-    return [r[0] for r in res] if res else []
+    q = "SELECT username FROM users WHERE username != 'admin'" + (" AND username != ?" if exclude_me else "")
+    p = (exclude_me,) if exclude_me else ()
+    return [r[0] for r in run_query(q, p, fetch=True)]
 
-# --- DUVAR & POST ---
+# --- İÇERİK ---
 def add_post(u, c, img=None, yt=None, w_type="campus", t_class=None):
     img_d = None
     if img:
-        try:
-            im = Image.open(img).convert("RGB"); im.thumbnail((600,600))
-            buf = io.BytesIO(); im.save(buf, format="JPEG"); img_d = base64.b64encode(buf.getvalue()).decode()
+        try: im = Image.open(img).convert("RGB"); im.thumbnail((600,600)); buf = io.BytesIO(); im.save(buf, format="JPEG"); img_d = base64.b64encode(buf.getvalue()).decode()
         except: pass
-    
     t = datetime.now().strftime("%Y-%m-%d %H:%M")
     run_query("INSERT INTO posts (username, content, image_data, youtube_link, wall_type, target_class, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)", (u, c, img_d, yt, w_type, t_class, t))
 
 def get_posts(wall_type="campus", target_class=None, user_filter=None):
-    if user_filter:
-        return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE username = ? ORDER BY id DESC LIMIT 50", (user_filter,), fetch=True)
-    elif wall_type == "class":
-        return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE wall_type = 'class' AND target_class = ? ORDER BY id DESC LIMIT 50", (target_class,), fetch=True)
-    else:
-        return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE wall_type = 'campus' ORDER BY id DESC LIMIT 50", fetch=True)
+    if user_filter: return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE username = ? ORDER BY id DESC LIMIT 50", (user_filter,), fetch=True)
+    elif wall_type == "class": return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE wall_type = 'class' AND target_class = ? ORDER BY id DESC LIMIT 50", (target_class,), fetch=True)
+    else: return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE wall_type = 'campus' ORDER BY id DESC LIMIT 50", fetch=True)
 
 def like_post(id): run_query("UPDATE posts SET likes = likes + 1 WHERE id = ?", (id,))
-def add_comment(pid, u, c):
-    t = datetime.now().strftime("%Y-%m-%d %H:%M")
-    run_query("INSERT INTO comments (post_id, username, content, timestamp) VALUES (?, ?, ?, ?)", (pid, u, c, t))
+def add_comment(pid, u, c): run_query("INSERT INTO comments (post_id, username, content, timestamp) VALUES (?, ?, ?, ?)", (pid, u, c, datetime.now().strftime("%Y-%m-%d %H:%M")))
 def get_comments(pid): return run_query("SELECT username, content FROM comments WHERE post_id = ?", (pid,), fetch=True) or []
 
-# --- MAĞAZA & PUAN ---
-def add_score(u, val, reason="Sistem"):
-    run_query("UPDATE users SET score = score + ? WHERE username = ?", (val, u))
-
+# --- PUAN & MAĞAZA ---
+def add_score(u, val, reason="Sistem"): run_query("UPDATE users SET score = score + ? WHERE username = ?", (val, u))
 def buy_item(u, item_type, item_val, cost):
-    current = get_user_data(u)[0]
-    if current >= cost:
+    curr = get_user_data(u)[0]
+    if curr >= cost:
         add_score(u, -cost)
         col = "frame" if item_type == "frame" else "name_style"
         run_query(f"UPDATE users SET {col} = ? WHERE username = ?", (item_val, u))
         return True
     return False
-
 def send_gift(s, r, item, cost):
-    current = get_user_data(s)[0]
-    if current >= cost:
+    if get_user_data(s)[0] >= cost:
         add_score(s, -cost)
         send_message("Sistem", r, f"🎁 {s} sana bir hediye gönderdi: {item}!")
         return True
     return False
 
-# --- MESAJ ---
-def send_message(s, r, m):
-    t = datetime.now().strftime("%Y-%m-%d %H:%M")
-    run_query("INSERT INTO messages (sender, receiver, message, timestamp) VALUES (?, ?, ?, ?)", (s, r, m, t))
-
-def get_conversation(u1, u2):
-    return run_query("SELECT sender, message, timestamp FROM messages WHERE (sender=? AND receiver=?) OR (sender=? AND receiver=?) ORDER BY id ASC", (u1, u2, u2, u1), fetch=True) or []
-
-def get_unread_count(u):
-    res = run_query("SELECT COUNT(*) FROM messages WHERE receiver = ? AND is_read = 0", (u,), fetch=True)
-    return res[0][0] if res else 0
-
+# --- MESAJLAŞMA ---
+def send_message(s, r, m): run_query("INSERT INTO messages (sender, receiver, message, timestamp) VALUES (?, ?, ?, ?)", (s, r, m, datetime.now().strftime("%Y-%m-%d %H:%M")))
+def get_conversation(u1, u2): return run_query("SELECT sender, message, timestamp FROM messages WHERE (sender=? AND receiver=?) OR (sender=? AND receiver=?) ORDER BY id ASC", (u1, u2, u2, u1), fetch=True) or []
+def get_unread_count(u): return run_query("SELECT COUNT(*) FROM messages WHERE receiver = ? AND is_read = 0", (u,), fetch=True)[0][0]
 def mark_read(u): run_query("UPDATE messages SET is_read = 1 WHERE receiver = ?", (u,))
 
-# --- SINIF & DERS ---
-def create_class(teacher, name, code):
-    try: run_query("INSERT INTO classes (code, name, teacher) VALUES (?, ?, ?)", (code, name, teacher)); return True
+# --- SINIF & LİDERLİK ---
+def create_class(t, n, c): 
+    try: run_query("INSERT INTO classes (code, name, teacher) VALUES (?, ?, ?)", (c, n, t)); return True
     except: return False
-def join_class(u, code):
-    cls = run_query("SELECT name FROM classes WHERE code = ?", (code,), fetch=True)
-    if cls: run_query("UPDATE users SET class_code = ? WHERE username = ?", (code, u)); return True, cls[0][0]
+def join_class(u, c):
+    res = run_query("SELECT name FROM classes WHERE code = ?", (c,), fetch=True)
+    if res: run_query("UPDATE users SET class_code = ? WHERE username = ?", (c, u)); return True, res[0][0]
     return False, None
+def get_leaderboard_data(): return run_query("SELECT username, score FROM users WHERE role != 'admin' ORDER BY score DESC LIMIT 50", fetch=True) or []
 
-# --- ADMIN & LIDERLIK ---
-def get_leaderboard_data():
-    # Puanı en yüksek 50 öğrenci
-    return run_query("SELECT username, score FROM users WHERE role != 'admin' ORDER BY score DESC LIMIT 50", fetch=True) or []
-
+# --- ADMIN ---
 def get_all_users_admin(): return run_query("SELECT username, score, role, class_code FROM users", fetch=True)
 def delete_user_admin(u):
     run_query("DELETE FROM users WHERE username=?",(u,))
     run_query("DELETE FROM posts WHERE username=?",(u,))
+    run_query("DELETE FROM messages WHERE sender=? OR receiver=?",(u,u))
+def admin_get_all_messages(): return run_query("SELECT sender, receiver, message, timestamp FROM messages ORDER BY id DESC LIMIT 100", fetch=True)
+def update_activity(u):
+    n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
