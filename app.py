@@ -30,7 +30,7 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Roboto:wght@300;700&display=swap');
 
-    /* GİRİŞ EKRANI - İSTEDİĞİN GİBİ */
+    /* GİRİŞ EKRANI */
     .login-container { 
         text-align: center; 
         background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
@@ -90,7 +90,7 @@ st.markdown("""
     .name-Glitch { color: #00ffff; text-shadow: 2px 0 #ff00ff; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: bold; }
     
-    /* BUTONLAR (Link gibi davranan ama buton olan) */
+    /* BUTONLAR */
     div.stButton > button { width: 100%; border-radius: 5px; border: 1px solid #334155; }
     div.stButton > button:hover { border-color: #fbbf24; color: #fbbf24; }
 </style>
@@ -129,7 +129,7 @@ def extract_yt(text):
     match = re.search(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|live/|.+\?v=)?([^&=%\?]{11})', text)
     return f"https://www.youtube.com/watch?v={match.group(6)}" if match else None
 
-# --- OYUNLAR (DÜZELTİLDİ) ---
+# --- OYUNLAR ---
 def get_finance_game(user, start_score):
     js = f"""
     <div style='text-align:center; color:white; background:#111; padding:20px; border-radius:10px;'>
@@ -224,9 +224,9 @@ if not st.session_state['logged_in']:
                     else: st.error("Yanlış cevap.")
 
 else:
-    # --- İŞLEMLER ---
     me = st.session_state['username']
     
+    # Oyun puanı kontrol
     if "action" in st.query_params:
         act = st.query_params["action"]
         if act == "game_save":
@@ -268,7 +268,7 @@ else:
     if sel == "Ana Sayfa":
         st.subheader("Kontrol Paneli")
         sc = database.get_user_data(me)[0]
-        rank = 1 # Basitlik için
+        rank = 1 
         
         c1, c2, c3 = st.columns(3)
         c1.markdown(f"<div class='metric-card'><div class='metric-val'>{sc:,}</div><div class='metric-lbl'>Puan</div></div>", unsafe_allow_html=True)
@@ -312,22 +312,16 @@ else:
                 cols = st.columns(4)
                 for i, x in enumerate(row):
                     with cols[i]:
-                        # Görselleştirme (HTML)
                         vis = ""
-                        if kind == "frame":
-                            vis = f'<div style="font-size:3rem;">🖼️</div>'
-                        elif kind == "name":
-                            vis = f'<div style="font-size:3rem;">✨</div>'
-                        elif kind == "gift":
-                            vis = f'<div style="font-size:3rem;">{x["i"]}</div>'
+                        if kind == "frame": vis = f'<div style="font-size:3rem;">🖼️</div>'
+                        elif kind == "name": vis = f'<div style="font-size:3rem;">✨</div>'
+                        elif kind == "gift": vis = f'<div style="font-size:3rem;">{x["i"]}</div>'
                         
                         st.markdown(f'<div class="shop-item"><div class="shop-icon-box">{vis}</div><div class="shop-name">{x["n"]}</div></div>', unsafe_allow_html=True)
                         
-                        # BUTON (Native Streamlit)
                         uniq = f"buy_{kind}_{x['n']}_{i}"
                         if st.button(f"AL {x['c']//1000}K", key=uniq):
-                            if kind == "gift":
-                                st.warning("Hediyeler sekmesinden gönderiniz.")
+                            if kind == "gift": st.warning("Hediyeler sekmesinden gönderiniz.")
                             else:
                                 ok, msg = database.buy_item(me, kind, x['v'], x['c'])
                                 if ok: st.success(msg); time.sleep(1); st.rerun()
