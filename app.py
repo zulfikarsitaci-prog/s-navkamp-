@@ -14,38 +14,94 @@ from datetime import datetime
 # --- AYARLAR ---
 st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
 
-# --- DERS VERİLERİ (JSON) ---
-def create_dummy_exams_json():
-    # Dosya yoksa veya bozuksa yenisini oluştur
-    if not os.path.exists("exams.json"):
-        data = {
-            "9. Sınıf": {
-                "Muhasebe Temelleri": [
-                    {"question": "Varlıkların sınıflandırılmasında hangisi dönen varlıktır?", "options": ["Kasa", "Bina", "Taşıt", "Demirbaş"], "answer": "Kasa", "points": 10, "type": "test"},
-                    {"question": "Bilançonun sol tarafına ne denir?", "options": ["Aktif", "Pasif", "Gelir", "Gider"], "answer": "Aktif", "points": 10, "type": "test"},
-                    {"question": "Kasa hesabı hangi kodla başlar?", "options": ["100", "102", "120", "600"], "answer": "100", "points": 10, "type": "test"}
-                ],
-                "Mesleki Gelişim": [
-                    {"question": "Etkili iletişimin en önemli unsuru nedir?", "options": ["Dinlemek", "Bağırmak", "Gülmek", "Kaçmak"], "answer": "Dinlemek", "points": 20, "type": "test"}
-                ]
-            },
-            "10. Sınıf": {
-                "Genel Muhasebe": [
-                    {"question": "Nazım hesaplar bilançoda yer alır mı?", "options": ["Hayır", "Evet"], "answer": "Hayır", "points": 20, "type": "test"},
-                    {"question": "Yevmiye defterine kayıt sırası nasıldır?", "options": ["Tarih", "Tutar", "İsim", "Numara"], "answer": "Tarih", "points": 20, "type": "test"}
-                ]
-            },
-            "11. Sınıf": {
-                "Şirketler Muhasebesi": [
-                    {"question": "Anonim şirket en az kaç kişiyle kurulur?", "options": ["1", "5", "2", "50"], "answer": "1", "points": 20, "type": "test"},
-                    {"question": "Limited şirketlerde asgari sermaye ne kadardır?", "options": ["10.000", "50.000", "100.000", "2.000"], "answer": "10.000", "points": 20, "type": "test"}
-                ]
-            }
-        }
-        with open("exams.json", "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
+# --- GELİŞMİŞ SINAV VERİSİ (SENİN VERDİĞİN) ---
+def create_full_exams_json():
+    data = {
+      "9. Sınıf": {
+        "Mesleki Gelişim Atölyesi": [
+          {"type": "scenario", "text": "SENARYO 1: Mehmet Amca tarlasını telefon uygulamasıyla suluyor, akıllı saatiyle nabzını ölçüyor.", "sub_questions": [{"q": "1. Mehmet Amca'nın teknolojiyi kullanma amacını özetleyiniz (Verim, Kolaylık vb.)", "a": "Verim"}, {"q": "2. Akıllı saat hangi teknoloji türüne girer?", "a": "Giyilebilir"}], "points": 20},
+          {"type": "text", "question": "3. Ofiste işlerin yürümesi için kullanılan teknolojik ürünlerden 1 tanesini yazınız.", "answer": "Bilgisayar", "keywords": ["bilgisayar", "yazıcı", "tarayıcı", "telefon", "tablet"], "points": 10},
+          {"type": "text", "question": "4. E-Posta (E-Mail) ile WhatsApp arasındaki en temel fark nedir?", "answer": "Resmiyet", "keywords": ["resmi", "kurumsal", "yasal", "belge"], "points": 10},
+          {"type": "text", "question": "5. Staj başvurusu e-postasının 'Konu' kısmına ne yazılmalıdır?", "answer": "Staj Başvurusu", "points": 10},
+          {"type": "text", "question": "6. Güneş paneli kullanan bir işletme hangi tür enerji kaynağı kullanır?", "answer": "Yenilenebilir", "keywords": ["yenilenebilir", "tükenmez", "güneş"], "points": 10},
+          {"type": "scenario", "text": "SENARYO 5: Elinizde geri dönüştürülebilir meyve suyu kutusu ve yağlı peçete var.", "sub_questions": [{"q": "7. Meyve suyu kutusu (Ambalaj) Çöp müdür, Atık mıdır?", "a": "Atık"}, {"q": "Kullanılmış yağlı peçete Çöp müdür, Atık mıdır?", "a": "Çöp"}, {"q": "8. Atık yağların lavaboya dökülmemesi neyi kirletir?", "a": "Su"}], "points": 20},
+          {"type": "text", "question": "9. Sıfır Atık prensibine göre atığı çöp atmak yerine başka amaçla kullanmaya ne denir?", "answer": "İleri Dönüşüm", "keywords": ["dönüşüm", "geri kazanım"], "points": 10},
+          {"type": "test", "question": "10. Bankaların web sitelerinde soruları yanıtlayan sanal asistanlar hangi teknolojidir?", "options": ["Blockchain", "Yapay Zeka", "Bulut Bilişim", "Nesnelerin İnterneti"], "answer": "Yapay Zeka", "points": 10}
+        ],
+        "Temel Muhasebe": [
+          {"type": "calculation", "text": "SORU 1: KIDEM TAZMİNATI HESAPLAMA: 4 Yıl 5 Ay 18 Gün çalışan işçi. Brüt Maaş: 30.000 TL.", "inputs": [{"label": "4 Yıllık Tutar (30.000 x 4)", "correct": 120000}, {"label": "5 Aylık Tutar (30.000 / 12 x 5)", "correct": 12500}, {"label": "18 Günlük Tutar (30.000 / 30 x 18)", "correct": 18000}, {"label": "TOPLAM TAZMİNAT", "correct": 150500}], "points": 20},
+          {"type": "scenario", "text": "SORU 2: SGK STATÜLERİ EŞLEŞTİRME", "sub_questions": [{"q": "a) Maaşlı çalışan mühendis (4a/4b/4c)?", "a": "4a"}, {"q": "b) Kendi ofisini açan mimar (Bağkur) (4a/4b/4c)?", "a": "4b"}, {"q": "c) Valilikte memur (4a/4b/4c)?", "a": "4c"}], "points": 10},
+          {"type": "text", "question": "SORU 3: SGK'ya göre bordroların saklanma süresi kaç yıldır?", "answer": "10", "points": 10},
+          {"type": "text", "question": "SORU 4: 25.12.2025'te işe başlayacak işçinin sigorta bildirgesi en geç ne zaman verilmeli?", "answer": "24.12.2025", "keywords": ["24.12", "bir gün önce"], "points": 10},
+          {"type": "text", "question": "SORU 5: İşçi kendi isteğiyle istifa ederse ihbar tazminatı alabilir mi? (Evet/Hayır)", "answer": "Hayır", "points": 10},
+          {"type": "text", "question": "SORU 6: Nakliyesi yapılan ancak henüz faturası kesilmemiş mal için şoförün taşıması gereken belge?", "answer": "Sevk İrsaliyesi", "points": 10},
+          {"type": "text", "question": "SORU 7: Faturanın 'Kapalı Fatura' (imzanın altta) olması bedelin ne yapıldığını gösterir?", "answer": "Ödendiğini", "keywords": ["ödendi", "peşin"], "points": 10},
+          {"type": "calculation", "text": "SORU 8: FATURA HESAPLAMA: 50 Çanta, Birim Fiyat 200 TL, İskonto %10, KDV %20.", "inputs": [{"label": "Mal Bedeli (50x200)", "correct": 10000}, {"label": "İskonto Tutarı (%10)", "correct": 1000}, {"label": "KDV Matrahı (Bedel - İskonto)", "correct": 9000}, {"label": "KDV Tutarı (%20)", "correct": 1800}, {"label": "Genel Toplam", "correct": 10800}], "points": 20}
+        ]
+      },
+      "10. Sınıf": {
+        "Ekonomi": [
+          {"type": "scenario", "text": "SENARYO 1 (MEHMET BEY): Pamuğu balya olarak satmak yerine iplik atölyesi kurup ipliğe dönüştürmüştür.", "sub_questions": [{"q": "1. Bu değer kazandırma işlemine ne ad verilir?", "a": "Üretim"}, {"q": "2. Mehmet Bey üretim faktörlerinden hangisidir?", "a": "Girişimci"}], "points": 20},
+          {"type": "scenario", "text": "SENARYO (AYŞE HANIM): Bahçesindeki incirlerden reçel yapıp satmak için atölye kuruyor.", "sub_questions": [{"q": "İncir (Üretim Faktörü)?", "a": "Doğal Kaynak"}, {"q": "Komşu Fatma Hanım (Üretim Faktörü)?", "a": "Emek"}, {"q": "Kazanlar ve Ocak (Üretim Faktörü)?", "a": "Sermaye"}], "points": 15},
+          {"type": "text", "question": "3. Söke ve çevresinde yapılan Tarım Sektörünün alt dallarından birini yazınız.", "answer": "Pamukçuluk", "keywords": ["pamuk", "zeytin", "incir", "hayvancılık"], "points": 10},
+          {"type": "text", "question": "4. Yatırımcının Söke'ye tekstil fabrikası kurmasındaki en önemli faktör?", "answer": "Hammadde", "keywords": ["hammadde", "pamuk"], "points": 10},
+          {"type": "text", "question": "5. Hammaddenin fabrikada işlenerek mamul hale gelmesi süreci?", "answer": "Sanayi", "keywords": ["sanayi", "imalat"], "points": 10},
+          {"type": "text", "question": "6. Kıt kaynakları kullanmak için sorulan 3 temel sorudan birini yazınız.", "answer": "Nasıl", "keywords": ["neyi", "nasıl", "kimin için"], "points": 10},
+          {"type": "scenario", "text": "7-8. EKONOMİK SİSTEMLER", "sub_questions": [{"q": "Devletin belirlediği sistem?", "a": "Sosyalizm"}, {"q": "Piyasanın belirlediği sistem?", "a": "Kapitalizm"}], "points": 10},
+          {"type": "text", "question": "9. Nazilli Basma Fabrikası'nın (1937) kuruluş amacı hangi ilke ile açıklanır?", "answer": "Devletçilik", "points": 15},
+          {"type": "text", "question": "10. Türk denizlerinde ticaret hakkını Türk gemilerine veren kanun?", "answer": "Kabotaj", "points": 15},
+          {"type": "text", "question": "KAVRAM: Kendi çıkarını maksimize eden, akılcı birey?", "answer": "Homo Economicus", "points": 10},
+          {"type": "text", "question": "PİYASA: Fiyat artınca Tüketici (Talep) ne yapar? (Artar/Azalır)", "answer": "Azalır", "points": 10}
+        ],
+        "Temel Hukuk": [
+          {"type": "scenario", "text": "SENARYO 1: Ahmet Bey tarlasını sürmek için Tariş Kooperatifi'nden traktör kiralamıştır.", "sub_questions": [{"q": "Ahmet Bey gerçek mi tüzel kişi mi?", "a": "Gerçek"}, {"q": "Tariş Kooperatifi gerçek mi tüzel kişi mi?", "a": "Tüzel"}, {"q": "Tarla taşınır mı taşınmaz mı?", "a": "Taşınmaz"}, {"q": "Traktör taşınır mı taşınmaz mı?", "a": "Taşınır"}], "points": 20},
+          {"type": "text", "question": "3. Tarafların karşılıklı anlaşmasına hukukta ne ad verilir?", "answer": "Sözleşme", "points": 10},
+          {"type": "text", "question": "4. Borç ilişkisinde yerine getirilmesi gereken davranışa ne denir?", "answer": "Edim", "points": 10},
+          {"type": "scenario", "text": "SENARYO 3: BORCUN KAYNAKLARI (Sözleşme / Haksız Fiil / Sebepsiz Zenginleşme)", "sub_questions": [{"q": "A) Gübre almak için imza atması?", "a": "Sözleşme"}, {"q": "B) Traktörle komşunun çitini yıkması?", "a": "Haksız Fiil"}, {"q": "C) Bankanın yanlışlıkla hesaba para yatırması?", "a": "Sebepsiz Zenginleşme"}], "points": 15},
+          {"type": "text", "question": "5. Kefilin borcun tamamından sorumlu olduğu kefillik türü?", "answer": "Müteselsil", "points": 10},
+          {"type": "text", "question": "6. Borcun yerine getirilerek sona erdirilmesine ne denir?", "answer": "İfa", "points": 10},
+          {"type": "text", "question": "7. Yazılı olmayan hukuk kaynaklarına ne denir?", "answer": "Örf ve Adet", "keywords": ["örf", "adet"], "points": 10},
+          {"type": "text", "question": "8. Eşit bireyler arasındaki (örn: komşu kavgası) sorunları çözen hukuk dalı?", "answer": "Özel Hukuk", "points": 15}
+        ]
+      },
+      "11. Sınıf": {
+        "İş ve Sosyal Güvenlik Hukuku": [
+          {"type": "scenario", "text": "SENARYO: Ege Tekstil A.Ş. sahibi Ali Bey, yönetimi Ayşe Hanım'a bırakmıştır. İşçi Mehmet Bey servis aracında kaza yapmıştır.", "sub_questions": [{"q": "1. Hukuken asıl İşveren kimdir?", "a": "Ege Tekstil"}, {"q": "İşveren Vekili kimdir?", "a": "Ayşe"}, {"q": "Servis aracı işyeri sayılır mı? (Evet/Hayır)", "a": "Evet"}], "points": 20},
+          {"type": "scenario", "text": "2. İŞ SÖZLEŞMESİ UNSURLARI", "sub_questions": [{"q": "a) İşçi ne koyar? (Emek)", "a": "İş Görme"}, {"q": "b) Karşılığında ne alır?", "a": "Ücret"}, {"q": "c) İşveren ile ilişkisi nasıldır?", "a": "Bağımlılık"}], "points": 10},
+          {"type": "text", "question": "3. Fabrika işçiliği Sürekli iş midir, Süreksiz iş midir?", "answer": "Sürekli", "points": 10},
+          {"type": "text", "question": "4. İşçinin ticari sırları saklaması hangi borçtur?", "answer": "Sadakat", "points": 10},
+          {"type": "text", "question": "6. İşverenin işçiyi korumak için almak zorunda olduğu önlemlerin genel adı?", "answer": "İş Sağlığı ve Güvenliği", "keywords": ["isg", "güvenlik"], "points": 10},
+          {"type": "calculation", "text": "7. FAZLA ÇALIŞMA: Mehmet Bey 50 saat çalıştı (Normal: 45). Saat ücreti 200 TL. (%50 Zamlı)", "inputs": [{"label": "A) Fazla Çalışma Saati (50-45)", "correct": 5}, {"label": "B) 1 Saatlik Zamlı Ücret (200 x 1.5)", "correct": 300}, {"label": "C) Toplam Fazla Çalışma Ücreti", "correct": 1500}], "points": 30}
+        ],
+        "Şirketler Muhasebesi": [
+          {"type": "calculation", "text": "SORU 1: KURULUŞ KAYDI (ALİ KARA LTD): Sermaye Taahhüdü 900.000 TL. (Nakit 50.000, Taşıt 700.000, Kalanı Çek ciro ederek ödüyor)", "inputs": [{"label": "500 Sermaye (Alacak)", "correct": 900000}, {"label": "100 Kasa (Borç)", "correct": 50000}, {"label": "254 Taşıtlar (Borç)", "correct": 700000}, {"label": "101 Alınan Çekler (Borç - Kalan)", "correct": 150000}], "points": 30},
+          {"type": "calculation", "text": "SORU 2: SERMAYE ARTIRIMI (180.000 TL): Merve 150.000 (Yarısı Nakit, Yarısı Senet), Ayşe 30.000 (Banka).", "inputs": [{"label": "Merve - Nakit Tutarı (150bin / 2)", "correct": 75000}, {"label": "Merve - Senet Tutarı (121 Alacak Senetleri)", "correct": 75000}, {"label": "Ayşe - Banka Tutarı (102 Bankalar)", "correct": 30000}], "points": 20},
+          {"type": "calculation", "text": "SORU 3: KAR DAĞITIMI (250.000 TL): Yavuz (%80), Ali (%20). Yavuz'a 50.000 Senet, kalanı Çek verilerek ödeniyor.", "inputs": [{"label": "Yavuz'un Kar Payı (%80)", "correct": 200000}, {"label": "Ali'nin Kar Payı (%20)", "correct": 50000}, {"label": "Yavuz'a Verilen Çek Tutarı (103 Verilen Çekler)", "correct": 150000}], "points": 30},
+          {"type": "calculation", "text": "SORU 4: ZARAR DAĞITIMI (80.000 TL): Yusuf ve Mesut Eşit Paylaşacak.", "inputs": [{"label": "Yusuf'un Zarar Payı", "correct": 40000}, {"label": "Mesut'un Zarar Payı", "correct": 40000}], "points": 20}
+        ],
+        "Maliyet Muhasebesi": [
+          {"type": "calculation", "text": "SORU 1: GİDER DAĞITIMI I: Yemek (20.000 -> Personel), Temizlik (30.000 -> Alan). Kesim: 60 Kişi, Dikim: 600 m2. (Toplam Personel: 200, Toplam Alan: 1500 m2).", "inputs": [{"label": "Kesim Bölümü Yemek Payı (20000/200*60)", "correct": 6000}, {"label": "Dikim Bölümü Temizlik Payı (30000/1500*600)", "correct": 12000}], "points": 20},
+          {"type": "calculation", "text": "SORU 2: FIFO (İlk Giren İlk Çıkar) STOK: 01.05 Devir: 5000kg @ 30TL. | 15.05 Alış: 5500kg @ 35TL. | Üretime Sevk: 7500 kg.", "inputs": [{"label": "Kalan Stok Miktarı (10500 - 7500)", "correct": 3000}, {"label": "Kalan Stok Değeri (Hepsi son alıştan: 3000 x 35 TL)", "correct": 105000}], "points": 20},
+          {"type": "calculation", "text": "SORU 3: DAĞITIM II (ABAY): Montaj Gideri 16.000 TL. Personel Sayısına göre dağıtılacak (Kesim 55, Döküm 25 kişi. Toplam 80).", "inputs": [{"label": "Birim Başına Yük (16000 / 80)", "correct": 200}, {"label": "Kesim'e Düşen Pay (55 x 200)", "correct": 11000}, {"label": "Döküm'e Düşen Pay (25 x 200)", "correct": 5000}], "points": 20},
+          {"type": "calculation", "text": "SORU 4: BİRİM MALİYET: Toplam Maliyet Ekmek 75.000 (5000 adet), Poğaça 80.000 (4000 adet).", "inputs": [{"label": "Ekmek Birim Maliyet (75000/5000)", "correct": 15}, {"label": "Poğaça Birim Maliyet (80000/4000)", "correct": 20}], "points": 20}
+        ]
+      },
+      "12. Sınıf": {
+        "Bankacılık": [
+          {"type": "scenario", "text": "SENARYO 1: Turist John 500 Dolar nakit bozduruyor. İthalatçı firma hesaptan 50.000 Euro gönderiyor.", "sub_questions": [{"q": "1. John'un cebindeki nakit paraya ne denir?", "a": "Efektif"}, {"q": "Hesaptan yapılan işleme ne denir?", "a": "Döviz"}, {"q": "2. Banka Dolar alıp TL veriyorsa bu işlem nedir?", "a": "Döviz Alış"}], "points": 20},
+          {"type": "scenario", "text": "SENARYO 2: Ali Bey para gönderecek.", "sub_questions": [{"q": "3. Farklı bankaya para gönderme (Durum A)?", "a": "EFT"}, {"q": "Aynı bankaya para gönderme (Durum B)?", "a": "Havale"}, {"q": "4. Mesai saati dışı yapılan EFT hesaba ne zaman geçer (FAST hariç)?", "a": "Pazartesi"}], "points": 30},
+          {"type": "text", "question": "5. Bankanın firmanın borcunu garanti ettiği (kefil olduğu) belgeye ne denir?", "answer": "Teminat Mektubu", "points": 10},
+          {"type": "text", "question": "6. Parayı bir menkul kıymeti 'geri satma taahhüdüyle' alıp kısa vadeli değerlendirme?", "answer": "Repo", "points": 10},
+          {"type": "scenario", "text": "7. KREDİ EŞLEŞTİRME", "sub_questions": [{"q": "Ev almak için?", "a": "Konut"}, {"q": "Araba almak için?", "a": "Taşıt"}, {"q": "Mobilya/Tatil için?", "a": "İhtiyaç"}], "points": 10},
+          {"type": "text", "question": "8. Senet üzerine atılan kefillik imzasına ne ad verilir?", "answer": "Aval", "points": 10},
+          {"type": "text", "question": "9. Tüketiciler için kredi kullanmanın bir faydasını yazınız.", "answer": "Nakit", "keywords": ["nakit", "standart", "ihtiyaç", "ödeme kolaylığı"], "points": 10}
+        ]
+      }
+    }
+    with open("exams.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
 
-create_dummy_exams_json()
+create_full_exams_json()
 
 def init_state():
     defaults = {
@@ -119,7 +175,7 @@ st.markdown("""
     .frame-Cyber { border: 2px solid #ff00ff; border-radius: 50%; box-shadow: 0 0 5px #ff00ff; }
     .frame-Love { border: 2px solid #ff69b4; border-radius: 50%; box-shadow: 0 0 5px #ff69b4; }
 
-    .name-Glitch { color: #00ffff; text-shadow: 2px 0 #ff00ff; font-weight: bold; }
+    .name-Glitch { color: #00ffff; text-shadow: 1px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 3px #ff0000; font-weight: bold; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
     .name-Neon { color: #fff; text-shadow: 0 0 5px #fff, 0 0 10px #ff00de; font-weight: bold; }
@@ -288,14 +344,8 @@ else:
                         else: st.error("Yetersiz Puan")
         
         all_posts = database.get_posts(50)
-        # --- FİLTRELEME MANTIĞI ---
-        if st.session_state['wall_mode'] == "Benim Profilim":
-            posts = [p for p in all_posts if p[1] == st.session_state['username']]
-        else:
-            posts = all_posts
-
-        if not posts: st.info("Henüz gönderi yok.")
-
+        posts = [p for p in all_posts if p[1] == st.session_state['username']] if st.session_state['wall_mode'] == "Benim Profilim" else all_posts
+        
         for p in posts:
             st.markdown(f"""
             <div class="post-card">
@@ -307,11 +357,10 @@ else:
                 {f'<img src="data:image/jpeg;base64,{p[3]}" class="post-image">' if p[3] else ''}
             </div>
             """, unsafe_allow_html=True)
-            
             if p[2]:
                 yt = extract_youtube_link(p[2])
                 if yt: st.video(yt)
-
+            
             c1, c2, c3, c4 = st.columns([0.15, 0.15, 0.15, 0.55]) 
             with c1: 
                 if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
@@ -342,7 +391,6 @@ else:
     elif sel == "🛒 Mağaza":
         st.header("Mağaza 💎")
         st.metric("Bakiye", f"{server.get_score('GENEL', st.session_state['username']):,} P")
-        
         tabs = st.tabs(["Çerçeve", "İsim", "Font", "🎁 Hediye"])
         
         # ÇERÇEVELER
@@ -357,7 +405,9 @@ else:
                 {"n": "Karanlık", "c": 100000, "t": "frame", "v": "Dark", "css":"frame-Dark"},
                 {"n": "Doğa", "c": 250000, "t": "frame", "v": "Nature", "css":"frame-Nature"},
                 {"n": "Siber", "c": 600000, "t": "frame", "v": "Cyber", "css":"frame-Cyber"},
-                {"n": "Aşk", "c": 400000, "t": "frame", "v": "Love", "css":"frame-Love"}
+                {"n": "Aşk", "c": 400000, "t": "frame", "v": "Love", "css":"frame-Love"},
+                {"n": "Volkan", "c": 900000, "t": "frame", "v": "Fire", "css":"frame-Fire"}, # Tekrar kullanım
+                {"n": "Uzay", "c": 1000000, "t": "frame", "v": "Cyber", "css":"frame-Cyber"}
             ]
             html_code = '<div class="shop-grid">'
             for i, it in enumerate(items):
@@ -411,7 +461,7 @@ else:
             st.info("Hediye göndererek arkadaşını mutlu et!")
             all_users = database.get_all_users_list(st.session_state['username'])
             t_user = st.selectbox("Kime:", all_users)
-            gifts = [("Kahve ☕", 5000), ("Çikolata 🍫", 10000), ("Gül 🌹", 25000), ("Taç 👑", 100000), ("Araba 🏎️", 500000), ("Elmas 💎", 1000000), ("Uçak ✈️", 2000000), ("Diploma 📜", 50000)]
+            gifts = [("Kahve ☕", 5000), ("Çikolata 🍫", 10000), ("Gül 🌹", 25000), ("Taç 👑", 100000), ("Araba 🏎️", 500000), ("Elmas 💎", 1000000), ("Uçak ✈️", 2000000), ("Diploma 📜", 50000), ("Yat 🛥️", 3000000), ("Ev 🏠", 5000000)]
             html_code = '<div class="shop-grid">'
             for i, (gn, gp) in enumerate(gifts):
                 gift_link = f"?action=gift&u={st.session_state['username']}&t={t_user}&g={gn}&c={gp}"
@@ -449,22 +499,57 @@ else:
         if EX:
             cls = st.selectbox("Sınıf", list(EX.keys())); lsn = st.selectbox("Ders", list(EX[cls].keys()))
             questions = EX[cls][lsn]
-            # HATA DÜZELTME: Güvenli soru çekme
+            
             with st.form("exam_form"):
                 score = 0
                 total_possible = 0
-                for i, q in enumerate(questions):
-                    # q['question'] yoksa q['text'] veya default kullan
-                    q_text = q.get('question', q.get('text', 'Soru metni bulunamadı'))
-                    st.write(f"**{i+1}. {q_text}**")
-                    ans = st.radio(f"Cevap {i+1}", q['options'], key=f"q{i}", horizontal=True)
-                    if ans == q['answer']: score += q['points']
-                    total_possible += q['points']
+                st.info(f"{lsn} Sınavı")
                 
-                if st.form_submit_button("Sınavı Bitir"):
-                    database.add_score(st.session_state['username'], score, f"Sınav: {lsn}")
+                for i, q in enumerate(questions):
+                    st.markdown(f"---")
+                    
+                    # SORU TİPİNE GÖRE İŞLEM
+                    q_type = q.get('type', 'text')
+                    
+                    if q_type == 'scenario':
+                        st.write(f"**SENARYO:** {q['text']}")
+                        for sub_q in q['sub_questions']:
+                            st.write(f"- {sub_q['q']}")
+                            user_ans = st.text_input("Cevap", key=f"sc_{i}_{sub_q['q']}")
+                            # Basit kontrol (Öğretmen manuel puanlama ister ama burada otomatik yapıyoruz)
+                            if user_ans and sub_q['a'].lower() in user_ans.lower(): score += (q['points'] / len(q['sub_questions']))
+                        total_possible += q['points']
+                    
+                    elif q_type == 'calculation':
+                        st.write(f"**HESAPLAMA:** {q['text']}")
+                        for inp in q['inputs']:
+                            val = st.number_input(inp['label'], key=f"cal_{i}_{inp['label']}")
+                            if val == inp['correct']: score += (q['points'] / len(q['inputs']))
+                        total_possible += q['points']
+                    
+                    elif q_type == 'test':
+                        st.write(f"**{i+1}. {q.get('question')}**")
+                        ans = st.radio("Seçiniz", q['options'], key=f"rad_{i}")
+                        if ans == q['answer']: score += q['points']
+                        total_possible += q['points']
+                    
+                    elif q_type == 'text':
+                        st.write(f"**{i+1}. {q.get('question')}**")
+                        ans = st.text_input("Cevap", key=f"txt_{i}")
+                        # Keyword kontrolü
+                        if ans:
+                            correct = False
+                            if ans.lower() == q['answer'].lower(): correct = True
+                            if 'keywords' in q:
+                                for k in q['keywords']:
+                                    if k.lower() in ans.lower(): correct = True
+                            if correct: score += q['points']
+                        total_possible += q['points']
+
+                if st.form_submit_button("Sınavı Tamamla"):
+                    database.add_score(st.session_state['username'], int(score), f"Sınav: {lsn}")
                     st.balloons()
-                    st.success(f"Tebrikler! Puanın: {score} / {total_possible}")
+                    st.success(f"Sınav Bitti! Puanın: {int(score)} / {total_possible}")
                     time.sleep(3)
                     st.rerun()
 
