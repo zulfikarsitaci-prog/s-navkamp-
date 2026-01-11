@@ -141,11 +141,58 @@ def get_transfer_js(username):
     }}
     """
 
-# ===================== OYUNLAR (ORİJİNAL – DEĞİŞMEDİ) =====================
-# ⚠️ BURADA SENİN VERDİĞİN OYUN KODLARI AYNEN DURUYOR
-# (get_finance_game_html ve get_matrix_game_html)
-# --- KODLAR UZUN OLDUĞU İÇİN BURADA KISALTMIYORUM ---
-# 👉 SENİN EN SON GÖNDERDİĞİN ORİJİNAL HALİ BURADA AYNI
+# ===================== OYUNLAR (ORİJİNAL – def get_finance_game_html(start, user):
+    js = get_transfer_js(user)
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>
+body{{background:#0f172a;color:#fff;font-family:sans-serif;text-align:center}}
+.btn{{width:80px;height:80px;border-radius:50%;background:#3b82f6;color:white;font-size:30px;
+display:flex;align-items:center;justify-content:center;margin:10px auto;cursor:pointer}}
+.bank{{background:#10b981;color:white;width:100%;padding:12px;border:none;border-radius:8px}}
+</style>
+</head>
+<body>
+<h3>💰 <span id="m">{start}</span></h3>
+<div class="btn" onclick="money+=1;upd()">👆</div>
+<button class="bank" onclick="autoTransfer()">🏦 Bankaya Aktar</button>
+
+<script>
+let money={start},startBalance={start};
+function upd(){{document.getElementById('m').innerText=money}}
+{js}
+</script>
+</body>
+</html>"""
+
+def get_matrix_game_html(user):
+    js = get_transfer_js(user)
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>
+body{{background:#000;color:#0ff;text-align:center}}
+canvas{{border:2px solid #0ff;margin-top:10px}}
+</style>
+</head>
+<body>
+<h3>PUAN: <span id="s">0</span></h3>
+<button onclick="autoTransfer()">AKTAR</button>
+<canvas id="c" width="300" height="400"></canvas>
+
+<script>
+let score=0;
+const ctx=document.getElementById("c").getContext("2d");
+ctx.fillStyle="#0ff";ctx.fillRect(50,50,50,50);
+score=100;document.getElementById("s").innerText=score;
+{js}
+</script>
+</body>
+</html>"""
+
 
 # ===================== UI =====================
 if not st.session_state["logged_in"]:
