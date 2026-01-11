@@ -14,7 +14,7 @@ from datetime import datetime
 # --- AYARLAR ---
 st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
 
-# --- GELİŞMİŞ SINAV VERİSİ ---
+# --- SINAV VERİSİ ---
 def create_full_exams_json():
     data = {
       "9. Sınıf": {
@@ -129,7 +129,7 @@ def extract_youtube_link(text):
     if match: return f"https://www.youtube.com/watch?v={match.group(6)}"
     return None
 
-# --- CSS (MAĞAZA KARTLARI DÜZELTİLDİ) ---
+# --- CSS (MAĞAZA VE KARTLAR İÇİN) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&family=Press+Start+2P&family=Creepster&display=swap');
@@ -142,7 +142,6 @@ st.markdown("""
     .post-header { display: flex; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 8px; }
     .post-content { color: #e2e8f0; font-size: 0.95rem; white-space: pre-wrap; margin-bottom: 5px; }
     
-    /* BUTONLAR (İKON İÇİN) */
     div.stButton > button { background-color: transparent !important; border: none !important; color: #94a3b8 !important; padding: 0px 5px !important; font-size: 1.3rem !important; margin-right: 15px !important; box-shadow: none !important;}
     div.stButton > button:hover { color: #FFD700 !important; transform: scale(1.1); }
     
@@ -151,50 +150,12 @@ st.markdown("""
 
     .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
     
-    /* MAĞAZA GRİD (DÜZELTİLDİ - BUTONLAR SIKIŞTI) */
-    .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
-    @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(2, 1fr); } }
-    
-    .shop-item { 
-        background: #0f172a; 
-        border: 1px solid #334155; 
-        border-radius: 8px; 
-        padding: 5px; 
-        text-align: center; 
-        height: 120px; /* Küçültüldü */
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: space-between; 
-        transition: transform 0.2s; 
-    }
+    /* MAĞAZA DÜZENİ - STBUTTONLAR KART İÇİNDE */
+    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px; text-align: center; height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; transition: transform 0.2s; margin-bottom: 10px; }
     .shop-item:hover { transform: translateY(-3px); border-color: #FFD700; }
+    .shop-preview { width: 50px; height: 50px; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid #334155; }
+    .shop-name { font-size: 0.7rem; color: #cbd5e1; font-weight: bold; margin-bottom: 2px; }
     
-    .shop-preview { 
-        width: 40px; /* Küçültüldü */
-        height: 40px; 
-        margin-bottom: 2px; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        border-radius: 50%; 
-        border: 2px solid #334155; 
-    }
-    .shop-name { font-size: 0.65rem; color: #cbd5e1; font-weight: bold; margin-bottom: 2px; line-height: 1.1; }
-    
-    /* MAĞAZA BUTONLARI İÇİN ÖZEL STİL */
-    .shop-btn-container button {
-        width: 100% !important;
-        font-size: 0.7rem !important;
-        padding: 2px !important;
-        margin: 0 !important;
-        border: 1px solid #10b981 !important;
-        background-color: #10b981 !important;
-        color: white !important;
-        border-radius: 4px !important;
-        height: auto !important;
-    }
-
     /* STİLLER */
     .avatar-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
     .frame-overlay { position: absolute; top: -3px; left: -3px; width: 46px; height: 46px; pointer-events: none; }
@@ -312,7 +273,6 @@ else:
     with st.sidebar:
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
         st.write("") 
-        
         with st.expander("⚙️ Hesabım"):
             nname = st.text_input("Yeni İsim")
             cost = 0 if database.get_user_change_count(st.session_state['username']) == 0 else 500000
@@ -321,19 +281,16 @@ else:
                     ok, msg = database.change_username_logic(st.session_state['username'], nname)
                     if ok: st.session_state['username'] = nname; st.success(msg); time.sleep(1); st.rerun()
                     else: st.error(msg)
-            
             st.divider()
             uploaded_avatar = st.file_uploader("Fotoğraf", type=['png', 'jpg'])
             if uploaded_avatar:
                 if database.update_avatar(st.session_state['username'], uploaded_avatar): st.success("Yüklendi!"); time.sleep(1); st.rerun()
-            
             st.divider()
             search_u = st.selectbox("Arkadaş Ara", database.get_searchable_users(st.session_state['username']))
             if st.button("Ekle"):
                 ok, msg = database.send_friend_request(st.session_state['username'], search_u)
                 if ok: st.success(msg)
                 else: st.warning(msg)
-
         reqs = database.get_pending_requests(st.session_state['username'])
         if reqs:
             st.info("İstekler Var")
@@ -341,13 +298,11 @@ else:
                 c1, c2 = st.columns([2,1])
                 c1.write(r[1])
                 if c2.button("Kabul", key=f"ac_{r[0]}"): database.accept_request(r[1], st.session_state['username']); st.rerun()
-        
         st.write(""); 
-        if st.button("🚪 Çıkış Yap"): st.session_state['logged_in']=False; st.rerun()
+        if st.button("🚪 Çıkış"): st.session_state['logged_in']=False; st.rerun()
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
     
-    # Bildirim
     noti_count = database.get_unread_notification_count(st.session_state['username'])
     noti_text = f"🔔 ({noti_count})" if noti_count > 0 else "🔔"
     menu = ["📢 Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🛒 Mağaza", noti_text]
@@ -441,15 +396,17 @@ else:
                 {"n": "Karanlık", "c": 100000, "t": "frame", "v": "Dark", "css":"frame-Dark"},
                 {"n": "Doğa", "c": 250000, "t": "frame", "v": "Nature", "css":"frame-Nature"},
                 {"n": "Siber", "c": 600000, "t": "frame", "v": "Cyber", "css":"frame-Cyber"},
-                {"n": "Aşk", "c": 400000, "t": "frame", "v": "Love", "css":"frame-Love"}
+                {"n": "Aşk", "c": 400000, "t": "frame", "v": "Love", "css":"frame-Love"},
+                {"n": "Volkan", "c": 900000, "t": "frame", "v": "Fire", "css":"frame-Fire"},
+                {"n": "Uzay", "c": 1000000, "t": "frame", "v": "Cyber", "css":"frame-Cyber"}
             ]
-            rows = [items[i:i+4] for i in range(0, len(items), 4)]
+            rows = [items[i:i+2] for i in range(0, len(items), 2)]
             for row in rows:
-                cols = st.columns(4)
+                cols = st.columns(2)
                 for i, it in enumerate(row):
                     with cols[i]:
                         preview = f'<div class="shop-preview"><div class="{it["css"]}" style="width:100%;height:100%;border-radius:50%;"></div></div>'
-                        st.markdown(f'<div class="shop-item">{preview}<div class="shop-name">{it["n"]}</div><div class="shop-btn-container"></div></div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="shop-item">{preview}<div class="shop-name">{it["n"]}</div></div>', unsafe_allow_html=True)
                         if st.button(f"AL ({it['c']:,})", key=f"buy_fr_{it['n']}"):
                             ok, msg = database.buy_item(st.session_state['username'], it['t'], it['v'], it['c'])
                             if ok: st.success(msg); time.sleep(1); st.rerun()
@@ -467,9 +424,9 @@ else:
                 {"n": "Hayalet", "c": 250000, "t": "name", "v": "Ghost", "css":"name-Ghost"},
                 {"n": "Retro", "c": 150000, "t": "name", "v": "Retro", "css":"name-Retro"}
             ]
-            rows = [items[i:i+4] for i in range(0, len(items), 4)]
+            rows = [items[i:i+2] for i in range(0, len(items), 2)]
             for row in rows:
-                cols = st.columns(4)
+                cols = st.columns(2)
                 for i, it in enumerate(row):
                     with cols[i]:
                         preview = f'<div class="{it["css"]}" style="font-size:0.8rem;">İSİM</div>'
@@ -490,9 +447,9 @@ else:
                 {"n": "Retro", "c": 600000, "t": "font", "v": "Retro", "css":"font-Retro"},
                 {"n": "Korku", "c": 800000, "t": "font", "v": "Horror", "css":"font-Horror"}
             ]
-            rows = [items[i:i+4] for i in range(0, len(items), 4)]
+            rows = [items[i:i+2] for i in range(0, len(items), 2)]
             for row in rows:
-                cols = st.columns(4)
+                cols = st.columns(2)
                 for i, it in enumerate(row):
                     with cols[i]:
                         preview = f'<div class="{it["css"]}" style="font-size:1rem;">Aa</div>'
@@ -509,9 +466,9 @@ else:
             t_user = st.selectbox("Kime:", all_users)
             gifts = [("Kahve ☕", 5000), ("Çikolata 🍫", 10000), ("Gül 🌹", 25000), ("Taç 👑", 100000), ("Araba 🏎️", 500000), ("Elmas 💎", 1000000), ("Uçak ✈️", 2000000), ("Diploma 📜", 50000), ("Yat 🛥️", 3000000), ("Ev 🏠", 5000000)]
             
-            rows = [gifts[i:i+4] for i in range(0, len(gifts), 4)]
+            rows = [gifts[i:i+2] for i in range(0, len(gifts), 2)]
             for row in rows:
-                cols = st.columns(4)
+                cols = st.columns(2)
                 for i, (gn, gp) in enumerate(row):
                     with cols[i]:
                         st.markdown(f'<div class="shop-item"><div style="font-size:1.5rem;margin-top:10px;">{gn.split()[-1]}</div><div class="shop-name">{gn}</div></div>', unsafe_allow_html=True)
@@ -610,8 +567,9 @@ else:
     elif sel == "⚙️ Admin":
         st.header("Admin")
         st.subheader("Kullanıcı Düzenle")
-        all_u = [u[0] for u in database.get_all_users()]
-        target_u = st.selectbox("Kullanıcı", all_u)
+        all_u = database.get_all_users()
+        all_u_list = [u[0] for u in all_u]
+        target_u = st.selectbox("Kullanıcı", all_u_list)
         new_p = st.number_input("Puan Ekle", value=0)
         if st.button("Güncelle"): database.add_score(target_u, new_p, "Admin"); st.success("Tamam!")
         st.divider()
