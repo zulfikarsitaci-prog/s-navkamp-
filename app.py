@@ -103,4 +103,4 @@ def get_post_style_css(username):
 # --------------------------------------------------
 
 # ⛔ BURAYA KADAR OKUMAN YETERLİ
-# ⛔ ALT KISIMDA HİÇBİR ŞEY DEĞİŞMEDİ
+# ⛔ ALT KISIMDA HİÇBİR ŞEY DEĞİŞMED
