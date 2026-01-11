@@ -14,8 +14,9 @@ from datetime import datetime
 # --- AYARLAR ---
 st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
 
-# --- JSON DERS VERİSİ OLUŞTURUCU ---
+# --- DERS VERİLERİ (JSON) ---
 def create_dummy_exams_json():
+    # Dosya yoksa veya bozuksa yenisini oluştur
     if not os.path.exists("exams.json"):
         data = {
             "9. Sınıf": {
@@ -30,12 +31,14 @@ def create_dummy_exams_json():
             },
             "10. Sınıf": {
                 "Genel Muhasebe": [
-                    {"question": "Nazım hesaplar bilançoda yer alır mı?", "options": ["Hayır", "Evet"], "answer": "Hayır", "points": 20, "type": "test"}
+                    {"question": "Nazım hesaplar bilançoda yer alır mı?", "options": ["Hayır", "Evet"], "answer": "Hayır", "points": 20, "type": "test"},
+                    {"question": "Yevmiye defterine kayıt sırası nasıldır?", "options": ["Tarih", "Tutar", "İsim", "Numara"], "answer": "Tarih", "points": 20, "type": "test"}
                 ]
             },
             "11. Sınıf": {
                 "Şirketler Muhasebesi": [
-                    {"question": "Anonim şirket en az kaç kişiyle kurulur?", "options": ["1", "5", "2", "50"], "answer": "1", "points": 20, "type": "test"}
+                    {"question": "Anonim şirket en az kaç kişiyle kurulur?", "options": ["1", "5", "2", "50"], "answer": "1", "points": 20, "type": "test"},
+                    {"question": "Limited şirketlerde asgari sermaye ne kadardır?", "options": ["10.000", "50.000", "100.000", "2.000"], "answer": "10.000", "points": 20, "type": "test"}
                 ]
             }
         }
@@ -218,6 +221,7 @@ else:
     with st.sidebar:
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
         st.write("") 
+        
         with st.expander("⚙️ Hesabım"):
             nname = st.text_input("Yeni İsim")
             cost = 0 if database.get_user_change_count(st.session_state['username']) == 0 else 500000
@@ -226,16 +230,19 @@ else:
                     ok, msg = database.change_username_logic(st.session_state['username'], nname)
                     if ok: st.session_state['username'] = nname; st.success(msg); time.sleep(1); st.rerun()
                     else: st.error(msg)
+            
             st.divider()
             uploaded_avatar = st.file_uploader("Fotoğraf", type=['png', 'jpg'])
             if uploaded_avatar:
                 if database.update_avatar(st.session_state['username'], uploaded_avatar): st.success("Yüklendi!"); time.sleep(1); st.rerun()
+            
             st.divider()
             search_u = st.selectbox("Arkadaş Ara", database.get_searchable_users(st.session_state['username']))
             if st.button("Ekle"):
                 ok, msg = database.send_friend_request(st.session_state['username'], search_u)
                 if ok: st.success(msg)
                 else: st.warning(msg)
+
         reqs = database.get_pending_requests(st.session_state['username'])
         if reqs:
             st.info("İstekler Var")
@@ -243,6 +250,7 @@ else:
                 c1, c2 = st.columns([2,1])
                 c1.write(r[1])
                 if c2.button("Kabul", key=f"ac_{r[0]}"): database.accept_request(r[1], st.session_state['username']); st.rerun()
+        
         st.write(""); 
         if st.button("🚪 Çıkış"): st.session_state['logged_in']=False; st.rerun()
 
@@ -280,8 +288,14 @@ else:
                         else: st.error("Yetersiz Puan")
         
         all_posts = database.get_posts(50)
-        posts = [p for p in all_posts if p[1] == st.session_state['username']] if st.session_state['wall_mode'] == "Benim Profilim" else all_posts
-        
+        # --- FİLTRELEME MANTIĞI ---
+        if st.session_state['wall_mode'] == "Benim Profilim":
+            posts = [p for p in all_posts if p[1] == st.session_state['username']]
+        else:
+            posts = all_posts
+
+        if not posts: st.info("Henüz gönderi yok.")
+
         for p in posts:
             st.markdown(f"""
             <div class="post-card">
@@ -293,10 +307,11 @@ else:
                 {f'<img src="data:image/jpeg;base64,{p[3]}" class="post-image">' if p[3] else ''}
             </div>
             """, unsafe_allow_html=True)
+            
             if p[2]:
                 yt = extract_youtube_link(p[2])
                 if yt: st.video(yt)
-            
+
             c1, c2, c3, c4 = st.columns([0.15, 0.15, 0.15, 0.55]) 
             with c1: 
                 if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
@@ -327,6 +342,7 @@ else:
     elif sel == "🛒 Mağaza":
         st.header("Mağaza 💎")
         st.metric("Bakiye", f"{server.get_score('GENEL', st.session_state['username']):,} P")
+        
         tabs = st.tabs(["Çerçeve", "İsim", "Font", "🎁 Hediye"])
         
         # ÇERÇEVELER
@@ -433,12 +449,14 @@ else:
         if EX:
             cls = st.selectbox("Sınıf", list(EX.keys())); lsn = st.selectbox("Ders", list(EX[cls].keys()))
             questions = EX[cls][lsn]
-            # Puan hesaplaması için form
+            # HATA DÜZELTME: Güvenli soru çekme
             with st.form("exam_form"):
                 score = 0
                 total_possible = 0
                 for i, q in enumerate(questions):
-                    st.write(f"**{i+1}. {q['question']}**")
+                    # q['question'] yoksa q['text'] veya default kullan
+                    q_text = q.get('question', q.get('text', 'Soru metni bulunamadı'))
+                    st.write(f"**{i+1}. {q_text}**")
                     ans = st.radio(f"Cevap {i+1}", q['options'], key=f"q{i}", horizontal=True)
                     if ans == q['answer']: score += q['points']
                     total_possible += q['points']
