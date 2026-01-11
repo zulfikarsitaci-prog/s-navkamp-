@@ -36,7 +36,7 @@ def create_database():
     ]
     for t in tables: run_query(t)
     
-    # Eksik sütun kontrolü (Eski veritabanı uyumluluğu için)
+    # Sütun kontrolleri
     cols = ["emoji_packs", "change_count", "avatar_data", "frame", "name_style", "post_style", "font_style", "title"]
     for col in cols:
         try: 
@@ -44,12 +44,11 @@ def create_database():
             run_query(f"ALTER TABLE users ADD COLUMN {col} {dtype}")
         except: pass
 
-    # Admin Hesabı
     if not login_user("admin", "6626"):
         h = hashlib.sha256("6626".encode()).hexdigest()
-        run_query("INSERT INTO users (username, password, role, emoji_packs) VALUES (?, ?, ?, ?)", ("admin", h, "admin", "Temel"))
+        run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", ("admin", h, "admin"))
 
-# --- KULLANICI İŞLEMLERİ ---
+# --- KULLANICI ---
 def login_user(u, p):
     h = hashlib.sha256(p.encode()).hexdigest()
     res = run_query("SELECT id, username, password, role FROM users WHERE username = ? AND password = ?", (u, h), fetch=True)
@@ -58,7 +57,6 @@ def login_user(u, p):
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
-        # Kayıt hatasını çözen düzeltilmiş sorgu:
         success = run_query("INSERT INTO users (username, password, role, emoji_packs) VALUES (?, ?, ?, ?)", (u, h, r, "Temel"))
         if success:
             count = run_query("SELECT COUNT(*) FROM users", fetch=True)[0][0]
@@ -80,7 +78,7 @@ def get_all_users_list(my_u=None):
         res = run_query("SELECT username FROM users WHERE username != 'admin'", fetch=True)
     return [r[0] for r in res] if res else []
 
-def get_all_users(): # Admin panel için tüm kullanıcılar
+def get_all_users(): 
     res = run_query("SELECT username FROM users", fetch=True)
     return res if res else []
 
