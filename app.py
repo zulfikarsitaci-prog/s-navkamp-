@@ -242,12 +242,18 @@ def get_matrix_game_html(user):
 # --- ARAYÜZ ---
 if not st.session_state['logged_in']:
     st.markdown('<div class="login-container"><div class="login-sub">Muhasebe ve Finansman Alanı</div><div class="login-main">DİJİTAL GELİŞİM PLATFORMU</div><div class="login-sub">~ Dijital Kampüs ~</div></div>', unsafe_allow_html=True)
+    
     with st.sidebar:
+        # --- ACİL SIFIRLAMA BUTONU ---
         if st.button("⚠️ SİSTEMİ SIFIRLA"):
             try:
-                if os.path.exists("education_platform.db"): os.remove("education_platform.db")
-                st.success("Sıfırlandı! Yenile."); time.sleep(1); st.rerun()
-            except: st.error("Hata.")
+                if os.path.exists("education_platform.db"):
+                    os.remove("education_platform.db")
+                    st.success("Sistem temizlendi! Sayfayı yenile.")
+                    time.sleep(1)
+                    st.rerun()
+            except: st.error("Silinemedi.")
+
     with st.container():
         with st.form("login"):
             u = st.text_input("Kullanıcı Adı")
@@ -259,6 +265,7 @@ if not st.session_state['logged_in']:
                     database.update_activity(user[1])
                     st.rerun()
                 else: st.error("Hatalı!")
+        
         with st.expander("Kayıt Ol"):
             with st.form("reg"):
                 nu = st.text_input("Kullanıcı"); np = st.text_input("Şifre", type="password")
@@ -270,7 +277,7 @@ if not st.session_state['logged_in']:
                         if res:
                             st.session_state['captcha_q'] = None; st.success("Kaydedildi!")
                         else: st.error("Dolu.")
-                    else: st.error("Yanlış."); st.session_state['captcha_q'] = None; st.rerun()
+                    else: st.error("Yanlış cevap."); st.session_state['captcha_q'] = None; st.rerun()
 else:
     database.update_activity(st.session_state['username'])
     
@@ -308,11 +315,10 @@ else:
                 if c2.button("Kabul", key=f"ac_{r[0]}"): database.accept_request(r[1], st.session_state['username']); st.rerun()
         
         st.write(""); 
-        if st.button("🚪 Çıkış"): st.session_state['logged_in']=False; st.rerun()
+        if st.button("🚪 Çıkış Yap"): st.session_state['logged_in']=False; st.rerun()
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
     
-    # Bildirim
     noti_count = database.get_unread_notification_count(st.session_state['username'])
     noti_text = f"🔔 ({noti_count})" if noti_count > 0 else "🔔"
     menu = ["📢 Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🛒 Mağaza", noti_text]
@@ -406,15 +412,23 @@ else:
                 {"n": "Karanlık", "c": 100000, "t": "frame", "v": "Dark", "css":"frame-Dark"},
                 {"n": "Doğa", "c": 250000, "t": "frame", "v": "Nature", "css":"frame-Nature"},
                 {"n": "Siber", "c": 600000, "t": "frame", "v": "Cyber", "css":"frame-Cyber"},
-                {"n": "Aşk", "c": 400000, "t": "frame", "v": "Love", "css":"frame-Love"}
+                {"n": "Aşk", "c": 400000, "t": "frame", "v": "Love", "css":"frame-Love"},
+                {"n": "Volkan", "c": 900000, "t": "frame", "v": "Fire", "css":"frame-Fire"},
+                {"n": "Uzay", "c": 1000000, "t": "frame", "v": "Cyber", "css":"frame-Cyber"}
             ]
-            html_code = '<div class="shop-grid">'
-            for i, it in enumerate(items):
-                buy_link = f"?action=buy&u={st.session_state['username']}&t={it['t']}&v={it['v']}&c={it['c']}"
-                preview = f'<div class="shop-preview"><div class="{it["css"]}" style="width:100%;height:100%;border-radius:50%;"></div></div>'
-                html_code += f"""<div class="shop-item">{preview}<div class="shop-name">{it['n']}</div><a href="{buy_link}" target="_top" class="shop-price">AL ({it['c']:,})</a></div>"""
-            html_code += "</div>"
-            st.markdown(html_code, unsafe_allow_html=True)
+            
+            # CHUNK logic for native grid
+            rows = [items[i:i+4] for i in range(0, len(items), 4)]
+            for row in rows:
+                cols = st.columns(4)
+                for i, it in enumerate(row):
+                    with cols[i]:
+                        preview = f'<div class="shop-preview"><div class="{it["css"]}" style="width:100%;height:100%;border-radius:50%;"></div></div>'
+                        st.markdown(f'<div class="shop-item">{preview}<div class="shop-name">{it["n"]}</div></div>', unsafe_allow_html=True)
+                        if st.button(f"AL ({it['c']:,})", key=f"buy_fr_{it['n']}"):
+                            ok, msg = database.buy_item(st.session_state['username'], it['t'], it['v'], it['c'])
+                            if ok: st.success(msg); time.sleep(1); st.rerun()
+                            else: st.error(msg)
 
         # İSİMLER
         with tabs[1]:
@@ -428,13 +442,17 @@ else:
                 {"n": "Hayalet", "c": 250000, "t": "name", "v": "Ghost", "css":"name-Ghost"},
                 {"n": "Retro", "c": 150000, "t": "name", "v": "Retro", "css":"name-Retro"}
             ]
-            html_code = '<div class="shop-grid">'
-            for i, it in enumerate(items):
-                buy_link = f"?action=buy&u={st.session_state['username']}&t={it['t']}&v={it['v']}&c={it['c']}"
-                preview = f'<div class="{it["css"]}" style="font-size:0.8rem;">İSİM</div>'
-                html_code += f"""<div class="shop-item"><div style="margin-top:20px;">{preview}</div><div class="shop-name">{it['n']}</div><a href="{buy_link}" target="_top" class="shop-price">AL ({it['c']:,})</a></div>"""
-            html_code += "</div>"
-            st.markdown(html_code, unsafe_allow_html=True)
+            rows = [items[i:i+4] for i in range(0, len(items), 4)]
+            for row in rows:
+                cols = st.columns(4)
+                for i, it in enumerate(row):
+                    with cols[i]:
+                        preview = f'<div class="{it["css"]}" style="font-size:0.8rem;">İSİM</div>'
+                        st.markdown(f'<div class="shop-item"><div style="margin-top:20px;">{preview}</div><div class="shop-name">{it["n"]}</div></div>', unsafe_allow_html=True)
+                        if st.button(f"AL ({it['c']:,})", key=f"buy_nm_{it['n']}"):
+                            ok, msg = database.buy_item(st.session_state['username'], it['t'], it['v'], it['c'])
+                            if ok: st.success(msg); time.sleep(1); st.rerun()
+                            else: st.error(msg)
 
         # FONTLAR
         with tabs[2]:
@@ -447,13 +465,17 @@ else:
                 {"n": "Retro", "c": 600000, "t": "font", "v": "Retro", "css":"font-Retro"},
                 {"n": "Korku", "c": 800000, "t": "font", "v": "Horror", "css":"font-Horror"}
             ]
-            html_code = '<div class="shop-grid">'
-            for i, it in enumerate(items):
-                buy_link = f"?action=buy&u={st.session_state['username']}&t={it['t']}&v={it['v']}&c={it['c']}"
-                preview = f'<div class="{it["css"]}" style="font-size:1rem;">Aa</div>'
-                html_code += f"""<div class="shop-item"><div style="margin-top:20px;">{preview}</div><div class="shop-name">{it['n']}</div><a href="{buy_link}" target="_top" class="shop-price">AL ({it['c']:,})</a></div>"""
-            html_code += "</div>"
-            st.markdown(html_code, unsafe_allow_html=True)
+            rows = [items[i:i+4] for i in range(0, len(items), 4)]
+            for row in rows:
+                cols = st.columns(4)
+                for i, it in enumerate(row):
+                    with cols[i]:
+                        preview = f'<div class="{it["css"]}" style="font-size:1rem;">Aa</div>'
+                        st.markdown(f'<div class="shop-item"><div style="margin-top:20px;">{preview}</div><div class="shop-name">{it["n"]}</div></div>', unsafe_allow_html=True)
+                        if st.button(f"AL ({it['c']:,})", key=f"buy_fn_{it['n']}"):
+                            ok, msg = database.buy_item(st.session_state['username'], it['t'], it['v'], it['c'])
+                            if ok: st.success(msg); time.sleep(1); st.rerun()
+                            else: st.error(msg)
 
         # HEDİYELER
         with tabs[3]:
@@ -461,12 +483,17 @@ else:
             all_users = database.get_all_users_list(st.session_state['username'])
             t_user = st.selectbox("Kime:", all_users)
             gifts = [("Kahve ☕", 5000), ("Çikolata 🍫", 10000), ("Gül 🌹", 25000), ("Taç 👑", 100000), ("Araba 🏎️", 500000), ("Elmas 💎", 1000000), ("Uçak ✈️", 2000000), ("Diploma 📜", 50000), ("Yat 🛥️", 3000000), ("Ev 🏠", 5000000)]
-            html_code = '<div class="shop-grid">'
-            for i, (gn, gp) in enumerate(gifts):
-                gift_link = f"?action=gift&u={st.session_state['username']}&t={t_user}&g={gn}&c={gp}"
-                html_code += f"""<div class="shop-item"><div style="font-size:1.5rem;margin-top:10px;">{gn.split()[-1]}</div><div class="shop-name">{gn}</div><a href="{gift_link}" target="_top" class="shop-price">GÖNDER ({gp:,})</a></div>"""
-            html_code += "</div>"
-            st.markdown(html_code, unsafe_allow_html=True)
+            
+            rows = [gifts[i:i+4] for i in range(0, len(gifts), 4)]
+            for row in rows:
+                cols = st.columns(4)
+                for i, (gn, gp) in enumerate(row):
+                    with cols[i]:
+                        st.markdown(f'<div class="shop-item"><div style="font-size:1.5rem;margin-top:10px;">{gn.split()[-1]}</div><div class="shop-name">{gn}</div></div>', unsafe_allow_html=True)
+                        if st.button(f"GÖNDER ({gp:,})", key=f"gift_{gn}"):
+                            ok, msg = database.send_gift(st.session_state['username'], t_user, gn, gp)
+                            if ok: st.success(msg)
+                            else: st.error(msg)
 
     elif sel.startswith("🔔"):
         st.header("Bildirimler")
@@ -507,7 +534,6 @@ else:
                 for i, q in enumerate(questions):
                     st.markdown(f"---")
                     
-                    # SORU TİPİNE GÖRE İŞLEM
                     q_type = q.get('type', 'text')
                     
                     if q_type == 'scenario':
@@ -515,7 +541,6 @@ else:
                         for sub_q in q['sub_questions']:
                             st.write(f"- {sub_q['q']}")
                             user_ans = st.text_input("Cevap", key=f"sc_{i}_{sub_q['q']}")
-                            # Basit kontrol (Öğretmen manuel puanlama ister ama burada otomatik yapıyoruz)
                             if user_ans and sub_q['a'].lower() in user_ans.lower(): score += (q['points'] / len(q['sub_questions']))
                         total_possible += q['points']
                     
@@ -535,7 +560,6 @@ else:
                     elif q_type == 'text':
                         st.write(f"**{i+1}. {q.get('question')}**")
                         ans = st.text_input("Cevap", key=f"txt_{i}")
-                        # Keyword kontrolü
                         if ans:
                             correct = False
                             if ans.lower() == q['answer'].lower(): correct = True
@@ -560,11 +584,47 @@ else:
 
     elif sel == "⚙️ Admin":
         st.header("Admin")
-        st.subheader("Kullanıcı Düzenle")
+        
+        # --- İSTATİSTİKLER ---
+        st.subheader("Genel Durum")
+        c1, c2, c3 = st.columns(3)
+        with c1: st.metric("Kullanıcı", len(database.get_all_users()))
+        with c2: st.metric("Toplam Puan", f"{sum([r[1] for r in database.get_leaderboard_data()]):,}")
+        with c3: st.metric("Mesajlar", len(database.run_query("SELECT id FROM messages", fetch=True) or []))
+
+        # --- KULLANICI YÖNETİMİ ---
+        st.divider()
+        st.subheader("Kullanıcı Yönetimi")
         all_u = database.get_all_users()
         all_u_list = [u[0] for u in all_u]
-        target_u = st.selectbox("Kullanıcı", all_u_list)
-        new_p = st.number_input("Puan Ekle", value=0)
-        if st.button("Güncelle"): database.add_score(target_u, new_p, "Admin"); st.success("Tamam!")
+        target_u = st.selectbox("Kullanıcı Seç", all_u_list)
+        
+        c_p, c_del, c_pass = st.columns(3)
+        with c_p:
+            new_p = st.number_input("Puan Ekle/Sil", value=0)
+            if st.button("Puanı İşle"): 
+                database.add_score(target_u, new_p, "Admin")
+                st.success("İşlendi!")
+        with c_del:
+            st.write("")
+            st.write("")
+            if st.button("Kullanıcıyı SİL", type="primary"): 
+                database.delete_user(target_u)
+                st.error("Silindi!")
+                st.rerun()
+        with c_pass:
+            new_pass = st.text_input("Yeni Şifre")
+            if st.button("Şifre Değiştir"):
+                h = hashlib.sha256(new_pass.encode()).hexdigest()
+                database.run_query("UPDATE users SET password = ? WHERE username = ?", (h, target_u))
+                st.success("Şifre değişti.")
+
+        # --- CASUS MODU (MESAJ OKUMA) ---
         st.divider()
-        if st.button("Sil"): database.delete_user(target_u); st.error("Silindi!"); st.rerun()
+        st.subheader("🕵️ Mesaj Takip Merkezi")
+        msgs = database.run_query("SELECT sender, receiver, message, timestamp FROM messages ORDER BY id DESC LIMIT 50", fetch=True)
+        if msgs:
+            df_msg = pd.DataFrame(msgs, columns=["Gönderen", "Alan", "Mesaj", "Zaman"])
+            st.dataframe(df_msg, use_container_width=True)
+        else:
+            st.info("Mesaj yok.")
