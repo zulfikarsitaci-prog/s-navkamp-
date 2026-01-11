@@ -11,7 +11,7 @@ import io
 @st.cache_resource(ttl=3600)
 def get_db_connection():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    DB_PATH = os.path.join(BASE_DIR, "education_platform_final.db")
+    DB_PATH = os.path.join(BASE_DIR, "education_platform_emergency.db")
     return sqlite3.connect(DB_PATH, check_same_thread=False)
 
 def run_query(query, params=(), fetch=False):
@@ -26,7 +26,7 @@ def run_query(query, params=(), fetch=False):
 
 def create_database():
     tables = [
-        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, score INTEGER DEFAULT 5000, bio TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, class_code TEXT)',
+        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, score INTEGER DEFAULT 5000, bio TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, class_code TEXT, emoji_packs TEXT DEFAULT "Temel")',
         'CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, youtube_link TEXT, wall_type TEXT, target_class TEXT, timestamp TEXT, likes INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
@@ -49,9 +49,9 @@ def login_user(u, p):
 def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
-        run_query("INSERT INTO users (username, password, role, score, bio) VALUES (?, ?, ?, ?, ?)", (u, h, r, 5000, "Öğrenci"))
-        return True, 999
-    except: return False, 0
+        run_query("INSERT INTO users (username, password, role, score, bio) VALUES (?, ?, ?, ?, ?)", (u, h, r, 5000, "Yeni Öğrenci"))
+        return True
+    except: return False
 
 def get_user_data(u):
     res = run_query("SELECT score, bio, avatar_data, frame, name_style, role, class_code FROM users WHERE username = ?", (u,), fetch=True)
@@ -68,11 +68,10 @@ def update_avatar(u, img_file):
         return True
     except: return False
 
-def get_user_change_count(u): return 0 # Basitlik için
+def get_user_change_count(u): return 0 
 def change_username_logic(old_u, new_u):
     try:
         run_query("UPDATE users SET username = ? WHERE username = ?", (new_u, old_u))
-        # İlişkili tabloları güncelle (Cascade yoksa)
         for t in ["posts", "comments", "grades"]: run_query(f"UPDATE {t} SET username = ? WHERE username = ?", (new_u, old_u))
         return True, "Değişti"
     except: return False, "Kullanımda"
@@ -93,7 +92,7 @@ def get_all_users_list(exclude_me=None):
     p = (exclude_me,) if exclude_me else ()
     return [r[0] for r in run_query(q, p, fetch=True)]
 def get_searchable_users(u): return get_all_users_list(u)
-def get_pending_requests(u): return [] # Basitlik için direkt takip
+def get_pending_requests(u): return [] 
 def accept_request(s, r): pass
 
 # --- İÇERİK ---
@@ -106,7 +105,6 @@ def add_post(u, c, img=None, yt=None, w_type="campus", t_class=None):
     run_query("INSERT INTO posts (username, content, image_data, youtube_link, wall_type, target_class, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)", (u, c, img_d, yt, w_type, t_class, t))
 
 def get_posts(limit=50, wall_type="campus", target_class=None, user_filter=None):
-    # Basitlik için sadece limit kullanıyoruz veya filtreliyoruz
     if user_filter: return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE username = ? ORDER BY id DESC LIMIT ?", (user_filter, limit), fetch=True)
     return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE wall_type = 'campus' ORDER BY id DESC LIMIT ?", (limit,), fetch=True)
 
@@ -145,7 +143,7 @@ def delete_user(u):
     run_query("DELETE FROM users WHERE username=?",(u,))
     run_query("DELETE FROM posts WHERE username=?",(u,))
 def admin_get_all_messages(): return run_query("SELECT sender, receiver, message, timestamp FROM messages ORDER BY id DESC LIMIT 100", fetch=True)
-def update_activity(u): pass # Basit tutuldu
+def update_activity(u): pass 
 def get_user_styles(u):
     res = run_query("SELECT avatar_data, frame, name_style FROM users WHERE username = ?", (u,), fetch=True)
     return res[0] if res else (None, None, None)
