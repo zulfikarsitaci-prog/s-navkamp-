@@ -32,25 +32,35 @@ def init_state():
 init_state()
 database.create_database()
 
-# --- YARDIMCI ---
+# --- YARDIMCI: YOUTUBE LİNKİ (LIVE DESTEKLİ) ---
 def extract_youtube_link(text):
     if not text: return None
+    # Hem normal, hem short, hem de LIVE linklerini yakalar
     match = re.search(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|live/|.+\?v=)?([^&=%\?]{11})', text)
     if match: return f"https://www.youtube.com/watch?v={match.group(6)}"
     return None
 
-# --- CSS ---
+# --- CSS (KOYU TEMA + İKONLAR + GİRİŞ) ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
     .login-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
     .login-sub { color: #94a3b8; font-size: 1rem; margin-bottom: 5px; font-family: sans-serif; letter-spacing: 1px; }
-    .login-main { font-family: 'Cinzel', serif; color: #FFD700; font-size: 2.2rem; text-shadow: 2px 2px 4px #000; line-height: 1.2; margin: 10px 0; font-weight: bold; }
+    .login-main { 
+        font-family: 'Cinzel', serif;
+        color: #FFD700; 
+        font-size: 2.2rem; 
+        text-shadow: 2px 2px 4px #000; 
+        line-height: 1.2; 
+        margin: 10px 0;
+        font-weight: bold;
+    }
     .login-bottom { color: #cbd5e1; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; margin-top: 5px; }
 
     .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     
+    /* POST KARTI */
     .post-card {
         background-color: #1e293b; 
         border: 1px solid #334155;
@@ -62,6 +72,7 @@ st.markdown("""
     .post-header { display: flex; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 8px; }
     .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 5px; }
     
+    /* İKONLAŞTIRILMIŞ BUTONLAR */
     div.stButton > button {
         background-color: transparent !important;
         border: none !important;
@@ -126,7 +137,6 @@ class SchoolServer:
         df = pd.DataFrame(database.get_leaderboard_data(), columns=["Öğrenci","Puan"])
         return df if not df.empty else pd.DataFrame(columns=["Öğrenci","Puan"])
     def buy_item(self, u, type, name, cost): return database.buy_item(u, type, name, cost)
-    def send_gift(self, s, r, item, cost): return database.send_gift(s, r, item, cost) # Bu fonksiyon database'de yoksa diye kontrol edin, aşağıda ekledim.
 server = SchoolServer()
 
 @st.cache_data
@@ -142,7 +152,7 @@ if "action" in st.query_params:
         act = st.query_params["action"]
         if act == "transfer":
             u, a = st.query_params["u"], int(st.query_params["a"])
-            if database.get_total_score(u) >= 0: # Basit kontrol
+            if database.get_total_score(u) >= 0:
                 st.session_state.update({'logged_in':True, 'username':u, 'active_menu':"🎮 Oyun"})
                 if a > 0: database.add_score(u, a, "Oyun"); st.toast(f"✅ {a} Puan!", icon="💰"); time.sleep(1)
         st.query_params.clear(); st.rerun()
@@ -163,18 +173,23 @@ def get_matrix_game_html(user):
 
 # --- ARAYÜZ ---
 if not st.session_state['logged_in']:
-    st.markdown('<div class="login-container"><div class="login-sub">Muhasebe ve Finansman Alanı</div><div class="login-main">DİJİTAL GELİŞİM PLATFORMU</div><div class="login-sub">~ Dijital Kampüs ~</div></div>', unsafe_allow_html=True)
+    st.markdown("""
+        <div class="login-container">
+            <div class="login-sub">Muhasebe ve Finansman Alanı</div>
+            <div class="login-main">DİJİTAL GELİŞİM PLATFORMU</div>
+            <div class="login-bottom">~ Dijital Kampüs ~</div>
+        </div>
+    """, unsafe_allow_html=True)
     
+    # --- SIFIRLAMA BUTONU ---
     with st.sidebar:
-        # --- ACİL SIFIRLAMA BUTONU ---
+        st.warning("Giriş yapamıyorsan:")
         if st.button("⚠️ SİSTEMİ SIFIRLA"):
-            try:
-                if os.path.exists("education_platform.db"):
-                    os.remove("education_platform.db")
-                    st.success("Sistem temizlendi! Sayfayı yenile.")
-                    time.sleep(1)
-                    st.rerun()
-            except: st.error("Silinemedi.")
+            if os.path.exists("education_platform.db"):
+                os.remove("education_platform.db")
+                st.success("Sistem temizlendi! Sayfayı yenile.")
+                time.sleep(1)
+                st.rerun()
 
     with st.container():
         with st.form("login"):
@@ -184,7 +199,6 @@ if not st.session_state['logged_in']:
                 user = database.login_user(u, p)
                 if user:
                     st.session_state.update({'logged_in':True, 'username':user[1], 'user_role':user[3]})
-                    # ACTIVITY LOG EKLENDİ
                     database.update_activity(user[1])
                     st.rerun()
                 else: st.error("Hatalı!")
@@ -194,39 +208,30 @@ if not st.session_state['logged_in']:
                 nu = st.text_input("Kullanıcı"); np = st.text_input("Şifre", type="password")
                 st.write(f"Güvenlik: **{st.session_state['captcha_q']} = ?**")
                 ans = st.number_input("Cevap", step=1)
-                
                 if st.form_submit_button("Kayıt"):
                     if ans == st.session_state['captcha_a']:
-                        success, rank = database.add_user(nu, np, "student")
-                        if success:
-                            st.session_state['captcha_q'] = None 
-                            if rank <= 10: 
-                                st.balloons()
-                                st.success(f"TEBRİKLER! {rank}. kişi olarak KURUCU ünvanı kazandın!")
-                            else: st.success("Başarılı! Giriş yapabilirsin.")
-                        else: st.error("İsim alınmış.")
-                    else:
-                        st.error("Yanlış cevap!")
-                        st.session_state['captcha_q'] = None
-                        time.sleep(1)
-                        st.rerun()
-else:
-    # --- ACTIVITY UPDATE ---
-    database.update_activity(st.session_state['username'])
+                        res, rank = database.add_user(nu, np, "student")
+                        if res:
+                            st.session_state['captcha_q'] = None
+                            if rank<=10: st.balloons(); st.success("KURUCU oldun!")
+                            else: st.success("Kaydedildi.")
+                        else: st.error("İsim dolu.")
+                    else: st.error("Yanlış cevap."); st.session_state['captcha_q'] = None; st.rerun()
 
+else:
+    database.update_activity(st.session_state['username'])
+    
     with st.sidebar:
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
         st.write("") 
         
         with st.expander("⚙️ Hesabım"):
-            new_name_input = st.text_input("Yeni İsim")
-            change_count = database.get_user_change_count(st.session_state['username'])
-            cost = 0 if change_count == 0 else 500000
-            btn_label = "Değiştir (Ücretsiz)" if cost == 0 else f"Değiştir ({cost:,} P)"
-            if st.button(btn_label):
-                if new_name_input:
-                    ok, msg = database.change_username_logic(st.session_state['username'], new_name_input)
-                    if ok: st.session_state['username'] = new_name_input; st.success(msg); time.sleep(2); st.rerun()
+            nname = st.text_input("Yeni İsim")
+            cost = 0 if database.get_user_change_count(st.session_state['username']) == 0 else 500000
+            if st.button(f"Değiştir ({cost:,} P)"):
+                if nname:
+                    ok, msg = database.change_username_logic(st.session_state['username'], nname)
+                    if ok: st.session_state['username'] = nname; st.success(msg); time.sleep(2); st.rerun()
                     else: st.error(msg)
             
             st.divider()
@@ -243,11 +248,11 @@ else:
 
         reqs = database.get_pending_requests(st.session_state['username'])
         if reqs:
-            st.info("📩 İstekler")
+            st.info("İstekler Var")
             for r in reqs:
                 c1, c2 = st.columns([2,1])
                 c1.write(r[1])
-                if c2.button("Kabul", key=f"acc_{r[0]}"):
+                if c2.button("Kabul", key=f"ac_{r[0]}"):
                     database.accept_request(r[1], st.session_state['username'])
                     st.success("Oldu!"); st.rerun()
 
@@ -256,10 +261,18 @@ else:
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
     
-    database.mark_notifications_read(st.session_state['username'])
-    menu = ["📢 Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🛒 Mağaza"]
-    if st.session_state['user_role'] == 'admin': menu.append("⚙️ Admin")
-    sel = st.radio("", menu, horizontal=True, label_visibility="collapsed")
+    noti_count = database.get_unread_notification_count(st.session_state['username'])
+    noti_text = f"🔔 ({noti_count})" if noti_count > 0 else "🔔"
+    menu_ops = ["📢 Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Ders", "🎮 Oyun", "🛒 Mağaza", noti_text]
+    if st.session_state['user_role'] == 'admin': menu_ops.append("⚙️ Admin")
+    
+    curr = st.session_state['active_menu']
+    if curr.startswith("🔔") and curr != noti_text: curr = noti_text
+    
+    ix = 0
+    if curr in menu_ops: ix = menu_ops.index(curr)
+    sel = st.radio("", menu_ops, index=ix, horizontal=True, label_visibility="collapsed")
+    if sel != st.session_state['active_menu']: st.session_state['active_menu'] = sel; st.rerun()
 
     if sel == "📢 Kampüs Duvar":
         st.subheader("Kampüs Duvar")
@@ -305,6 +318,7 @@ else:
             with c1: 
                 if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
             with c2: 
+                # Yorum butonuna tıklanınca session state'de o postun yorumu açılır/kapanır
                 if st.button("💬", key=f"c_btn_{p[0]}"):
                     if p[0] in st.session_state['open_comments']: st.session_state['open_comments'].remove(p[0])
                     else: st.session_state['open_comments'].append(p[0])
@@ -322,15 +336,18 @@ else:
                                 if st.form_submit_button("Ok"): database.update_post(p[0], new_t); st.rerun()
                             if st.button("Sil", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
 
+            # Yorumları Göster (Butonla Tetiklenir)
             if p[0] in st.session_state['open_comments']:
                 comments = database.get_comments(p[0])
                 if comments:
                     for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
+                else: st.info("Henüz yorum yok.")
                 
                 with st.form(f"c_form_{p[0]}", clear_on_submit=True):
                     ct = st.text_input("Yorum Yaz...", label_visibility="collapsed")
                     if st.form_submit_button("Gönder"): 
                         if ct: database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
+            
             st.write("") 
 
     elif sel == "🛒 Mağaza":
@@ -350,30 +367,30 @@ else:
                         if ok: st.success(msg); time.sleep(1); st.rerun()
                         else: st.error(msg)
 
+    elif sel.startswith("🔔"):
+        st.header("Bildirimler")
+        notis = database.get_unread_notifications(st.session_state['username'])
+        if not notis: st.info("Temiz.")
+        else:
+            for who, comment, post_summary in notis:
+                st.warning(f"**{who}**: '{comment}' (Gönderi: {post_summary[:20]}...)")
+            database.mark_notifications_read(st.session_state['username'])
+
     elif sel == "💬 Mesaj":
-        st.subheader("Mesajlaşma")
-        all_u = database.get_all_users_list(st.session_state['username'])
         friends = database.get_friends(st.session_state['username'])
-        target = st.selectbox("Kime:", friends) if friends else None
-        
+        if st.session_state['user_role'] == 'student' and "admin" not in friends: friends.insert(0, "admin")
+        if st.session_state['user_role'] == 'admin': friends = [u[0] for u in database.get_all_users() if u[0]!="admin"]
+        target = st.selectbox("Kişi", friends) if friends else None
         if target:
-            msgs = database.get_conversation(st.session_state['username'], target)
-            for m in msgs:
-                align = "row-reverse" if m[0] == st.session_state['username'] else "row"
-                bg = "#2563eb" if m[0] == st.session_state['username'] else "#334155"
-                st.markdown(f"""<div style="display:flex;flex-direction:{align};margin-bottom:5px;">
-                    <div style="background:{bg};padding:8px;border-radius:10px;max-width:70%;">{m[1]}</div>
-                </div>""", unsafe_allow_html=True)
-            
-            with st.form("msg_form", clear_on_submit=True):
-                msg_txt = st.text_input("Mesaj")
-                if st.form_submit_button("Gönder"):
-                    if msg_txt:
-                        database.send_message(st.session_state['username'], target, msg_txt)
-                        st.rerun()
-        else: st.info("Henüz arkadaşın yok.")
+            for s, m, t in database.get_conversation(st.session_state['username'], target):
+                ava_html = get_user_display_html(s, size=30)
+                align = "flex-direction:row-reverse;background:#2563eb" if s == st.session_state['username'] else "flex-direction:row;background:#334155"
+                st.markdown(f"""<div style='display:flex;{align};align-items:center;margin:5px;'>{ava_html} <div style='padding:10px;border-radius:10px;margin:5px;color:white;background:inherit'>{m}</div></div>""", unsafe_allow_html=True)
+            if txt := st.chat_input("Yaz..."): database.send_message(st.session_state['username'], target, txt); st.rerun()
+        else: st.info("Kimse yok.")
 
     elif sel == "🏆 Puan":
+        st.metric("Puan", server.get_score("GENEL", st.session_state['username']))
         st.dataframe(server.get_leaderboard("GENEL"), use_container_width=True)
 
     elif sel == "📚 Ders":
@@ -398,9 +415,16 @@ else:
     elif sel == "⚙️ Admin":
         st.header("Admin")
         st.subheader("Kullanıcı Düzenle")
-        all_u = [u[0] for u in database.get_all_users()]
+        all_u = [u[0] for u in database.get_all_users_list()]
         target_u = st.selectbox("Kullanıcı", all_u)
         new_p = st.number_input("Puan Ekle", value=0)
         if st.button("Güncelle"): database.add_score(target_u, new_p, "Admin"); st.success("Tamam!")
+        st.divider()
+        st.subheader("Casus Modu")
+        spy_u = st.selectbox("Kimin Mesajları?", all_u, key="spu")
+        spy_p = st.selectbox("Kiminle?", all_u, key="spp")
+        if st.button("Oku"):
+            msgs = database.get_conversation(spy_u, spy_p)
+            for s, m, t in msgs: st.write(f"**{s}**: {m} ({t})")
         st.divider()
         if st.button("Sil"): database.delete_user(target_u); st.error("Silindi!"); st.rerun()
