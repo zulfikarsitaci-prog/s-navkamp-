@@ -8,77 +8,123 @@ import time
 import random
 import database
 import base64
+import re
 from datetime import datetime
 
+# --- AYARLAR ---
 st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
 
 def init_state():
-    defaults = {"logged_in": False, "user_role": None, "username": None, "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar"}
+    defaults = {
+        "logged_in": False, "user_role": None, "username": None, 
+        "class_code": "GENEL", "active_menu": "📢 Kampüs Duvar", 
+        "draft_content": "",
+        "captcha_q": None, "captcha_a": None,
+        "open_comments": [] # Hangi postların yorumu açık tutulacak
+    }
     for k, v in defaults.items():
         if k not in st.session_state: st.session_state[k] = v
+
+    if st.session_state['captcha_q'] is None:
+        n1 = random.randint(1, 9); n2 = random.randint(1, 9)
+        st.session_state['captcha_q'] = f"{n1} + {n2}"; st.session_state['captcha_a'] = n1 + n2
+
 init_state()
+
+# --- YARDIMCI: GELİŞMİŞ YOUTUBE LİNKİ ---
+def extract_youtube_link(text):
+    if not text: return None
+    # /live/ linklerini ve normal linkleri yakalayan regex
+    match = re.search(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|live/|.+\?v=)?([^&=%\?]{11})', text)
+    if match: 
+        return f"https://www.youtube.com/watch?v={match.group(6)}"
+    return None
 
 # --- CSS ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
-    .top-bar { background: #1e293b; padding: 8px 15px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
-    .user-greeting { font-weight: bold; color: #e2e8f0; font-size: 1rem; }
+    .login-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
+    .login-sub { color: #94a3b8; font-size: 1rem; margin-bottom: 5px; font-family: sans-serif; letter-spacing: 1px; }
+    .login-main { 
+        font-family: 'Cinzel', serif;
+        color: #FFD700; 
+        font-size: 2.2rem; 
+        text-shadow: 2px 2px 4px #000; 
+        line-height: 1.2; 
+        margin: 10px 0;
+        font-weight: bold;
+    }
+    .login-bottom { color: #cbd5e1; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; margin-top: 5px; }
+
+    .top-bar { background: #1e293b; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; border-bottom: 2px solid #FFD700; margin-bottom: 10px; }
     
     /* POST KARTI */
-    .post-container { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-    .post-header { display: flex; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
-    .post-date { color: #94a3b8; font-size: 0.7rem; margin-left: auto; }
-    .post-content { margin: 10px 0; color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; }
+    .post-card {
+        background-color: #1e293b; 
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        position: relative;
+    }
+    .post-header { display: flex; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 8px; }
+    .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 10px; }
     .post-image { width: 100%; border-radius: 8px; margin-top: 5px; }
     
-    /* YENİ AKSİYON BUTONLARI (YAN YANA) */
-    .action-bar { display: flex; gap: 20px; padding-top: 10px; border-top: 1px solid #334155; margin-top: 10px; }
-    .action-item { display: flex; align-items: center; cursor: pointer; color: #94a3b8; font-size: 0.9rem; transition: 0.2s; }
-    .action-item:hover { color: #FFD700; transform: translateY(-2px); }
+    /* BUTONLAR */
+    div.stButton > button {
+        background-color: transparent !important;
+        border: none !important;
+        color: #94a3b8 !important;
+        font-size: 1.2rem !important;
+        box-shadow: none !important;
+    }
+    div.stButton > button:hover {
+        color: #FFD700 !important;
+        transform: scale(1.1);
+    }
     
-    .comment-box { background: #0f172a; padding: 8px; border-radius: 8px; margin-top: 5px; font-size: 0.85rem; border-left: 2px solid #334155; }
-    div[data-testid="stRadio"] > div { flex-direction: row; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    /* Popover (Artı Menüsü) İçindeki Butonlar */
+    div[data-testid="stPopoverBody"] button {
+        background-color: #334155 !important;
+        color: white !important;
+        border: 1px solid #475569 !important;
+        margin-bottom: 5px !important;
+        width: 100% !important;
+        font-size: 0.9rem !important;
+    }
+
+    .comment-box { background: #0f172a; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
     
-    /* MAĞAZA KARTLARI */
-    .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+    /* MAĞAZA */
+    .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
     @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(3, 1fr); } }
-    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 130px; transition: 0.2s; }
-    .shop-item:hover { border-color: #FFD700; transform: translateY(-3px); }
-    .shop-name { font-size: 0.7rem; font-weight: bold; margin-top: 5px; color: #cbd5e1; }
-    .shop-price { background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.65rem; font-weight: bold; margin-top: auto; }
-    .gift-icon { font-size: 2.5rem; margin-top: 5px; }
+    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 110px; }
+    .shop-name { font-size: 0.65rem; color: #cbd5e1; }
+    .shop-price { background: #10b981; color: white; padding: 2px 8px; border-radius: 8px; font-size: 0.65rem; }
 
-    /* STİLLER */
-    .font-Cinzel { font-family: 'Cinzel', serif !important; }
-    .font-Orbitron { font-family: 'Orbitron', sans-serif !important; }
-    .font-Rye { font-family: 'Rye', serif !important; }
-    .font-Dancing { font-family: 'Dancing Script', cursive !important; }
-    .font-Metallic { font-family: 'Metal Mania', cursive !important; color: #b0b0b0 !important; text-shadow: 2px 2px 0px #000, -1px -1px 0px #333 !important; letter-spacing: 1px; }
+    /* FONT & STİLLER */
+    .font-Cinzel { font-family: 'Cinzel', serif; } .font-Orbitron { font-family: 'Orbitron', sans-serif; }
+    .font-Rye { font-family: 'Rye', serif; } .font-Dancing { font-family: 'Dancing Script', cursive; }
+    .font-Metallic { font-family: 'Metal Mania', cursive; color: #b0b0b0; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
 
-    .avatar-container { position: relative; display: inline-block; margin-right: 8px; vertical-align: middle; }
-    .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-    .frame-overlay { position: absolute; top: -5px; left: -5px; pointer-events: none; z-index: 2; }
+    .avatar-container { position: relative; display: inline-block; margin-right: 8px; }
+    .avatar-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .frame-overlay { position: absolute; top: -3px; left: -3px; width: 46px; height: 46px; pointer-events: none; }
     
-    .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 10px #FFD700; }
-    .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 10px #00ffff, inset 0 0 5px #00ffff; }
-    .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; animation: pulse 1.5s infinite; }
-    .frame-King { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 20px #ffd700; }
-    .frame-Matrix { border: 3px dotted #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00; }
-
-    .name-Glitch { color: #00ffff; text-shadow: 2px 0 #ff00ff; font-weight: bold; }
-    .name-Fire { color: #ff4500; text-shadow: 0 0 5px #ff0000; font-weight: bold; animation: burn 1s infinite alternate; }
+    .frame-Gold { border: 2px solid #FFD700; border-radius: 50%; box-shadow: 0 0 5px #FFD700; }
+    .frame-Neon { border: 2px solid #00ffff; border-radius: 50%; box-shadow: 0 0 5px #00ffff; }
+    .frame-Fire { border: 2px solid #ff4500; border-radius: 50%; box-shadow: 0 0 10px #ff4500; }
+    .frame-King { border: 3px solid #ffd700; border-radius: 50%; box-shadow: 0 0 10px #ffd700; }
+    .frame-Matrix { border: 2px dotted #00ff00; border-radius: 50%; }
+    .name-Glitch { color: #00ffff; text-shadow: 1px 0 #ff00ff; font-weight: bold; }
+    .name-Fire { color: #ff4500; text-shadow: 0 0 3px #ff0000; font-weight: bold; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
-    
-    .post-Cyan { color: #00ffff !important; }
-    .post-Lime { color: #00ff00 !important; }
-    .post-Pink { color: #ff69b4 !important; }
-    .post-Gold { color: #ffd700 !important; }
-
-    .title-badge { background: #334155; color: #94a3b8; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; margin-left: 5px; vertical-align: middle; }
-    @keyframes pulse { 0% { box-shadow: 0 0 5px #ff4500; } 50% { box-shadow: 0 0 20px #ff4500; } 100% { box-shadow: 0 0 5px #ff4500; } }
-    @keyframes burn { from { text-shadow: 0 0 5px #ff0000; } to { text-shadow: 0 0 20px #ffff00; } }
+    .post-Cyan { color: #00ffff !important; } .post-Lime { color: #00ff00 !important; } .post-Pink { color: #ff69b4 !important; } .post-Gold { color: #ffd700 !important; }
+    .title-badge { background: #334155; color: #94a3b8; padding: 1px 5px; border-radius: 3px; font-size: 0.6rem; margin-left: 4px; }
     iframe { width: 100% !important; }
 </style>
 """, unsafe_allow_html=True)
@@ -91,12 +137,12 @@ except: pass
 if st.session_state['logged_in']: database.update_activity(st.session_state['username'])
 
 # --- GÖRSEL YARDIMCILAR ---
-def get_user_display_html(username, size=50):
+def get_user_display_html(username, size=40):
     ava, frame, name_style, _, font_style, title = database.get_user_styles(username)
-    img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150?text=U"
-    f_html = f'<div class="frame-overlay frame-{frame}" style="width:{size+10}px;height:{size+10}px;"></div>' if frame else ""
+    img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150/CCCCCC/FFFFFF?text=U"
+    f_html = f'<div class="frame-overlay frame-{frame}"></div>' if frame else ""
     classes = f"{f'name-{name_style}' if name_style else ''} {f'font-{font_style}' if font_style else ''}"
-    return f'<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px;height:{size}px;"><img src="{img_src}" class="avatar-img">{f_html}</div><div style="margin-left:12px;"><div class="{classes}" style="font-size:1rem;">{username} {f"<span class=\'title-badge\'>{title}</span>" if title else ""}</div></div></div>'
+    return f'<div style="display:flex;align-items:center;"><div class="avatar-container"><img src="{img_src}" class="avatar-img">{f_html}</div><div style="margin-left:10px;"><div class="{classes}" style="font-size:0.9rem;">{username} {f"<span class='title-badge'>{title}</span>" if title else ""}</div></div></div>'
 
 def get_post_style_css(username):
     _, _, _, post_style, font_style, _ = database.get_user_styles(username)
@@ -121,7 +167,7 @@ def load_local_exams():
         except: return {}
     return {}
 
-# --- TRANSFER YAKALAYICI ---
+# --- TRANSFER ---
 if "action" in st.query_params:
     try:
         act = st.query_params["action"]
@@ -163,11 +209,18 @@ def get_matrix_game_html(user):
 
 # --- ARAYÜZ ---
 if not st.session_state['logged_in']:
-    st.markdown('<div class="login-container"><h1 class="login-title">🎓 Dijital Kampüs</h1></div>', unsafe_allow_html=True)
-    c1, c2, c3 = st.columns([1, 2, 1])
-    with c2:
+    st.markdown("""
+        <div class="login-container">
+            <div class="login-sub">Muhasebe ve Finansman Alanı</div>
+            <div class="login-main">DİJİTAL GELİŞİM PLATFORMU</div>
+            <div class="login-bottom">~ Dijital Kampüs ~</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    with st.container():
         with st.form("login"):
-            u = st.text_input("Kullanıcı Adı"); p = st.text_input("Şifre", type="password")
+            u = st.text_input("Kullanıcı Adı")
+            p = st.text_input("Şifre", type="password")
             if st.form_submit_button("Giriş"):
                 user = database.login_user(u, p)
                 if user:
@@ -175,53 +228,59 @@ if not st.session_state['logged_in']:
                     if user[3]=="student": server.join_or_update_student("GENEL", user[1], 0)
                     st.rerun()
                 else: st.error("Hatalı.")
-        with st.expander("Kayıt"):
+        
+        with st.expander("Kayıt Ol"):
             with st.form("reg"):
                 nu = st.text_input("Kullanıcı"); np = st.text_input("Şifre", type="password")
+                st.write(f"Güvenlik: **{st.session_state['captcha_q']} = ?**")
+                captcha_ans = st.number_input("Cevap", step=1)
+                
                 if st.form_submit_button("Kayıt"):
-                    success, rank = database.add_user(nu, np, "student")
-                    if success:
-                        if rank <= 10: 
-                            st.balloons()
-                            st.success(f"TEBRİKLER! {rank}. kişi olarak KURUCU ünvanı ve 50.000 Puan kazandın!")
-                        else: st.success("Başarılı! Giriş yapabilirsin.")
-                    else: st.error("Hata: İsim alınmış olabilir.")
+                    if captcha_ans == st.session_state['captcha_a']:
+                        success, rank = database.add_user(nu, np, "student")
+                        if success:
+                            st.session_state['captcha_q'] = None 
+                            if rank <= 10: 
+                                st.balloons()
+                                st.success(f"TEBRİKLER! {rank}. kişi olarak KURUCU ünvanı kazandın!")
+                            else: st.success("Başarılı! Giriş yapabilirsin.")
+                        else: st.error("İsim alınmış.")
+                    else:
+                        st.error("Yanlış cevap! Soru değişiyor...")
+                        st.session_state['captcha_q'] = None
+                        time.sleep(1)
+                        st.rerun()
 else:
     with st.sidebar:
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
-        uploaded_avatar = st.file_uploader("Profil Foto", type=['png', 'jpg'])
-        if uploaded_avatar:
-            if database.update_avatar(st.session_state['username'], uploaded_avatar): st.success("Yüklendi!"); time.sleep(1); st.rerun()
+        st.write("") 
         
-        # --- İSİM DEĞİŞTİRME ---
-        with st.expander("İsim Değiştir"):
+        with st.expander("⚙️ Hesabım"):
             new_name_input = st.text_input("Yeni İsim")
             change_count = database.get_user_change_count(st.session_state['username'])
             cost = 0 if change_count == 0 else 500000
-            
-            btn_label = "Ücretsiz Değiştir" if cost == 0 else f"{cost:,} Puan ile Değiştir"
+            btn_label = "Değiştir (Ücretsiz)" if cost == 0 else f"Değiştir ({cost:,} P)"
             if st.button(btn_label):
                 if new_name_input:
                     ok, msg = database.change_username_logic(st.session_state['username'], new_name_input)
-                    if ok:
-                        st.session_state['username'] = new_name_input
-                        st.success(msg)
-                        time.sleep(2)
-                        st.rerun()
+                    if ok: st.session_state['username'] = new_name_input; st.success(msg); time.sleep(2); st.rerun()
                     else: st.error(msg)
-        
-        st.divider()
-        with st.expander("Arkadaş Ekle"):
-            search_u = st.selectbox("Kişi Ara", database.get_searchable_users(st.session_state['username']))
+            
+            st.divider()
+            uploaded_avatar = st.file_uploader("Fotoğraf", type=['png', 'jpg'])
+            if uploaded_avatar:
+                if database.update_avatar(st.session_state['username'], uploaded_avatar): st.success("Yüklendi!"); time.sleep(1); st.rerun()
+            
+            st.divider()
+            search_u = st.selectbox("Arkadaş Ara", database.get_searchable_users(st.session_state['username']))
             if st.button("Ekle"):
                 ok, msg = database.send_friend_request(st.session_state['username'], search_u)
                 if ok: st.success(msg)
                 else: st.warning(msg)
-        
+
         reqs = database.get_pending_requests(st.session_state['username'])
         if reqs:
-            st.divider()
-            st.write("📩 İstekler:")
+            st.info("📩 İstekler")
             for r in reqs:
                 c1, c2 = st.columns([2,1])
                 c1.write(r[1])
@@ -229,7 +288,8 @@ else:
                     database.accept_request(r[1], st.session_state['username'])
                     st.success("Oldu!"); st.rerun()
 
-        if st.button("Çıkış"): st.session_state['logged_in']=False; st.rerun()
+        st.write("")
+        if st.button("🚪 Çıkış Yap"): st.session_state['logged_in']=False; st.rerun()
 
     st.markdown(f'<div class="top-bar"><div class="user-greeting">Merhaba, {st.session_state["username"]}</div><div class="role-badge">{st.session_state["user_role"]}</div></div>', unsafe_allow_html=True)
     
@@ -249,67 +309,88 @@ else:
     if sel == "📢 Kampüs Duvar":
         st.subheader("Kampüs Duvar")
         
-        # --- ZENGİNLER KULÜBÜ ---
         my_score = server.get_score("GENEL", st.session_state['username'])
         POST_THRESHOLD = 1000000
         POST_COST = 100000
         
         if my_score >= POST_THRESHOLD or st.session_state['user_role'] == 'admin':
-            with st.expander(f"✨ Paylaşım Yap (-{POST_COST:,} P)", expanded=False):
+            with st.expander(f"✨ Paylaşım (-{POST_COST:,} P)", expanded=False):
                 with st.form("sh"):
                     def_val = st.session_state.get('draft_content', "")
                     txt = st.text_area("İçerik", value=def_val); img = st.file_uploader("Resim", type=['png','jpg'])
                     if st.form_submit_button("Paylaş"):
                         if my_score >= POST_COST:
-                            database.add_score(st.session_state['username'], -POST_COST, "Post Ücreti")
+                            database.add_score(st.session_state['username'], -POST_COST, "Post")
                             database.add_post(st.session_state['username'], txt, img)
                             st.session_state['draft_content'] = ""
                             st.rerun()
                         else: st.error("Bakiye Yetersiz!")
         else:
-            st.info(f"🔒 Paylaşım için {POST_THRESHOLD:,} Puan Gerekli. (Senin: {my_score:,})")
+            st.info(f"🔒 Paylaşım için {POST_THRESHOLD:,} P gerekli.")
 
         for p in database.get_posts(20):
-            with st.container():
-                st.markdown(f"""
-                <div class="post-container">
-                    <div class="post-header">
-                        {get_user_display_html(p[1], size=40)}
-                        <span class="post-date">{p[4]}</span>
-                    </div>
-                    <div class="{get_post_style_css(p[1])} post-content">{p[2] if p[2] else ''}</div>
-                    {f'<img src="data:image/jpeg;base64,{p[3]}" class="post-image">' if p[3] else ''}
+            # --- POST KARTI ---
+            st.markdown(f"""
+            <div class="post-card">
+                <div class="post-header">
+                    {get_user_display_html(p[1], size=35)}
+                    <span style="color:#94a3b8;font-size:0.7rem;margin-left:auto;">{p[4]}</span>
                 </div>
-                """, unsafe_allow_html=True)
-                
-                # --- YAN YANA BUTONLAR ---
-                c1, c2, c3, c4, c5 = st.columns([0.15, 0.15, 0.15, 0.15, 0.4])
-                with c1:
-                    if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
-                with c2:
-                    st.write("💬") # Sadece görsel ikon
-                with c3:
-                    if st.button("🔄", key=f"r_{p[0]}"):
+                <div class="{get_post_style_css(p[1])} post-content">{p[2] if p[2] else ''}</div>
+                {f'<img src="data:image/jpeg;base64,{p[3]}" class="post-image">' if p[3] else ''}
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # VİDEO DÜZELTME: Kartın dışında, hemen altında
+            if p[2]:
+                yt = extract_youtube_link(p[2])
+                if yt: st.video(yt)
+
+            # --- ALT BAR (SOL: KALP, SAĞ: ARTI BUTONU) ---
+            c1, c2 = st.columns([1, 4]) # Sol dar, sağ geniş ve sağa yaslı
+            
+            with c1:
+                # KALP BUTONU
+                if st.button(f"❤️ {p[5]}", key=f"l_{p[0]}"): 
+                    database.like_post(p[0])
+                    st.rerun()
+            
+            with c2:
+                # ARTI MENÜSÜ (Sağa yaslı popover)
+                # İçinde Yorum Yap, Paylaş ve (Adminse) Sil var
+                with st.popover("➕", use_container_width=False):
+                    # 1. Yorum Yap Butonu (Kutuyu açar)
+                    if st.button("💬 Yorum Yap", key=f"c_btn_{p[0]}"):
+                        if p[0] in st.session_state['open_comments']:
+                            st.session_state['open_comments'].remove(p[0])
+                        else:
+                            st.session_state['open_comments'].append(p[0])
+                        st.rerun()
+                    
+                    # 2. Paylaş (Alıntıla)
+                    if st.button("🔄 Paylaş", key=f"r_{p[0]}"):
                         st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"
                         st.rerun()
-                
-                if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
-                    with c4:
-                        with st.popover("✏️"):
-                            with st.form(key=f"e_{p[0]}"):
-                                new_t = st.text_area("Düzenle", p[2])
-                                if st.form_submit_button("Ok"): database.update_post(p[0], new_t); st.rerun()
-                    with c5:
-                        if st.button("🗑️", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
+                    
+                    # 3. Sil (Sadece yetkili)
+                    if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
+                        if st.button("🗑️ Sil", key=f"d_{p[0]}"):
+                            database.delete_post(p[0])
+                            st.rerun()
 
+            # --- YORUM ALANI (Eğer açıksa görünür) ---
+            if p[0] in st.session_state['open_comments']:
                 comments = database.get_comments(p[0])
                 if comments:
-                    with st.expander(f"Yorumlar ({len(comments)})"):
-                        for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
-                with st.popover("Yorum Yaz"):
-                    with st.form(f"c{p[0]}"):
-                        ct = st.text_input("Yorum")
-                        if st.form_submit_button("Gönder"): database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
+                    for c in comments: st.markdown(f"<div class='comment-box'>{get_user_display_html(c[0], size=20)} &nbsp; {c[1]}</div>", unsafe_allow_html=True)
+                else:
+                    st.caption("Henüz yorum yok.")
+                
+                with st.form(f"c_form_{p[0]}", clear_on_submit=True):
+                    ct = st.text_input("Yorum Yaz...", label_visibility="collapsed")
+                    if st.form_submit_button("Gönder"): 
+                        if ct: database.add_comment(p[0], st.session_state['username'], ct); st.rerun()
+            st.write("") 
 
     elif sel == "🛒 Mağaza":
         st.header("Mağaza 💎")
@@ -346,7 +427,6 @@ else:
         
         tabs = st.tabs(["Ürünler", "🎁 Hediye Gönder"])
         
-        # --- SEKME 1: ÜRÜNLER (GRID) ---
         with tabs[0]:
             cat_tabs = st.tabs(list(items.keys()))
             for i, (cat, products) in enumerate(items.items()):
@@ -357,41 +437,32 @@ else:
                         
                         preview = ""
                         if p['t'] == 'frame':
-                            preview = f'<div style="position:relative;width:40px;height:40px;"><img src="https://via.placeholder.com/40" style="border-radius:50%;"><div class="{p["css"]}" style="position:absolute;top:-3px;left:-3px;width:46px;height:46px;"></div></div>'
-                        elif p['t'] == 'name':
-                            preview = f'<div class="{p["css"]}" style="font-size:0.7rem">İsim</div>'
-                        elif p['t'] == 'font':
-                            preview = f'<div class="{p["css"]}" style="font-size:0.9rem">Aa</div>'
-                        elif p['t'] == 'title':
-                            preview = f'<span class="title-badge">{p["v"]}</span>'
+                            preview = f'<div style="position:relative;width:40px;height:40px;"><img src="https://via.placeholder.com/40/CCCCCC/FFFFFF?text=U" style="border-radius:50%;"><div class="{p["css"]}" style="position:absolute;top:-3px;left:-3px;width:46px;height:46px;"></div></div>'
+                        elif p['t'] == 'name': preview = f'<div class="{p["css"]}" style="font-size:0.7rem">İsim</div>'
+                        elif p['t'] == 'font': preview = f'<div class="{p["css"]}" style="font-size:0.9rem">Aa</div>'
+                        elif p['t'] == 'title': preview = f'<span class="title-badge">{p["v"]}</span>'
                         
                         html_code += f"""
                         <div class="shop-item">
                             {preview}
                             <div class="shop-name">{p['n']}</div>
                             <a href="{buy_link}" target="_top" style="text-decoration:none;width:100%;">
-                                <div class="shop-price">{p['c']:,}</div>
+                                <div class="shop-price">{p['c']:,} P</div>
                             </a>
                         </div>"""
                     html_code += "</div>"
                     st.markdown(html_code, unsafe_allow_html=True)
 
-        # --- SEKME 2: HEDİYE GÖNDER (GRID) ---
         with tabs[1]:
-            st.info("Arkadaşına veya öğretmenine hediye gönder! Puan senden düşer.")
+            st.info("Arkadaşına hediye gönder! (Puan senden düşer)")
             target_user = st.selectbox("Kime:", database.get_searchable_users(st.session_state['username']))
-            
             gifts = [
                 {"n": "Sıcak Çay", "c": 2000, "i": "☕"}, {"n": "Kahve", "c": 5000, "i": "🧖"}, 
                 {"n": "Çikolata", "c": 8000, "i": "🍫"}, {"n": "Gül", "c": 15000, "i": "🌹"}, 
                 {"n": "Tost", "c": 20000, "i": "🥪"}, {"n": "Hamburger", "c": 30000, "i": "🍔"},
-                {"n": "Kitap", "c": 35000, "i": "📚"}, {"n": "Kalem", "c": 40000, "i": "✏️"},
                 {"n": "Ayıcık", "c": 60000, "i": "🧸"}, {"n": "Kupa", "c": 100000, "i": "🏆"},
-                {"n": "Elmas", "c": 500000, "i": "💎"}, {"n": "Araba", "c": 2000000, "i": "🏎️"},
-                {"n": "Gezegen", "c": 5000000, "i": "🪐"}, {"n": "Ada", "c": 10000000, "i": "🏝️"},
-                {"n": "Roket", "c": 15000000, "i": "🚀"}, {"n": "Taç", "c": 20000000, "i": "👑"}
+                {"n": "Elmas", "c": 500000, "i": "💎"}, {"n": "Araba", "c": 2000000, "i": "🏎️"}
             ]
-            
             html_code = '<div class="shop-grid">'
             for g in gifts:
                 gift_link = f"?action=gift&u={st.session_state['username']}&t={target_user}&g={g['n']}&c={g['c']}"
