@@ -11,26 +11,11 @@ import json
 # --- AYARLAR ---
 st.set_page_config(page_title="Bağarası ÇPAL", page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
 
-# --- SINAV VERİSİ ---
-def check_exams_json():
-    if not os.path.exists("exams.json"):
-        data = {
-            "9. Sınıf": {
-                "Muhasebe": [{"question": "Kasa hesabı kodu nedir?", "options": ["100", "102", "300"], "answer": "100", "points": 20, "type":"test"}],
-            },
-            "10. Sınıf": {
-                "Genel Muhasebe": [{"question": "Bilançonun sol tarafı?", "answer": "Aktif", "points": 20, "type":"text"}]
-            }
-        }
-        with open("exams.json", "w", encoding="utf-8") as f: json.dump(data, f, ensure_ascii=False)
-check_exams_json()
-
 # --- CSS ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Roboto:wght@300;700&display=swap');
 
-    /* GİRİŞ EKRANI */
     .login-box {
         background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
         padding: 40px; border-radius: 20px; text-align: center;
@@ -40,20 +25,18 @@ st.markdown("""
     .login-sub { font-family: 'Roboto', sans-serif; color: #e0f2fe; font-size: 1.1rem; letter-spacing: 2px; }
 
     /* DASHBOARD CARD */
-    .dash-card {
-        background: #1e293b; border: 1px solid #475569; border-radius: 10px; padding: 20px;
-        text-align: center; cursor: pointer; transition: transform 0.2s; height: 120px; display:flex; flex-direction:column; justify-content:center; align-items:center;
+    .metric-card {
+        background: #1e293b; border: 1px solid #475569; border-radius: 8px; padding: 15px;
+        text-align: center; color: white;
     }
-    .dash-card:hover { transform: scale(1.05); border-color: #fbbf24; }
-    .dash-icon { font-size: 2.5rem; margin-bottom: 10px; }
-    .dash-text { font-size: 1rem; color: white; font-weight: bold; }
+    .metric-val { font-size: 1.5rem; font-weight: bold; color: #fbbf24; }
+    .metric-lbl { font-size: 0.9rem; color: #cbd5e1; }
 
     /* MAĞAZA STİLİ */
-    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px; text-align: center; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
-    .shop-icon-box { font-size: 2rem; margin-bottom: 5px; }
-    .shop-name { font-size: 0.8rem; color: #cbd5e1; font-weight: bold; }
-    .shop-btn button { width: 100%; font-size: 0.7rem; padding: 2px; }
-
+    .shop-item { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 10px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 180px; }
+    .shop-preview { width: 80px; height: 80px; border-radius: 50%; background-color: #333; margin-bottom: 10px; background-size: cover; background-position: center; border: 3px solid transparent; display: flex; align-items: center; justify-content: center; font-size: 2rem;}
+    .shop-name { font-size: 0.9rem; color: #cbd5e1; font-weight: bold; margin-bottom: 5px; }
+    
     /* PROFİL KARTI */
     .profile-card { text-align: center; padding: 10px; background: #1e293b; border-radius: 10px; margin-bottom: 10px; border: 1px solid #334155; }
     .profile-bio { font-size: 0.85rem; color: #94a3b8; font-style: italic; margin-top: 5px; }
@@ -84,6 +67,18 @@ def init():
     if st.session_state['captcha'] is None:
         n1, n2 = random.randint(1,10), random.randint(1,10)
         st.session_state['captcha'] = {'q': f"{n1} + {n2}", 'a': n1+n2}
+
+    # Sınav dosyası yoksa oluştur
+    if not os.path.exists("exams.json"):
+        data = {
+            "9. Sınıf": {
+                "Muhasebe": [{"question": "Kasa hesabı kodu nedir?", "options": ["100", "102", "300"], "answer": "100", "points": 20, "type":"test"}],
+            },
+            "10. Sınıf": {
+                "Genel Muhasebe": [{"question": "Bilançonun sol tarafı?", "answer": "Aktif", "points": 20, "type":"text"}]
+            }
+        }
+        with open("exams.json", "w", encoding="utf-8") as f: json.dump(data, f, ensure_ascii=False)
 
 database.create_database()
 init()
@@ -121,25 +116,83 @@ def extract_yt(text):
     match = re.search(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/(watch\?v=|embed/|v/|live/|.+\?v=)?([^&=%\?]{11})', text)
     return f"https://www.youtube.com/watch?v={match.group(6)}" if match else None
 
-# --- OYUNLAR ---
+# --- OYUNLAR (ÇALIŞAN SÜRÜM) ---
 def get_finance_game(user, start_score):
-    js = f"""<script>
-    let score = {start_score};
-    function clickBtn() {{ score += 10; document.getElementById('s').innerText = score.toLocaleString(); }}
-    function save() {{ window.parent.location.href = `?action=game_save&u={user}&s=${{score}}`; }}
-    </script>
-    <div style='text-align:center; color:white; background:#111; padding:20px;'>
-    <h2>💰 Finans İmparatoru</h2>
-    <h1 id='s'>{start_score}</h1>
-    <button onclick='clickBtn()' style='font-size:40px; background:none; border:none; cursor:pointer'>👆</button>
-    <br><br>
-    <button onclick='save()' style='background:green; color:white; padding:10px; border:none;'>KASAYI KAYDET</button>
+    # Basit Tıklama Oyunu - Puanı tarayıcıda tutar, kaydet deyince sunucuya yollar
+    return f"""
+    <div style='text-align:center; color:white; background:#111; padding:20px; border-radius:10px;'>
+        <h2>💰 Finans İmparatoru</h2>
+        <h1 id='score' style='color:gold; font-size:3em;'>{start_score}</h1>
+        <button onclick='addScore()' style='font-size:50px; background:none; border:none; cursor:pointer;'>🏦</button>
+        <p style='color:gray'>Tıkla ve Kazan!</p>
+        <br>
+        <button onclick='saveScore()' style='background:#10b981; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer;'>KASAYI KAYDET</button>
     </div>
+    <script>
+        let score = {start_score};
+        function addScore() {{
+            score += 10;
+            document.getElementById('score').innerText = score.toLocaleString();
+        }}
+        function saveScore() {{
+            const url = window.parent.location.href.split('?')[0];
+            const newUrl = `${{url}}?action=game_save&u={user}&s=${{score}}&t=${{Date.now()}}`;
+            window.parent.location.href = newUrl;
+        }}
+    </script>
     """
-    return js
 
 def get_matrix_game(user):
-    return """<div style="text-align:center;color:#0f0;background:black;padding:50px;">MATRIX OYUNU YAKINDA...</div>"""
+    # Matrix Yağmuru Oyunu - Basitleştirilmiş
+    return f"""
+    <div style='background:black; color:#0f0; padding:20px; text-align:center; border-radius:10px; font-family:monospace;'>
+        <h2>MATRIX VERİ AVCISI</h2>
+        <p>Aşağıdaki kod parçalarına tıkla!</p>
+        <div id="game-area" style="height:300px; position:relative; overflow:hidden; border:1px solid #0f0;"></div>
+        <h3 id="m-score">Veri: 0</h3>
+        <button onclick='saveMatrix()' style='background:#0f0; color:black; padding:5px 15px; border:none; margin-top:10px;'>VERİYİ YÜKLE</button>
+    </div>
+    <script>
+        let mScore = 0;
+        const area = document.getElementById('game-area');
+        
+        function spawnCode() {{
+            const el = document.createElement('div');
+            el.innerText = Math.random() > 0.5 ? '1' : '0';
+            el.style.position = 'absolute';
+            el.style.left = Math.random() * 90 + '%';
+            el.style.top = '-20px';
+            el.style.color = '#0f0';
+            el.style.cursor = 'pointer';
+            el.style.fontSize = '20px';
+            
+            el.onclick = function() {{
+                mScore += 5;
+                document.getElementById('m-score').innerText = 'Veri: ' + mScore;
+                el.remove();
+            }};
+            
+            area.appendChild(el);
+            
+            let pos = -20;
+            const fall = setInterval(() => {{
+                pos += 2;
+                el.style.top = pos + 'px';
+                if (pos > 300) {{ clearInterval(fall); el.remove(); }}
+            }}, 50);
+        }}
+        
+        setInterval(spawnCode, 800);
+        
+        function saveMatrix() {{
+            if(mScore > 0) {{
+                const url = window.parent.location.href.split('?')[0];
+                const newUrl = `${{url}}?action=game_matrix&u={user}&s=${{mScore}}&t=${{Date.now()}}`;
+                window.parent.location.href = newUrl;
+            }}
+        }}
+    </script>
+    """
 
 # --- GİRİŞ & KAYIT ---
 if not st.session_state['logged_in']:
@@ -176,13 +229,20 @@ else:
     me = st.session_state['username']
     database.update_activity(me)
     
-    if "action" in st.query_params and st.query_params["action"] == "game_save":
-        try:
-            s = int(st.query_params["s"])
-            curr = database.get_user_data(me)[0]
-            if s > curr: database.add_score(me, s - curr)
-            st.toast("Oyun Kaydedildi!")
-        except: pass
+    # Oyun Puanı Yakalama
+    if "action" in st.query_params:
+        act = st.query_params["action"]
+        if act == "game_save":
+            try:
+                s = int(st.query_params["s"])
+                curr = database.get_user_data(me)[0]
+                if s > curr: database.add_score(me, s - curr); st.toast(f"{s - curr} Puan Eklendi!")
+            except: pass
+        elif act == "game_matrix":
+            try:
+                s = int(st.query_params["s"])
+                if s > 0: database.add_score(me, s); st.toast(f"Matrix'ten {s} Veri Puanı!")
+            except: pass
         st.query_params.clear()
 
     # --- SIDEBAR (YENİ DÜZEN) ---
@@ -200,6 +260,7 @@ else:
         noti = database.get_unread_count(me)
         noti_txt = f"Mesajlar ({noti})" if noti > 0 else "Mesajlar"
         
+        # İstediğin sıralama: Profil, Sınıf, Mesaj en üstte
         menus = ["Ana Sayfa", "Profilim", "Sınıfım", noti_txt, "Kampüs Duvarı", "Mağaza", "Dersler", "Oyunlar", "Liderlik"]
         if st.session_state['role'] == 'admin': menus.append("YÖNETİCİ")
         
@@ -216,30 +277,20 @@ else:
     # --- SAYFALAR ---
     
     if sel == "Ana Sayfa":
-        st.subheader(f"Hoşgeldin, {me} 👋")
+        st.subheader(f"Kontrol Paneli")
         
-        # Dashboard Grid
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            st.markdown('<div class="dash-card"><div class="dash-icon">📢</div><div class="dash-text">Kampüs Duvarı</div></div>', unsafe_allow_html=True)
-            if st.button("Duvara Git", key="d_wall"): st.session_state['active_menu']="Kampüs Duvarı"; st.rerun()
-        with c2:
-            st.markdown('<div class="dash-card"><div class="dash-icon">💎</div><div class="dash-text">Mağaza</div></div>', unsafe_allow_html=True)
-            if st.button("Alışveriş Yap", key="d_shop"): st.session_state['active_menu']="Mağaza"; st.rerun()
-        with c3:
-            st.markdown('<div class="dash-card"><div class="dash-icon">🎮</div><div class="dash-text">Oyunlar</div></div>', unsafe_allow_html=True)
-            if st.button("Oyun Oyna", key="d_game"): st.session_state['active_menu']="Oyunlar"; st.rerun()
-            
-        c4, c5, c6 = st.columns(3)
-        with c4:
-            st.markdown('<div class="dash-card"><div class="dash-icon">📚</div><div class="dash-text">Dersler</div></div>', unsafe_allow_html=True)
-            if st.button("Ders Çalış", key="d_lesson"): st.session_state['active_menu']="Dersler"; st.rerun()
-        with c5:
-            st.markdown('<div class="dash-card"><div class="dash-icon">🏆</div><div class="dash-text">Liderlik</div></div>', unsafe_allow_html=True)
-            if st.button("Sıralama", key="d_rank"): st.session_state['active_menu']="Liderlik"; st.rerun()
-        with c6:
-            st.markdown('<div class="dash-card"><div class="dash-icon">💬</div><div class="dash-text">Mesajlar</div></div>', unsafe_allow_html=True)
-            if st.button("Sohbet", key="d_msg"): st.session_state['active_menu']=noti_txt; st.rerun()
+        # Üst İstatistikler (Küçük)
+        sc, bio, _, _, _, role, cls = database.get_user_data(me)
+        rank = database.get_user_rank(me)
+        
+        col1, col2, col3, col4 = st.columns(4)
+        col1.markdown(f"<div class='metric-card'><div class='metric-val'>{sc:,}</div><div class='metric-lbl'>Puan</div></div>", unsafe_allow_html=True)
+        col2.markdown(f"<div class='metric-card'><div class='metric-val'>{rank}.</div><div class='metric-lbl'>Sıra</div></div>", unsafe_allow_html=True)
+        col3.markdown(f"<div class='metric-card'><div class='metric-val'>{noti}</div><div class='metric-lbl'>Mesaj</div></div>", unsafe_allow_html=True)
+        col4.markdown(f"<div class='metric-card'><div class='metric-val'>{cls if cls else '-'}</div><div class='metric-lbl'>Sınıf</div></div>", unsafe_allow_html=True)
+        
+        st.write("")
+        st.info("👋 Hoşgeldin! Soldaki menüden istediğin yere gidebilirsin.")
 
     elif sel == "Kampüs Duvarı":
         st.subheader("📢 Kampüs Duvarı")
@@ -267,9 +318,8 @@ else:
                 if st.button("Gönder", key=f"b{p[0]}"): database.add_comment(p[0], me, nc); st.rerun()
 
     elif sel == "Mağaza":
-        st.header("💎 Kampüs Mağazası")
-        st.metric("Bakiye", f"{database.get_user_data(me)[0]:,} P")
-        t1, t2, t3, t4 = st.tabs(["Çerçeveler", "İsimler", "Fontlar", "Hediyeler"])
+        st.header("💎 Mağaza")
+        t1, t2, t3, t4 = st.tabs(["🖼️ Çerçeve", "✨ İsim", "✒️ Font", "🎁 Hediye"])
         
         def render_shop(items, type_key):
             rows = [items[i:i+4] for i in range(0, len(items), 4)]
@@ -277,30 +327,46 @@ else:
                 cols = st.columns(4)
                 for i, x in enumerate(row):
                     with cols[i]:
-                        prev = f'<div style="font-size:2rem">{x.get("icon", "📦")}</div>'
-                        st.markdown(f'<div class="shop-item"><div class="shop-icon-box">{prev}</div><div class="shop-name">{x["n"]}</div></div>', unsafe_allow_html=True)
-                        key_uniq = f"btn_{type_key}_{x['n']}_{i}" # Uniq key
-                        if st.button(f"AL ({x['c']//1000}K)", key=key_uniq):
-                            if database.buy_item(me, type_key, x['v'], x['c']): st.success("Aldın!"); time.sleep(1); st.rerun()
-                            else: st.error("Para yok")
+                        # Görsel (HTML/CSS)
+                        if type_key == "frame":
+                            vis = f'<div class="shop-preview"><div class="{x["css"]}" style="width:100%;height:100%;border-radius:50%;background:url(https://api.dicebear.com/7.x/avataaars/svg?seed={x["n"]}) center/cover;"></div></div>'
+                        elif type_key == "name":
+                            vis = f'<div style="font-size:1.5rem;margin-bottom:10px;">✨</div>'
+                        elif type_key == "gift":
+                            vis = f'<div style="font-size:3rem;margin-bottom:5px;">{x["i"]}</div>'
+                        else:
+                            vis = f'<div style="font-size:1.5rem;margin-bottom:10px;">Aa</div>'
+
+                        st.markdown(f'<div class="shop-item">{vis}<div class="shop-name">{x["n"]}</div></div>', unsafe_allow_html=True)
+                        
+                        if type_key != "gift":
+                            if st.button(f"AL {x['c']//1000}K", key=f"buy_{type_key}_{x['n']}_{i}"):
+                                if database.buy_item(me, type_key, x['v'], x['c']): st.success("Hayırlı olsun!"); time.sleep(1); st.rerun()
+                                else: st.error("Bakiye yetersiz")
 
         with t1:
-            items = [{"n":"Gold","v":"Gold","c":50000,"icon":"🟡"}, {"n":"Neon","v":"Neon","c":150000,"icon":"🔵"}, {"n":"Alev","v":"Fire","c":300000,"icon":"🔥"}, {"n":"Kral","v":"King","c":1000000,"icon":"👑"}]
+            items = [{"n":"Gold","v":"Gold","c":50000,"css":"frame-Gold"}, {"n":"Neon","v":"Neon","c":150000,"css":"frame-Neon"}, {"n":"Alev","v":"Fire","c":300000,"css":"frame-Fire"}, {"n":"Kral","v":"King","c":1000000,"css":"frame-King"}]
             render_shop(items, "frame")
         with t2:
-            items = [{"n":"Glitch","v":"Glitch","c":100000,"icon":"👾"}, {"n":"Gold","v":"Gold","c":750000,"icon":"✨"}]
+            items = [{"n":"Glitch","v":"Glitch","c":100000}, {"n":"Gold","v":"Gold","c":750000}]
             render_shop(items, "name")
         with t3:
-            items = [{"n":"Cinzel","v":"Cinzel","c":150000,"icon":"✒️"}, {"n":"Orbitron","v":"Orbitron","c":250000,"icon":"🤖"}]
-            render_shop(items, "name") # Font DB'de name_style ile aynı mantıkta tutuluyor basitleştirmek için
+            items = [{"n":"Cinzel","v":"Cinzel","c":150000}, {"n":"Orbitron","v":"Orbitron","c":250000}]
+            render_shop(items, "name") # Font DB'de name_style
         with t4:
-            st.info("Hediye Gönder")
+            st.info("Birini seçip hediye gönder")
             tu = st.selectbox("Kime", database.get_all_users_list(me))
             gifts = [{"n":"Kahve","c":5000,"i":"☕"}, {"n":"Gül","c":25000,"i":"🌹"}, {"n":"Araba","c":500000,"i":"🏎️"}]
-            for g in gifts:
-                if st.button(f"{g['i']} {g['n']} ({g['c']})"):
-                    if database.send_gift(me, tu, g['n'], g['c']): st.success("Gitti!")
-                    else: st.error("Para yok")
+            render_shop(gifts, "gift")
+            
+            # Hediye Butonları Manuel (Selectbox ile değil, grid altındaki butonlarla)
+            # Ama render_shop fonksiyonu otomatik buton koyuyor, gift için özelleştirelim:
+            st.write("---")
+            g_sel = st.selectbox("Hediye Seç", [g['n'] for g in gifts])
+            if st.button("Seçileni Gönder"):
+                cost = next(g['c'] for g in gifts if g['n']==g_sel)
+                if database.send_gift(me, tu, g_sel, cost): st.success("Gitti!"); st.rerun()
+                else: st.error("Para yok")
 
     elif sel.startswith("Mesaj"):
         st.subheader("Mesajlar")
@@ -319,9 +385,11 @@ else:
             if txt:=st.chat_input("Yaz"): database.send_message(me, tgt, txt); st.rerun()
 
     elif sel == "Oyunlar":
-        gm = st.selectbox("Seç", ["Finans İmparatoru", "Matrix"])
-        if gm == "Finans İmparatoru": components.html(get_finance_game(database.get_user_data(me)[0], me), height=600)
-        else: st.info("Matrix Yapım Aşamasında")
+        gm = st.selectbox("Oyun", ["Finans İmparatoru", "Matrix Veri Avcısı"])
+        if gm == "Finans İmparatoru":
+            components.html(get_finance_game(database.get_user_data(me)[0], me), height=600)
+        else:
+            components.html(get_matrix_game(me), height=500)
 
     elif sel == "Dersler":
         if os.path.exists("exams.json"):
@@ -330,11 +398,8 @@ else:
             with st.form("ex"):
                 s = 0
                 for i, q in enumerate(d[c][l]):
-                    st.write(f"{i+1}. {q.get('question')}")
-                    if q.get('type')=='test': 
-                        if st.radio("Cevap", q['options'], key=f"q{i}") == q['answer']: s += q['points']
-                    else: 
-                        if st.text_input("Cevap", key=f"q{i}") == q['answer']: s += q['points']
+                    st.write(f"{i+1}. {q.get('question')}"); ans = st.text_input("Cv", key=f"q{i}")
+                    if ans == q.get('answer'): s+=q.get('points')
                 if st.form_submit_button("Bitir"): database.add_score(me, s); st.success(f"Puan: {s}"); time.sleep(2); st.rerun()
 
     elif sel == "Liderlik":
@@ -342,7 +407,6 @@ else:
 
     elif sel == "Profilim":
         st.subheader("Profilim")
-        st.info("Profil ayarlarını soldaki menüden yapabilirsin.")
         posts = database.get_posts(user_filter=me)
         for p in posts: st.markdown(f"<div class='post-card'>{p[2]}</div>", unsafe_allow_html=True)
 
