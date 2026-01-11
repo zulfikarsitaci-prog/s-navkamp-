@@ -11,7 +11,7 @@ import io
 @st.cache_resource(ttl=3600)
 def get_db_connection():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    DB_PATH = os.path.join(BASE_DIR, "education_platform_v4.db")
+    DB_PATH = os.path.join(BASE_DIR, "education_platform_v5.db")
     return sqlite3.connect(DB_PATH, check_same_thread=False)
 
 def run_query(query, params=(), fetch=False):
@@ -67,6 +67,14 @@ def update_avatar(u, img_file):
         run_query("UPDATE users SET avatar_data = ? WHERE username = ?", (img_str, u))
         return True
     except: return False
+
+def get_user_rank(u):
+    # Sıralamayı bul
+    res = run_query("SELECT username FROM users WHERE role != 'admin' ORDER BY score DESC", fetch=True)
+    if not res: return 0
+    users = [r[0] for r in res]
+    try: return users.index(u) + 1
+    except: return 0
 
 # --- SOSYAL ---
 def follow_user(follower, followed):
@@ -125,7 +133,7 @@ def get_conversation(u1, u2): return run_query("SELECT sender, message, timestam
 def get_unread_count(u): return run_query("SELECT COUNT(*) FROM messages WHERE receiver = ? AND is_read = 0", (u,), fetch=True)[0][0]
 def mark_read(u): run_query("UPDATE messages SET is_read = 1 WHERE receiver = ?", (u,))
 
-# --- SINIF & LİDERLİK ---
+# --- DİĞER ---
 def create_class(t, n, c): 
     try: run_query("INSERT INTO classes (code, name, teacher) VALUES (?, ?, ?)", (c, n, t)); return True
     except: return False
@@ -134,14 +142,14 @@ def join_class(u, c):
     if res: run_query("UPDATE users SET class_code = ? WHERE username = ?", (c, u)); return True, res[0][0]
     return False, None
 def get_leaderboard_data(): return run_query("SELECT username, score FROM users WHERE role != 'admin' ORDER BY score DESC LIMIT 50", fetch=True) or []
-
-# --- ADMIN ---
 def get_all_users_admin(): return run_query("SELECT username, score, role, class_code FROM users", fetch=True)
 def delete_user_admin(u):
-    run_query("DELETE FROM users WHERE username=?",(u,))
-    run_query("DELETE FROM posts WHERE username=?",(u,))
+    run_query("DELETE FROM users WHERE username=?",(u,)); run_query("DELETE FROM posts WHERE username=?",(u,))
     run_query("DELETE FROM messages WHERE sender=? OR receiver=?",(u,u))
 def admin_get_all_messages(): return run_query("SELECT sender, receiver, message, timestamp FROM messages ORDER BY id DESC LIMIT 100", fetch=True)
 def update_activity(u):
     n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     run_query("UPDATE users SET last_seen = ? WHERE username = ?", (n, u))
+def get_user_styles(u):
+    res = run_query("SELECT avatar_data, frame, name_style, 0, 0, 0 FROM users WHERE username = ?", (u,), fetch=True)
+    return res[0] if res else (None, None, None, 0, 0, 0)
