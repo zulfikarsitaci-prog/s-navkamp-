@@ -179,11 +179,12 @@ def get_conversation(u1, u2):
     return run_query("SELECT sender, message, timestamp FROM messages WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY id ASC", (u1, u2, u2, u1), fetch=True) or []
 
 def get_unread_notification_count(u):
-    res = run_query("SELECT COUNT(c.id) FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ? AND c.is_read = 0", (u, u), fetch=True)
-    return res[0][0] if res else 0
+    res = run_query("SELECT COUNT(id) FROM comments WHERE post_id IN (SELECT id FROM posts WHERE username = ?) AND username != ? AND is_read = 0", (u, u), fetch=True)
+    count = res[0][0] if res else 0
+    return count
 
 def mark_notifications_read(u):
-    run_query("UPDATE comments SET is_read = 1 WHERE id IN (SELECT c.id FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ?)", (u, u))
+    run_query("UPDATE comments SET is_read = 1 WHERE post_id IN (SELECT id FROM posts WHERE username = ?) AND username != ?", (u, u))
 
 def update_activity(u):
     n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -210,3 +211,17 @@ def delete_user(u):
     if u == "admin": return
     run_query("DELETE FROM users WHERE username=?",(u,))
     run_query("DELETE FROM posts WHERE username=?",(u,))
+    run_query("DELETE FROM comments WHERE username=?",(u,))
+    run_query("DELETE FROM messages WHERE sender=? OR receiver=?",(u, u))
+    run_query("DELETE FROM grades WHERE student_username=?",(u,))
+
+# --- ADMIN EKSTRALARI ---
+def get_all_messages_admin():
+    return run_query("SELECT sender, receiver, message, timestamp FROM messages ORDER BY id DESC", fetch=True)
+
+def admin_update_user(u, new_pass=None, new_role=None):
+    if new_pass:
+        h = hashlib.sha256(new_pass.encode()).hexdigest()
+        run_query("UPDATE users SET password = ? WHERE username = ?", (h, u))
+    if new_role:
+        run_query("UPDATE users SET role = ? WHERE username = ?", (new_role, u))
