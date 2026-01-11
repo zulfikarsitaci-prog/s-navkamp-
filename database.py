@@ -36,7 +36,7 @@ def create_database():
     ]
     for t in tables: run_query(t)
     
-    # Sütun kontrolleri (Eski veritabanı uyumluluğu için)
+    # Sütun kontrolleri
     cols = ["emoji_packs", "change_count", "avatar_data", "frame", "name_style", "post_style", "font_style", "title"]
     for col in cols:
         try: 
@@ -67,7 +67,7 @@ def add_user(u, p, r):
         return False, 0
     except: return False, 0
 
-# --- VERİ ÇEKME (EKSİKLER GİDERİLDİ) ---
+# --- VERİ ÇEKME ---
 def get_leaderboard_data():
     return run_query("SELECT student_username, SUM(grade) as T FROM grades GROUP BY student_username ORDER BY T DESC", fetch=True) or []
 
@@ -77,6 +77,10 @@ def get_all_users_list(my_u=None):
     else:
         res = run_query("SELECT username FROM users WHERE username != 'admin'", fetch=True)
     return [r[0] for r in res] if res else []
+
+def get_all_users(): # Admin panel için
+    res = run_query("SELECT username FROM users", fetch=True)
+    return res if res else []
 
 def get_posts(limit=50): return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
 def get_comments(pid): return run_query("SELECT username, content, timestamp FROM comments WHERE post_id = ? ORDER BY id ASC", (pid,), fetch=True) or []
@@ -100,7 +104,7 @@ def buy_emoji_pack_logic(username, pack_name, cost):
     current_packs = get_user_emojis(username)
     if pack_name in current_packs: return False, "Zaten var."
     if get_total_score(username) >= cost:
-        add_score(username, -cost, "Mağaza: Emoji")
+        add_score(username, -cost, f"Mağaza: {pack_name}")
         new_packs = ",".join(current_packs + [pack_name])
         run_query("UPDATE users SET emoji_packs = ? WHERE username = ?", (new_packs, username))
         return True, "Paket alındı!"
@@ -175,11 +179,14 @@ def get_conversation(u1, u2):
     return run_query("SELECT sender, message, timestamp FROM messages WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY id ASC", (u1, u2, u2, u1), fetch=True) or []
 
 def get_unread_notification_count(u):
-    res = run_query("SELECT COUNT(c.id) FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ? AND c.is_read = 0", (u, u), fetch=True)
-    return res[0][0] if res else 0
+    # Okunmamış yorumlar ve mesajlar
+    res = run_query("SELECT COUNT(id) FROM comments WHERE post_id IN (SELECT id FROM posts WHERE username = ?) AND username != ? AND is_read = 0", (u, u), fetch=True)
+    count = res[0][0] if res else 0
+    return count
 
 def mark_notifications_read(u):
-    run_query("UPDATE comments SET is_read = 1 WHERE id IN (SELECT c.id FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ?)", (u, u))
+    # Kullanıcının postlarına gelen başkalarının yorumlarını okundu yap
+    run_query("UPDATE comments SET is_read = 1 WHERE post_id IN (SELECT id FROM posts WHERE username = ?) AND username != ?", (u, u))
 
 def update_activity(u):
     n = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -201,7 +208,7 @@ def get_searchable_users(my_u):
     all_users = get_all_users_list(my_u)
     friends = get_friends(my_u)
     return [u for u in all_users if u not in friends]
-def get_all_users(): 
+def get_all_users(): # Admin panel için
     res = run_query("SELECT username FROM users", fetch=True)
     return [r[0] for r in res] if res else []
 
