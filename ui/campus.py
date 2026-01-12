@@ -15,8 +15,9 @@ def render_stories():
     stories = social.get_active_stories()
     if stories:
         st.markdown("### 🔥 Hikayeler")
-        # Yatay kaydırma için container ve kolonlar
-        # CSS'de 'stHorizontalBlock' düzenlediğimiz için artık yan yana duracaklar
+        
+        # Yan yana dizilmesi için kolonlar oluşturuyoruz
+        # CSS ile kolon genişliği 70px'e sabitlendiği için sıkışık ve düzgün duracak
         cols = st.columns(len(stories))
         
         for i, story in enumerate(stories):
@@ -29,17 +30,19 @@ def render_stories():
                 
                 # Hikaye Halkası (Görsel)
                 st.markdown(f"""
-                <div style="text-align:center; cursor:pointer;">
-                    <div style="width: 60px; height: 60px; border-radius: 50%; padding: 3px; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); display: inline-block; margin-bottom: 5px;">
+                <div style="text-align:center;">
+                    <div style="width: 55px; height: 55px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); display: inline-block;">
                         <img src="{img_src}" style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid #0f172a; object-fit: cover;">
                     </div>
-                    <div style="font-size:0.7rem; color:#cbd5e1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70px; margin:0 auto;">{s_user}</div>
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Görünmez buton hilesi (Resmin altına buton koyuyoruz)
-                if st.button("👁️", key=f"story_{sid}"):
+                # Tıklama Butonu (İsmi buton yaptık)
+                # CSS ile "story-btn" sınıfına stil verdik, şeffaf ve küçük görünecek
+                st.markdown('<div class="story-btn">', unsafe_allow_html=True)
+                if st.button(s_user, key=f"story_{sid}"):
                     st.session_state['active_story'] = story
+                st.markdown('</div>', unsafe_allow_html=True)
 
     # Aktif Hikaye Modalı
     if 'active_story' in st.session_state and st.session_state['active_story']:
