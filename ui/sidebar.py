@@ -2,7 +2,55 @@ import streamlit as st
 import time
 import database.users as users
 import database.social as social
+import database.score as score # Puan çekmek için eklendi
 from .styles import get_user_display_html
+
+def render_xp_bar(current_score):
+    # Seviye Eşikleri
+    ranks = [
+        (0, "Başlangıç"),
+        (10000, "Çırak"),
+        (100000, "Usta"),
+        (500000, "Bilgin"),
+        (5000000, "LORD")
+    ]
+    
+    # Mevcut ve Sonraki Seviyeyi Bul
+    current_rank = ranks[0]
+    next_rank = ranks[1]
+    
+    for i in range(len(ranks)-1):
+        if current_score >= ranks[i][0]:
+            current_rank = ranks[i]
+            next_rank = ranks[i+1]
+        else:
+            break
+            
+    # Son seviyedeyse
+    if current_score >= ranks[-1][0]:
+        progress = 100
+        label = "MAX SEVİYE"
+    else:
+        # Yüzde Hesapla: (Şu anki Puan - Şimdiki Seviye Alt Sınırı) / (Hedef - Şimdiki Seviye Alt Sınırı)
+        range_diff = next_rank[0] - current_rank[0]
+        score_diff = current_score - current_rank[0]
+        progress = min(100, int((score_diff / range_diff) * 100))
+        label = f"{next_rank[1]} için {next_rank[0] - current_score:,} Puan"
+
+    # HTML Çubuğu
+    bar_html = f"""
+    <div style="margin: 10px 0;">
+        <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:#94a3b8;margin-bottom:3px;">
+            <span>{current_rank[1]}</span>
+            <span>{progress}%</span>
+        </div>
+        <div style="background:#334155;border-radius:10px;height:12px;width:100%;overflow:hidden;border:1px solid #475569;">
+            <div style="background:linear-gradient(90deg, #3b82f6, #00ffff);width:{progress}%;height:100%;border-radius:10px;box-shadow:0 0 10px #00ffff;"></div>
+        </div>
+        <div style="text-align:center;font-size:0.6rem;color:#64748b;margin-top:2px;">{label}</div>
+    </div>
+    """
+    st.markdown(bar_html, unsafe_allow_html=True)
 
 def render_sidebar():
     if not st.session_state['logged_in']:
@@ -10,7 +58,14 @@ def render_sidebar():
         return False 
     
     with st.sidebar:
+        # Profil Resmi ve İsim
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
+        
+        # --- YENİ: XP ÇUBUĞU ---
+        user_score = score.get_total_score(st.session_state['username'])
+        render_xp_bar(user_score)
+        # -----------------------
+
         st.write("") 
         
         with st.expander("⚙️ Hesabım"):
