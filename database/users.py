@@ -92,32 +92,5 @@ def get_user_role(u):
 def get_user_change_count(u):
     res = run_query("SELECT change_count FROM users WHERE username = ?", (u,), fetch=True)
     return res[0][0] if res else 0
-    # --- MAĞAZA SATIN ALMA İŞLEMİ ---
-def buy_item(username, item_type, item_value, cost):
-    conn = get_db_connection()
-    c = conn.cursor()
     
-    # 1. Puanı Kontrol Et
-    c.execute("SELECT score FROM scores WHERE username = ?", (username,))
-    row = c.fetchone()
-    current_score = row[0] if row else 0
-    
-    if current_score >= cost:
-        try:
-            # 2. Puanı Düş
-            new_score = current_score - cost
-            c.execute("UPDATE scores SET score = ? WHERE username = ?", (new_score, username))
-            
-            # 3. Eşyayı Ver (Örn: frame sütununu güncelle)
-            # item_type: 'frame', 'name_style', 'title' vb.
-            query = f"UPDATE users SET {item_type} = ? WHERE username = ?"
-            c.execute(query, (item_value, username))
-            
-            conn.commit()
-            return True, f"Satın alındı! Yeni bakiyen: {new_score}"
-        except Exception as e:
-            conn.rollback()
-            return False, f"Hata oluştu: {e}"
-    else:
-        return False, "Yetersiz Bakiye!"
 
