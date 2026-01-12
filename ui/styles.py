@@ -4,103 +4,119 @@ MAIN_CSS = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
-    /* --- 1. BOŞLUKLARI SIFIRLAMA (KOMPAKT MOD) --- */
+    /* --- 1. SIKIŞTIRMA VE GENEL --- */
+    div[data-testid="stVerticalBlock"] { gap: 0rem !important; } /* Bloklar arası boşluğu sıfırla */
+    div.stMarkdown { margin-bottom: 0px !important; }
     
-    /* Tüm dikey blokların arasındaki varsayılan 1rem boşluğu azalt */
-    div[data-testid="stVerticalBlock"] {
-        gap: 0.2rem !important; /* Normalde 1rem'dir, 0.2'ye çektik */
+    /* --- 2. MODERN ÜST MENÜ (NAVİGASYON) --- */
+    /* Radyo butonlarının yuvarlaklarını gizle */
+    div[role="radiogroup"] label div:first-child {
+        display: none !important;
     }
     
-    /* Markdown elementlerinin alt boşluğunu al */
-    div.stMarkdown {
-        margin-bottom: 0px !important;
+    /* Radyo grubunu yatay ve kaydırılabilir yap */
+    div[role="radiogroup"] {
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        gap: 8px !important;
+        padding-bottom: 5px !important;
+        margin-bottom: 10px !important;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
     }
-
-    /* --- 2. ANKET BUTONLARI (BİTİŞİK LİSTE) --- */
     
-    /* İşaretçi div */
-    .poll-marker {
-        display: none; /* Görünmez yap, sadece yer tutsun */
-    }
-
-    /* İşaretçiden sonraki butonun kapsayıcısı (Wrapper) */
-    div:has(> .poll-marker) + div .stButton,
-    div.poll-marker + div .stButton {
-        margin-top: -15px !important; /* Yukarı çek */
-        padding-bottom: 0px !important;
-    }
-
-    /* Butonun Kendisi */
-    div:has(> .poll-marker) + div .stButton button {
-        width: 100% !important;
-        display: flex !important;
-        justify-content: flex-start !important; /* İkon ve yazıyı sola yasla */
-        text-align: left !important;
-        padding: 8px 12px !important;
+    /* Menü Öğeleri (Buton Görünümü) */
+    div[role="radiogroup"] label {
         background: rgba(30, 41, 59, 0.6) !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        color: #cbd5e1 !important;
-        border-radius: 4px !important; /* Daha köşeli, liste gibi */
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 20px !important; /* Hap şeklinde */
+        padding: 5px 15px !important;
+        min-width: auto !important;
         margin: 0 !important;
-        font-size: 0.85rem !important;
+        color: #cbd5e1 !important;
+        transition: all 0.2s;
+    }
+    
+    /* Seçili Olan Menü Öğesi */
+    div[role="radiogroup"] label[data-checked="true"] {
+        background: rgba(59, 130, 246, 0.8) !important; /* Mavi arka plan */
+        color: white !important;
+        border-color: #3b82f6 !important;
+        font-weight: bold !important;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+    }
+
+    /* --- 3. ANKET BUTONLARI (ULTRA KOMPAKT) --- */
+    div.poll-marker + div .stButton {
+        margin-top: -24px !important; /* Çok daha yukarı çek */
+        margin-bottom: -5px !important;
+        padding: 0 !important;
+    }
+
+    div.poll-marker + div .stButton button {
+        width: 100% !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+        padding: 4px 10px !important; /* İç boşluğu azalttık */
+        min-height: 28px !important; /* Yüksekliği azalttık */
         height: auto !important;
-        min-height: 0px !important;
+        background: rgba(15, 23, 42, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        color: #e2e8f0 !important;
+        border-radius: 6px !important;
+        font-size: 0.85rem !important;
         line-height: 1.2 !important;
     }
-
-    /* Hover */
+    
     div.poll-marker + div .stButton button:hover {
-        background: rgba(59, 130, 246, 0.2) !important;
+        background: rgba(59, 130, 246, 0.3) !important;
         border-color: #3b82f6 !important;
         color: white !important;
-        padding-left: 15px !important; /* Kayma efekti */
     }
 
-    /* --- 3. POST KARTI DÜZENİ --- */
+    /* --- 4. DİĞER BİLEŞENLER --- */
     .post-card {
         background: rgba(30, 41, 59, 0.65);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 12px;
-        padding: 12px;
-        margin-bottom: 10px !important; /* Kartlar arası sadece 10px boşluk */
+        padding: 10px; /* Padding azaltıldı */
+        margin-bottom: 8px !important;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
-
-    .post-header { display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; margin-bottom: 6px; }
-    .post-content { color: #e2e8f0; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap; margin-bottom: 8px; }
-    .post-image { width: 100%; border-radius: 6px; margin-top: 4px; }
     
-    /* Post altı butonları (Kalp vb.) yukarı çekme */
-    div[data-testid="column"] .stButton {
-        margin-top: -10px !important;
-        margin-bottom: -10px !important;
-    }
-
-    /* --- DİĞER CSS --- */
-    .poll-bar-bg { background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 4px; position: relative; overflow: hidden; height: 28px; line-height: 28px; }
+    /* Post altı aksiyon butonları */
+    div[data-testid="column"] .stButton { margin-top: -12px !important; margin-bottom: -10px !important; }
+    
+    .post-header { display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; margin-bottom: 5px; }
+    .post-content { color: #e2e8f0; font-size: 0.9rem; line-height: 1.3; white-space: pre-wrap; margin-bottom: 5px; }
+    .post-image { width: 100%; border-radius: 6px; margin-top: 2px; }
+    
+    /* Hikaye & Çubuklar */
+    .poll-bar-bg { background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 3px; position: relative; overflow: hidden; height: 24px; line-height: 24px; }
     .poll-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
-    .poll-text { position: relative; z-index: 2; padding: 0 10px; font-size: 0.8rem; color: white; display: flex; justify-content: space-between; font-weight: 500; }
+    .poll-text { position: relative; z-index: 2; padding: 0 8px; font-size: 0.75rem; color: white; display: flex; justify-content: space-between; font-weight: 500; }
 
-    div[data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; padding-bottom: 5px !important; gap: 8px !important; justify-content: flex-start !important; }
-    div[data-testid="column"] { flex: 0 0 65px !important; width: 65px !important; min-width: 65px !important; margin: 0 !important; padding: 0 !important; }
-    
+    div[data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; padding-bottom: 2px !important; gap: 5px !important; justify-content: flex-start !important; }
+    div[data-testid="column"] { flex: 0 0 auto !important; width: auto !important; min-width: 60px !important; margin: 0 !important; padding: 0 !important; }
+    .story-btn button { border: none !important; background: transparent !important; padding: 0 !important; margin-top: -5px !important; color: #94a3b8 !important; font-size: 0.7rem !important; }
+
+    /* Login & Fontlar */
     .login-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
     .login-main { font-family: 'Cinzel', serif; font-size: 2.2rem; margin: 10px 0; font-weight: bold; animation: neonShine 3s infinite alternate; }
     @keyframes neonShine { 0% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } 50% { text-shadow: 0 0 20px #00ffff; color: #e0f2fe; } 100% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } }
     
-    .top-bar { position: sticky; top: 0; z-index: 999; background: rgba(30, 41, 59, 0.98); padding: 10px 15px; border-radius: 0 0 15px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #FFD700; margin: -1rem -1rem 0.5rem -1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
+    .top-bar { position: sticky; top: 0; z-index: 999; background: rgba(30, 41, 59, 0.98); padding: 8px 12px; border-radius: 0 0 15px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #FFD700; margin: -1rem -1rem 0.5rem -1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
     
-    /* Butonlar Genel */
     div.stButton > button { background-color: transparent !important; border: none !important; color: #94a3b8 !important; font-size: 1.1rem !important; box-shadow: none !important; transition: transform 0.2s; padding: 0.2rem 0.5rem !important; }
     div.stButton > button:hover { color: #FFD700 !important; transform: scale(1.1); }
+    div[data-testid="stPopoverBody"] button { background-color: #334155 !important; color: white !important; border: 1px solid #475569 !important; margin-bottom: 5px !important; width: 100% !important; font-size: 0.9rem !important; }
     
+    /* Avatar */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; line-height: 0; }
     .avatar-img { border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
     .frame-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; pointer-events: none; z-index: 2; }
     
-    /* Çerçeve ve Renkler */
     .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 8px #FFD700; }
     .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff; }
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; }
