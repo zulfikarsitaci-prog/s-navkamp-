@@ -2,6 +2,7 @@ import streamlit as st
 import re
 import database.social as social
 import database.score as score
+import database.users as users
 from .styles import get_user_display_html, get_post_style_css
 
 def extract_youtube_link(text):
@@ -10,7 +11,86 @@ def extract_youtube_link(text):
     if match: return f"https://www.youtube.com/watch?v={match.group(6)}"
     return None
 
+def render_stories():
+    st.markdown("### 🔥 Hikayeler")
+    
+    # Hikaye Ekleme (Sadece Admin veya Puanı Yüksek Olanlar - Şimdilik herkese açık yapalım)
+    with st.expander("➕ Hikayene Ekle", expanded=False):
+        with st.form("add_story_form"):
+            st_img = st.file_uploader("Görsel (Zorunlu)", type=['png', 'jpg', 'jpeg'])
+            st_txt = st.text_input("Kısa Not (Opsiyonel)")
+            if st.form_submit_button("Paylaş"):
+                if st_img:
+                    social.add_story(st.session_state['username'], st_img, st_txt)
+                    st.success("Hikaye paylaşıldı!")
+                    st.rerun()
+                else:
+                    st.error("Hikaye için resim şart!")
+
+    # Hikayeleri Listele
+    stories = social.get_active_stories()
+    if stories:
+        # Yatay kaydırma efekti için kolonlar
+        cols = st.columns(len(stories))
+        for i, story in enumerate(stories):
+            sid, s_user, s_content, s_img, s_time = story
+            
+            with cols[i]:
+                # Avatarı çek
+                ava, _, _, _, _, _ = users.get_user_styles(s_user)
+                img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150/CCCCCC/FFFFFF?text=U"
+                
+                # Hikaye Halkası (Instagram Tarzı CSS)
+                st.markdown(f"""
+                <div style="text-align:center; cursor:pointer;">
+                    <div style="
+                        width: 60px; height: 60px; 
+                        border-radius: 50%; 
+                        padding: 3px;
+                        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+                        display: inline-block;
+                        margin-bottom: 5px;
+                    ">
+                        <img src="{img_src}" style="
+                            width: 100%; height: 100%; 
+                            border-radius: 50%; 
+                            border: 2px solid #0f172a; 
+                            object-fit: cover;
+                        ">
+                    </div>
+                    <div style="font-size:0.7rem; color:#cbd5e1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70px; margin:0 auto;">
+                        {s_user}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Tıklama için buton (Görünmez yapılabilir ama şimdilik standart buton)
+                if st.button("👁️", key=f"story_{sid}"):
+                    st.session_state['active_story'] = story
+
+    # Aktif Hikaye Modalı (Dialog)
+    if 'active_story' in st.session_state and st.session_state['active_story']:
+        sid, s_user, s_content, s_img, s_time = st.session_state['active_story']
+        
+        # Tam Ekran gibi gösteren bir Dialog kutusu
+        @st.dialog(f"Hikaye: {s_user}")
+        def show_story_modal():
+            st.image(f"data:image/jpeg;base64,{s_img}", use_container_width=True)
+            if s_content:
+                st.write(f"📝 {s_content}")
+            st.caption(f"🕒 {s_time}")
+            
+        show_story_modal()
+        # Modalı açtıktan sonra state'i temizleyelim ki sürekli açık kalmasın
+        del st.session_state['active_story']
+
+    st.divider()
+
 def render_campus_wall():
+    # --- ÖNCE HİKAYELERİ GÖSTER ---
+    render_stories()
+    # ------------------------------
+
     st.subheader("Kampüs Duvar")
     
     my_score = score.get_total_score(st.session_state['username'])
