@@ -3,6 +3,7 @@ import streamlit as st
 from .core import run_query
 from .users import compress_image
 
+# --- POST & BİLDİRİM (ESKİ KODLAR AYNI) ---
 @st.cache_data(ttl=2)
 def get_posts(limit=20): return run_query("SELECT id, username, content, image_data, timestamp, likes FROM posts ORDER BY id DESC LIMIT ?", (limit,), fetch=True) or []
 
@@ -20,23 +21,29 @@ def get_unread_notifications(u):
     q = "SELECT c.username, c.content, p.content FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ? AND c.is_read = 0"
     return run_query(q, (u, u), fetch=True) or []
 
-# --- HİKAYE FONKSİYONLARI ---
+# --- HİKAYE FONKSİYONLARI (GÜNCELLENDİ) ---
 def add_story(u, img, txt=""):
     d = compress_image(img) if img else None
     t = datetime.now()
     ts = t.strftime("%Y-%m-%d %H:%M")
-    # Hikaye 24 saat geçerli olsun (şimdilik mantıken, kodda filtrelemesek bile)
     exp = (t + timedelta(hours=24)).strftime("%Y-%m-%d %H:%M")
-    
     run_query("INSERT INTO stories (username, content, image_data, timestamp, expires_at) VALUES (?, ?, ?, ?, ?)", (u, txt, d, ts, exp))
+    get_active_stories.clear()
+
+def delete_story(story_id):
+    run_query("DELETE FROM stories WHERE id = ?", (story_id,))
     get_active_stories.clear()
 
 @st.cache_data(ttl=10)
 def get_active_stories():
-    # Son 10 hikayeyi çekelim
-    return run_query("SELECT id, username, content, image_data, timestamp FROM stories ORDER BY id DESC LIMIT 10", fetch=True) or []
+    return run_query("SELECT id, username, content, image_data, timestamp FROM stories ORDER BY id DESC LIMIT 20", fetch=True) or []
+
+def get_my_stories(username):
+    # Sadece giriş yapan kullanıcının hikayeleri (Silme menüsü için)
+    return run_query("SELECT id, content, timestamp FROM stories WHERE username = ? ORDER BY id DESC", (username,), fetch=True) or []
 # ----------------------------
 
+# --- DİĞER FONKSİYONLAR (AYNI) ---
 def add_post(u, c, i=None):
     d = compress_image(i) if i else None
     t = datetime.now().strftime("%Y-%m-%d %H:%M")
