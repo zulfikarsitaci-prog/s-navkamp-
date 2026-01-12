@@ -1,6 +1,7 @@
 import streamlit as st
 from .core import run_query
 import hashlib
+from datetime import datetime
 
 # --- YARDIMCI FONKSİYONLAR ---
 def make_hashes(password):
@@ -62,11 +63,7 @@ def get_user_change_count(username):
     return res[0][0] if res else 0
 
 def change_username_logic(old_user, new_user):
-    # İsim değiştirme mantığı
     count = get_user_change_count(old_user)
-    cost = 500000 if count > 0 else 0
-    
-    # Puan kontrolü burada yapılabilir (döngüsel import olmaması için basitleştirildi)
     # Şimdilik sadece isim boş mu ve alınmış mı ona bakalım
     if not new_user: return False, "Boş olamaz."
     
@@ -75,35 +72,28 @@ def change_username_logic(old_user, new_user):
     
     # İsim güncelle
     run_query("UPDATE users SET username = ?, change_count = change_count + 1 WHERE username = ?", (new_user, old_user))
-    # İlişkili tabloları güncelle (posts, comments vb. normalde ID ile bağlı olmalı ama text ise güncellenmeli)
     run_query("UPDATE posts SET username = ? WHERE username = ?", (new_user, old_user))
     run_query("UPDATE comments SET username = ? WHERE username = ?", (new_user, old_user))
     
     return True, "İsim değişti! Lütfen tekrar giriş yap."
 
-# --- MAĞAZA SATIN ALMA (BU FONKSİYON EKSİKTİ) ---
+# --- EKSİK OLAN AKTİVİTE FONKSİYONU ---
+def update_activity(username):
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    run_query("UPDATE users SET last_seen = ? WHERE username = ?", (now, username))
+
+# --- MAĞAZA SATIN ALMA ---
 def buy_item(username, item_type, item_value, cost):
-    # Puan sistemini buradan çağırıyoruz (Circular import önlemek için fonksiyon içinde)
     from .score import get_total_score, add_score
     
-    # 1. Bakiyeyi Kontrol Et
     current_score = get_total_score(username)
     
     if current_score >= cost:
         try:
-            # 2. Puanı Düş (Negatif puan ekleyerek)
             add_score(username, -cost, f"Mağaza: {item_value}")
-            
-            # 3. Eşyayı Ver
-            # item_type: 'frame', 'name_style', 'title' vb. (veritabanı sütun isimleri)
-            # item_value: 'King', 'Gold', 'Emperor' vb.
-            
             query = f"UPDATE users SET {item_type} = ? WHERE username = ?"
             run_query(query, (item_value, username))
-            
-            # Cache'i temizle ki hemen görünsün
             get_user_styles.clear()
-            
             return True, "Satın alma başarılı! Güle güle kullan."
         except Exception as e:
             return False, f"Hata oluştu: {e}"
