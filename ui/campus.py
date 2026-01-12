@@ -81,8 +81,9 @@ def render_campus_wall():
             if not has_voted:
                 st.caption("Oylamak için tıkla:")
                 for idx, (opt_text, cnt) in enumerate(poll_res):
-                    # --- İŞARETÇİ EKLENDİ ---
+                    # --- KRİTİK İŞARETÇİ: CSS'in hedeflemesi için şart ---
                     st.markdown('<div class="poll-marker"></div>', unsafe_allow_html=True)
+                    # use_container_width=True: Tam genişlikte olsun
                     if st.button(f"🗳️ {opt_text}", key=f"vote_{p[0]}_{idx}", use_container_width=True):
                         ok, msg = social.vote_poll(p[0], st.session_state['username'], idx)
                         if ok: st.success(msg); time.sleep(0.5); st.rerun()
