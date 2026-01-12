@@ -42,12 +42,22 @@ def create_tables():
         'CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS relationships (id INTEGER PRIMARY KEY AUTOINCREMENT, user1 TEXT, user2 TEXT, status TEXT)',
         'CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)',
-        # --- YENİ: HİKAYELER TABLOSU ---
-        'CREATE TABLE IF NOT EXISTS stories (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, timestamp TEXT, expires_at TEXT)'
+        'CREATE TABLE IF NOT EXISTS stories (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, timestamp TEXT, expires_at TEXT)',
+        # --- YENİ: ANKET OYLARI TABLOSU ---
+        'CREATE TABLE IF NOT EXISTS poll_votes (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, option_index INTEGER)'
     ]
     for t in tables: run_query(t)
     
-    # Eksik sütun kontrolü
+    # --- YENİ SÜTUNLARI GÜVENLİ EKLEME ---
+    # 1. Kullanıcılar için Son Kutu Alma Zamanı (last_daily_box)
+    try: run_query("ALTER TABLE users ADD COLUMN last_daily_box TEXT")
+    except: pass
+    
+    # 2. Postlar için Anket Seçenekleri (poll_options) - Format: "Evet,Hayır"
+    try: run_query("ALTER TABLE posts ADD COLUMN poll_options TEXT")
+    except: pass
+
+    # Diğer eksik sütunlar
     cols = ["avatar_data", "frame", "name_style", "post_style", "font_style", "title", "change_count"]
     for col in cols:
         try: 
