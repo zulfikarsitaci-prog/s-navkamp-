@@ -4,35 +4,50 @@ MAIN_CSS = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
-    /* --- ANKET STİLLERİ (YENİ) --- */
+    /* --- ANKET BUTONLARI (SOLA YASLI & SIKIŞIK) --- */
+    /* İşaretçi div'den hemen sonra gelen buton kapsayıcısı */
+    div.poll-marker + div.stButton {
+        margin-top: -12px !important; /* Yukarı çekip birleştir */
+        margin-bottom: 0px !important;
+    }
+    
+    /* İşaretçi div'den hemen sonra gelen butonun kendisi */
+    div.poll-marker + div.stButton button {
+        justify-content: flex-start !important; /* Yazıyı Sola Yasla */
+        text-align: left !important;
+        padding-left: 15px !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: rgba(15, 23, 42, 0.6) !important;
+        color: #e2e8f0 !important;
+        border-radius: 8px !important;
+    }
+    div.poll-marker + div.stButton button:hover {
+        border-color: #3b82f6 !important;
+        color: #3b82f6 !important;
+        background: rgba(15, 23, 42, 0.9) !important;
+    }
+    
+    /* Anket Bar Arka Planı */
     .poll-bar-bg {
-        background: rgba(255,255,255,0.1);
-        border-radius: 8px;
-        margin-bottom: 8px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 6px;
+        margin-bottom: 5px;
         position: relative;
         overflow: hidden;
-        height: 30px;
-        line-height: 30px;
+        height: 28px;
+        line-height: 28px;
     }
     .poll-bar-fill {
-        background: rgba(59, 130, 246, 0.5); /* Mavi Dolgu */
+        background: rgba(59, 130, 246, 0.6);
         height: 100%;
-        position: absolute;
-        top: 0; left: 0;
-        z-index: 1;
+        position: absolute; top: 0; left: 0; z-index: 1;
     }
     .poll-text {
-        position: relative;
-        z-index: 2;
-        padding-left: 10px;
-        font-size: 0.85rem;
-        color: white;
-        display: flex;
-        justify-content: space-between;
-        padding-right: 10px;
+        position: relative; z-index: 2; padding-left: 10px; padding-right: 10px;
+        font-size: 0.8rem; color: white; display: flex; justify-content: space-between;
     }
 
-    /* --- DİĞER CSS KODLARI (AYNI) --- */
+    /* --- DİĞERLERİ (AYNI) --- */
     div[data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; white-space: nowrap !important; padding-bottom: 5px !important; gap: 10px !important; justify-content: flex-start !important; }
     div[data-testid="column"] { flex: 0 0 70px !important; width: 70px !important; min-width: 70px !important; margin: 0 !important; padding: 0 !important; }
     .story-btn button { border: none !important; background: transparent !important; padding: 0 !important; margin-top: -5px !important; color: #94a3b8 !important; font-size: 0.8rem !important; }
