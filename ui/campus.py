@@ -1,5 +1,6 @@
 import streamlit as st
 import re
+import time
 import database.social as social
 import database.score as score
 import database.users as users
@@ -44,12 +45,9 @@ def render_campus_wall():
     
     if my_score >= POST_THRESHOLD or st.session_state['user_role'] == 'admin':
         with st.expander(f"✨ Paylaşım / Anket (-{POST_COST:,} P)", expanded=False):
-            # PAYLAŞIM TİPİ SEÇME
             ptype = st.radio("Tip", ["Normal Post", "Anket"], horizontal=True, label_visibility="collapsed")
-            
             with st.form("sh"):
                 txt = st.text_area("İçerik", value=st.session_state.get('draft_content', ""))
-                
                 if ptype == "Normal Post":
                     img = st.file_uploader("Resim", type=['png','jpg'])
                     if st.form_submit_button("Paylaş"):
@@ -58,7 +56,7 @@ def render_campus_wall():
                             social.add_post(st.session_state['username'], txt, img)
                             st.session_state['draft_content'] = ""; st.rerun()
                         else: st.error("Bakiye Yetersiz!")
-                else: # ANKET
+                else: 
                     st.info("Şıkları virgülle ayır (Örn: Evet, Hayır, Belki)")
                     opts = st.text_input("Şıklar")
                     if st.form_submit_button("Anket Oluştur"):
@@ -73,27 +71,24 @@ def render_campus_wall():
     else: st.info(f"🔒 Paylaşım için {POST_THRESHOLD:,} P gerekli.")
 
     for p in social.get_posts(20):
-        # p[6] = poll_options
         is_poll = True if p[6] else False
-        
         post_html = f"""<div class="post-card"><div class="post-header">{get_user_display_html(p[1], size=35)}<span style="color:#94a3b8;font-size:0.7rem;margin-left:auto;">{p[4]}</span></div><div class="{get_post_style_css(p[1])} post-content">{p[2] if p[2] else ''}</div>{f'<img src="data:image/jpeg;base64,{p[3]}" class="post-image">' if p[3] else ''}</div>"""
         st.markdown(post_html, unsafe_allow_html=True)
         
         if is_poll:
-            # Anket Sonuçlarını veya Butonlarını Göster
             poll_res, total_votes, has_voted = social.get_poll_results(p[0], p[6])
             
             if not has_voted:
-                # OY KULLANMA EKRANI
+                # --- OY KULLANMA EKRANI (GÜNCELLENDİ: ALT ALTA) ---
                 st.caption("Oylamak için tıkla:")
-                cols = st.columns(len(poll_res))
+                # Kolonları kaldırdık, direkt döngüye sokuyoruz
                 for idx, (opt_text, cnt) in enumerate(poll_res):
-                    if cols[idx].button(opt_text, key=f"vote_{p[0]}_{idx}"):
+                    # use_container_width=True ile tam genişlikte alt alta butonlar
+                    if st.button(f"🗳️ {opt_text}", key=f"vote_{p[0]}_{idx}", use_container_width=True):
                         ok, msg = social.vote_poll(p[0], st.session_state['username'], idx)
                         if ok: st.success(msg); time.sleep(0.5); st.rerun()
                         else: st.error(msg)
             else:
-                # SONUÇ EKRANI (İLERLEME ÇUBUĞU)
                 st.caption(f"Sonuçlar ({total_votes} Oy):")
                 for opt_text, cnt in poll_res:
                     ratio = int((cnt / total_votes) * 100) if total_votes > 0 else 0
@@ -101,7 +96,6 @@ def render_campus_wall():
                     st.markdown(bar_html, unsafe_allow_html=True)
             st.divider()
         else:
-            # NORMAL POST İÇERİKLERİ
             if p[2]:
                 yt = extract_youtube_link(p[2])
                 if yt: st.video(yt)
@@ -115,7 +109,7 @@ def render_campus_wall():
                     if p[0] in st.session_state['open_comments']: st.session_state['open_comments'].remove(p[0])
                     else: st.session_state['open_comments'].append(p[0])
                     st.rerun()
-                if not is_poll: # Anketler paylaşılamaz
+                if not is_poll:
                     if st.button("🔄 Paylaş", key=f"r_{p[0]}"): st.session_state['draft_content'] = f"Alıntı (@{p[1]}): {p[2]}"; st.rerun()
                 if st.session_state['username'] == p[1] or st.session_state['user_role'] == 'admin':
                     if st.button("🗑️ Sil", key=f"d_{p[0]}"): social.delete_post(p[0]); st.rerun()
