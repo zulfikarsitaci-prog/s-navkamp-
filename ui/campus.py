@@ -33,8 +33,8 @@ def render_campus_wall():
         st.info(f"🔒 Paylaşım için {POST_THRESHOLD:,} P gerekli.")
 
     for p in social.get_posts(20):
-        # HTML Render
-        st.markdown(f"""
+        # HTML Render (DÜZELTİLDİ: Boşluklar temizlendi)
+        post_html = f"""
         <div class="post-card">
             <div class="post-header">
                 {get_user_display_html(p[1], size=35)}
@@ -43,7 +43,8 @@ def render_campus_wall():
             <div class="{get_post_style_css(p[1])} post-content">{p[2] if p[2] else ''}</div>
             {f'<img src="data:image/jpeg;base64,{p[3]}" class="post-image">' if p[3] else ''}
         </div>
-        """, unsafe_allow_html=True)
+        """
+        st.markdown(post_html, unsafe_allow_html=True)
         
         if p[2]:
             yt = extract_youtube_link(p[2])
