@@ -6,34 +6,50 @@ def render_shop():
     st.header("Mağaza 💎")
     st.metric("Bakiye", f"{score.get_total_score(st.session_state['username']):,} P")
     
-    items = {
-        "🖼️ Çerçeve": [
-            {"n": "Gold", "c": 50000, "t": "frame", "v": "Gold", "css": "frame-Gold"},
-            {"n": "Neon", "c": 150000, "t": "frame", "v": "Neon", "css": "frame-Neon"},
-            {"n": "Alev", "c": 300000, "t": "frame", "v": "Fire", "css": "frame-Fire"},
-            {"n": "Matrix", "c": 500000, "t": "frame", "v": "Matrix", "css": "frame-Matrix"},
-            {"n": "Kral", "c": 2000000, "t": "frame", "v": "King", "css": "frame-King"}
-        ],
-        "✨ İsim": [
-            {"n": "Glitch", "c": 100000, "t": "name", "v": "Glitch", "css": "name-Glitch"},
-            {"n": "Alevli", "c": 400000, "t": "name", "v": "Fire", "css": "name-Fire"},
-            {"n": "Altın", "c": 750000, "t": "name", "v": "Gold", "css": "name-Gold"},
-            {"n": "Gökkuşağı", "c": 1000000, "t": "name", "v": "Rainbow", "css": "name-Rainbow"}
-        ],
-        "🔤 Font": [
-            {"n": "Cinzel", "c": 150000, "t": "font", "v": "Cinzel", "css": "font-Cinzel"},
-            {"n": "Orbitron", "c": 250000, "t": "font", "v": "Orbitron", "css": "font-Orbitron"},
-            {"n": "Rye", "c": 350000, "t": "font", "v": "Rye", "css": "font-Rye"},
-            {"n": "Dans", "c": 500000, "t": "font", "v": "Dancing", "css": "font-Dancing"},
-            {"n": "Metalik", "c": 1000000, "t": "font", "v": "Metallic", "css": "font-Metallic"}
-        ],
-        "🔰 Ünvan": [
-            {"n": "Çırak", "c": 10000, "t": "title", "v": "Çırak", "css": ""},
-            {"n": "Usta", "c": 100000, "t": "title", "v": "Usta", "css": ""},
-            {"n": "Bilgin", "c": 500000, "t": "title", "v": "Bilgin", "css": ""},
-            {"n": "LORD", "c": 5000000, "t": "title", "v": "LORD", "css": ""}
-        ]
-    }
+    Items = {
+    "🖼️ Çerçeve": [
+        {"n": "Gold", "c": 50000, "t": "frame", "v": "Gold", "css": "frame-Gold"},
+        {"n": "Doğa", "c": 75000, "t": "frame", "v": "Nature", "css": "frame-Nature"}, # YENİ
+        {"n": "Buz", "c": 100000, "t": "frame", "v": "Ice", "css": "frame-Ice"},       # YENİ
+        {"n": "Neon", "c": 150000, "t": "frame", "v": "Neon", "css": "frame-Neon"},
+        {"n": "Alev", "c": 300000, "t": "frame", "v": "Fire", "css": "frame-Fire"},
+        {"n": "Matrix", "c": 500000, "t": "frame", "v": "Matrix", "css": "frame-Matrix"},
+        {"n": "Siber", "c": 1500000, "t": "frame", "v": "Cyber", "css": "frame-Cyber"},   # YENİ
+        {"n": "Kral", "c": 2000000, "t": "frame", "v": "King", "css": "frame-King"},
+        {"n": "Cehennem", "c": 3500000, "t": "frame", "v": "Inferno", "css": "frame-Inferno"}, # YENİ
+        {"n": "İmparator", "c": 5000000, "t": "frame", "v": "Emperor", "css": "frame-Emperor"} # YENİ
+    ],
+    "⚽ Takımlar": [ # YENİ KATEGORİ
+        {"n": "Galatasaray", "c": 500000, "t": "frame", "v": "GS", "css": "frame-GS"},
+        {"n": "Fenerbahçe", "c": 500000, "t": "frame", "v": "FB", "css": "frame-FB"},
+        {"n": "Beşiktaş", "c": 500000, "t": "frame", "v": "BJK", "css": "frame-BJK"},
+        {"n": "Trabzonspor", "c": 500000, "t": "frame", "v": "TS", "css": "frame-TS"},
+        {"n": "Milli Takım", "c": 1000000, "t": "frame", "v": "TR", "css": "frame-TR"}
+    ],
+    "✨ İsim": [
+        {"n": "Glitch", "c": 100000, "t": "name", "v": "Glitch", "css": "name-Glitch"},
+        {"n": "Alevli", "c": 400000, "t": "name", "v": "Fire", "css": "name-Fire"},
+        {"n": "Buzlu", "c": 600000, "t": "name", "v": "Ice", "css": "name-Ice"}, # YENİ
+        {"n": "Altın", "c": 750000, "t": "name", "v": "Gold", "css": "name-Gold"},
+        {"n": "Gökkuşağı", "c": 1000000, "t": "name", "v": "Rainbow", "css": "name-Rainbow"}
+    ],
+    "🔤 Font": [
+        {"n": "Cinzel", "c": 150000, "t": "font", "v": "Cinzel", "css": "font-Cinzel"},
+        {"n": "Orbitron", "c": 250000, "t": "font", "v": "Orbitron", "css": "font-Orbitron"},
+        {"n": "Rye", "c": 350000, "t": "font", "v": "Rye", "css": "font-Rye"},
+        {"n": "Dans", "c": 500000, "t": "font", "v": "Dancing", "css": "font-Dancing"},
+        {"n": "Metalik", "c": 1000000, "t": "font", "v": "Metallic", "css": "font-Metallic"}
+    ],
+    "🔰 Ünvan": [
+        {"n": "Çırak", "c": 10000, "t": "title", "v": "Çırak", "css": ""},
+        {"n": "Usta", "c": 100000, "t": "title", "v": "Usta", "css": ""},
+        {"n": "Bilgin", "c": 500000, "t": "title", "v": "Bilgin", "css": ""},
+        {"n": "Kahin", "c": 1000000, "t": "title", "v": "Kahin", "css": ""}, # YENİ
+        {"n": "Efsane", "c": 2500000, "t": "title", "v": "Efsane", "css": ""}, # YENİ
+        {"n": "LORD", "c": 5000000, "t": "title", "v": "LORD", "css": ""}
+    ]
+}
+
     
     tabs = st.tabs(["Ürünler", "🎁 Hediye Gönder"])
     
