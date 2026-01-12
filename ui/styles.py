@@ -5,90 +5,98 @@ MAIN_CSS = """
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
     /* --- 1. SIKIŞTIRMA VE GENEL AYARLAR --- */
-    .main .block-container { padding-top: 1rem !important; padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+    .main .block-container { 
+        padding-top: 2rem !important; 
+        padding-left: 0.5rem !important; 
+        padding-right: 0.5rem !important; 
+        max-width: 100% !important;
+    }
     div[data-testid="stVerticalBlock"] { gap: 0rem !important; }
     div.stMarkdown { margin-bottom: 0px !important; }
     
-    /* --- 2. ÜST MENÜ (BÜYÜK VE OKUNAKLI) --- */
+    /* --- 2. ÜST MENÜ (TEK SATIR, BÜYÜK VE OKUNAKLI) --- */
+    
+    /* Radyo grubunun kapsayıcısı - KAYDIRILABİLİR YAP */
+    div[role="radiogroup"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important; /* Asla alt satıra inme! */
+        overflow-x: auto !important; /* Yan kaydırma */
+        gap: 10px !important;
+        padding: 10px 5px 15px 5px !important;
+        border-bottom: 2px solid #FFD700;
+        margin-bottom: 10px !important;
+        -webkit-overflow-scrolling: touch; /* Mobilde akıcı kaydırma */
+        justify-content: flex-start !important; /* Sola yasla */
+    }
+    
     /* Yuvarlak radyo düğmesini gizle */
     div[role="radiogroup"] label div:first-child { display: none !important; }
     
-    /* Menü Kapsayıcısı */
-    div[role="radiogroup"] {
-        flex-direction: row !important;
-        overflow-x: auto !important;
-        gap: 12px !important; /* Butonlar arası boşluk */
-        padding: 10px 5px 15px 5px !important;
-        border-bottom: 3px solid #FFD700; /* Alt çizgi kalınlaştı */
-        margin-bottom: 15px !important;
-        justify-content: center !important; /* Ortala */
-    }
-    
-    /* Menü Öğeleri (Butonlar) */
+    /* Menü Butonları */
     div[role="radiogroup"] label {
-        background-color: #1e293b !important;
+        background-color: #0f172a !important; /* Çok koyu lacivert */
         border: 2px solid #FFD700 !important;
-        border-radius: 25px !important; /* Daha oval */
-        padding: 12px 24px !important; /* İÇ BOŞLUK ARTIRILDI (BÜYÜTME) */
-        min-width: auto !important;
+        border-radius: 12px !important;
+        padding: 12px 20px !important; /* Geniş iç boşluk */
+        min-width: fit-content !important; /* İçeriğe göre genişle */
         margin: 0 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        transition: transform 0.2s;
+        transition: all 0.2s;
+        height: 50px !important; /* Sabit yükseklik */
     }
     
-    /* Menü Yazıları */
+    /* Menü Yazıları (OKUNAKLI) */
     div[role="radiogroup"] label p {
-        color: #FFD700 !important;
-        font-weight: 800 !important; /* Ekstra Kalın */
-        font-size: 1.2rem !important; /* YAZI BOYUTU BÜYÜTÜLDÜ */
+        color: #ffffff !important; /* BEYAZ YAZI */
+        font-weight: 700 !important;
+        font-size: 1.1rem !important; /* BÜYÜK PONTO */
         margin: 0 !important;
-        letter-spacing: 0.5px;
+        white-space: nowrap !important; /* Yazı taşmasın */
     }
     
     /* Seçili Olan Menü Öğesi */
     div[role="radiogroup"] label[data-checked="true"] {
-        background-color: #FFD700 !important;
+        background-color: #FFD700 !important; /* SARI ZEMİN */
         border-color: #ffffff !important;
-        transform: scale(1.1); /* Seçilince daha da büyüsün */
-        box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
     }
-    div[role="radiogroup"] label[data-checked="true"] p { color: #0f172a !important; }
+    div[role="radiogroup"] label[data-checked="true"] p {
+        color: #000000 !important; /* SİYAH YAZI */
+    }
 
-    /* --- 3. HİKAYE ŞERİDİ (YAN YANA YAPIŞIK) --- */
+    /* --- 3. HİKAYE ŞERİDİ (ÇOK ÖNEMLİ DÜZELTME) --- */
     
-    /* Yatay Blok Ayarı */
-    div[data-testid="stHorizontalBlock"] {
+    /* Sadece hikayelerin olduğu yatay bloğu hedefle */
+    /* Streamlit'te tüm yatay blokları etkilememek için yapısal seçici kullanıyoruz */
+    
+    /* Hikaye butonunu içeren kolonları bul ve DARALT */
+    div[data-testid="column"]:has(.story-btn) {
+        flex: 0 0 auto !important; /* Genişleme, sabit kal */
+        width: 80px !important; /* SABİT GENİŞLİK */
+        min-width: 80px !important;
+        max-width: 80px !important;
+        margin-right: 5px !important; /* Birbirine yapışık ama çok az mesafe */
+    }
+
+    /* Bu kolonların içinde bulunduğu yatay bloğu SOLA YASLA */
+    div[data-testid="stHorizontalBlock"]:has(.story-btn) {
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
-        overflow-y: hidden !important;
-        justify-content: flex-start !important; /* Sola yasla */
-        gap: 10px !important;
-        padding-bottom: 10px !important;
+        justify-content: flex-start !important; /* SOLA YASLA */
+        gap: 0px !important;
     }
 
-    /* ÖNEMLİ DÜZELTME: Sadece içinde "story-btn" olan kolonları daralt.
-       Böylece Post altındaki butonlar bozulmaz.
-    */
-    div[data-testid="column"]:has(.story-btn) {
-        flex: 0 0 auto !important;
-        width: 75px !important;
-        min-width: 75px !important;
-        max-width: 75px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* Hikaye Buton/İsim */
+    /* Hikaye Butonu (Görünmez Kapsayıcı) */
     .story-btn button {
         font-size: 0.75rem !important;
         margin-top: -5px !important;
-        color: #cbd5e1 !important;
+        color: #94a3b8 !important;
         border: none !important;
         background: transparent !important;
-        width: 75px !important;
+        width: 100% !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
