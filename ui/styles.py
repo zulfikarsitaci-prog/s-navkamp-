@@ -4,34 +4,42 @@ MAIN_CSS = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
-    /* --- YATAY KAYDIRMA (SCROLL) DÜZENİ --- */
-    /* Hikayelerin olduğu alanı kapsayan container */
+    /* --- YATAY KAYDIRMA (STORY STRIP) --- */
+    /* Hikayelerin olduğu blok */
     div[data-testid="stHorizontalBlock"] {
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
         white-space: nowrap !important;
-        padding-bottom: 10px !important;
-        gap: 15px !important;
+        padding-bottom: 5px !important;
+        gap: 10px !important;
+        justify-content: flex-start !important; /* Sola yasla */
     }
     
-    /* Mobilde kolonların sıkışmasını engelle */
+    /* Hikaye Kolonları - Küçük ve Sabit */
     div[data-testid="column"] {
-        flex: 0 0 auto !important;
-        width: auto !important;
+        flex: 0 0 70px !important; /* Genişlik 70px sabit */
+        width: 70px !important;
         min-width: 70px !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    /* --- DİĞER CSS KODLARI (AYNI) --- */
+    /* Streamlit Butonunu Gizle ama Tıklanabilir Yap */
+    .story-btn button {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin-top: -5px !important;
+        color: #94a3b8 !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* --- DİĞER CSS --- */
     .login-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
     .login-sub { color: #94a3b8; font-size: 1rem; margin-bottom: 5px; font-family: sans-serif; letter-spacing: 1px; }
-    
-    @keyframes neonShine {
-        0% { text-shadow: 0 0 5px #FFD700, 0 0 10px #FFD700; color: #FFD700; }
-        50% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; color: #e0f2fe; }
-        100% { text-shadow: 0 0 5px #FFD700, 0 0 10px #FFD700; color: #FFD700; }
-    }
-    .login-main { font-family: 'Cinzel', serif; font-size: 2.2rem; line-height: 1.2; margin: 10px 0; font-weight: bold; animation: neonShine 3s infinite alternate; }
+    @keyframes neonShine { 0% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } 50% { text-shadow: 0 0 20px #00ffff; color: #e0f2fe; } 100% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } }
+    .login-main { font-family: 'Cinzel', serif; font-size: 2.2rem; margin: 10px 0; font-weight: bold; animation: neonShine 3s infinite alternate; }
     .login-bottom { color: #cbd5e1; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; margin-top: 5px; }
 
     .top-bar { position: sticky; top: 0; z-index: 999; background: rgba(30, 41, 59, 0.95); padding: 12px 15px; border-radius: 0 0 15px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #FFD700; margin: -1rem -1rem 1rem -1rem; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
@@ -48,10 +56,8 @@ MAIN_CSS = """
     .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
     @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(3, 1fr); } }
     .shop-item { background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 8px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 120px; transition: transform 0.2s; }
-    .shop-item:hover { transform: translateY(-3px); border-color: #FFD700; }
     .shop-name { font-size: 0.7rem; color: #cbd5e1; margin-top: 5px; }
     .shop-price { background: #10b981; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
-    .gift-icon { font-size: 1.5rem; margin-bottom: 5px; }
 
     .font-Cinzel { font-family: 'Cinzel', serif; } .font-Orbitron { font-family: 'Orbitron', sans-serif; }
     .font-Rye { font-family: 'Rye', serif; } .font-Dancing { font-family: 'Dancing Script', cursive; }
@@ -60,7 +66,6 @@ MAIN_CSS = """
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; line-height: 0; }
     .avatar-img { border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
     .frame-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; pointer-events: none; z-index: 2; }
-    
     .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 8px #FFD700; }
     .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff; }
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; }
