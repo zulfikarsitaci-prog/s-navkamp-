@@ -35,7 +35,6 @@ def add_user(username, password, role="student"):
         return False, "Kullanıcı adı alınmış."
     
     hashed_pw = make_hashes(password)
-    # Varsayılan değerlerle kullanıcı oluştur
     run_query("INSERT INTO users (username, password, role, frame, name_style, title, avatar_data) VALUES (?, ?, ?, ?, ?, ?, ?)", 
               (username, hashed_pw, role, "", "", "Çırak", None))
     return True, "Kayıt Başarılı"
@@ -45,6 +44,8 @@ def login_user(username, password):
     result = run_query("SELECT * FROM users WHERE username = ? AND password = ?", (username, hashed_pw), fetch=True)
     return result[0] if result else None
 
+# --- BURAYA DİKKAT: Cache Eklendi ---
+@st.cache_data(ttl=60)
 def get_user_styles(username):
     # Avatar, Çerçeve, İsim Stili, Post Stili, Font Stili, Ünvan
     res = run_query("SELECT avatar_data, frame, name_style, post_style, font_style, title FROM users WHERE username = ?", (username,), fetch=True)
@@ -55,7 +56,7 @@ def get_user_styles(username):
 def update_avatar(username, image_file):
     img_data = compress_image(image_file)
     run_query("UPDATE users SET avatar_data = ? WHERE username = ?", (img_data, username))
-    get_user_styles.clear()
+    get_user_styles.clear() # Artık hata vermez
     return True
 
 def get_user_change_count(username):
@@ -64,20 +65,17 @@ def get_user_change_count(username):
 
 def change_username_logic(old_user, new_user):
     count = get_user_change_count(old_user)
-    # Şimdilik sadece isim boş mu ve alınmış mı ona bakalım
     if not new_user: return False, "Boş olamaz."
     
     check = run_query("SELECT * FROM users WHERE username = ?", (new_user,), fetch=True)
     if check: return False, "Bu isim kullanımda."
     
-    # İsim güncelle
     run_query("UPDATE users SET username = ?, change_count = change_count + 1 WHERE username = ?", (new_user, old_user))
     run_query("UPDATE posts SET username = ? WHERE username = ?", (new_user, old_user))
     run_query("UPDATE comments SET username = ? WHERE username = ?", (new_user, old_user))
     
     return True, "İsim değişti! Lütfen tekrar giriş yap."
 
-# --- EKSİK OLAN AKTİVİTE FONKSİYONU ---
 def update_activity(username):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     run_query("UPDATE users SET last_seen = ? WHERE username = ?", (now, username))
@@ -93,7 +91,10 @@ def buy_item(username, item_type, item_value, cost):
             add_score(username, -cost, f"Mağaza: {item_value}")
             query = f"UPDATE users SET {item_type} = ? WHERE username = ?"
             run_query(query, (item_value, username))
+            
+            # Cache temizleme (Hata veren kısım burasıydı, artık çalışır)
             get_user_styles.clear()
+            
             return True, "Satın alma başarılı! Güle güle kullan."
         except Exception as e:
             return False, f"Hata oluştu: {e}"
