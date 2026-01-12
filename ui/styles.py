@@ -56,7 +56,7 @@ MAIN_CSS = """
     .font-Rye { font-family: 'Rye', serif; } .font-Dancing { font-family: 'Dancing Script', cursive; }
     .font-Metallic { font-family: 'Metal Mania', cursive; color: #b0b0b0; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
 
-    /* --- AVATAR & ÇERÇEVE DÜZENLEMESİ (GÜNCELLENDİ) --- */
+    /* --- AVATAR & ÇERÇEVE DÜZENLEMESİ --- */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; line-height: 0; }
     .avatar-img { border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
     
@@ -64,7 +64,7 @@ MAIN_CSS = """
         position: absolute; 
         top: 50%; left: 50%; 
         transform: translate(-50%, -50%); 
-        width: 135%; height: 135%; /* %120'den %135'e çıkardık, daha geniş otursun diye */
+        width: 135%; height: 135%;
         pointer-events: none; z-index: 2;
     }
     
@@ -91,17 +91,8 @@ def get_user_display_html(username, size=40):
     f_html = f'<div class="frame-overlay frame-{frame}"></div>' if frame else ""
     classes = f"{f'name-{name_style}' if name_style else ''} {f'font-{font_style}' if font_style else ''}"
     
-    return f"""
-    <div style="display:flex;align-items:center;">
-        <div class="avatar-container" style="width:{size}px; height:{size}px;">
-            <img src="{img_src}" class="avatar-img" style="width:100%; height:100%;">
-            {f_html}
-        </div>
-        <div style="margin-left:12px;">
-            <div class="{classes}" style="font-size:0.9rem;">{username} {f"<span class='title-badge'>{title}</span>" if title else ""}</div>
-        </div>
-    </div>
-    """
+    # HTML kodunu tek satırda veya sola yaslı veriyoruz ki kod bloğu sanılmasın
+    return f"""<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px; height:{size}px;"><img src="{img_src}" class="avatar-img" style="width:100%; height:100%;">{f_html}</div><div style="margin-left:12px;"><div class="{classes}" style="font-size:0.9rem;">{username} {f"<span class='title-badge'>{title}</span>" if title else ""}</div></div></div>"""
 
 def get_post_style_css(username):
     _, _, _, post_style, font_style, _ = users.get_user_styles(username)
