@@ -21,7 +21,7 @@ MAIN_CSS = """
         line-height: 1.2; 
         margin: 10px 0;
         font-weight: bold;
-        animation: neonShine 3s infinite alternate; /* Animasyon burada */
+        animation: neonShine 3s infinite alternate;
     }
     .login-bottom { color: #cbd5e1; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; margin-top: 5px; }
 
@@ -58,31 +58,58 @@ MAIN_CSS = """
     .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 10px; }
     .post-image { width: 100%; border-radius: 8px; margin-top: 5px; }
     
-    /* BUTONLAR VE DİĞERLERİ */
+    /* BUTONLAR */
     div.stButton > button { background-color: transparent !important; border: none !important; color: #94a3b8 !important; font-size: 1.2rem !important; box-shadow: none !important; transition: transform 0.2s; }
     div.stButton > button:hover { color: #FFD700 !important; transform: scale(1.15); }
     div[data-testid="stPopoverBody"] button { background-color: #334155 !important; color: white !important; border: 1px solid #475569 !important; margin-bottom: 5px !important; width: 100% !important; font-size: 0.9rem !important; }
     .comment-box { background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
+    
+    /* MAĞAZA */
     .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
     @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(3, 1fr); } }
     .shop-item { background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 8px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 120px; transition: transform 0.2s; }
     .shop-item:hover { transform: translateY(-3px); border-color: #FFD700; }
     .shop-name { font-size: 0.7rem; color: #cbd5e1; margin-top: 5px; }
     .shop-price { background: #10b981; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
+
+    /* FONT & STİLLER */
     .font-Cinzel { font-family: 'Cinzel', serif; } .font-Orbitron { font-family: 'Orbitron', sans-serif; }
     .font-Rye { font-family: 'Rye', serif; } .font-Dancing { font-family: 'Dancing Script', cursive; }
     .font-Metallic { font-family: 'Metal Mania', cursive; color: #b0b0b0; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
-    .avatar-container { position: relative; display: inline-block; margin-right: 8px; }
-    .avatar-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
-    .frame-overlay { position: absolute; top: -3px; left: -3px; width: 46px; height: 46px; pointer-events: none; }
-    .frame-Gold { border: 2px solid #FFD700; border-radius: 50%; box-shadow: 0 0 5px #FFD700; }
-    .frame-Neon { border: 2px solid #00ffff; border-radius: 50%; box-shadow: 0 0 5px #00ffff; }
-    .frame-Fire { border: 2px solid #ff4500; border-radius: 50%; box-shadow: 0 0 10px #ff4500; }
-    .frame-King { border: 3px solid #ffd700; border-radius: 50%; box-shadow: 0 0 10px #ffd700; }
-    .frame-Matrix { border: 2px dotted #00ff00; border-radius: 50%; }
+
+    /* --- AVATAR & ÇERÇEVE DÜZENLEMESİ (DÜZELTİLDİ) --- */
+    .avatar-container { 
+        position: relative; 
+        display: inline-block; 
+        margin-right: 8px; 
+        line-height: 0; /* Resim altı boşluğu siler */
+    }
+    .avatar-img { 
+        border-radius: 50%; 
+        object-fit: cover; 
+        border: 2px solid rgba(255,255,255,0.1); 
+    }
+    .frame-overlay { 
+        position: absolute; 
+        top: 50%;       /* Dikeyde ortala */
+        left: 50%;      /* Yatayda ortala */
+        transform: translate(-50%, -50%); /* Tam merkeze çek */
+        width: 120%;    /* Resimden %20 daha geniş olsun */
+        height: 120%;   /* Resimden %20 daha yüksek olsun */
+        pointer-events: none; 
+        z-index: 2;
+    }
+    
+    .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 8px #FFD700; }
+    .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff; }
+    .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; }
+    .frame-King { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 15px #ffd700; }
+    .frame-Matrix { border: 3px dotted #00ff00; border-radius: 50%; }
+    
     .name-Glitch { color: #00ffff; text-shadow: 1px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 3px #ff0000; font-weight: bold; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
+    
     .post-Cyan { color: #00ffff !important; } .post-Lime { color: #00ff00 !important; } .post-Pink { color: #ff69b4 !important; } .post-Gold { color: #ffd700 !important; }
     .title-badge { background: #334155; color: #94a3b8; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; margin-left: 5px; border: 1px solid #475569; }
     iframe { width: 100% !important; border-radius: 8px; }
@@ -94,7 +121,19 @@ def get_user_display_html(username, size=40):
     img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150/CCCCCC/FFFFFF?text=U"
     f_html = f'<div class="frame-overlay frame-{frame}"></div>' if frame else ""
     classes = f"{f'name-{name_style}' if name_style else ''} {f'font-{font_style}' if font_style else ''}"
-    return f'<div style="display:flex;align-items:center;"><div class="avatar-container"><img src="{img_src}" class="avatar-img" style="width:{size}px;height:{size}px;">{f_html}</div><div style="margin-left:10px;"><div class="{classes}" style="font-size:0.9rem;">{username} {f"<span class='title-badge'>{title}</span>" if title else ""}</div></div></div>'
+    
+    # Avatar container boyutunu dinamik olarak stil içine gömüyoruz ki kapsayıcı resim kadar olsun
+    return f"""
+    <div style="display:flex;align-items:center;">
+        <div class="avatar-container" style="width:{size}px; height:{size}px;">
+            <img src="{img_src}" class="avatar-img" style="width:100%; height:100%;">
+            {f_html}
+        </div>
+        <div style="margin-left:12px;">
+            <div class="{classes}" style="font-size:0.9rem;">{username} {f"<span class='title-badge'>{title}</span>" if title else ""}</div>
+        </div>
+    </div>
+    """
 
 def get_post_style_css(username):
     _, _, _, post_style, font_style, _ = users.get_user_styles(username)
