@@ -79,11 +79,10 @@ def render_campus_wall():
             poll_res, total_votes, has_voted = social.get_poll_results(p[0], p[6])
             
             if not has_voted:
-                # --- OY KULLANMA EKRANI (GÜNCELLENDİ: ALT ALTA) ---
                 st.caption("Oylamak için tıkla:")
-                # Kolonları kaldırdık, direkt döngüye sokuyoruz
                 for idx, (opt_text, cnt) in enumerate(poll_res):
-                    # use_container_width=True ile tam genişlikte alt alta butonlar
+                    # --- İŞARETÇİ EKLENDİ ---
+                    st.markdown('<div class="poll-marker"></div>', unsafe_allow_html=True)
                     if st.button(f"🗳️ {opt_text}", key=f"vote_{p[0]}_{idx}", use_container_width=True):
                         ok, msg = social.vote_poll(p[0], st.session_state['username'], idx)
                         if ok: st.success(msg); time.sleep(0.5); st.rerun()
