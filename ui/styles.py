@@ -91,9 +91,41 @@ def get_user_display_html(username, size=40):
     f_html = f'<div class="frame-overlay frame-{frame}"></div>' if frame else ""
     classes = f"{f'name-{name_style}' if name_style else ''} {f'font-{font_style}' if font_style else ''}"
     
-    # HTML kodunu tek satırda veya sola yaslı veriyoruz ki kod bloğu sanılmasın
-    return f"""<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px; height:{size}px;"><img src="{img_src}" class="avatar-img" style="width:100%; height:100%;">{f_html}</div><div style="margin-left:12px;"><div class="{classes}" style="font-size:0.9rem;">{username} {f"<span class='title-badge'>{title}</span>" if title else ""}</div></div></div>"""
+    # --- YENİ: ROZET SİSTEMİ (BADGES) ---
+    badge_html = ""
+    if title:
+        # Rozet İkonları ve Renkleri
+        badges = {
+            "LORD":    ("👑", "#FFD700", "0 0 10px gold"),   # Altın Taç + Parlama
+            "KURUCU":  ("☑️", "#3b82f6", "none"),            # Mavi Tik (Twitter tarzı)
+            "Bilgin":  ("🛡️", "#a855f7", "none"),            # Mor Kalkan
+            "Usta":    ("⚔️", "#ef4444", "none"),            # Kırmızı Kılıç
+            "Çırak":   ("🔨", "#94a3b8", "none"),            # Gri Çekiç
+            "Admin":   ("🛠️", "#22c55e", "none")             # Yeşil Admin
+        }
+        
+        # Eğer veritabanındaki ünvan listede varsa onu al, yoksa varsayılan yap
+        icon, color, glow = badges.get(title, ("🎓", "#cbd5e1", "none"))
+        
+        # Rozet HTML Tasarımı (Instagram/Twitter tarzı minik ikon)
+        badge_html = f"""
+        <span style="
+            background: rgba(15, 23, 42, 0.8);
+            color: {color};
+            border: 1px solid {color};
+            border-radius: 12px;
+            padding: 1px 6px;
+            font-size: 0.65rem;
+            margin-left: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            box-shadow: {glow};
+            vertical-align: middle;
+        ">
+            {icon} {title}
+        </span>
+        """
 
-def get_post_style_css(username):
-    _, _, _, post_style, font_style, _ = users.get_user_styles(username)
-    return f"post-{post_style} font-{font_style}"
+    # HTML Çıktısı (Sola yaslı, boşluksuz - Hata vermemesi için)
+    return f"""<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px; height:{size}px;"><img src="{img_src}" class="avatar-img" style="width:100%; height:100%;">{f_html}</div><div style="margin-left:12px;"><div class="{classes}" style="font-size:0.9rem; display:flex; align-items:center;">{username} {badge_html}</div></div></div>"""
