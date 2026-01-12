@@ -9,91 +9,102 @@ MAIN_CSS = """
     div[data-testid="stVerticalBlock"] { gap: 0rem !important; }
     div.stMarkdown { margin-bottom: 0px !important; }
     
-    /* --- 2. HİKAYE ŞERİDİ (INSTAGRAM TARZI) --- */
-    /* Yatay blok: Sola yasla, kaydırmayı aç, aralıkları daralt */
+    /* --- 2. ÜST MENÜ (BÜYÜK VE OKUNAKLI) --- */
+    /* Yuvarlak radyo düğmesini gizle */
+    div[role="radiogroup"] label div:first-child { display: none !important; }
+    
+    /* Menü Kapsayıcısı */
+    div[role="radiogroup"] {
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        gap: 12px !important; /* Butonlar arası boşluk */
+        padding: 10px 5px 15px 5px !important;
+        border-bottom: 3px solid #FFD700; /* Alt çizgi kalınlaştı */
+        margin-bottom: 15px !important;
+        justify-content: center !important; /* Ortala */
+    }
+    
+    /* Menü Öğeleri (Butonlar) */
+    div[role="radiogroup"] label {
+        background-color: #1e293b !important;
+        border: 2px solid #FFD700 !important;
+        border-radius: 25px !important; /* Daha oval */
+        padding: 12px 24px !important; /* İÇ BOŞLUK ARTIRILDI (BÜYÜTME) */
+        min-width: auto !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        transition: transform 0.2s;
+    }
+    
+    /* Menü Yazıları */
+    div[role="radiogroup"] label p {
+        color: #FFD700 !important;
+        font-weight: 800 !important; /* Ekstra Kalın */
+        font-size: 1.2rem !important; /* YAZI BOYUTU BÜYÜTÜLDÜ */
+        margin: 0 !important;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Seçili Olan Menü Öğesi */
+    div[role="radiogroup"] label[data-checked="true"] {
+        background-color: #FFD700 !important;
+        border-color: #ffffff !important;
+        transform: scale(1.1); /* Seçilince daha da büyüsün */
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    }
+    div[role="radiogroup"] label[data-checked="true"] p { color: #0f172a !important; }
+
+    /* --- 3. HİKAYE ŞERİDİ (YAN YANA YAPIŞIK) --- */
+    
+    /* Yatay Blok Ayarı */
     div[data-testid="stHorizontalBlock"] {
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
         justify-content: flex-start !important; /* Sola yasla */
-        gap: 8px !important; /* Sıkışık düzen */
+        gap: 10px !important;
         padding-bottom: 10px !important;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    /* Kolonları Sabitle (Yuvarlaklar dağılmasın) */
-    div[data-testid="column"] {
-        flex: 0 0 auto !important; /* Genişleme, sabit kal */
-        width: 70px !important; /* Sabit genişlik */
-        min-width: 70px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
     }
 
-    /* Hikaye butonları (İsimler) */
+    /* ÖNEMLİ DÜZELTME: Sadece içinde "story-btn" olan kolonları daralt.
+       Böylece Post altındaki butonlar bozulmaz.
+    */
+    div[data-testid="column"]:has(.story-btn) {
+        flex: 0 0 auto !important;
+        width: 75px !important;
+        min-width: 75px !important;
+        max-width: 75px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Hikaye Buton/İsim */
     .story-btn button {
-        font-size: 0.7rem !important;
+        font-size: 0.75rem !important;
         margin-top: -5px !important;
-        color: #94a3b8 !important;
+        color: #cbd5e1 !important;
         border: none !important;
         background: transparent !important;
-        width: 70px !important;
+        width: 75px !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         padding: 0 !important;
     }
 
-    /* --- 3. MODERN ÜST MENÜ (LACİVERT - SARI) --- */
-    div[role="radiogroup"] label div:first-child { display: none !important; }
-    div[role="radiogroup"] {
-        flex-direction: row !important;
-        overflow-x: auto !important;
-        gap: 10px !important;
-        padding: 5px 0 10px 0 !important;
-        border-bottom: 2px solid #FFD700;
-        margin-bottom: 10px !important;
-    }
-    div[role="radiogroup"] label {
-        background-color: #1e293b !important;
-        border: 1px solid #FFD700 !important;
-        border-radius: 20px !important;
-        padding: 8px 16px !important;
-        margin: 0 !important;
-        min-width: auto !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-    div[role="radiogroup"] label p {
-        color: #FFD700 !important;
-        font-weight: 700 !important;
-        font-size: 0.95rem !important;
-        margin: 0 !important;
-    }
-    div[role="radiogroup"] label[data-checked="true"] {
-        background-color: #FFD700 !important;
-        border-color: #FFD700 !important;
-        box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
-        transform: scale(1.05);
-    }
-    div[role="radiogroup"] label[data-checked="true"] p { color: #1e293b !important; }
-
     /* --- 4. ANKET & POST --- */
-    /* Anket Butonları */
     div.poll-marker + div .stButton { margin-top: -22px !important; margin-bottom: -8px !important; padding: 0 !important; width: 100% !important; }
     div.poll-marker + div .stButton button {
         width: 100% !important; justify-content: flex-start !important; text-align: left !important;
-        padding: 10px 15px !important; background: rgba(30, 41, 59, 0.9) !important;
+        padding: 12px 15px !important; background: rgba(30, 41, 59, 0.9) !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important; color: #e2e8f0 !important;
-        border-radius: 6px !important; font-size: 0.9rem !important;
+        border-radius: 6px !important; font-size: 1rem !important;
     }
-    div.poll-marker + div .stButton button:hover { background: rgba(255, 215, 0, 0.2) !important; border-left: 3px solid #FFD700 !important; color: white !important; }
+    div.poll-marker + div .stButton button:hover { background: rgba(255, 215, 0, 0.2) !important; border-left: 4px solid #FFD700 !important; color: white !important; }
 
-    /* Post Kartı */
     .post-card {
         background: rgba(30, 41, 59, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px; margin-bottom: 15px !important;
@@ -103,7 +114,6 @@ MAIN_CSS = """
     .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.4; white-space: pre-wrap; margin-bottom: 10px; }
     .post-image { width: 100%; border-radius: 8px; margin-top: 5px; }
     
-    /* Anket Çubukları */
     .poll-bar-bg { background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 3px; height: 28px; line-height: 28px; position:relative; }
     .poll-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; position: absolute; top: 0; left: 0; }
     .poll-text { position: relative; z-index: 2; padding: 0 10px; font-size: 0.8rem; color: white; display: flex; justify-content: space-between; font-weight: 600; }
@@ -124,27 +134,22 @@ MAIN_CSS = """
     .frame-Inferno { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 10px #ff0000, 0 0 20px #ff8c00; border-bottom: 4px solid #8b0000; }
     .frame-Emperor { border: 4px double #FFD700; border-radius: 50%; box-shadow: 0 0 15px #800080, inset 0 0 10px #FFD700; background: linear-gradient(45deg, transparent 40%, rgba(128, 0, 128, 0.3)); }
     
-    /* Takımlar */
     .frame-GS { border: 4px solid transparent; border-radius: 50%; background-image: linear-gradient(#1e293b, #1e293b), linear-gradient(to right, #facc15, #ef4444); background-origin: border-box; background-clip: content-box, border-box; box-shadow: 0 0 10px #ef4444; }
     .frame-FB { border: 4px solid transparent; border-radius: 50%; background-image: linear-gradient(#1e293b, #1e293b), linear-gradient(to right, #facc15, #1e3a8a); background-origin: border-box; background-clip: content-box, border-box; box-shadow: 0 0 10px #1e3a8a; }
     .frame-BJK { border: 4px solid transparent; border-radius: 50%; background-image: linear-gradient(#1e293b, #1e293b), linear-gradient(to right, #ffffff, #000000); background-origin: border-box; background-clip: content-box, border-box; box-shadow: 0 0 10px #ffffff; }
     .frame-TS { border: 4px solid transparent; border-radius: 50%; background-image: linear-gradient(#1e293b, #1e293b), linear-gradient(to right, #800000, #3b82f6); background-origin: border-box; background-clip: content-box, border-box; box-shadow: 0 0 10px #3b82f6; }
     .frame-TR { border: 4px solid #ef4444; border-radius: 50%; box-shadow: 0 0 15px #ef4444, inset 0 0 5px #ffffff; }
 
-    /* İsim Stilleri */
     .name-Glitch { color: #00ffff; text-shadow: 1px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 3px #ff0000; font-weight: bold; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
     .name-Ice { color: #a5f3fc; text-shadow: 0 0 5px #0891b2; font-weight: bold; }
     .title-badge { background: #334155; color: #94a3b8; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; margin-left: 5px; border: 1px solid #475569; }
     
-    /* Mağaza */
     .shop-card { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px; text-align: center; height: 160px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
     .shop-title { font-size: 0.8rem; color: #e2e8f0; font-weight: bold; margin: 5px 0; }
     .shop-price { background: #10b981; color: white; padding: 2px 6px; border-radius: 8px; font-size: 0.7rem; }
     
-    /* Login & Fontlar */
-    .login-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
     .login-main { font-family: 'Cinzel', serif; font-size: 2.2rem; margin: 10px 0; font-weight: bold; animation: neonShine 3s infinite alternate; }
     @keyframes neonShine { 0% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } 50% { text-shadow: 0 0 20px #00ffff; color: #e0f2fe; } 100% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } }
     
@@ -156,7 +161,6 @@ MAIN_CSS = """
     /* Diğer */
     .comment-box { background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 6px; margin-top: 4px; font-size: 0.85rem; border-left: 3px solid #334155; }
     .shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
-    .shop-item { background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 8px; text-align: center; }
     
     .font-Cinzel { font-family: 'Cinzel', serif; } .font-Orbitron { font-family: 'Orbitron', sans-serif; }
     .font-Rye { font-family: 'Rye', serif; } .font-Dancing { font-family: 'Dancing Script', cursive; }
