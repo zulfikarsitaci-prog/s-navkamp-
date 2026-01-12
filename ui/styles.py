@@ -121,7 +121,49 @@ MAIN_CSS = """
     .font-Cinzel { font-family: 'Cinzel', serif; } .font-Orbitron { font-family: 'Orbitron', sans-serif; }
     .font-Rye { font-family: 'Rye', serif; } .font-Dancing { font-family: 'Dancing Script', cursive; }
     .font-Metallic { font-family: 'Metal Mania', cursive; color: #b0b0b0; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
-    iframe { width: 100% !important; border-radius: 8px; }
+    iframe { width: 100% !important; border-radius:     /* --- MAĞAZA DÜZENİ --- */
+    /* Standart Ürün */
+    .shop-card {
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        transition: transform 0.2s;
+        height: 180px; /* Sabit yükseklik */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .shop-card:hover { transform: translateY(-5px); border-color: #94a3b8; }
+
+    /* PREMIUM Ürün (Altın Parlama) */
+    .shop-card-premium {
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(0, 0, 0, 0.8));
+        border: 1px solid #FFD700;
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        transition: transform 0.2s;
+        height: 180px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); /* Altın Gölge */
+    }
+    .shop-card-premium:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    }
+
+    .shop-img { width: 60px; height: 60px; object-fit: cover; border-radius: 50%; margin-bottom: 5px; }
+    .shop-title { font-size: 0.9rem; color: #e2e8f0; font-weight: bold; margin-bottom: 5px; }
+    .shop-price { background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
+    .shop-price-premium { background: #FFD700; color: #000; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; }
+
+    
 </style>
 """
 
