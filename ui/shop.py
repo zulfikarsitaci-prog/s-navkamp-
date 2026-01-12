@@ -3,9 +3,58 @@ import database.score as score
 import database.social as social
 
 def render_shop():
-    st.header("Mağaza 💎")
-    st.metric("Bakiye", f"{score.get_total_score(st.session_state['username']):,} P")
-    
+    st.subheader("🛒 Kampüs Mağazası")
+    my_score = score.get_total_score(st.session_state['username'])
+    st.info(f"💰 Mevcut Bakiyen: **{my_score:,} Puan**")
+
+    # Kategorileri (Sekmeleri) oluştur
+    categories = list(Items.keys())
+    tabs = st.tabs(categories)
+
+    for idx, category in enumerate(categories):
+        with tabs[idx]:
+            items_list = Items[category]
+            cols = st.columns(3)
+            
+            for i, item in enumerate(items_list):
+                with cols[i % 3]:
+                    # Önizleme HTML'i
+                    preview_html = ""
+                    if item['t'] == 'frame':
+                        # Çerçeve önizlemesi (Boş bir yuvarlak)
+                        preview_html = f"""<div class="{item['css']}" style="width:50px; height:50px; margin:0 auto; background:rgba(255,255,255,0.1);"></div>"""
+                    elif item['t'] == 'name':
+                        # İsim önizlemesi
+                        preview_html = f"""<div class="{item['css']}" style="font-size:0.9rem;">{st.session_state['username']}</div>"""
+                    elif item['t'] == 'font':
+                         # Font önizlemesi
+                        preview_html = f"""<div class="{item['css']}" style="font-size:1.1rem;">Abc</div>"""
+                    else:
+                        # Ünvan
+                        preview_html = f"""<div style="font-size:0.9rem; color:#94a3b8;">{item['v']}</div>"""
+
+                    # Kart Yapısı
+                    st.markdown(f"""
+                    <div class="shop-card">
+                        <div style="margin-bottom:10px; height:50px; display:flex; align-items:center; justify-content:center;">{preview_html}</div>
+                        <div class="shop-title">{item['n']}</div>
+                        <div class="shop-price">{item['c']:,} P</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    if st.button("Al", key=f"buy_{category}_{i}", use_container_width=True):
+                        # Not: buy_item fonksiyonunda 't' parametresi 'item_type' a denk gelir
+                        # 'v' parametresi de 'item_value' ya denk gelir.
+                        ok, msg = users.buy_item(st.session_state['username'], item['t'], item['v'], item['c'])
+                        if ok:
+                            st.success("Hayırlı olsun!")
+                            st.balloons()
+                            time.sleep(1)
+                            st.rerun()
+                        else:
+                            st.error(msg)
+            st.write("")
+
     Items = {
     "🖼️ Çerçeve": [
         {"n": "Gold", "c": 50000, "t": "frame", "v": "Gold", "css": "frame-Gold"},
