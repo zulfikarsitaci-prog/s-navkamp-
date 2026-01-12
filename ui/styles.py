@@ -4,50 +4,66 @@ MAIN_CSS = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
-    /* --- ANKET BUTONLARI (SOLA YASLI & SIKIŞIK) --- */
-    /* İşaretçi div'den hemen sonra gelen buton kapsayıcısı */
-    div.poll-marker + div.stButton {
-        margin-top: -12px !important; /* Yukarı çekip birleştir */
-        margin-bottom: 0px !important;
-    }
+    /* --- ÖZEL ANKET BUTONLARI (SOLA YASLI & BİTİŞİK) --- */
     
-    /* İşaretçi div'den hemen sonra gelen butonun kendisi */
-    div.poll-marker + div.stButton button {
-        justify-content: flex-start !important; /* Yazıyı Sola Yasla */
+    /* İşaretçi div'den sonraki buton kapsayıcısı */
+    div.poll-marker + div .stButton {
+        margin-top: -18px !important; /* Otomatik boşluğu sil, yukarı çek */
+        padding-top: 0 !important;
+    }
+
+    /* Butonun Kendisi */
+    div.poll-marker + div .stButton button {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: flex-start !important; /* İkon ve yazıyı sola yasla */
         text-align: left !important;
-        padding-left: 15px !important;
+        padding: 10px 15px !important;
+        background: rgba(30, 41, 59, 0.8) !important; /* Koyu arka plan */
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        background: rgba(15, 23, 42, 0.6) !important;
         color: #e2e8f0 !important;
         border-radius: 8px !important;
+        transition: all 0.2s !important;
+        font-size: 0.9rem !important;
     }
-    div.poll-marker + div.stButton button:hover {
+
+    /* Hover (Üzerine gelince) */
+    div.poll-marker + div .stButton button:hover {
+        background: rgba(59, 130, 246, 0.3) !important; /* Mavimsi parlama */
         border-color: #3b82f6 !important;
-        color: #3b82f6 !important;
-        background: rgba(15, 23, 42, 0.9) !important;
+        color: white !important;
+        padding-left: 20px !important; /* Hafif sağa kayma efekti */
     }
-    
-    /* Anket Bar Arka Planı */
+
+    /* Tıklanınca (Active) */
+    div.poll-marker + div .stButton button:active, 
+    div.poll-marker + div .stButton button:focus {
+        background: rgba(59, 130, 246, 0.6) !important;
+        color: white !important;
+        border-color: #3b82f6 !important;
+    }
+
+    /* --- SONUÇ ÇUBUKLARI --- */
     .poll-bar-bg {
         background: rgba(255,255,255,0.05);
         border-radius: 6px;
         margin-bottom: 5px;
         position: relative;
         overflow: hidden;
-        height: 28px;
-        line-height: 28px;
+        height: 32px;
+        line-height: 32px;
     }
     .poll-bar-fill {
-        background: rgba(59, 130, 246, 0.6);
+        background: linear-gradient(90deg, #3b82f6, #60a5fa);
         height: 100%;
         position: absolute; top: 0; left: 0; z-index: 1;
     }
     .poll-text {
-        position: relative; z-index: 2; padding-left: 10px; padding-right: 10px;
-        font-size: 0.8rem; color: white; display: flex; justify-content: space-between;
+        position: relative; z-index: 2; padding-left: 12px; padding-right: 12px;
+        font-size: 0.85rem; color: white; display: flex; justify-content: space-between; font-weight: bold;
     }
 
-    /* --- DİĞERLERİ (AYNI) --- */
+    /* --- DİĞER CSS (STANDART) --- */
     div[data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; white-space: nowrap !important; padding-bottom: 5px !important; gap: 10px !important; justify-content: flex-start !important; }
     div[data-testid="column"] { flex: 0 0 70px !important; width: 70px !important; min-width: 70px !important; margin: 0 !important; padding: 0 !important; }
     .story-btn button { border: none !important; background: transparent !important; padding: 0 !important; margin-top: -5px !important; color: #94a3b8 !important; font-size: 0.8rem !important; }
