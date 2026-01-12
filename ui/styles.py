@@ -4,82 +4,75 @@ MAIN_CSS = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
-    /* --- 1. BOŞLUKLARI SIFIRLAMA (KOMPAKT MOD) --- */
+    /* --- 1. SIKIŞTIRMA & GENEL AYARLAR --- */
+    div[data-testid="stVerticalBlock"] { gap: 0.2rem !important; }
+    div.stMarkdown { margin-bottom: 0px !important; }
     
-    /* Tüm dikey blokların arasındaki varsayılan 1rem boşluğu azalt */
-    div[data-testid="stVerticalBlock"] {
-        gap: 0.2rem !important; /* Normalde 1rem'dir, 0.2'ye çektik */
+    /* --- 2. POST AKSİYONLARI (KALP/PAYLAŞ) --- */
+    /* Postun altındaki butonları yukarı çek */
+    div[data-testid="column"] .stButton {
+        margin-top: -15px !important; /* İçeriğe yaklaştır */
+        padding-top: 0px !important;
+        margin-bottom: -10px !important; /* Altındaki yoruma/çizgiye yaklaştır */
     }
     
-    /* Markdown elementlerinin alt boşluğunu al */
-    div.stMarkdown {
-        margin-bottom: 0px !important;
-    }
-
-    /* --- 2. ANKET BUTONLARI (BİTİŞİK LİSTE) --- */
-    
-    /* İşaretçi div */
-    .poll-marker {
-        display: none; /* Görünmez yap, sadece yer tutsun */
-    }
-
-    /* İşaretçiden sonraki butonun kapsayıcısı (Wrapper) */
-    div:has(> .poll-marker) + div .stButton,
-    div.poll-marker + div .stButton {
-        margin-top: -15px !important; /* Yukarı çek */
+    /* Butonların içindeki gereksiz boşlukları al */
+    div[data-testid="column"] .stButton button {
+        padding-top: 0px !important;
         padding-bottom: 0px !important;
+        height: 2em !important;
+        min-height: 2em !important;
     }
 
-    /* Butonun Kendisi */
-    div:has(> .poll-marker) + div .stButton button,
+    /* --- 3. ANKET BUTONLARI (LİSTE GÖRÜNÜMÜ) --- */
+    /* İşaretçiden sonraki buton kapsayıcısı */
+    div.poll-marker + div .stButton {
+        margin-top: -18px !important; 
+        padding-top: 0 !important;
+    }
+    /* Anket Butonu Tasarımı */
     div.poll-marker + div .stButton button {
         width: 100% !important;
         display: flex !important;
-        justify-content: flex-start !important; /* İkon ve yazıyı sola yasla */
+        justify-content: flex-start !important;
         text-align: left !important;
-        padding: 8px 12px !important;
+        padding: 8px 12px !important; /* İç dolgu */
         background: rgba(30, 41, 59, 0.6) !important;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
         color: #cbd5e1 !important;
-        border-radius: 4px !important; /* Daha köşeli, liste gibi */
+        border-radius: 6px !important;
         margin: 0 !important;
         font-size: 0.85rem !important;
-        height: auto !important;
-        min-height: 0px !important;
-        line-height: 1.2 !important;
+        height: auto !important; /* Yükseklik otomatik olsun */
     }
-
-    /* Hover */
     div.poll-marker + div .stButton button:hover {
         background: rgba(59, 130, 246, 0.2) !important;
         border-color: #3b82f6 !important;
+        padding-left: 15px !important;
         color: white !important;
-        padding-left: 15px !important; /* Kayma efekti */
     }
 
-    /* --- 3. POST KARTI DÜZENİ --- */
+    /* --- 4. GÖRSEL BİLEŞENLER --- */
     .post-card {
         background: rgba(30, 41, 59, 0.65);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 12px;
-        margin-bottom: 10px !important; /* Kartlar arası sadece 10px boşluk */
+        margin-bottom: 8px !important; /* Kartlar arası mesafe azaldı */
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
-
     .post-header { display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; margin-bottom: 6px; }
-    .post-content { color: #e2e8f0; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap; margin-bottom: 8px; }
-    .post-image { width: 100%; border-radius: 6px; margin-top: 4px; }
+    .post-content { color: #e2e8f0; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap; margin-bottom: 5px; }
+    .post-image { width: 100%; border-radius: 6px; margin-top: 4px; margin-bottom: 10px; /* Resim ile butonlar arasına hafif boşluk */ }
 
-    /* --- DİĞER CSS --- */
     .poll-bar-bg { background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 4px; position: relative; overflow: hidden; height: 28px; line-height: 28px; }
     .poll-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
     .poll-text { position: relative; z-index: 2; padding: 0 10px; font-size: 0.8rem; color: white; display: flex; justify-content: space-between; font-weight: 500; }
 
-    div[data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; padding-bottom: 5px !important; gap: 8px !important; justify-content: flex-start !important; }
+    div[data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; padding-bottom: 5px !important; gap: 5px !important; justify-content: flex-start !important; }
     div[data-testid="column"] { flex: 0 0 65px !important; width: 65px !important; min-width: 65px !important; margin: 0 !important; padding: 0 !important; }
+    .story-btn button { border: none !important; background: transparent !important; padding: 0 !important; margin-top: -5px !important; color: #94a3b8 !important; font-size: 0.8rem !important; }
     
     .login-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
     .login-main { font-family: 'Cinzel', serif; font-size: 2.2rem; margin: 10px 0; font-weight: bold; animation: neonShine 3s infinite alternate; }
@@ -90,12 +83,12 @@ MAIN_CSS = """
     /* Butonlar Genel */
     div.stButton > button { background-color: transparent !important; border: none !important; color: #94a3b8 !important; font-size: 1.1rem !important; box-shadow: none !important; transition: transform 0.2s; padding: 0.2rem 0.5rem !important; }
     div.stButton > button:hover { color: #FFD700 !important; transform: scale(1.1); }
+    div[data-testid="stPopoverBody"] button { background-color: #334155 !important; color: white !important; border: 1px solid #475569 !important; margin-bottom: 5px !important; width: 100% !important; font-size: 0.9rem !important; }
     
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; line-height: 0; }
     .avatar-img { border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
     .frame-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; pointer-events: none; z-index: 2; }
     
-    /* Çerçeve ve Renkler */
     .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 8px #FFD700; }
     .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff; }
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; }
@@ -107,6 +100,15 @@ MAIN_CSS = """
     .post-Cyan { color: #00ffff !important; } .post-Lime { color: #00ff00 !important; } .post-Pink { color: #ff69b4 !important; } .post-Gold { color: #ffd700 !important; }
     .title-badge { background: #334155; color: #94a3b8; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; margin-left: 5px; border: 1px solid #475569; }
     .comment-box { background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 6px; margin-top: 4px; font-size: 0.85rem; border-left: 3px solid #334155; }
+    .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+    @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(3, 1fr); } }
+    .shop-item { background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 8px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 120px; transition: transform 0.2s; }
+    .shop-name { font-size: 0.7rem; color: #cbd5e1; margin-top: 5px; }
+    .shop-price { background: #10b981; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
+    
+    .font-Cinzel { font-family: 'Cinzel', serif; } .font-Orbitron { font-family: 'Orbitron', sans-serif; }
+    .font-Rye { font-family: 'Rye', serif; } .font-Dancing { font-family: 'Dancing Script', cursive; }
+    .font-Metallic { font-family: 'Metal Mania', cursive; color: #b0b0b0; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
     iframe { width: 100% !important; border-radius: 8px; }
 </style>
 """
