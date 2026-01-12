@@ -14,79 +14,75 @@ MAIN_CSS = """
     div[data-testid="stVerticalBlock"] { gap: 0rem !important; }
     div.stMarkdown { margin-bottom: 0px !important; }
     
-    /* --- 2. ÜST MENÜ (TEK SATIR, BÜYÜK VE OKUNAKLI) --- */
+    /* --- 2. ÜST MENÜ (KOYU GOLD YAZI) --- */
     
-    /* Radyo grubunun kapsayıcısı - KAYDIRILABİLİR YAP */
     div[role="radiogroup"] {
         display: flex !important;
         flex-direction: row !important;
-        flex-wrap: nowrap !important; /* Asla alt satıra inme! */
-        overflow-x: auto !important; /* Yan kaydırma */
-        gap: 10px !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 12px !important;
         padding: 10px 5px 15px 5px !important;
-        border-bottom: 2px solid #FFD700;
+        border-bottom: 2px solid #B8860B; /* Koyu Gold Çizgi */
         margin-bottom: 10px !important;
-        -webkit-overflow-scrolling: touch; /* Mobilde akıcı kaydırma */
-        justify-content: flex-start !important; /* Sola yasla */
+        -webkit-overflow-scrolling: touch;
+        justify-content: flex-start !important;
     }
     
-    /* Yuvarlak radyo düğmesini gizle */
     div[role="radiogroup"] label div:first-child { display: none !important; }
     
-    /* Menü Butonları */
+    /* Menü Butonları (Arka plan Lacivert kalsın) */
     div[role="radiogroup"] label {
-        background-color: #0f172a !important; /* Çok koyu lacivert */
-        border: 2px solid #FFD700 !important;
+        background-color: #0f172a !important; 
+        border: 2px solid #B8860B !important; /* Koyu Gold Çerçeve */
         border-radius: 12px !important;
-        padding: 12px 20px !important; /* Geniş iç boşluk */
-        min-width: fit-content !important; /* İçeriğe göre genişle */
+        padding: 12px 20px !important;
+        min-width: fit-content !important;
         margin: 0 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         transition: all 0.2s;
-        height: 50px !important; /* Sabit yükseklik */
+        height: 50px !important;
     }
     
-    /* Menü Yazıları (OKUNAKLI) */
+    /* Menü Yazıları (KOYU GOLD) */
     div[role="radiogroup"] label p {
-        color: #ffffff !important; /* BEYAZ YAZI */
+        color: #D4AF37 !important; /* KOYU GOLD RENGİ */
         font-weight: 700 !important;
-        font-size: 1.1rem !important; /* BÜYÜK PONTO */
+        font-size: 1.1rem !important;
         margin: 0 !important;
-        white-space: nowrap !important; /* Yazı taşmasın */
+        white-space: nowrap !important;
     }
     
-    /* Seçili Olan Menü Öğesi */
+    /* Seçili Olan */
     div[role="radiogroup"] label[data-checked="true"] {
-        background-color: #FFD700 !important; /* SARI ZEMİN */
+        background-color: #D4AF37 !important; /* Koyu Gold Zemin */
         border-color: #ffffff !important;
-        box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
     }
     div[role="radiogroup"] label[data-checked="true"] p {
-        color: #000000 !important; /* SİYAH YAZI */
+        color: #000000 !important; /* Seçilince Siyah Yazı */
     }
 
-    /* --- 3. HİKAYE ŞERİDİ (ÇOK ÖNEMLİ DÜZELTME) --- */
+    /* --- 3. HİKAYE ŞERİDİ (SOLA YASLAMA DÜZELTMESİ) --- */
     
-    /* Sadece hikayelerin olduğu yatay bloğu hedefle */
-    /* Streamlit'te tüm yatay blokları etkilememek için yapısal seçici kullanıyoruz */
-    
-    /* Hikaye butonunu içeren kolonları bul ve DARALT */
+    /* Hikaye butonunu içeren kolonları bul */
     div[data-testid="column"]:has(.story-btn) {
-        flex: 0 0 auto !important; /* Genişleme, sabit kal */
-        width: 80px !important; /* SABİT GENİŞLİK */
+        flex: 0 0 auto !important; /* Genişleme, olduğu kadar yer kapla */
+        width: 80px !important; 
         min-width: 80px !important;
         max-width: 80px !important;
-        margin-right: 5px !important; /* Birbirine yapışık ama çok az mesafe */
+        margin-right: 0px !important;
     }
 
-    /* Bu kolonların içinde bulunduğu yatay bloğu SOLA YASLA */
+    /* Hikayelerin olduğu satırı bul ve sola yasla */
     div[data-testid="stHorizontalBlock"]:has(.story-btn) {
+        display: flex !important;
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
         justify-content: flex-start !important; /* SOLA YASLA */
-        gap: 0px !important;
+        gap: 0px !important; /* Aradaki boşluğu CSS ile yönetelim */
     }
 
     /* Hikaye Butonu (Görünmez Kapsayıcı) */
@@ -103,7 +99,28 @@ MAIN_CSS = """
         padding: 0 !important;
     }
 
-    /* --- 4. ANKET & POST --- */
+    /* --- 4. POST BUTONLARI (+ İŞARETİNİ DÜZELTME) --- */
+    
+    /* Kalp Butonu */
+    div[data-testid="column"] .stButton { 
+        margin-top: -15px !important; 
+        margin-bottom: -15px !important; 
+    }
+    
+    /* + Butonu (Popover) - Bunu yukarı çekiyoruz */
+    div[data-testid="stPopover"] {
+        margin-top: -15px !important; /* Yukarı çek */
+        margin-bottom: -15px !important;
+        padding-top: 0px !important;
+        display: inline-block !important;
+    }
+    div[data-testid="stPopover"] button {
+        margin-top: 0px !important;
+        padding-top: 0px !important;
+        height: auto !important;
+    }
+
+    /* --- 5. DİĞER CSS AYARLARI --- */
     div.poll-marker + div .stButton { margin-top: -22px !important; margin-bottom: -8px !important; padding: 0 !important; width: 100% !important; }
     div.poll-marker + div .stButton button {
         width: 100% !important; justify-content: flex-start !important; text-align: left !important;
@@ -126,7 +143,7 @@ MAIN_CSS = """
     .poll-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; position: absolute; top: 0; left: 0; }
     .poll-text { position: relative; z-index: 2; padding: 0 10px; font-size: 0.8rem; color: white; display: flex; justify-content: space-between; font-weight: 600; }
 
-    /* --- 5. ÇERÇEVELER --- */
+    /* Çerçeveler */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; line-height: 0; }
     .avatar-img { border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
     .frame-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; pointer-events: none; z-index: 2; }
