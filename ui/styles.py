@@ -106,6 +106,75 @@ MAIN_CSS = """
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; }
     .frame-King { border: 4px solid #ffd700; border-radius: 50%; box-shadow: 0 0 15px #ffd700; }
     .frame-Matrix { border: 3px dotted #00ff00; border-radius: 50%; }
+        /* --- YENİ EKLENEN ÇERÇEVELER --- */
+    
+    /* 1. Doğa (Yeşil Yapraklar) */
+    .frame-Nature { border: 3px solid #22c55e; border-radius: 50%; border-style: double; box-shadow: 0 0 8px #166534; }
+    
+    /* 2. Buz (Mavi Soğuk) */
+    .frame-Ice { border: 3px solid #a5f3fc; border-radius: 50%; box-shadow: 0 0 10px #0891b2, inset 0 0 5px #a5f3fc; }
+    
+    /* 3. Siber (Neon Hacker) */
+    .frame-Cyber { border: 3px dashed #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00, inset 0 0 5px #00ffff; }
+    
+    /* 4. Cehennem (Yanık Kırmızı) */
+    .frame-Inferno { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 10px #ff0000, 0 0 20px #ff8c00; border-bottom: 4px solid #8b0000; }
+    
+    /* 5. İmparator (Mor ve Altın) */
+    .frame-Emperor { border: 4px double #FFD700; border-radius: 50%; box-shadow: 0 0 15px #800080, inset 0 0 10px #FFD700; background: linear-gradient(45deg, transparent 40%, rgba(128, 0, 128, 0.3)); }
+
+    /* --- FUTBOL TAKIMLARI (GRADIENT ÇERÇEVELER) --- */
+    
+    /* Galatasaray (Sarı-Kırmızı) */
+    .frame-GS {
+        border: 4px solid transparent;
+        border-radius: 50%;
+        background-image: linear-gradient(#1e293b, #1e293b), linear-gradient(to right, #facc15, #ef4444);
+        background-origin: border-box;
+        background-clip: content-box, border-box;
+        box-shadow: 0 0 10px #ef4444;
+    }
+
+    /* Fenerbahçe (Sarı-Lacivert) */
+    .frame-FB {
+        border: 4px solid transparent;
+        border-radius: 50%;
+        background-image: linear-gradient(#1e293b, #1e293b), linear-gradient(to right, #facc15, #1e3a8a);
+        background-origin: border-box;
+        background-clip: content-box, border-box;
+        box-shadow: 0 0 10px #1e3a8a;
+    }
+
+    /* Beşiktaş (Siyah-Beyaz) */
+    .frame-BJK {
+        border: 4px solid transparent;
+        border-radius: 50%;
+        background-image: linear-gradient(#1e293b, #1e293b), linear-gradient(to right, #ffffff, #000000);
+        background-origin: border-box;
+        background-clip: content-box, border-box;
+        box-shadow: 0 0 10px #ffffff;
+    }
+
+    /* Trabzonspor (Bordo-Mavi) */
+    .frame-TS {
+        border: 4px solid transparent;
+        border-radius: 50%;
+        background-image: linear-gradient(#1e293b, #1e293b), linear-gradient(to right, #800000, #3b82f6);
+        background-origin: border-box;
+        background-clip: content-box, border-box;
+        box-shadow: 0 0 10px #3b82f6;
+    }
+
+    /* Milli Takım (Kırmızı-Beyaz) */
+    .frame-TR {
+        border: 4px solid #ef4444;
+        border-radius: 50%;
+        box-shadow: 0 0 15px #ef4444, inset 0 0 5px #ffffff;
+    }
+
+    /* --- YENİ İSİM STİLİ --- */
+    .name-Ice { color: #a5f3fc; text-shadow: 0 0 5px #0891b2; font-weight: bold; }
+
     .name-Glitch { color: #00ffff; text-shadow: 1px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 3px #ff0000; font-weight: bold; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
