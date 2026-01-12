@@ -56,7 +56,7 @@ MAIN_CSS = """
     .font-Rye { font-family: 'Rye', serif; } .font-Dancing { font-family: 'Dancing Script', cursive; }
     .font-Metallic { font-family: 'Metal Mania', cursive; color: #b0b0b0; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
 
-    /* --- AVATAR & ÇERÇEVE DÜZENLEMESİ --- */
+    /* --- AVATAR & ÇERÇEVE --- */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; line-height: 0; }
     .avatar-img { border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
     
@@ -91,41 +91,26 @@ def get_user_display_html(username, size=40):
     f_html = f'<div class="frame-overlay frame-{frame}"></div>' if frame else ""
     classes = f"{f'name-{name_style}' if name_style else ''} {f'font-{font_style}' if font_style else ''}"
     
-    # --- YENİ: ROZET SİSTEMİ (BADGES) ---
+    # --- ROZET (BADGE) SİSTEMİ ---
     badge_html = ""
     if title:
-        # Rozet İkonları ve Renkleri
         badges = {
-            "LORD":    ("👑", "#FFD700", "0 0 10px gold"),   # Altın Taç + Parlama
-            "KURUCU":  ("☑️", "#3b82f6", "none"),            # Mavi Tik (Twitter tarzı)
-            "Bilgin":  ("🛡️", "#a855f7", "none"),            # Mor Kalkan
-            "Usta":    ("⚔️", "#ef4444", "none"),            # Kırmızı Kılıç
-            "Çırak":   ("🔨", "#94a3b8", "none"),            # Gri Çekiç
-            "Admin":   ("🛠️", "#22c55e", "none")             # Yeşil Admin
+            "LORD":    ("👑", "#FFD700", "0 0 10px gold"),
+            "KURUCU":  ("☑️", "#3b82f6", "none"),
+            "Bilgin":  ("🛡️", "#a855f7", "none"),
+            "Usta":    ("⚔️", "#ef4444", "none"),
+            "Çırak":   ("🔨", "#94a3b8", "none"),
+            "Admin":   ("🛠️", "#22c55e", "none")
         }
-        
-        # Eğer veritabanındaki ünvan listede varsa onu al, yoksa varsayılan yap
         icon, color, glow = badges.get(title, ("🎓", "#cbd5e1", "none"))
         
-        # Rozet HTML Tasarımı (Instagram/Twitter tarzı minik ikon)
         badge_html = f"""
-        <span style="
-            background: rgba(15, 23, 42, 0.8);
-            color: {color};
-            border: 1px solid {color};
-            border-radius: 12px;
-            padding: 1px 6px;
-            font-size: 0.65rem;
-            margin-left: 6px;
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            box-shadow: {glow};
-            vertical-align: middle;
-        ">
-            {icon} {title}
-        </span>
+        <span style="background:rgba(15,23,42,0.8);color:{color};border:1px solid {color};border-radius:12px;padding:1px 6px;font-size:0.65rem;margin-left:6px;display:inline-flex;align-items:center;gap:3px;box-shadow:{glow};vertical-align:middle;">{icon} {title}</span>
         """
 
-    # HTML Çıktısı (Sola yaslı, boşluksuz - Hata vermemesi için)
+    # HTML Çıktısı (Sola yaslı ve tek satır blokları halinde)
     return f"""<div style="display:flex;align-items:center;"><div class="avatar-container" style="width:{size}px; height:{size}px;"><img src="{img_src}" class="avatar-img" style="width:100%; height:100%;">{f_html}</div><div style="margin-left:12px;"><div class="{classes}" style="font-size:0.9rem; display:flex; align-items:center;">{username} {badge_html}</div></div></div>"""
+
+def get_post_style_css(username):
+    _, _, _, post_style, font_style, _ = users.get_user_styles(username)
+    return f"post-{post_style} font-{font_style}"
