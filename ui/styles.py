@@ -4,118 +4,143 @@ MAIN_CSS = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
-    /* --- 1. SIKIŞTIRMA VE GENEL --- */
+    /* --- 1. GENEL SIKIŞTIRMA (BOŞLUKLARI YOK ET) --- */
+    .main .block-container {
+        padding-top: 1rem !important; /* Üstteki devasa boşluğu al */
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
     div[data-testid="stVerticalBlock"] { gap: 0rem !important; }
     div.stMarkdown { margin-bottom: 0px !important; }
+    h3 { margin-top: 0px !important; padding-top: 0px !important; font-size: 1.2rem !important; }
+
+    /* --- 2. GÖRÜNÜR & BÜYÜK MENÜ (LACİVERT-SARI) --- */
     
-    /* --- 2. MODERN ÜST MENÜ (LACİVERT - SARI) --- */
-    
+    /* Yuvarlak radyo butonlarını gizle */
     div[role="radiogroup"] label div:first-child { display: none !important; }
     
+    /* Menü Kapsayıcısı */
     div[role="radiogroup"] {
         flex-direction: row !important;
-        overflow-x: auto !important;
-        gap: 8px !important;
-        padding-bottom: 5px !important;
+        overflow-x: auto !important; /* Yan kaydırma */
+        gap: 10px !important;
+        padding: 5px 0 10px 0 !important;
+        border-bottom: 2px solid #FFD700; /* Altına sarı çizgi */
         margin-bottom: 10px !important;
-        border-bottom: 1px solid rgba(255, 215, 0, 0.3); /* Hafif Sarı Çizgi */
+        -webkit-overflow-scrolling: touch;
     }
     
-    /* Menü Öğeleri (Normal Hal) */
+    /* Menü Butonları (Kapsül) */
     div[role="radiogroup"] label {
-        background-color: #1e293b !important; /* Lacivert Antrasit */
-        border: 1px solid #FFD700 !important; /* Sarı Kenarlık */
-        border-radius: 20px !important;
-        padding: 6px 16px !important;
-        margin: 0 !important;
-        transition: all 0.2s;
+        background-color: #1e293b !important; /* Koyu Lacivert */
+        border: 2px solid #FFD700 !important; /* Altın Sarı Kenarlık */
+        border-radius: 12px !important;
+        padding: 10px 20px !important; /* İÇ BOŞLUĞU ARTIRDIM (DAHA BÜYÜK) */
         min-width: auto !important;
+        margin: 0 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }
     
-    /* Menü Yazıları (SARI) */
+    /* Menü Yazıları (BÜYÜK VE OKUNAKLI) */
     div[role="radiogroup"] label p {
-        color: #FFD700 !important; /* ALTIN SARISI */
-        font-weight: 700 !important;
-        font-size: 0.9rem !important;
+        color: #FFD700 !important; /* SARI YAZI */
+        font-weight: 800 !important; /* EKSTRA KALIN */
+        font-size: 1.1rem !important; /* YAZI BOYUTUNU BÜYÜTTÜM */
         margin: 0 !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        letter-spacing: 0.5px;
     }
     
-    /* Seçili Olan (Tersi: Sarı Zemin, Lacivert Yazı) */
+    /* Seçili Menü Öğesi */
     div[role="radiogroup"] label[data-checked="true"] {
         background-color: #FFD700 !important; /* Sarı Zemin */
-        border-color: #FFD700 !important;
-        box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); /* Sarı Parlama */
+        border-color: #ffffff !important;
         transform: scale(1.05);
     }
     div[role="radiogroup"] label[data-checked="true"] p {
-        color: #1e293b !important; /* Lacivert Yazı (Okunsun diye) */
+        color: #0f172a !important; /* Siyah/Lacivert Yazı */
     }
 
-    /* --- 3. ANKET BUTONLARI --- */
+    /* --- 3. ANKET & BUTON DÜZENİ (BİTİŞİK LİSTE) --- */
+    
+    /* İşaretçiden sonraki buton */
     div.poll-marker + div .stButton {
-        margin-top: -24px !important;
-        margin-bottom: -5px !important;
+        margin-top: -22px !important; /* Yukarı çek */
+        margin-bottom: -8px !important; /* Aşağıyı çek */
         padding: 0 !important;
-    }
-    div.poll-marker + div .stButton button {
         width: 100% !important;
-        justify-content: flex-start !important;
-        text-align: left !important;
-        padding: 6px 10px !important;
-        min-height: 30px !important;
-        height: auto !important;
-        background: rgba(15, 23, 42, 0.8) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        color: #e2e8f0 !important;
-        border-radius: 6px !important;
-        font-size: 0.85rem !important;
-        line-height: 1.2 !important;
     }
+
+    /* Anket Butonunun İçi */
+    div.poll-marker + div .stButton button {
+        width: 100% !important; /* EKRANI KAPLA */
+        justify-content: flex-start !important; /* SOLA YASLA */
+        text-align: left !important;
+        padding: 12px 15px !important; /* Tıklaması kolay olsun */
+        background: rgba(30, 41, 59, 0.9) !important; /* Koyu zemin */
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        color: #e2e8f0 !important;
+        border-radius: 4px !important; /* Köşeli liste yapısı */
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+    }
+
+    /* Hover Efekti */
     div.poll-marker + div .stButton button:hover {
-        background: rgba(255, 215, 0, 0.2) !important; /* Sarı hover */
-        border-color: #FFD700 !important;
+        background: rgba(255, 215, 0, 0.2) !important;
+        border-left: 4px solid #FFD700 !important; /* Soldan sarı çizgi */
         color: white !important;
     }
 
-    /* --- 4. DİĞER BİLEŞENLER --- */
+    /* --- 4. POST AKSİYONLARI (KALP VB.) --- */
+    div[data-testid="column"] .stButton {
+        margin-top: -15px !important;
+        margin-bottom: -15px !important;
+    }
+    
+    /* --- 5. HİKAYELER --- */
+    div[data-testid="stHorizontalBlock"] {
+        padding-bottom: 5px !important;
+        gap: 5px !important;
+    }
+    /* Hikaye isimleri (küçük butonlar) */
+    .story-btn button {
+        font-size: 0.7rem !important;
+        margin-top: -8px !important;
+        color: #94a3b8 !important;
+    }
+
+    /* --- DİĞER CSS --- */
     .post-card {
         background: rgba(30, 41, 59, 0.65);
         backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        padding: 10px;
-        margin-bottom: 8px !important;
+        border-radius: 16px;
+        padding: 12px;
+        margin-bottom: 15px !important;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
+    .post-header { display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; margin-bottom: 8px; }
+    .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.4; white-space: pre-wrap; margin-bottom: 10px; }
+    .post-image { width: 100%; border-radius: 8px; margin-top: 5px; }
     
-    div[data-testid="column"] .stButton { margin-top: -12px !important; margin-bottom: -10px !important; }
-    
-    .post-header { display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; margin-bottom: 5px; }
-    .post-content { color: #e2e8f0; font-size: 0.9rem; line-height: 1.3; white-space: pre-wrap; margin-bottom: 5px; }
-    .post-image { width: 100%; border-radius: 6px; margin-top: 2px; }
-    
-    .poll-bar-bg { background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 3px; position: relative; overflow: hidden; height: 24px; line-height: 24px; }
-    .poll-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
-    .poll-text { position: relative; z-index: 2; padding: 0 8px; font-size: 0.75rem; color: white; display: flex; justify-content: space-between; font-weight: 500; }
-
-    div[data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; padding-bottom: 2px !important; gap: 5px !important; justify-content: flex-start !important; }
-    div[data-testid="column"] { flex: 0 0 auto !important; width: auto !important; min-width: 60px !important; margin: 0 !important; padding: 0 !important; }
-    .story-btn button { border: none !important; background: transparent !important; padding: 0 !important; margin-top: -5px !important; color: #94a3b8 !important; font-size: 0.7rem !important; }
+    .poll-bar-bg { background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 3px; height: 28px; line-height: 28px; position:relative; }
+    .poll-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; position: absolute; top: 0; left: 0; }
+    .poll-text { position: relative; z-index: 2; padding: 0 10px; font-size: 0.8rem; color: white; display: flex; justify-content: space-between; font-weight: 600; }
 
     .login-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
     .login-main { font-family: 'Cinzel', serif; font-size: 2.2rem; margin: 10px 0; font-weight: bold; animation: neonShine 3s infinite alternate; }
     @keyframes neonShine { 0% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } 50% { text-shadow: 0 0 20px #00ffff; color: #e0f2fe; } 100% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } }
     
-    .top-bar { position: sticky; top: 0; z-index: 999; background: rgba(30, 41, 59, 0.98); padding: 8px 12px; border-radius: 0 0 15px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #FFD700; margin: -1rem -1rem 0.5rem -1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
-    
-    div.stButton > button { background-color: transparent !important; border: none !important; color: #94a3b8 !important; font-size: 1.1rem !important; box-shadow: none !important; transition: transform 0.2s; padding: 0.2rem 0.5rem !important; }
+    /* Buton Genel */
+    div.stButton > button { background-color: transparent !important; border: none !important; color: #94a3b8 !important; font-size: 1.1rem !important; padding: 0.2rem 0.5rem !important; }
     div.stButton > button:hover { color: #FFD700 !important; transform: scale(1.1); }
     div[data-testid="stPopoverBody"] button { background-color: #334155 !important; color: white !important; border: 1px solid #475569 !important; margin-bottom: 5px !important; width: 100% !important; font-size: 0.9rem !important; }
     
+    /* Avatar & Frame */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; line-height: 0; }
     .avatar-img { border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
     .frame-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; pointer-events: none; z-index: 2; }
