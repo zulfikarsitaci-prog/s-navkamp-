@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import streamlit as st
 from .core import run_query
 from .users import compress_image
@@ -19,6 +19,23 @@ def get_unread_notification_count(u):
 def get_unread_notifications(u):
     q = "SELECT c.username, c.content, p.content FROM comments c JOIN posts p ON c.post_id = p.id WHERE p.username = ? AND c.username != ? AND c.is_read = 0"
     return run_query(q, (u, u), fetch=True) or []
+
+# --- HİKAYE FONKSİYONLARI ---
+def add_story(u, img, txt=""):
+    d = compress_image(img) if img else None
+    t = datetime.now()
+    ts = t.strftime("%Y-%m-%d %H:%M")
+    # Hikaye 24 saat geçerli olsun (şimdilik mantıken, kodda filtrelemesek bile)
+    exp = (t + timedelta(hours=24)).strftime("%Y-%m-%d %H:%M")
+    
+    run_query("INSERT INTO stories (username, content, image_data, timestamp, expires_at) VALUES (?, ?, ?, ?, ?)", (u, txt, d, ts, exp))
+    get_active_stories.clear()
+
+@st.cache_data(ttl=10)
+def get_active_stories():
+    # Son 10 hikayeyi çekelim
+    return run_query("SELECT id, username, content, image_data, timestamp FROM stories ORDER BY id DESC LIMIT 10", fetch=True) or []
+# ----------------------------
 
 def add_post(u, c, i=None):
     d = compress_image(i) if i else None
