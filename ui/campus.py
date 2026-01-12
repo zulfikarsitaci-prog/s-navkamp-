@@ -81,9 +81,8 @@ def render_campus_wall():
             if not has_voted:
                 st.caption("Oylamak için tıkla:")
                 for idx, (opt_text, cnt) in enumerate(poll_res):
-                    # --- KRİTİK İŞARETÇİ: CSS'in hedeflemesi için şart ---
+                    # --- CSS için İşaretçi (Her butondan önce) ---
                     st.markdown('<div class="poll-marker"></div>', unsafe_allow_html=True)
-                    # use_container_width=True: Tam genişlikte olsun
                     if st.button(f"🗳️ {opt_text}", key=f"vote_{p[0]}_{idx}", use_container_width=True):
                         ok, msg = social.vote_poll(p[0], st.session_state['username'], idx)
                         if ok: st.success(msg); time.sleep(0.5); st.rerun()
@@ -94,7 +93,7 @@ def render_campus_wall():
                     ratio = int((cnt / total_votes) * 100) if total_votes > 0 else 0
                     bar_html = f"""<div class="poll-bar-bg"><div class="poll-bar-fill" style="width:{ratio}%;"></div><div class="poll-text"><span>{opt_text}</span><span>%{ratio} ({cnt})</span></div></div>"""
                     st.markdown(bar_html, unsafe_allow_html=True)
-            st.divider()
+            st.divider() # Postlar karışmasın diye ince bir çizgi (post-card'ın dışında)
         else:
             if p[2]:
                 yt = extract_youtube_link(p[2])
