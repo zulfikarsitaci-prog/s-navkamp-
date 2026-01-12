@@ -33,17 +33,17 @@ def render_campus_wall():
         st.info(f"🔒 Paylaşım için {POST_THRESHOLD:,} P gerekli.")
 
     for p in social.get_posts(20):
-        # HTML Render (DÜZELTİLDİ: Boşluklar temizlendi)
+        # HTML Render (Düzeltildi: Sola yaslı)
         post_html = f"""
-        <div class="post-card">
-            <div class="post-header">
-                {get_user_display_html(p[1], size=35)}
-                <span style="color:#94a3b8;font-size:0.7rem;margin-left:auto;">{p[4]}</span>
-            </div>
-            <div class="{get_post_style_css(p[1])} post-content">{p[2] if p[2] else ''}</div>
-            {f'<img src="data:image/jpeg;base64,{p[3]}" class="post-image">' if p[3] else ''}
-        </div>
-        """
+<div class="post-card">
+<div class="post-header">
+{get_user_display_html(p[1], size=35)}
+<span style="color:#94a3b8;font-size:0.7rem;margin-left:auto;">{p[4]}</span>
+</div>
+<div class="{get_post_style_css(p[1])} post-content">{p[2] if p[2] else ''}</div>
+{f'<img src="data:image/jpeg;base64,{p[3]}" class="post-image">' if p[3] else ''}
+</div>
+"""
         st.markdown(post_html, unsafe_allow_html=True)
         
         if p[2]:
