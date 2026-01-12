@@ -8,25 +8,23 @@ MAIN_CSS = """
     div[data-testid="stVerticalBlock"] { gap: 0rem !important; }
     div.stMarkdown { margin-bottom: 0px !important; }
     
-    /* --- 2. MODERN ÜST MENÜ (DÜZELTİLDİ: OKUNABİLİR) --- */
+    /* --- 2. MODERN ÜST MENÜ (LACİVERT - SARI) --- */
     
-    /* Yuvarlakları gizle */
     div[role="radiogroup"] label div:first-child { display: none !important; }
     
-    /* Menü Kapsayıcısı */
     div[role="radiogroup"] {
         flex-direction: row !important;
         overflow-x: auto !important;
         gap: 8px !important;
         padding-bottom: 5px !important;
         margin-bottom: 10px !important;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
+        border-bottom: 1px solid rgba(255, 215, 0, 0.3); /* Hafif Sarı Çizgi */
     }
     
-    /* Menü Öğeleri (Hap Şeklinde Butonlar) */
+    /* Menü Öğeleri (Normal Hal) */
     div[role="radiogroup"] label {
-        background-color: rgba(255, 255, 255, 0.15) !important; /* Daha aydınlık zemin */
-        border: 1px solid rgba(255, 255, 255, 0.3) !important; /* Belirgin kenarlık */
+        background-color: #1e293b !important; /* Lacivert Antrasit */
+        border: 1px solid #FFD700 !important; /* Sarı Kenarlık */
         border-radius: 20px !important;
         padding: 6px 16px !important;
         margin: 0 !important;
@@ -37,26 +35,27 @@ MAIN_CSS = """
         justify-content: center !important;
     }
     
-    /* Menü Yazıları (Kesin Beyaz) */
+    /* Menü Yazıları (SARI) */
     div[role="radiogroup"] label p {
-        color: #ffffff !important;
-        font-weight: 600 !important;
+        color: #FFD700 !important; /* ALTIN SARISI */
+        font-weight: 700 !important;
         font-size: 0.9rem !important;
         margin: 0 !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.5); /* Okunurluk için gölge */
+        text-shadow: 0 1px 2px rgba(0,0,0,0.8);
     }
     
-    /* Seçili Olan (Parlak Mavi) */
+    /* Seçili Olan (Tersi: Sarı Zemin, Lacivert Yazı) */
     div[role="radiogroup"] label[data-checked="true"] {
-        background-color: #3b82f6 !important;
-        border-color: #60a5fa !important;
-        box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+        background-color: #FFD700 !important; /* Sarı Zemin */
+        border-color: #FFD700 !important;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); /* Sarı Parlama */
+        transform: scale(1.05);
     }
     div[role="radiogroup"] label[data-checked="true"] p {
-        color: white !important;
+        color: #1e293b !important; /* Lacivert Yazı (Okunsun diye) */
     }
 
-    /* --- 3. ANKET BUTONLARI (ULTRA KOMPAKT) --- */
+    /* --- 3. ANKET BUTONLARI --- */
     div.poll-marker + div .stButton {
         margin-top: -24px !important;
         margin-bottom: -5px !important;
@@ -77,8 +76,8 @@ MAIN_CSS = """
         line-height: 1.2 !important;
     }
     div.poll-marker + div .stButton button:hover {
-        background: rgba(59, 130, 246, 0.3) !important;
-        border-color: #3b82f6 !important;
+        background: rgba(255, 215, 0, 0.2) !important; /* Sarı hover */
+        border-color: #FFD700 !important;
         color: white !important;
     }
 
