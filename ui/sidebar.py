@@ -26,9 +26,20 @@ def render_sidebar():
         st.markdown(get_user_display_html(st.session_state['username'], size=70), unsafe_allow_html=True)
         user_score = score.get_total_score(st.session_state['username'])
         render_xp_bar(user_score)
-        st.write("") 
+        
+        # --- GÜNLÜK ŞANS KUTUSU ---
+        st.write("")
+        if st.button("🎁 Günlük Kutu", use_container_width=True):
+            ok, msg, r_type = social.try_open_daily_box(st.session_state['username'])
+            if ok:
+                if r_type == 'item': st.toast(msg, icon="🔥"); st.balloons()
+                else: st.toast(msg, icon="💰")
+                time.sleep(1); st.rerun()
+            else:
+                st.toast(msg, icon="⏳")
+        # -------------------------
 
-        # --- HİKAYE YÖNETİMİ ---
+        st.write("") 
         with st.expander("📸 Hikaye Yönetimi"):
             tabs = st.tabs(["Ekle", "Sil"])
             with tabs[0]:
@@ -45,12 +56,9 @@ def render_sidebar():
                 if my_stories:
                     for s in my_stories:
                         c1, c2 = st.columns([3, 1])
-                        c1.caption(f"{s[2][5:16]}") # Tarih
-                        if c2.button("🗑️", key=f"del_st_{s[0]}"):
-                            social.delete_story(s[0])
-                            st.rerun()
+                        c1.caption(f"{s[2][5:16]}")
+                        if c2.button("🗑️", key=f"del_st_{s[0]}"): social.delete_story(s[0]); st.rerun()
                 else: st.caption("Aktif hikayen yok.")
-        # -----------------------------
         
         with st.expander("⚙️ Hesabım"):
             new_name_input = st.text_input("Yeni İsim")
