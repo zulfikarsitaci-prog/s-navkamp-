@@ -4,98 +4,98 @@ MAIN_CSS = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
-    /* --- ÖZEL ANKET BUTONLARI (SOLA YASLI & BİTİŞİK) --- */
+    /* --- 1. BOŞLUKLARI SIFIRLAMA (KOMPAKT MOD) --- */
     
-    /* İşaretçi div'den sonraki buton kapsayıcısı */
+    /* Tüm dikey blokların arasındaki varsayılan 1rem boşluğu azalt */
+    div[data-testid="stVerticalBlock"] {
+        gap: 0.2rem !important; /* Normalde 1rem'dir, 0.2'ye çektik */
+    }
+    
+    /* Markdown elementlerinin alt boşluğunu al */
+    div.stMarkdown {
+        margin-bottom: 0px !important;
+    }
+
+    /* --- 2. ANKET BUTONLARI (BİTİŞİK LİSTE) --- */
+    
+    /* İşaretçi div */
+    .poll-marker {
+        display: none; /* Görünmez yap, sadece yer tutsun */
+    }
+
+    /* İşaretçiden sonraki butonun kapsayıcısı (Wrapper) */
+    div:has(> .poll-marker) + div .stButton,
     div.poll-marker + div .stButton {
-        margin-top: -18px !important; /* Otomatik boşluğu sil, yukarı çek */
-        padding-top: 0 !important;
+        margin-top: -15px !important; /* Yukarı çek */
+        padding-bottom: 0px !important;
     }
 
     /* Butonun Kendisi */
+    div:has(> .poll-marker) + div .stButton button,
     div.poll-marker + div .stButton button {
         width: 100% !important;
         display: flex !important;
         justify-content: flex-start !important; /* İkon ve yazıyı sola yasla */
         text-align: left !important;
-        padding: 10px 15px !important;
-        background: rgba(30, 41, 59, 0.8) !important; /* Koyu arka plan */
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        color: #e2e8f0 !important;
-        border-radius: 8px !important;
-        transition: all 0.2s !important;
-        font-size: 0.9rem !important;
+        padding: 8px 12px !important;
+        background: rgba(30, 41, 59, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        color: #cbd5e1 !important;
+        border-radius: 4px !important; /* Daha köşeli, liste gibi */
+        margin: 0 !important;
+        font-size: 0.85rem !important;
+        height: auto !important;
+        min-height: 0px !important;
+        line-height: 1.2 !important;
     }
 
-    /* Hover (Üzerine gelince) */
+    /* Hover */
     div.poll-marker + div .stButton button:hover {
-        background: rgba(59, 130, 246, 0.3) !important; /* Mavimsi parlama */
+        background: rgba(59, 130, 246, 0.2) !important;
         border-color: #3b82f6 !important;
         color: white !important;
-        padding-left: 20px !important; /* Hafif sağa kayma efekti */
+        padding-left: 15px !important; /* Kayma efekti */
     }
 
-    /* Tıklanınca (Active) */
-    div.poll-marker + div .stButton button:active, 
-    div.poll-marker + div .stButton button:focus {
-        background: rgba(59, 130, 246, 0.6) !important;
-        color: white !important;
-        border-color: #3b82f6 !important;
+    /* --- 3. POST KARTI DÜZENİ --- */
+    .post-card {
+        background: rgba(30, 41, 59, 0.65);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 10px !important; /* Kartlar arası sadece 10px boşluk */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
-    /* --- SONUÇ ÇUBUKLARI --- */
-    .poll-bar-bg {
-        background: rgba(255,255,255,0.05);
-        border-radius: 6px;
-        margin-bottom: 5px;
-        position: relative;
-        overflow: hidden;
-        height: 32px;
-        line-height: 32px;
-    }
-    .poll-bar-fill {
-        background: linear-gradient(90deg, #3b82f6, #60a5fa);
-        height: 100%;
-        position: absolute; top: 0; left: 0; z-index: 1;
-    }
-    .poll-text {
-        position: relative; z-index: 2; padding-left: 12px; padding-right: 12px;
-        font-size: 0.85rem; color: white; display: flex; justify-content: space-between; font-weight: bold;
-    }
+    .post-header { display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; margin-bottom: 6px; }
+    .post-content { color: #e2e8f0; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap; margin-bottom: 8px; }
+    .post-image { width: 100%; border-radius: 6px; margin-top: 4px; }
 
-    /* --- DİĞER CSS (STANDART) --- */
-    div[data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; white-space: nowrap !important; padding-bottom: 5px !important; gap: 10px !important; justify-content: flex-start !important; }
-    div[data-testid="column"] { flex: 0 0 70px !important; width: 70px !important; min-width: 70px !important; margin: 0 !important; padding: 0 !important; }
-    .story-btn button { border: none !important; background: transparent !important; padding: 0 !important; margin-top: -5px !important; color: #94a3b8 !important; font-size: 0.8rem !important; }
+    /* --- DİĞER CSS --- */
+    .poll-bar-bg { background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 4px; position: relative; overflow: hidden; height: 28px; line-height: 28px; }
+    .poll-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+    .poll-text { position: relative; z-index: 2; padding: 0 10px; font-size: 0.8rem; color: white; display: flex; justify-content: space-between; font-weight: 500; }
+
+    div[data-testid="stHorizontalBlock"] { flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; padding-bottom: 5px !important; gap: 8px !important; justify-content: flex-start !important; }
+    div[data-testid="column"] { flex: 0 0 65px !important; width: 65px !important; min-width: 65px !important; margin: 0 !important; padding: 0 !important; }
     
     .login-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
-    .login-sub { color: #94a3b8; font-size: 1rem; margin-bottom: 5px; font-family: sans-serif; letter-spacing: 1px; }
-    @keyframes neonShine { 0% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } 50% { text-shadow: 0 0 20px #00ffff; color: #e0f2fe; } 100% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } }
     .login-main { font-family: 'Cinzel', serif; font-size: 2.2rem; margin: 10px 0; font-weight: bold; animation: neonShine 3s infinite alternate; }
-    .login-bottom { color: #cbd5e1; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; margin-top: 5px; }
-
-    .top-bar { position: sticky; top: 0; z-index: 999; background: rgba(30, 41, 59, 0.95); padding: 12px 15px; border-radius: 0 0 15px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #FFD700; margin: -1rem -1rem 1rem -1rem; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-    .post-card { background: rgba(30, 41, 59, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); position: relative; }
-    .post-header { display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px; }
-    .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; margin-bottom: 10px; }
-    .post-image { width: 100%; border-radius: 8px; margin-top: 5px; }
+    @keyframes neonShine { 0% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } 50% { text-shadow: 0 0 20px #00ffff; color: #e0f2fe; } 100% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } }
     
-    div.stButton > button { background-color: transparent !important; border: none !important; color: #94a3b8 !important; font-size: 1.2rem !important; box-shadow: none !important; transition: transform 0.2s; }
-    div.stButton > button:hover { color: #FFD700 !important; transform: scale(1.15); }
-    div[data-testid="stPopoverBody"] button { background-color: #334155 !important; color: white !important; border: 1px solid #475569 !important; margin-bottom: 5px !important; width: 100% !important; font-size: 0.9rem !important; }
-    .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
-    @media only screen and (max-width: 600px) { .shop-grid { grid-template-columns: repeat(3, 1fr); } }
-    .shop-item { background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 8px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 120px; transition: transform 0.2s; }
-    .shop-name { font-size: 0.7rem; color: #cbd5e1; margin-top: 5px; }
-    .shop-price { background: #10b981; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
+    .top-bar { position: sticky; top: 0; z-index: 999; background: rgba(30, 41, 59, 0.98); padding: 10px 15px; border-radius: 0 0 15px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #FFD700; margin: -1rem -1rem 0.5rem -1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
     
-    .font-Cinzel { font-family: 'Cinzel', serif; } .font-Orbitron { font-family: 'Orbitron', sans-serif; }
-    .font-Rye { font-family: 'Rye', serif; } .font-Dancing { font-family: 'Dancing Script', cursive; }
-    .font-Metallic { font-family: 'Metal Mania', cursive; color: #b0b0b0; text-shadow: 2px 2px 0px #000; letter-spacing: 1px; }
-
+    /* Butonlar Genel */
+    div.stButton > button { background-color: transparent !important; border: none !important; color: #94a3b8 !important; font-size: 1.1rem !important; box-shadow: none !important; transition: transform 0.2s; padding: 0.2rem 0.5rem !important; }
+    div.stButton > button:hover { color: #FFD700 !important; transform: scale(1.1); }
+    
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; line-height: 0; }
     .avatar-img { border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
     .frame-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; pointer-events: none; z-index: 2; }
+    
+    /* Çerçeve ve Renkler */
     .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 8px #FFD700; }
     .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff; }
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; }
@@ -106,7 +106,7 @@ MAIN_CSS = """
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
     .post-Cyan { color: #00ffff !important; } .post-Lime { color: #00ff00 !important; } .post-Pink { color: #ff69b4 !important; } .post-Gold { color: #ffd700 !important; }
     .title-badge { background: #334155; color: #94a3b8; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; margin-left: 5px; border: 1px solid #475569; }
-    .comment-box { background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.85rem; border-left: 3px solid #334155; }
+    .comment-box { background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 6px; margin-top: 4px; font-size: 0.85rem; border-left: 3px solid #334155; }
     iframe { width: 100% !important; border-radius: 8px; }
 </style>
 """
