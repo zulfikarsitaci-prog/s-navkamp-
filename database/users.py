@@ -104,3 +104,21 @@ def buy_item(username, item_type, item_value, cost):
             return False, f"Hata oluştu: {e}"
     else:
         return False, "Yetersiz Bakiye!"
+     # --- ADMIN FONKSİYONLARI ---
+def get_all_users_list():
+    # Tüm kullanıcı adlarını getir
+    res = run_query("SELECT username, role, title FROM users", fetch=True)
+    return res if res else []
+
+def set_user_role(username, new_role):
+    # Birini admin yapmak veya student'a düşürmek için
+    run_query("UPDATE users SET role = ? WHERE username = ?", (new_role, username))
+    return True
+
+def admin_update_score(username, amount, reason="Admin İşlemi"):
+    from .score import add_score
+    # Puan ekle veya sil (eksi değer gönderilirse siler)
+    add_score(username, amount, reason)
+    return True
+
+        
