@@ -10,11 +10,8 @@ def compress_image(image_file):
         img = Image.open(image_file)
         if img.mode != 'RGB':
             img = img.convert('RGB')
-        
-        # Boyutlandırma (Çok büyükse küçült)
         if img.height > 1000 or img.width > 1000:
             img.thumbnail((1000, 1000))
-            
         buf = io.BytesIO()
         img.save(buf, format='JPEG', quality=60)
         return buf.getvalue()
@@ -22,41 +19,58 @@ def compress_image(image_file):
         print(f"Resim hatası: {e}")
         return None
 
-# --- YARDIMCI: Şifreleme ---
+# --- YARDIMCI: Şifreleme (KURTARMA MODU) ---
 def make_hash(password):
     return hashlib.sha256(str.encode(password)).hexdigest()
 
-def check_hash(password, hashed_text):
-    if make_hash(password) == hashed_text:
-        return True
-    return False
+def check_hash_migration(input_password, stored_password):
+    # 1. Yeni Sistem Kontrolü (Hashlenmiş mi?)
+    if make_hash(input_password) == stored_password:
+        return "OK"
+    
+    # 2. Eski Sistem Kontrolü (Düz metin mi?)
+    # Eski kullanıcıların şifresi hashlenmemiş olduğu için direkt eşitlik bakarız
+    if input_password == stored_password:
+        return "MIGRATE" # Bu kullanıcıyı güncellememiz lazım
+        
+    return "FAIL"
 
 # --- TEMEL GİRİŞ/KAYIT ---
 def add_user(username, password, role="student"):
     if run_query("SELECT * FROM users WHERE username = ?", (username,), fetch=True):
         return False, "Bu isim alınmış."
     
+    # Yeni kullanıcılar direkt şifreli kaydedilir
     run_query("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", 
               (username, make_hash(password), role))
     run_query("INSERT INTO inventory (username, item_type, item_value) VALUES (?, ?, ?)", (username, "title", "Çırak"))
     return True, "Kayıt Başarılı"
 
 def login_user(username, password):
-    users = run_query("SELECT * FROM users WHERE username = ?", (username,), fetch=True)
-    if users:
-        user = users[0]
-        if check_hash(password, user[2]):
+    users_data = run_query("SELECT * FROM users WHERE username = ?", (username,), fetch=True)
+    
+    if users_data:
+        user = users_data[0] # (id, username, password, role, ...)
+        stored_pwd = user[2]
+        
+        status = check_hash_migration(password, stored_pwd)
+        
+        if status == "OK":
             return user
+        elif status == "MIGRATE":
+            # Eski kullanıcıyı yakaladık! Şifresini hemen şifreleyelim (Hashleyelim)
+            new_hash = make_hash(password)
+            run_query("UPDATE users SET password = ? WHERE username = ?", (new_hash, username))
+            return user # Giriş başarılı
+            
     return None
 
-# --- PROFİL YÖNETİMİ (EKSİK OLAN KISIMLAR) ---
+# --- PROFİL YÖNETİMİ ---
 def get_user_change_count(username):
-    # İsim değiştirme sayısını getir
     res = run_query("SELECT change_count FROM users WHERE username = ?", (username,), fetch=True)
     return res[0][0] if res else 0
 
 def update_avatar(username, file_obj):
-    # Avatar güncelle
     blob = compress_image(file_obj)
     if blob:
         run_query("UPDATE users SET avatar = ? WHERE username = ?", (blob, username))
@@ -64,7 +78,6 @@ def update_avatar(username, file_obj):
     return False
 
 def change_username_logic(old_name, new_name):
-    # İsim değiştirme mantığı
     if not new_name or len(new_name) < 3: return False, "İsim çok kısa."
     if run_query("SELECT * FROM users WHERE username = ?", (new_name,), fetch=True): return False, "Bu isim dolu."
 
@@ -76,13 +89,14 @@ def change_username_logic(old_name, new_name):
         if get_total_score(old_name) < cost: return False, "Yetersiz Puan"
         add_score(old_name, -cost, "İsim Değişikliği")
 
-    # Kritik tablolarda güncelleme
     try:
+        # Tüm tablolarda ismi güncelle
+        tables = ["scores", "posts", "inventory", "likes", "comments", "poll_votes", "stories", "notifications"]
         run_query("UPDATE users SET username = ?, change_count = change_count + 1 WHERE username = ?", (new_name, old_name))
-        run_query("UPDATE scores SET username = ? WHERE username = ?", (new_name, old_name))
-        run_query("UPDATE posts SET username = ? WHERE username = ?", (new_name, old_name))
-        run_query("UPDATE inventory SET username = ? WHERE username = ?", (new_name, old_name))
-        return True, "İsim değiştirildi. Lütfen tekrar giriş yap."
+        for t in tables:
+            try: run_query(f"UPDATE {t} SET username = ? WHERE username = ?", (new_name, old_name))
+            except: pass
+        return True, "İsim değiştirildi. Tekrar giriş yap."
     except:
         return False, "Veritabanı hatası."
 
