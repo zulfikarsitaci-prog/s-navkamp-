@@ -6,7 +6,7 @@ MAIN_CSS = """
 
     /* --- 1. SIKIŞTIRMA VE GENEL --- */
     .main .block-container { 
-        padding-top: 1rem !important; 
+        padding-top: 1.5rem !important; 
         padding-left: 0.5rem !important; 
         padding-right: 0.5rem !important; 
         max-width: 100% !important;
@@ -14,7 +14,7 @@ MAIN_CSS = """
     div[data-testid="stVerticalBlock"] { gap: 0rem !important; }
     div.stMarkdown { margin-bottom: 0px !important; }
 
-    /* --- 2. MEGA GOLD MENÜ (HIZLI & BÜYÜK) --- */
+    /* --- 2. MEGA GOLD MENÜ (NET VE OKUNAKLI) --- */
     
     div[role="radiogroup"] {
         display: flex !important;
@@ -23,54 +23,84 @@ MAIN_CSS = """
         overflow-x: auto !important;
         gap: 12px !important;
         padding: 10px 5px 15px 5px !important;
-        border-bottom: 3px solid #B8860B; /* Altına Koyu Gold Çizgi */
+        border-bottom: 3px solid #B8860B;
         margin-bottom: 15px !important;
         -webkit-overflow-scrolling: touch;
         justify-content: flex-start !important;
     }
     
-    /* Radyo yuvarlağını gizle */
     div[role="radiogroup"] label div:first-child { display: none !important; }
     
     /* Menü Kutuları */
     div[role="radiogroup"] label {
-        background-color: #0f172a !important; /* LACİVERT ARKA PLAN (KORUNDU) */
-        border: 3px solid #B8860B !important; /* KOYU GOLD KALIN ÇERÇEVE */
+        background-color: #0f172a !important; /* Lacivert Zemin */
+        border: 2px solid #B8860B !important; /* Koyu Gold Çerçeve */
         border-radius: 16px !important;
-        padding: 12px 25px !important; /* İÇ BOŞLUK BÜYÜTÜLDÜ */
+        padding: 10px 20px !important;
         min-width: fit-content !important;
         margin: 0 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        height: 55px !important; /* YÜKSEKLİK ARTTI */
+        height: 50px !important;
         transition: transform 0.1s;
     }
     
-    /* Menü Yazıları */
+    /* Menü Yazıları (NET GOLD) */
     div[role="radiogroup"] label p {
-        color: #FFD700 !important; /* PARLAK GOLD YAZI */
+        color: #FFD700 !important; /* SAF GOLD RENK */
         font-weight: 800 !important;
-        font-size: 1.2rem !important; /* YAZI BOYUTU BÜYÜDÜ */
-        text-transform: uppercase !important; /* Hepsi BÜYÜK HARF olsun */
-        letter-spacing: 1px !important;
+        font-size: 1.1rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
         margin: 0 !important;
         white-space: nowrap !important;
-        text-shadow: 0px 2px 2px rgba(0,0,0,0.8); /* Okunurluk gölgesi */
+        text-shadow: 0px 1px 3px rgba(0,0,0,1) !important; /* Okunurluk için siyah gölge */
     }
     
     /* Seçili Menü */
     div[role="radiogroup"] label[data-checked="true"] {
-        background-color: #B8860B !important; /* Seçilince Koyu Gold Zemin */
-        border-color: #FFD700 !important;     /* Çerçeve Parlak Gold */
+        background-color: #B8860B !important; 
+        border-color: #FFD700 !important;
         transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
     }
     div[role="radiogroup"] label[data-checked="true"] p {
-        color: #ffffff !important; /* Seçilince BEYAZ yazı */
+        color: #ffffff !important; /* Seçilince Beyaz */
+        text-shadow: none !important;
     }
 
-    /* --- 3. HİKAYELER (Instagram Modu) --- */
+    /* --- 3. BUZLU CAM (GLASSMORPHISM) EFEKTLERİ --- */
+    
+    .post-card, .shop-card {
+        background: rgba(30, 41, 59, 0.60) !important; /* Daha şeffaf */
+        backdrop-filter: blur(16px) !important;        /* Buzlu cam */
+        -webkit-backdrop-filter: blur(16px) !important; /* Safari/iPhone Desteği */
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 16px !important;
+        padding: 12px;
+        margin-bottom: 15px !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    /* Login Ekranı Neon Efekti */
+    .login-container { text-align: center; margin-top: 20px; margin-bottom: 30px; }
+    .login-main { 
+        font-family: 'Cinzel', serif; 
+        font-size: 2.2rem; 
+        margin: 10px 0; 
+        font-weight: bold; 
+        color: #e0f2fe;
+        text-shadow: 0 0 5px #FFD700;
+        animation: neonShine 2s infinite alternate; /* Neon Animasyonu */
+    }
+    
+    @keyframes neonShine {
+        0% { text-shadow: 0 0 5px #FFD700, 0 0 10px #FFD700; color: #FFD700; }
+        100% { text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff; color: #e0f2fe; }
+    }
+
+    /* --- 4. HİKAYELER --- */
     div[data-testid="column"]:has(.story-btn) {
         flex: 0 0 auto !important; width: 80px !important; min-width: 80px !important; max-width: 80px !important; margin-right: 0px !important;
     }
@@ -81,30 +111,25 @@ MAIN_CSS = """
         font-size: 0.7rem !important; margin-top: -5px !important; color: #94a3b8 !important; border: none !important; background: transparent !important; width: 100% !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; padding: 0 !important;
     }
 
-    /* --- 4. DİĞER BİLEŞENLER --- */
-    /* Popover (+ Butonu) */
+    /* --- 5. DİĞER --- */
     div[data-testid="stPopover"] { display: inline-block !important; margin-top: -16px !important; margin-bottom: -15px !important; }
     div[data-testid="stPopover"] button { border: 1px solid rgba(255,255,255,0.2) !important; height: 2em !important; }
-    
-    /* Kalp Butonu */
     div[data-testid="column"] .stButton { margin-top: -15px !important; margin-bottom: -15px !important; }
 
-    .post-card { background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px; margin-bottom: 12px !important; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); }
     .post-header { display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; margin-bottom: 6px; }
     .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.4; white-space: pre-wrap; margin-bottom: 8px; }
     .post-image { width: 100%; border-radius: 6px; margin-top: 4px; }
     
-    /* Anket */
     div.poll-marker + div .stButton button { text-align: left !important; padding: 8px 12px !important; background: rgba(15, 23, 42, 0.8) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
     div.poll-marker + div .stButton { margin-top: -20px !important; margin-bottom: -5px !important; }
     .poll-bar-bg { background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 3px; height: 24px; line-height: 24px; position:relative; }
     .poll-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; position: absolute; top: 0; left: 0; }
     .poll-text { position: relative; z-index: 2; padding: 0 8px; font-size: 0.75rem; color: white; display: flex; justify-content: space-between; font-weight: 600; }
 
-    /* Çerçeveler */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; line-height: 0; }
     .avatar-img { border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
     .frame-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; pointer-events: none; z-index: 2; }
+    
     .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 8px #FFD700; }
     .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff; }
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; }
@@ -127,7 +152,6 @@ MAIN_CSS = """
     .name-Ice { color: #a5f3fc; text-shadow: 0 0 5px #0891b2; font-weight: bold; }
     .title-badge { background: #334155; color: #94a3b8; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; margin-left: 5px; border: 1px solid #475569; }
     
-    .shop-card { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px; text-align: center; height: 160px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
     .shop-title { font-size: 0.8rem; color: #e2e8f0; font-weight: bold; margin: 5px 0; }
     .shop-price { background: #10b981; color: white; padding: 2px 6px; border-radius: 8px; font-size: 0.7rem; }
     .shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
