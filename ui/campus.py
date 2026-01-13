@@ -13,52 +13,81 @@ def extract_youtube_link(text):
     return None
 
 def render_stories():
+    # Hikayeleri veritabanından çek
     stories = social.get_active_stories()
+    
     if stories:
         st.markdown("### 🔥 Hikayeler")
         
-        # --- KRİTİK DEĞİŞİKLİK ---
-        # Eskiden: cols = st.columns(len(stories)) -> Bu, az hikaye varsa tüm ekrana yayıyordu.
-        # Şimdi: Hikaye sayısı kadar kolon açıyoruz ama CSS (styles.py) bunları 75px genişliğe zorluyor.
-        # Bu yüzden Python tarafında bir şey değiştirmene gerek kalmadı, CSS işi halledecek.
-        # Ancak emin olmak için yine de standart columns kullanıyoruz.
-        
+        # Yan yana dizilim için kolonlar
         cols = st.columns(len(stories))
         
         for i, story in enumerate(stories):
             sid, s_user, s_content, s_img, s_time = story
             
             with cols[i]:
+                # Avatarı çek
                 ava, _, _, _, _, _ = users.get_user_styles(s_user)
                 img_src = f"data:image/jpeg;base64,{ava}" if ava else "https://via.placeholder.com/150/CCCCCC/FFFFFF?text=U"
                 
-                # Yuvarlak İkon
+                # Yuvarlak Hikaye İkonu
                 st.markdown(f"""
                 <div style="text-align:center;">
                     <div style="width: 60px; height: 60px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); display: inline-block;">
                         <img src="{img_src}" style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid #0f172a; object-fit: cover;">
                     </div>
-                    <div style="font-size:0.7rem; color:#cbd5e1; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{s_user}</div>
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Görünmez Tıklama Alanı (CSS ile "story-btn" sınıfını yakalıyoruz)
+                # Görünmez buton ile tıklama yakala
                 st.markdown('<div class="story-btn">', unsafe_allow_html=True)
                 if st.button(s_user, key=f"story_{sid}"):
                     st.session_state['active_story_index'] = i
                     st.session_state['active_story_open'] = True
                 st.markdown('</div>', unsafe_allow_html=True)
 
-    # ... (Modal pencere kodları aynı kalabilir) ...
-    # (Kodun geri kalanı aynı)
-
+    # --- HİKAYE GÖSTERİM PENCERESİ (MODAL) ---
+    if st.session_state.get('active_story_open') and stories:
+        idx = st.session_state.get('active_story_index', 0)
+        
+        # İndeks hatasını önle
+        if idx >= len(stories): idx = 0
+        if idx < 0: idx = len(stories) - 1
+        
+        current_story = stories[idx]
+        sid, s_user, s_content, s_img, s_time = current_story
+        
+        @st.dialog(f"Hikaye: {s_user}")
+        def show_story_modal():
+            # Resmi Göster
+            st.image(f"data:image/jpeg;base64,{s_img}", use_container_width=True)
+            if s_content:
+                st.write(f"📝 {s_content}")
+            st.caption(f"🕒 {s_time}")
+            
+            # --- İLERİ / GERİ BUTONLARI ---
+            c1, c2, c3 = st.columns([1, 4, 1])
+            with c1:
+                if st.button("⬅️", key="prev_story"):
+                    st.session_state['active_story_index'] = idx - 1
+                    st.rerun()
+            with c3:
+                if st.button("➡️", key="next_story"):
+                    st.session_state['active_story_index'] = idx + 1
+                    st.rerun()
+                    
+        show_story_modal()
+        # Modal kapandığında state'i temizlemek zor olabilir, Streamlit dialog state'i kendisi yönetir.
+        
+    if stories: st.divider()
 
 def render_campus_wall():
     render_stories()
     st.subheader("Kampüs Duvar")
     
     my_score = score.get_total_score(st.session_state['username'])
-    POST_THRESHOLD = 1000000; POST_COST = 100000
+    POST_THRESHOLD = 1000000
+    POST_COST = 100000
     
     if my_score >= POST_THRESHOLD or st.session_state['user_role'] == 'admin':
         with st.expander(f"✨ Paylaşım / Anket (-{POST_COST:,} P)", expanded=False):
@@ -85,7 +114,8 @@ def render_campus_wall():
                                 st.rerun()
                             else: st.error("En az 2 şık gerekli.")
                         else: st.error("Bakiye Yetersiz!")
-    else: st.info(f"🔒 Paylaşım için {POST_THRESHOLD:,} P gerekli.")
+    else:
+        st.info(f"🔒 Paylaşım için {POST_THRESHOLD:,} P gerekli.")
 
     for p in social.get_posts(20):
         is_poll = True if p[6] else False
@@ -98,7 +128,6 @@ def render_campus_wall():
             if not has_voted:
                 st.caption("Oylamak için tıkla:")
                 for idx, (opt_text, cnt) in enumerate(poll_res):
-                    # --- CSS için İşaretçi (Her butondan önce) ---
                     st.markdown('<div class="poll-marker"></div>', unsafe_allow_html=True)
                     if st.button(f"🗳️ {opt_text}", key=f"vote_{p[0]}_{idx}", use_container_width=True):
                         ok, msg = social.vote_poll(p[0], st.session_state['username'], idx)
@@ -110,7 +139,7 @@ def render_campus_wall():
                     ratio = int((cnt / total_votes) * 100) if total_votes > 0 else 0
                     bar_html = f"""<div class="poll-bar-bg"><div class="poll-bar-fill" style="width:{ratio}%;"></div><div class="poll-text"><span>{opt_text}</span><span>%{ratio} ({cnt})</span></div></div>"""
                     st.markdown(bar_html, unsafe_allow_html=True)
-            st.divider() # Postlar karışmasın diye ince bir çizgi (post-card'ın dışında)
+            st.divider()
         else:
             if p[2]:
                 yt = extract_youtube_link(p[2])
