@@ -7,76 +7,67 @@ import time
 def render_admin_panel():
     st.header("🛡️ Yönetici Paneli")
     
-    # Yetki Kontrolü (Güvenlik)
     if st.session_state.get('user_role') != 'admin':
         st.error("Bu sayfaya erişim yetkiniz yok!")
         return
 
-    # Sekmeler
-    tab1, tab2, tab3 = st.tabs(["👤 Kullanıcı Yönetimi", "📢 İçerik Yönetimi", "⚙️ Sistem"])
+    tab1, tab2, tab3 = st.tabs(["👤 Kullanıcı", "📢 İçerik Düzenle", "⚙️ Sistem"])
 
-    # --- 1. KULLANICI & PUAN YÖNETİMİ ---
+    # --- 1. KULLANICI YÖNETİMİ ---
     with tab1:
         st.subheader("Kullanıcı İşlemleri")
-        
-        # Tüm kullanıcıları çek
-        all_users_data = users.get_all_users_list() # [(kadi, rol, unvan), ...]
+        all_users_data = users.get_all_users_list() 
         usernames = [u[0] for u in all_users_data]
-        
         selected_user = st.selectbox("Kullanıcı Seç", usernames)
         
         if selected_user:
-            # Seçilen kullanıcının mevcut durumu
             u_score = score.get_total_score(selected_user)
             u_role = next((u[1] for u in all_users_data if u[0] == selected_user), "student")
             
-            c1, c2, c3 = st.columns(3)
+            c1, c2 = st.columns(2)
             c1.info(f"Puan: **{u_score:,}**")
             c2.info(f"Rol: **{u_role}**")
             
             st.divider()
-            
-            # Puan İşlemi
             st.write("💰 **Puan Ekle / Sil**")
-            col_p1, col_p2, col_p3 = st.columns([2, 1, 1])
-            amount = col_p1.number_input("Miktar", step=1000, value=0)
-            
-            if col_p2.button("➕ Ekle", use_container_width=True):
-                users.admin_update_score(selected_user, amount, "Admin Hediyesi")
-                st.success(f"{selected_user} kişisine {amount} puan eklendi.")
-                time.sleep(1); st.rerun()
-                
-            if col_p3.button("➖ Sil", use_container_width=True):
-                users.admin_update_score(selected_user, -amount, "Admin Cezası")
-                st.warning(f"{selected_user} kişisinden {amount} puan silindi.")
-                time.sleep(1); st.rerun()
+            cp1, cp2, cp3 = st.columns([2, 1, 1])
+            amount = cp1.number_input("Miktar", step=1000, value=0)
+            if cp2.button("➕ Ekle", use_container_width=True):
+                users.admin_update_score(selected_user, amount, "Admin")
+                st.success("Eklendi"); time.sleep(0.5); st.rerun()
+            if cp3.button("➖ Sil", use_container_width=True):
+                users.admin_update_score(selected_user, -amount, "Admin")
+                st.warning("Silindi"); time.sleep(0.5); st.rerun()
             
             st.divider()
-            
-            # Yetki İşlemi
-            st.write("👑 **Yetki Durumu**")
-            new_role_select = st.selectbox("Yeni Rol", ["student", "admin"], index=0 if u_role=="student" else 1)
+            st.write("👑 **Yetki**")
+            n_role = st.selectbox("Rol", ["student", "admin"], index=0 if u_role=="student" else 1)
             if st.button("Yetkiyi Güncelle"):
-                users.set_user_role(selected_user, new_role_select)
-                st.success("Yetki güncellendi!")
-                time.sleep(1); st.rerun()
+                users.set_user_role(selected_user, n_role)
+                st.success("Güncellendi"); time.sleep(0.5); st.rerun()
 
-    # --- 2. İÇERİK YÖNETİMİ (SİLME) ---
+    # --- 2. İÇERİK YÖNETİMİ (DÜZENLEME EKLENDİ) ---
     with tab2:
         st.subheader("Son Gönderiler")
-        last_posts = social.get_posts(50) # Son 50 post
+        last_posts = social.get_posts(50)
         
         for p in last_posts:
             # p: (id, username, content, image, time, likes, poll)
             with st.expander(f"{p[4]} - {p[1]}: {p[2][:30]}..."):
-                st.write(f"**Tam İçerik:** {p[2]}")
-                st.caption(f"Beğeni: {p[5]}")
-                if st.button("🗑️ Bu Gönderiyi Sil", key=f"adm_del_{p[0]}"):
+                # DÜZENLEME ALANI
+                new_content = st.text_area("İçeriği Düzenle:", value=p[2], key=f"edit_txt_{p[0]}")
+                
+                c_edit, c_del = st.columns(2)
+                
+                if c_edit.button("💾 Güncelle", key=f"save_{p[0]}", use_container_width=True):
+                    social.update_post(p[0], new_content)
+                    st.toast("Gönderi güncellendi!", icon="✅")
+                    time.sleep(0.5); st.rerun()
+                    
+                if c_del.button("🗑️ Sil", key=f"del_{p[0]}", use_container_width=True):
                     social.delete_post(p[0])
-                    st.error("Gönderi silindi.")
-                    time.sleep(1); st.rerun()
+                    st.error("Silindi!"); time.sleep(0.5); st.rerun()
 
-    # --- 3. SİSTEM (LOGLAR VS.) ---
     with tab3:
-        st.info("Sistem şu an aktif.")
+        st.info("Sistem aktif.")
         st.json(st.session_state)
