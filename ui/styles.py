@@ -48,7 +48,7 @@ MAIN_CSS = """
     
     /* Menü Yazıları (KOYU GOLD) */
     div[role="radiogroup"] label p {
-        color: #D4AF37 !important; /* KOYU GOLD RENGİ */
+        color: #FFD700 !important; /* KOYU GOLD RENGİ */
         font-weight: 700 !important;
         font-size: 1.1rem !important;
         margin: 0 !important;
