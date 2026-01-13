@@ -1,5 +1,26 @@
 from .core import run_query
 import hashlib
+import io
+from PIL import Image
+
+# --- YARDIMCI: Resim Sıkıştırma (EKSİK OLAN BUYDU) ---
+def compress_image(image_file):
+    if not image_file: return None
+    try:
+        img = Image.open(image_file)
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+        
+        # Boyutlandırma (Çok büyükse küçült)
+        if img.height > 1000 or img.width > 1000:
+            img.thumbnail((1000, 1000))
+            
+        buf = io.BytesIO()
+        img.save(buf, format='JPEG', quality=60) # Kaliteyi %60'a düşür (Hız için)
+        return buf.getvalue()
+    except Exception as e:
+        print(f"Resim hatası: {e}")
+        return None
 
 # --- YARDIMCI: Şifreleme ---
 def make_hash(password):
