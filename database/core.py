@@ -5,15 +5,31 @@ DB_NAME = "campus.db"
 
 def get_connection():
     conn = sqlite3.connect(DB_NAME, check_same_thread=False)
-    # --- PERFORMANS AYARLARI ---
-    # WAL Modu: Okuma ve yazma işlemlerini ayırır (Aynı anda işlem yapılabilir)
+    # --- PERFORMANS AYARLARI (WAL MODU) ---
     conn.execute("PRAGMA journal_mode=WAL;") 
-    # Synchronous Normal: Yazma hızını artırır (Güvenlikten az ödün vererek)
     conn.execute("PRAGMA synchronous=NORMAL;")
-    # Cache Size: Veritabanını RAM'de daha fazla tutar
     conn.execute("PRAGMA cache_size=-64000;") # 64MB Cache
     conn.row_factory = sqlite3.Row
     return conn
+
+# --- EKSİK OLAN FONKSİYON EKLENDİ ---
+def run_query(query, params=(), fetch=False):
+    conn = get_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        
+        if fetch:
+            result = cursor.fetchall()
+            return result
+        
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Veritabanı Hatası: {e}")
+        return None
+    finally:
+        conn.close()
 
 def create_tables():
     conn = get_connection()
