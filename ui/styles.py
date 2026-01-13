@@ -5,26 +5,29 @@ MAIN_CSS = """
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
 
     /* --- 1. SIKIŞTIRMA VE GENEL AYARLAR --- */
-    .main .block-container { padding-top: 1rem !important; padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+    .main .block-container { 
+        padding-top: 1rem !important; 
+        padding-left: 0.5rem !important; 
+        padding-right: 0.5rem !important; 
+        max-width: 100% !important;
+    }
     div[data-testid="stVerticalBlock"] { gap: 0rem !important; }
     div.stMarkdown { margin-bottom: 0px !important; }
     
-    /* --- 2. HİKAYE ŞERİDİ (INSTAGRAM TARZI) --- */
-    /* Yatay blok ayarları: Sola yasla, kaydırmayı aç */
+    /* --- 2. HİKAYE ŞERİDİ (SOLA YASLI & YAN YANA) --- */
     div[data-testid="stHorizontalBlock"] {
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
-        justify-content: flex-start !important; /* Sola yasla */
-        gap: 8px !important; /* Aralarındaki boşluk */
+        justify-content: flex-start !important;
+        gap: 8px !important;
         padding-bottom: 10px !important;
-        -webkit-overflow-scrolling: touch; /* Mobilde akıcı kaydırma */
+        -webkit-overflow-scrolling: touch;
     }
     
-    /* Kolonları Sabitle (Yuvarlaklar dağılmasın) */
     div[data-testid="column"] {
-        flex: 0 0 auto !important; /* Genişleme, sabit kal */
-        width: 72px !important; /* Sabit genişlik */
+        flex: 0 0 auto !important; 
+        width: 72px !important; 
         min-width: 72px !important;
         margin: 0 !important;
         padding: 0 !important;
@@ -33,7 +36,6 @@ MAIN_CSS = """
         align-items: center;
     }
 
-    /* Hikaye butonları (İsimler) */
     .story-btn button {
         font-size: 0.7rem !important;
         margin-top: -5px !important;
@@ -46,26 +48,77 @@ MAIN_CSS = """
         text-overflow: ellipsis !important;
     }
 
-    /* --- 3. MODERN ÜST MENÜ --- */
+    /* --- 3. MODERN KAPSÜL MENÜ (HAP TASARIM) --- */
     div[role="radiogroup"] label div:first-child { display: none !important; }
+    
     div[role="radiogroup"] {
-        flex-direction: row !important; overflow-x: auto !important; gap: 8px !important;
-        padding: 5px 0 10px 0 !important; border-bottom: 2px solid #FFD700; margin-bottom: 10px !important;
+        flex-direction: row !important; 
+        overflow-x: auto !important; 
+        gap: 10px !important; /* Boşluk arttı */
+        padding: 5px 5px 10px 5px !important; 
+        border-bottom: 2px solid #FFD700; 
+        margin-bottom: 10px !important;
     }
+    
+    /* KAPSÜL KUTU */
     div[role="radiogroup"] label {
-        background-color: #1e293b !important; border: 2px solid #FFD700 !important;
-        border-radius: 12px !important; padding: 8px 16px !important; min-width: auto !important;
-        margin: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important;
+        background-color: #1e293b !important; 
+        border: 2px solid #FFD700 !important;
+        border-radius: 50px !important; /* TAM OVAL (KAPSÜL) */
+        padding: 8px 20px !important;   /* Geniş iç boşluk */
+        min-width: auto !important;
+        margin: 0 !important; 
+        display: flex !important; 
+        align-items: center !important; 
+        justify-content: center !important;
+        transition: transform 0.2s;
     }
+    
     div[role="radiogroup"] label p {
-        color: #FFD700 !important; font-weight: 800 !important; font-size: 1rem !important; margin: 0 !important;
+        color: #FFD700 !important; 
+        font-weight: 800 !important; 
+        font-size: 1rem !important; 
+        margin: 0 !important;
+        white-space: nowrap !important;
     }
+    
+    /* SEÇİLİ KAPSÜL */
     div[role="radiogroup"] label[data-checked="true"] {
-        background-color: #FFD700 !important; border-color: #ffffff !important; transform: scale(1.05);
+        background-color: #FFD700 !important; 
+        border-color: #ffffff !important; 
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
     }
-    div[role="radiogroup"] label[data-checked="true"] p { color: #0f172a !important; }
+    div[role="radiogroup"] label[data-checked="true"] p { 
+        color: #0f172a !important; 
+    }
 
-    /* --- 4. ANKET & POST --- */
+    /* --- 4. GİRİŞ EKRANI (ORTALAMA & NEON) --- */
+    .login-container { 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-top: 40px; 
+        margin-bottom: 30px; 
+        width: 100%;
+    }
+    
+    .login-main { 
+        font-family: 'Cinzel', serif; 
+        font-size: 2.2rem; 
+        margin: 10px 0; 
+        font-weight: bold; 
+        animation: neonShine 3s infinite alternate; 
+    }
+    @keyframes neonShine { 
+        0% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } 
+        50% { text-shadow: 0 0 20px #00ffff; color: #e0f2fe; } 
+        100% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } 
+    }
+
+    /* --- 5. ANKET & POST (BUZLU CAM) --- */
     div.poll-marker + div .stButton { margin-top: -22px !important; margin-bottom: -8px !important; padding: 0 !important; width: 100% !important; }
     div.poll-marker + div .stButton button {
         width: 100% !important; justify-content: flex-start !important; text-align: left !important;
@@ -76,8 +129,13 @@ MAIN_CSS = """
     div.poll-marker + div .stButton button:hover { background: rgba(255, 215, 0, 0.2) !important; border-left: 4px solid #FFD700 !important; color: white !important; }
 
     .post-card {
-        background: rgba(30, 41, 59, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px; margin-bottom: 15px !important;
+        background: rgba(30, 41, 59, 0.65); 
+        backdrop-filter: blur(12px); 
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08); 
+        border-radius: 16px; 
+        padding: 12px; 
+        margin-bottom: 15px !important;
     }
     .post-header { display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; margin-bottom: 8px; }
     .post-content { color: #e2e8f0; font-size: 0.95rem; line-height: 1.4; white-space: pre-wrap; margin-bottom: 10px; }
@@ -87,10 +145,7 @@ MAIN_CSS = """
     .poll-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; position: absolute; top: 0; left: 0; }
     .poll-text { position: relative; z-index: 2; padding: 0 10px; font-size: 0.8rem; color: white; display: flex; justify-content: space-between; font-weight: 600; }
 
-    /* Login & Diğer */
-    .login-main { font-family: 'Cinzel', serif; font-size: 2.2rem; margin: 10px 0; font-weight: bold; animation: neonShine 3s infinite alternate; }
-    @keyframes neonShine { 0% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } 50% { text-shadow: 0 0 20px #00ffff; color: #e0f2fe; } 100% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } }
-    
+    /* --- 6. DİĞER --- */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; line-height: 0; }
     .avatar-img { border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
     .frame-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; pointer-events: none; z-index: 2; }
