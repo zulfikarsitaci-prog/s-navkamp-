@@ -1,66 +1,131 @@
 import sqlite3
-import psycopg2
 import os
-import streamlit as st
 
-# --- BAĞLANTI ---
-@st.cache_resource(ttl=3600)
-def get_db_connection():
-    if "DATABASE_URL" in st.secrets:
-        try: return psycopg2.connect(st.secrets["DATABASE_URL"])
-        except: pass
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    DB_PATH = os.path.join(BASE_DIR, "education_platform.db")
-    return sqlite3.connect(DB_PATH, check_same_thread=False)
+DB_NAME = "campus.db"
 
-def run_query(query, params=(), fetch=False):
-    conn = get_db_connection()
-    if not conn: return False
-    try:
-        if hasattr(conn, 'closed') and conn.closed != 0:
-            st.cache_resource.clear(); conn = get_db_connection()
-    except: pass
-    cursor = conn.cursor()
-    if "psycopg2" in str(type(conn)):
-        query = query.replace("?", "%s").replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
-    try:
-        cursor.execute(query, params)
-        if fetch: return cursor.fetchall()
-        else: conn.commit(); return True
-    except Exception as e:
-        try: conn.rollback()
-        except: pass
-        return False
-    finally: cursor.close()
+def get_connection():
+    conn = sqlite3.connect(DB_NAME, check_same_thread=False)
+    # --- PERFORMANS AYARLARI ---
+    # WAL Modu: Okuma ve yazma işlemlerini ayırır (Aynı anda işlem yapılabilir)
+    conn.execute("PRAGMA journal_mode=WAL;") 
+    # Synchronous Normal: Yazma hızını artırır (Güvenlikten az ödün vererek)
+    conn.execute("PRAGMA synchronous=NORMAL;")
+    # Cache Size: Veritabanını RAM'de daha fazla tutar
+    conn.execute("PRAGMA cache_size=-64000;") # 64MB Cache
+    conn.row_factory = sqlite3.Row
+    return conn
 
 def create_tables():
-    tables = [
-        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, last_seen TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, post_style TEXT, font_style TEXT, title TEXT, change_count INTEGER DEFAULT 0)',
-        'CREATE TABLE IF NOT EXISTS grades (id INTEGER PRIMARY KEY AUTOINCREMENT, student_username TEXT, lesson TEXT, grade INTEGER, date TEXT)',
-        'CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, timestamp TEXT, likes INTEGER DEFAULT 0)',
-        'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
-        'CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
-        'CREATE TABLE IF NOT EXISTS relationships (id INTEGER PRIMARY KEY AUTOINCREMENT, user1 TEXT, user2 TEXT, status TEXT)',
-        'CREATE TABLE IF NOT EXISTS announcements (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, date TEXT, author TEXT)',
-        'CREATE TABLE IF NOT EXISTS stories (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, timestamp TEXT, expires_at TEXT)',
-        # --- YENİ: ANKET OYLARI TABLOSU ---
-        'CREATE TABLE IF NOT EXISTS poll_votes (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, option_index INTEGER)'
-    ]
-    for t in tables: run_query(t)
+    conn = get_connection()
+    c = conn.cursor()
     
-    # --- YENİ SÜTUNLARI GÜVENLİ EKLEME ---
-    # 1. Kullanıcılar için Son Kutu Alma Zamanı (last_daily_box)
-    try: run_query("ALTER TABLE users ADD COLUMN last_daily_box TEXT")
-    except: pass
+    # Kullanıcılar
+    c.execute('''CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT,
+        role TEXT DEFAULT 'student',
+        avatar BLOB,
+        frame TEXT DEFAULT '',
+        name_style TEXT DEFAULT '',
+        bg_style TEXT DEFAULT '',
+        font_style TEXT DEFAULT '',
+        title TEXT DEFAULT 'Çırak',
+        joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_active TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        change_count INTEGER DEFAULT 0
+    )''')
     
-    # 2. Postlar için Anket Seçenekleri (poll_options) - Format: "Evet,Hayır"
-    try: run_query("ALTER TABLE posts ADD COLUMN poll_options TEXT")
-    except: pass
-
-    # Diğer eksik sütunlar
-    cols = ["avatar_data", "frame", "name_style", "post_style", "font_style", "title", "change_count"]
-    for col in cols:
-        try: 
-            dtype = "INTEGER DEFAULT 0" if col == "change_count" else "TEXT"
-            run_query(f"ALTER TABLE users ADD COLUMN {col} {dtype}")
-        except: pass
+    # Puanlar
+    c.execute('''CREATE TABLE IF NOT EXISTS scores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        amount INTEGER,
+        reason TEXT,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+    
+    # Sosyal (Postlar)
+    c.execute('''CREATE TABLE IF NOT EXISTS posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        content TEXT,
+        image BLOB,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        poll_options TEXT
+    )''')
+    
+    # Beğeniler
+    c.execute('''CREATE TABLE IF NOT EXISTS likes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER,
+        username TEXT,
+        UNIQUE(post_id, username)
+    )''')
+    
+    # Yorumlar
+    c.execute('''CREATE TABLE IF NOT EXISTS comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER,
+        username TEXT,
+        comment TEXT,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+    
+    # Anket Oyları
+    c.execute('''CREATE TABLE IF NOT EXISTS poll_votes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER,
+        username TEXT,
+        option_index INTEGER,
+        UNIQUE(post_id, username)
+    )''')
+    
+    # Hikayeler
+    c.execute('''CREATE TABLE IF NOT EXISTS stories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        content TEXT,
+        image BLOB,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP
+    )''')
+    
+    # Arkadaşlar
+    c.execute('''CREATE TABLE IF NOT EXISTS friends (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        u1 TEXT,
+        u2 TEXT,
+        status TEXT DEFAULT 'pending'
+    )''')
+    
+    # Mesajlar
+    c.execute('''CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sender TEXT,
+        receiver TEXT,
+        message TEXT,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        is_read INTEGER DEFAULT 0
+    )''')
+    
+    # Envanter (Satın alınanlar)
+    c.execute('''CREATE TABLE IF NOT EXISTS inventory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        item_type TEXT,
+        item_value TEXT,
+        UNIQUE(username, item_type, item_value)
+    )''')
+    
+    # Bildirimler
+    c.execute('''CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        msg TEXT,
+        is_read INTEGER DEFAULT 0,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+    
+    conn.commit()
+    conn.close()
