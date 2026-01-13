@@ -44,7 +44,6 @@ def login_user(username, password):
     result = run_query("SELECT * FROM users WHERE username = ? AND password = ?", (username, hashed_pw), fetch=True)
     return result[0] if result else None
 
-# --- BURAYA DİKKAT: Cache Eklendi ---
 @st.cache_data(ttl=60)
 def get_user_styles(username):
     # Avatar, Çerçeve, İsim Stili, Post Stili, Font Stili, Ünvan
@@ -53,10 +52,16 @@ def get_user_styles(username):
         return res[0]
     return (None, "", "", "", "", "Çırak")
 
+# --- EKSİK OLAN FONKSİYON BURAYA EKLENDİ ---
+def get_all_users():
+    """Sistemdeki tüm kullanıcı adlarını döndürür."""
+    return run_query("SELECT username FROM users", fetch=True) or []
+# -------------------------------------------
+
 def update_avatar(username, image_file):
     img_data = compress_image(image_file)
     run_query("UPDATE users SET avatar_data = ? WHERE username = ?", (img_data, username))
-    get_user_styles.clear() # Artık hata vermez
+    get_user_styles.clear()
     return True
 
 def get_user_change_count(username):
@@ -92,7 +97,6 @@ def buy_item(username, item_type, item_value, cost):
             query = f"UPDATE users SET {item_type} = ? WHERE username = ?"
             run_query(query, (item_value, username))
             
-            # Cache temizleme (Hata veren kısım burasıydı, artık çalışır)
             get_user_styles.clear()
             
             return True, "Satın alma başarılı! Güle güle kullan."
