@@ -2,59 +2,68 @@ import database.users as users
 
 MAIN_CSS = """
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Rye&family=Dancing+Script:wght@700&family=Metal+Mania&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Cinzel:wght@700&family=Orbitron:wght@700&display=swap');
 
     /* --- 1. SIKIŞTIRMA VE GENEL AYARLAR --- */
-    .main .block-container { padding-top: 1rem !important; padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
-    div[data-testid="stVerticalBlock"] { gap: 0rem !important; }
+    .main .block-container { 
+        padding-top: 1rem !important; 
+        padding-left: 0.5rem !important; 
+        padding-right: 0.5rem !important; 
+        max-width: 100% !important; 
+    }
+    div[data-testid="stVerticalBlock"] { gap: 0.5rem !important; }
     div.stMarkdown { margin-bottom: 0px !important; }
     
-    /* --- 2. KAPSÜL MENÜ (YENİLENDİ) --- */
-    div[role="radiogroup"] label div:first-child { display: none !important; }
+    /* --- 2. MENÜ (SADECE YAZI - TEXT ONLY TABS) --- */
     
+    /* Menü Konteynırı */
     div[role="radiogroup"] {
         flex-direction: row !important;
         display: flex !important;
         overflow-x: auto !important; /* Yan kaydırma */
-        gap: 10px !important;
-        padding: 5px 2px 15px 2px !important;
-        border-bottom: 2px solid #B8860B; /* Koyu Gold Çizgi */
+        gap: 20px !important;        /* Yazılar arası boşluk */
+        padding: 5px 10px 10px 10px !important;
+        border-bottom: 1px solid rgba(255, 215, 0, 0.2); /* Çok ince Gold çizgi */
         margin-bottom: 15px !important;
-        justify-content: flex-start !important;
+        background: transparent !important;
     }
     
-    /* Kapsül Buton */
+    /* Radyo Yuvarlağını Gizle */
+    div[role="radiogroup"] label > div:first-child { display: none !important; }
+
+    /* Menü Öğesi (KUTU VE ARKA PLAN YOK) */
     div[role="radiogroup"] label {
-        background-color: #0f172a !important; /* Lacivert */
-        border: 2px solid #B8860B !important; /* Gold Çerçeve */
-        border-radius: 30px !important;       /* TAM OVAL (KAPSÜL) */
-        padding: 8px 16px !important;
-        min-width: auto !important;
+        background-color: transparent !important; /* Şeffaf */
+        border: none !important;                  /* Çerçeve Yok */
+        border-radius: 0px !important;
+        padding: 5px 5px !important;              /* Sadece yazı çevresi */
         margin: 0 !important;
-        display: flex !important;
-        align-items: center !important;
+        min-width: auto !important;
+        display: flex !important; 
+        align-items: center !important; 
         justify-content: center !important;
-        transition: transform 0.1s;
+        transition: all 0.2s;
     }
-    
-    /* Menü Yazısı */
+
+    /* Menü Yazısı (Pasif Durum) */
     div[role="radiogroup"] label p {
-        color: #FFD700 !important; /* Parlak Gold */
-        font-weight: 800 !important;
-        font-size: 0.95rem !important;
+        color: #94a3b8 !important; /* Soluk Gri/Mavi */
+        font-weight: 600 !important;
+        font-size: 1rem !important;
         margin: 0 !important;
         white-space: nowrap !important;
     }
-    
-    /* Seçili Menü */
+
+    /* SEÇİLİ OLAN MENÜ (AKTİF DURUM) */
     div[role="radiogroup"] label[data-checked="true"] {
-        background-color: #FFD700 !important; /* Sarı Zemin */
-        border-color: #ffffff !important;
-        transform: scale(1.05);
-        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        background-color: transparent !important; 
+        border-bottom: 3px solid #FFD700 !important; /* Sadece Altı Çizili */
     }
-    div[role="radiogroup"] label[data-checked="true"] p { 
-        color: #0f172a !important; /* Siyah/Lacivert Yazı */
+    
+    div[role="radiogroup"] label[data-checked="true"] p {
+        color: #FFD700 !important; /* PARLAK GOLD YAZI */
+        font-weight: 800 !important;
+        text-shadow: 0 0 15px rgba(255, 215, 0, 0.6); /* Yazı Parlaması */
     }
 
     /* --- 3. GİRİŞ EKRANI (ORTALANDI) --- */
@@ -73,6 +82,8 @@ MAIN_CSS = """
         font-size: 2.2rem; 
         margin: 10px 0; 
         font-weight: bold; 
+        color: #e0f2fe;
+        text-shadow: 0 0 5px #FFD700;
         animation: neonShine 3s infinite alternate; 
     }
     @keyframes neonShine { 
@@ -81,7 +92,7 @@ MAIN_CSS = """
         100% { text-shadow: 0 0 5px #FFD700; color: #FFD700; } 
     }
 
-    /* --- 4. HİKAYE ŞERİDİ (ORİJİNAL KODUNUZ) --- */
+    /* --- 4. HİKAYELER (DÜZGÜN GÖRÜNÜM) --- */
     div[data-testid="stHorizontalBlock"] {
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
@@ -91,31 +102,27 @@ MAIN_CSS = """
         padding-bottom: 10px !important;
     }
     
-    div[data-testid="column"] {
-        flex: 0 0 auto !important; 
-        width: 72px !important; 
-        min-width: 72px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    /* Hikaye kapsayıcısı */
+    div[data-testid="column"]:has(.story-container) {
+        width: 65px !important; 
+        min-width: 65px !important; 
+        max-width: 65px !important;
+        padding: 0 !important; margin: 0 !important; flex: 0 0 auto !important;
     }
-
+    
+    /* Buton Gizleme */
     .story-btn button {
-        font-size: 0.7rem !important;
-        margin-top: -5px !important;
-        color: #94a3b8 !important;
-        border: none !important;
-        background: transparent !important;
-        width: 72px !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+        height: 70px !important;
+        width: 60px !important;
+        opacity: 0 !important;
+        position: absolute !important;
+        top: -10px !important; 
+        left: 0 !important;
+        z-index: 10 !important;
     }
 
-    /* --- 5. POST & MAĞAZA KARTLARI (BUZLU CAM) --- */
-    .post-card {
+    /* --- 5. POST KARTLARI (BUZLU CAM) --- */
+    .post-card, .shop-card {
         background: rgba(30, 41, 59, 0.65);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
@@ -143,12 +150,11 @@ MAIN_CSS = """
     .poll-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; position: absolute; top: 0; left: 0; }
     .poll-text { position: relative; z-index: 2; padding: 0 10px; font-size: 0.8rem; color: white; display: flex; justify-content: space-between; font-weight: 600; }
 
-    /* --- 6. ÇERÇEVELER VE DİĞERLERİ --- */
+    /* --- 6. ÇERÇEVELER --- */
     .avatar-container { position: relative; display: inline-block; margin-right: 8px; line-height: 0; }
     .avatar-img { border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
     .frame-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 135%; height: 135%; pointer-events: none; z-index: 2; }
     
-    /* Çerçeve Tipleri */
     .frame-Gold { border: 3px solid #FFD700; border-radius: 50%; box-shadow: 0 0 8px #FFD700; }
     .frame-Neon { border: 3px solid #00ffff; border-radius: 50%; box-shadow: 0 0 8px #00ffff; }
     .frame-Fire { border: 3px solid #ff4500; border-radius: 50%; box-shadow: 0 0 15px #ff4500; }
@@ -167,7 +173,7 @@ MAIN_CSS = """
     .frame-TS { border: 4px solid transparent; border-radius: 50%; background-image: linear-gradient(#1e293b, #1e293b), linear-gradient(to right, #800000, #3b82f6); background-origin: border-box; background-clip: content-box, border-box; box-shadow: 0 0 10px #3b82f6; }
     .frame-TR { border: 4px solid #ef4444; border-radius: 50%; box-shadow: 0 0 15px #ef4444, inset 0 0 5px #ffffff; }
 
-    /* İsim & Diğer */
+    /* İsim Stilleri */
     .name-Glitch { color: #00ffff; text-shadow: 1px 0 #ff00ff; font-weight: bold; }
     .name-Fire { color: #ff4500; text-shadow: 0 0 3px #ff0000; font-weight: bold; }
     .name-Gold { background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728); -webkit-background-clip: text; color: transparent; font-weight: 900; }
